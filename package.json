@@ -1,6 +1,6 @@
 {
   "name": "i18n-ai-diff",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Diff-powered i18n CLI: only translates changed keys. Source snapshots + cache = minimal API cost. Watch mode, skip patterns, any LLM.",
   "type": "module",
   "main": "dist/index.js",
