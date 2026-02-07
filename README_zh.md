@@ -1,6 +1,6 @@
 # i18n-ai-diff
 
-**中文** | [English](./README.md)
+**中文** | [English](https://github.com/JunTong-Wu/i18n-ai-diff/blob/master/README.md)
 
 前端项目在做多语言（i18n）时，通常以英文为基准维护一套 JSON 文件，其他语言的 JSON 需要人工翻译或外包，成本高、同步慢、容易遗漏。
 

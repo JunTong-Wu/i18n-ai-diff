@@ -1,6 +1,6 @@
 # i18n-ai-diff
 
-[中文](./README_zh.md) | **English**
+[中文](https://github.com/JunTong-Wu/i18n-ai-diff/blob/master/README_zh.md) | **English**
 
 Frontend projects with i18n typically maintain a set of JSON files in English as the base language. Translating them into other languages requires manual work or outsourcing — expensive, slow, and error-prone.
 
