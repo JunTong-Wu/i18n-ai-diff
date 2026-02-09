@@ -5,3 +5,6 @@ dist/
 .i18n-translate-cache.json
 .i18n-translate-cache.snapshot.json
 .i18n-translate-failures.md
+.env
+i18n-translate.config.ts
+.i18n-translate-failures.json
