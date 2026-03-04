@@ -4,7 +4,7 @@
 
 Frontend projects with i18n typically maintain a set of JSON files in English as the base language. Translating them into other languages requires manual work or outsourcing — expensive, slow, and error-prone.
 
-`i18n-ai-diff` automates this with LLM: it watches your English source files, precisely detects which keys are added, modified, or deleted, and only calls the translation API for the changes. Results are written back to the corresponding language JSON files. Translation cache + source file snapshots ensure zero overhead on repeated runs. The `skipKeys` config preserves brand names and other fields that should remain untranslated. Compatible with any OpenAI-compatible API service.
+`i18n-ai-diff` automates this with LLM: it watches your English source files, precisely detects which keys are added, modified, or deleted, and only calls the translation API for the changes. Results are written back to the corresponding language JSON files. Translation cache + source file snapshots ensure zero overhead on repeated runs. The `skipKeys` config preserves brand names and other fields that should remain untranslated. The `prompt` option lets you inject custom instructions to the LLM — useful for preserving brand names, specifying industry terminology, or controlling translation tone. Stale cache entries are automatically pruned after each run, keeping the cache file lean. Compatible with any OpenAI-compatible API service.
 
 ## Install
 
@@ -61,6 +61,8 @@ export default defineConfig({
     'footer.**',
   ],
 
+  prompt: '"DWARF" and "DWARFLAB" are brand names and must NOT be translated. The domain is astrophotography — use terminology and tone appropriate for that field.',
+
   llm: {
     apiKey: process.env.OPENAI_API_KEY || '',
     model: 'gpt-4o-mini',
@@ -103,6 +105,8 @@ locales/
 - Detects changes in `en` via source file snapshots — only translates added and modified keys
 - Deleted keys are automatically removed from target language files
 - Translation results are cached — identical text is never sent to the API twice
+- Orphaned cache entries are automatically pruned after each run
+- Custom `prompt` is injected into the LLM system message for fine-grained control over translation behavior
 - Compatible with any OpenAI-standard API
 
 ## Troubleshooting

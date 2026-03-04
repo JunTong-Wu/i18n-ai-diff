@@ -37,6 +37,9 @@ export class Translator {
   constructor(config: TranslateConfig) {
     this.config = config;
     this.llmClient = createLLMClient(config.llm);
+    if (config.prompt) {
+      this.llmClient.setCustomPrompt(config.prompt);
+    }
     this.cacheManager = createCacheManager(config.cachePath || '.i18n-translate-cache.json');
     this.failureLogger = createFailureLogger('.i18n-translate-failures.json');
     this.limit = pLimit(config.concurrency || 5);
@@ -125,10 +128,14 @@ export class Translator {
       }
     }
 
+    const pruned = await this.pruneCache();
+    if (pruned > 0) {
+      info(`Pruned ${pruned} orphaned cache entries`);
+    }
+
     await this.cacheManager.save();
     await saveSnapshot();
 
-    // 保存失败日志（如果有）
     if (this.failureLogger.getFailureCount() > 0) {
       await this.failureLogger.save();
       warn(`${this.failureLogger.getFailureCount()} keys failed, see .i18n-translate-failures.md`);
@@ -427,6 +434,30 @@ export class Translator {
   /**
    * 获取缓存统计
    */
+  private async pruneCache(): Promise<number> {
+    const activeKeys = new Set<string>();
+    const baseDir = path.join(this.config.localesDir, this.config.baseLang);
+    const jsonFiles = await this.scanJsonFiles(baseDir);
+
+    for (const relativePath of jsonFiles) {
+      const filePath = path.join(baseDir, relativePath);
+      try {
+        const data = await fs.readFile(filePath, 'utf-8');
+        const content = JSON.parse(data) as NestedJSON;
+        const flattened = flatten(content);
+        for (const value of Object.values(flattened)) {
+          for (const lang of this.config.targetLangs) {
+            activeKeys.add(this.cacheManager.generateKey(value, lang));
+          }
+        }
+      } catch {
+        // skip unreadable files
+      }
+    }
+
+    return this.cacheManager.prune(activeKeys);
+  }
+
   getCacheStats(): ReturnType<CacheManager['getStats']> {
     return this.cacheManager.getStats();
   }

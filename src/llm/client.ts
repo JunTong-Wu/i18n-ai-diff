@@ -14,6 +14,7 @@ import { info, warn, error as logError, debug } from '../utils/logger.js';
 export class LLMClient {
   private client: OpenAI;
   private config: Required<LLMConfig>;
+  private customPrompt?: string;
 
   constructor(config: LLMConfig) {
     this.config = {
@@ -31,6 +32,10 @@ export class LLMClient {
       baseURL: this.config.baseURL,
       timeout: this.config.timeout,
     });
+  }
+
+  setCustomPrompt(prompt: string): void {
+    this.customPrompt = prompt;
   }
 
   /**
@@ -51,7 +56,8 @@ export class LLMClient {
           messages: [
             {
               role: 'system',
-              content: 'You are a professional translator. Return ONLY the requested format, no explanation.',
+              content: 'You are a professional translator. Return ONLY the requested format, no explanation.'
+                + (this.customPrompt ? `\n\nAdditional instructions:\n${this.customPrompt}` : ''),
             },
             {
               role: 'user',

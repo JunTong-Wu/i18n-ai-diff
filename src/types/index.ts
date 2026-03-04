@@ -42,6 +42,7 @@ export interface TranslateConfig {
   localesDir: string;
   skipKeys: string[];
   llm: LLMConfig;
+  prompt?: string;
   watch?: WatchConfig;
   cachePath?: string;
   concurrency?: number;
@@ -53,6 +54,7 @@ export interface UserConfig {
   targetLangs: (IETFBCP47Type)[];
   localesDir: string;
   llm: LLMConfig;
+  prompt?: string;
   skipKeys?: string[];
   watch?: Partial<WatchConfig>;
   cachePath?: string;

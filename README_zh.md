@@ -4,7 +4,7 @@
 
 前端项目在做多语言（i18n）时，通常以英文为基准维护一套 JSON 文件，其他语言的 JSON 需要人工翻译或外包，成本高、同步慢、容易遗漏。
 
-`i18n-ai-diff` 通过 LLM 自动完成这个过程：它监控英文源文件的变化，精确识别哪些 key 是新增、修改还是删除的，只对变化的部分调用翻译 API，结果写回对应语言的 JSON 文件。翻译缓存 + 源文件快照确保重复运行零开销，`skipKeys` 配置保留品牌名等不需要翻译的字段。兼容任何 OpenAI 标准接口的模型服务。
+`i18n-ai-diff` 通过 LLM 自动完成这个过程：它监控英文源文件的变化，精确识别哪些 key 是新增、修改还是删除的，只对变化的部分调用翻译 API，结果写回对应语言的 JSON 文件。翻译缓存 + 源文件快照确保重复运行零开销，`skipKeys` 配置保留品牌名等不需要翻译的字段。`prompt` 配置可向 LLM 注入自定义提示词，用于保留品牌名、指定行业术语或控制翻译风格。每次运行后自动清理失效缓存条目，缓存文件不会无限膨胀。兼容任何 OpenAI 标准接口的模型服务。
 
 ## 安装
 
@@ -61,6 +61,8 @@ export default defineConfig({
     'footer.**',
   ],
 
+  prompt: '"DWARF" and "DWARFLAB" are brand names and must NOT be translated. The domain is astrophotography — use terminology and tone appropriate for that field.',
+
   llm: {
     apiKey: process.env.OPENAI_API_KEY || '',
     model: 'gpt-4o-mini',
@@ -103,6 +105,8 @@ locales/
 - 基于源文件快照检测 en 的变化，只翻译新增和修改的 key
 - 删除的 key 自动从目标语言文件中移除
 - 翻译结果缓存，相同文本不重复调用 API
+- 每次运行后自动清理失效缓存条目
+- 自定义 `prompt` 注入 LLM 系统消息，精细控制翻译行为
 - 兼容 OpenAI API 标准接口
 
 ## 常见问题

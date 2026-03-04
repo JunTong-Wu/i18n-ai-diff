@@ -164,6 +164,28 @@ export class CacheManager {
     }
   }
 
+  prune(activeKeys: Set<string>): number {
+    let removedCount = 0;
+    for (const key in this.cache.entries) {
+      if (!activeKeys.has(key)) {
+        delete this.cache.entries[key];
+        removedCount++;
+      }
+    }
+    if (removedCount > 0) {
+      this.dirty = true;
+      debug(`Pruned ${removedCount} orphaned cache entries`);
+    }
+    return removedCount;
+  }
+
+  generateKey(sourceText: string, targetLang: string): string {
+    return crypto
+      .createHash('md5')
+      .update(`${sourceText}:${targetLang}`)
+      .digest('hex');
+  }
+
   /**
    * 清空所有缓存
    */
@@ -193,20 +215,6 @@ export class CacheManager {
     };
   }
 
-  /**
-   * 生成缓存键
-   * @param sourceText 原文
-   * @param targetLang 目标语言
-   * @returns 缓存键
-   */
-  private generateKey(sourceText: string, targetLang: string): string {
-    // 使用简单的哈希生成键
-    const hash = crypto
-      .createHash('md5')
-      .update(`${sourceText}:${targetLang}`)
-      .digest('hex');
-    return hash;
-  }
 
   /**
    * 计算预估节省的token数
