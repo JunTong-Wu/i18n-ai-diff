@@ -2,58 +2,172 @@
 
 [中文](https://github.com/JunTong-Wu/i18n-ai-diff/blob/master/README_zh.md) | **English**
 
-Frontend projects with i18n typically maintain a set of JSON files in English as the base language. Translating them into other languages requires manual work or outsourcing — expensive, slow, and error-prone.
+`i18n-ai-diff` is an incremental AI translation tool for application localization. You maintain the master-language JSON files; it detects added, modified, and deleted keys, sends only necessary text to an LLM, and synchronizes the results to target-language files.
 
-`i18n-ai-diff` automates this with LLM: it watches your English source files, precisely detects which keys are added, modified, or deleted, and only calls the translation API for the changes. Results are written back to the corresponding language JSON files. Translation cache + source file snapshots ensure zero overhead on repeated runs. The `skipKeys` config preserves brand names and other fields that should remain untranslated. The `prompt` option lets you inject custom instructions to the LLM — useful for preserving brand names, specifying industry terminology, or controlling translation tone. Stale cache entries are automatically pruned after each run, keeping the cache file lean. Compatible with any OpenAI-compatible API service.
+It supports both single-master projects, where every target comes from one master, and multi-master projects such as Japanese and Korean from Chinese while German, Italian, French, and Spanish come from English. Existing target translations are treated as reviewed assets. Changing a route does not automatically retranslate them; they are refreshed only after a later master-text change or an explicit `-f` run.
 
 ## Install
+
+Requires Node.js 18.19 or newer.
+
+Install it in your project:
 
 ```bash
 npm install i18n-ai-diff
 ```
 
-## Translate
+You can also run it directly with `npx i18n-ai-diff` without installing it globally.
 
-Scans the base language directory, diffs against target language files, and only translates added or modified keys. Zero API calls when nothing has changed.
+## Step 1: Prepare the locale directory
 
-```bash
-npx i18n-ai-diff
+Create a locale directory in your project. Each language gets a subdirectory containing JSON files at any nesting depth.
+
+The smallest single-master project only needs its master directory initially:
+
+```text
+src/i18n/messages/
+└── en/
+    ├── common.json
+    └── pages/
+        └── home.json
 ```
 
-## Translate + Watch
+For example, `en/common.json`:
 
-Runs a full translation first, then continuously watches for base language file changes and auto-syncs translations to all target languages. Ideal for development. `Ctrl+C` to exit.
-
-```bash
-npx i18n-ai-diff -w
+```json
+{
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "brandName": "DWARFLAB"
+}
 ```
 
-## Force Full Retranslation
+Target directories and JSON files do not need to exist. They are created during the first translation:
 
-Clears cache and snapshots, ignores existing translations, and retranslates all keys via LLM. Use when switching models or when a full quality refresh is needed.
-
-```bash
-npx i18n-ai-diff -f
+```text
+src/i18n/messages/
+├── en/           # Master
+├── ja/           # Created automatically
+├── ko/           # Created automatically
+└── fr/           # Created automatically
 ```
 
-## Specify Languages
+Locale JSON currently processes string values only. Nested objects are supported at any depth; numbers, booleans, arrays, and `null` are not translated.
 
-Overrides `targetLangs` from the config file. Only translates the specified languages. Accepts multiple BCP 47 language codes.
+## Step 2: Create the configuration
 
-```bash
-npx i18n-ai-diff -l fr ja ko
-```
-
-## Configuration
-
-Create `i18n-translate.config.ts`:
+Create `i18n-translate.config.ts` in the project root:
 
 ```typescript
 import { defineConfig } from 'i18n-ai-diff';
 
 export default defineConfig({
   baseLang: 'en',
-  targetLangs: ['zh', 'ja', 'ko', 'fr', 'de', 'es', 'it', 'pt', 'ru'],
+  targetLangs: ['ja', 'ko', 'fr'],
+  localesDir: './src/i18n/messages',
+
+  llm: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    model: 'gpt-4o-mini',
+  },
+});
+```
+
+Then set the API key:
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+```
+
+You can use `baseURL` to connect to any OpenAI Chat Completions-compatible service.
+
+## Single-master mode
+
+Use `baseLang + targetLangs` when every target language comes from the same master:
+
+```typescript
+export default defineConfig({
+  baseLang: 'en',
+  targetLangs: ['zh-CN', 'ja', 'ko', 'fr', 'de'],
+  localesDir: './src/i18n/messages',
+  llm: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    model: 'gpt-4o-mini',
+  },
+});
+```
+
+Translation route:
+
+```text
+en → zh-CN, ja, ko, fr, de
+```
+
+This mode has the smallest configuration and is the easiest place to start.
+
+## Multi-master mode
+
+Use `routes` when different target languages require different masters:
+
+```typescript
+import { defineConfig } from 'i18n-ai-diff';
+
+export default defineConfig({
+  routes: [
+    {
+      baseLang: 'zh-CN',
+      targetLangs: ['ja', 'ko'],
+    },
+    {
+      baseLang: 'en',
+      targetLangs: ['de', 'it', 'fr', 'es'],
+    },
+  ],
+  localesDir: './src/i18n/messages',
+
+  llm: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    model: 'gpt-4o-mini',
+  },
+});
+```
+
+Directory layout and routes:
+
+```text
+src/i18n/messages/
+├── zh-CN/        # Chinese master ─→ ja, ko
+├── en/           # English master ─→ de, it, fr, es
+├── ja/
+├── ko/
+├── de/
+├── it/
+├── fr/
+└── es/
+```
+
+Multi-master rules:
+
+- Each master language is configured in exactly one route
+- Each target language belongs to exactly one master route
+- A language cannot be both a master and a target, preventing chained writes in Watch mode
+- Multi-master `routes` cannot be mixed with top-level `baseLang + targetLangs`
+- Reassigning a target to another master preserves its existing translations and establishes a new incremental baseline
+
+Both modes are normalized to the same internal `sourceLang → targetLang` tasks, cache keys, and snapshot rules.
+
+## Common configuration
+
+A more complete configuration:
+
+```typescript
+export default defineConfig({
+  routes: [
+    { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+    { baseLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
+  ],
   localesDir: './src/i18n/messages',
 
   skipKeys: [
@@ -61,7 +175,7 @@ export default defineConfig({
     'footer.**',
   ],
 
-  prompt: '"DWARF" and "DWARFLAB" are brand names and must NOT be translated. The domain is astrophotography — use terminology and tone appropriate for that field.',
+  prompt: '"DWARF" and "DWARFLAB" are brand names and must NOT be translated. Use terminology appropriate for astrophotography.',
 
   llm: {
     apiKey: process.env.OPENAI_API_KEY || '',
@@ -69,87 +183,139 @@ export default defineConfig({
     baseURL: 'https://api.openai.com/v1',
     maxTokens: 4096,
     temperature: 0.3,
-    timeout: 30000,
+    timeout: 60000,
     retries: 3,
   },
 
-  concurrency: 5,
+  concurrency: 3,
   batchSize: 20,
   cachePath: '.i18n-translate-cache.json',
 });
 ```
 
-Other options:
+`skipKeys` accepts glob-style dotted paths. For example, `footer.**` keeps every string below `footer` equal to its master text.
+
+## Step 3: Run the first translation
+
+After creating the configuration, run this from the project root:
 
 ```bash
-npx i18n-ai-diff -c ./path/to/config.ts   # Custom config file
-npx i18n-ai-diff --verbose                 # Verbose logging
+npx i18n-ai-diff
 ```
 
-## Directory Structure
+The tool will:
 
+1. Load and validate the configuration
+2. Scan JSON files in every master directory
+3. Match each file to its target-language routes
+4. Translate missing or outdated keys
+5. Create or update target-language JSON files
+6. Save the translation cache and source snapshots
+
+If no master text changes, subsequent runs make no translation API calls.
+
+## Watch during development
+
+Run one incremental translation and then watch every master directory:
+
+```bash
+npx i18n-ai-diff -w
 ```
-locales/
-├── en/           # Base language
-│   ├── common.json
-│   └── pages/
-│       └── home.json
-├── de/           # Target language (auto-translated)
-│   └── ...
-└── ja/
-    └── ...
+
+A master-file change updates only the target languages in that master's route. Press `Ctrl+C` to stop.
+
+## Process selected languages
+
+```bash
+npx i18n-ai-diff -l fr ja ko
 ```
 
-## How It Works
+Multi-master mode preserves the configured routes. With `zh-CN → ja, ko` and `en → de, it, fr, es`, this command executes:
 
-- Detects changes in `en` via source file snapshots — only translates added and modified keys
-- Deleted keys are automatically removed from target language files
-- Translation results are cached — identical text is never sent to the API twice
-- Orphaned cache entries are automatically pruned after each run
-- Custom `prompt` is injected into the LLM system message for fine-grained control over translation behavior
-- Compatible with any OpenAI-standard API
+```text
+zh-CN → ja, ko
+en    → fr
+```
+
+In multi-master mode, every selected language must already belong to a route. In single-master mode, the option preserves its original behavior and can temporarily override the configured targets. It affects only the current run and does not modify the configuration file.
+
+## Force a full refresh
+
+When you explicitly want to refresh existing translations, run:
+
+```bash
+npx i18n-ai-diff -f
+```
+
+This clears the translation cache, ignores existing target translations, and retranslates every non-skipped key. Changing the model, prompt, or master routes does not by itself refresh reviewed translations.
+
+Combine it with language selection to refresh only specific targets:
+
+```bash
+npx i18n-ai-diff -f -l fr ja ko
+```
+
+## Other CLI options
+
+```bash
+npx i18n-ai-diff -c ./path/to/config.ts   # Use a specific config file
+npx i18n-ai-diff --verbose                # Print detailed logs
+npx i18n-ai-diff -v                       # Print the version
+```
+
+## How it works
+
+- Every master route scans, compares, and generates its target files independently
+- Source snapshots detect later master-text changes
+- Translation cache entries are isolated by `sourceLang + sourceText + targetLang`
+- Only new keys, changed source text, or values still equal to master text are translated
+- Existing target translations are treated as reviewed assets by default
+- Keys deleted from the master are removed from target files
+- In Watch mode, deleting a master file removes the corresponding target files for that route
+- Orphaned cache entries are pruned after each complete run
 
 ## Troubleshooting
 
+### `Config file not found`
+
+Make sure `i18n-translate.config.ts` exists in the project root, or specify it with `-c`.
+
+### `llm.apiKey is required`
+
+Set `llm.apiKey` in the configuration or provide the `OPENAI_API_KEY` environment variable.
+
 ### `Batch translation failed: Translation failed after N retries: Request was aborted.`
 
-The request did not complete within the timeout and was aborted. Troubleshoot in order:
+The request did not finish before its timeout. Check:
 
-1. **Check your network proxy/VPN** — make sure the proxy is active and the current region can reach your LLM service (e.g. OpenAI requires a non-restricted region, while Tencent HunYuan has poor connectivity in overseas nodes)
-2. LLM service is slow or unstable
-3. `timeout` is too low (default 30000ms)
-4. `batchSize` is too large, sending too much text per request
+1. Whether your network proxy or VPN can reach the configured LLM service
+2. Whether the LLM service is rate-limited or unstable
+3. Whether `timeout` is too low
+4. Whether `batchSize` is too large
+5. Whether `concurrency` is too high
 
-Adjust config:
+Try:
 
 ```typescript
 llm: {
-  timeout: 60000,   // Increase timeout (ms)
-  retries: 5,       // More retry attempts
+  timeout: 120000,
+  retries: 5,
 },
-batchSize: 10,      // Smaller batch size
-concurrency: 3,     // Lower concurrency
+batchSize: 10,
+concurrency: 2,
 ```
 
 ### `LLM returned empty content`
 
-The LLM returned an empty response. Usually caused by rate limiting or prompt being too long. Reduce `batchSize` or switch to a more stable model.
-
-### `Config file not found`
-
-No config file was found. Make sure `i18n-translate.config.ts` exists in the project root, or specify a path with `-c`.
-
-### `llm.apiKey is required`
-
-API key is not configured. Set `llm.apiKey` in the config file, or set the `OPENAI_API_KEY` environment variable.
+The model returned no content. Reduce the batch size or concurrency, or switch to another model.
 
 ### `Cache version mismatch, resetting`
 
-The cache file version doesn't match (usually after an upgrade). The cache resets automatically. The first run will retranslate all keys; subsequent runs resume incremental mode.
+The cache format changed after an upgrade, so the old cache is reset automatically. Existing target translations are not retranslated; the tool preserves them and establishes new incremental snapshots.
 
 ### `N keys failed, see .i18n-translate-failures.md`
 
-Some keys failed to translate. Check `.i18n-translate-failures.md` in the project root for details. Run `npx i18n-ai-diff` again to automatically retry the failed keys.
+Some keys failed to translate. Open `.i18n-translate-failures.md` in the project root and run the normal translation command again to retry them.
 
 ## License
 

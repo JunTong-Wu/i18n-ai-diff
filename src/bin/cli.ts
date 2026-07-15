@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { loadConfig } from '../core/config-loader.js';
 import { createTranslator } from '../core/translator.js';
 import { createFileWatcher } from '../core/file-watcher.js';
+import { selectTargetLanguages } from '../core/route-selector.js';
 import { setVerbose, printBanner, printConfigInfo, printStats, info, success, error as logError, warn } from '../utils/logger.js';
 import fs from 'fs/promises';
 
@@ -28,11 +29,12 @@ program
       printBanner(packageJson.version);
 
       const config = await loadConfig(options.config);
-      if (options.langs?.length) config.targetLangs = options.langs as typeof config.targetLangs;
+      if (options.langs?.length) {
+        selectTargetLanguages(config, options.langs);
+      }
 
       printConfigInfo({
-        baseLang: config.baseLang,
-        targetLangs: config.targetLangs,
+        routes: config.routes,
         localesDir: config.localesDir,
         model: config.llm.model || 'unknown',
       });

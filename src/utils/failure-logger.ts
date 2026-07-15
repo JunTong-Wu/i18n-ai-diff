@@ -13,6 +13,7 @@ import path from 'path';
 interface FailureRecord {
   key: string;
   sourceText: string;
+  sourceLang: string;
   targetLang: string;
   filePath: string;
   error: string;
@@ -50,6 +51,7 @@ export class FailureLogger {
     const record: FailureRecord = {
       key: task.key,
       sourceText: task.sourceText,
+      sourceLang: task.sourceLang,
       targetLang: task.targetLang,
       filePath: task.filePath,
       error,
@@ -109,9 +111,9 @@ export class FailureLogger {
       }
 
       // 合并并去重（基于 key + targetLang + filePath）
-      const keySet = new Set(existing.map(f => `${f.key}:${f.targetLang}:${f.filePath}`));
+      const keySet = new Set(existing.map(f => `${f.sourceLang || ''}:${f.key}:${f.targetLang}:${f.filePath}`));
       const newFailures = this.failures.filter(f => {
-        const key = `${f.key}:${f.targetLang}:${f.filePath}`;
+        const key = `${f.sourceLang}:${f.key}:${f.targetLang}:${f.filePath}`;
         if (keySet.has(key)) {
           return false;
         }

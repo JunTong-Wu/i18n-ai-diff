@@ -4,7 +4,7 @@
  */
 
 import chokidar from 'chokidar';
-import { TranslateConfig } from '../types/index.js';
+import { TranslateConfig, ResolvedTranslateConfig } from '../types/index.js';
 import { Translator } from './translator.js';
 import { info, warn, error as logError, success, printWatchStart, printFileChange, printDivider } from '../utils/logger.js';
 import path from 'path';
@@ -13,14 +13,18 @@ import path from 'path';
  * 文件监听器类
  */
 export class FileWatcher {
-  private config: TranslateConfig;
+  private config: ResolvedTranslateConfig;
   private translator: Translator;
   private watcher: chokidar.FSWatcher | null = null;
   private debounceTimer: NodeJS.Timeout | null = null;
-  private pendingChanges: Set<string> = new Set();
+  private pendingChanges: Map<string, { type: 'add' | 'change' | 'unlink'; sourceLang: string }> = new Map();
+  private processing = false;
 
   constructor(config: TranslateConfig, translator: Translator) {
-    this.config = config;
+    const routes = config.routes?.length
+      ? config.routes
+      : [{ baseLang: config.baseLang, targetLangs: config.targetLangs }];
+    this.config = { ...config, routes };
     this.translator = translator;
   }
 
@@ -34,11 +38,12 @@ export class FileWatcher {
     }
 
     const watchConfig = this.config.watch || { enabled: false, debounceMs: 300 };
-    const baseLangDir = path.join(this.config.localesDir, this.config.baseLang);
+    const sourceLangs = [...new Set(this.config.routes.map(route => route.baseLang))];
+    const sourceDirs = sourceLangs.map(lang => path.join(this.config.localesDir, lang));
 
-    info(`Watching: ${baseLangDir}`);
+    info(`Watching masters: ${sourceLangs.join(', ')}`);
 
-    this.watcher = chokidar.watch(baseLangDir, {
+    this.watcher = chokidar.watch(sourceDirs, {
       ignored: watchConfig.ignored || ['node_modules/**', '**/*.ts'],
       persistent: true,
       ignoreInitial: true,
@@ -93,10 +98,16 @@ export class FileWatcher {
       return;
     }
 
+    const sourceLang = this.resolveSourceLang(filePath);
+    if (!sourceLang) {
+      warn(`Ignored change outside configured master directories: ${filePath}`);
+      return;
+    }
+
     printFileChange(filePath, changeType);
 
     // 添加到待处理队列
-    this.pendingChanges.add(filePath);
+    this.pendingChanges.set(filePath, { type: changeType, sourceLang });
 
     // 防抖处理
     if (this.debounceTimer) {
@@ -105,7 +116,8 @@ export class FileWatcher {
 
     const debounceMs = this.config.watch?.debounceMs || 300;
     this.debounceTimer = setTimeout(() => {
-      this.processPendingChanges();
+      this.debounceTimer = null;
+      void this.processPendingChanges();
     }, debounceMs);
   }
 
@@ -113,34 +125,64 @@ export class FileWatcher {
    * 处理待处理的变更
    */
   private async processPendingChanges(): Promise<void> {
-    if (this.pendingChanges.size === 0) {
+    if (this.processing || this.pendingChanges.size === 0) {
       return;
     }
 
-    const changes = Array.from(this.pendingChanges);
-    this.pendingChanges.clear();
+    this.processing = true;
+    try {
+      while (this.pendingChanges.size > 0) {
+        const changes = Array.from(this.pendingChanges.entries());
+        this.pendingChanges.clear();
+        let failedTargets = 0;
 
-    info(`Processing ${changes.length} changed files...`);
+        info(`Processing ${changes.length} changed files...`);
 
-    for (const filePath of changes) {
-      try {
-        // 计算相对路径
-        const baseLangDir = path.join(this.config.localesDir, this.config.baseLang);
-        const relativePath = path.relative(baseLangDir, filePath);
+        for (const [filePath, change] of changes) {
+          const sourceLangDir = path.join(this.config.localesDir, change.sourceLang);
+          const relativePath = path.relative(sourceLangDir, filePath);
+          const targetLangs = this.config.routes
+            .filter(route => route.baseLang === change.sourceLang)
+            .flatMap(route => route.targetLangs);
 
-        // 为每个目标语言翻译该文件
-        for (const targetLang of this.config.targetLangs) {
-          await this.translator.translateFile(relativePath, targetLang);
+          for (const targetLang of targetLangs) {
+            try {
+              if (change.type === 'unlink') {
+                await this.translator.removeTargetFile(relativePath, targetLang);
+              } else {
+                const result = await this.translator.translateFile(
+                  relativePath,
+                  targetLang,
+                  undefined,
+                  undefined,
+                  change.sourceLang,
+                );
+                if (!result.success) {
+                  throw new Error(result.error || 'Translation failed');
+                }
+              }
+            } catch (error) {
+              failedTargets++;
+              logError(
+                `Failed to process ${change.sourceLang}→${targetLang}: ${relativePath}`,
+                (error as Error).message,
+              );
+            }
+          }
         }
-      } catch (error) {
-        logError(`Failed to process change: ${filePath}`, (error as Error).message);
+
+        await this.translator.saveCache();
+
+        if (failedTargets > 0) {
+          warn(`Changes processed with ${failedTargets} failed target(s)`);
+        } else {
+          success('Changes processed');
+        }
+        printDivider();
       }
+    } finally {
+      this.processing = false;
     }
-
-    await this.translator.saveCache();
-
-    success('Changes processed');
-    printDivider();
   }
 
   /**
@@ -148,6 +190,17 @@ export class FileWatcher {
    */
   isRunning(): boolean {
     return this.watcher !== null;
+  }
+
+  private resolveSourceLang(filePath: string): string | undefined {
+    for (const sourceLang of new Set(this.config.routes.map(route => route.baseLang))) {
+      const sourceDir = path.join(this.config.localesDir, sourceLang);
+      const relative = path.relative(sourceDir, filePath);
+      if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
+        return sourceLang;
+      }
+    }
+    return undefined;
   }
 }
 

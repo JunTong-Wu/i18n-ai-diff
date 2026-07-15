@@ -4,6 +4,7 @@ export type { IETFBCP47Type } from './types/IETFBCP47.js';
 export type {
   UserConfig,
   TranslateConfig,
+  ResolvedTranslateConfig,
   LLMConfig,
   WatchConfig,
   DiffResult,
@@ -11,6 +12,7 @@ export type {
   TranslationResult,
   FileProcessResult,
   TranslationStats,
+  TranslationRoute,
   FlattenedJSON,
   NestedJSON,
 } from './types/index.js';

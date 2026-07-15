@@ -11,6 +11,7 @@ export function buildBatchPrompt(tasks: TranslationTask[]): BatchPromptResult {
   }
 
   const targetLang = tasks[0].targetLang;
+  const sourceLang = tasks[0].sourceLang;
   const idMap = new Map<string, string>();
 
   const entries: string[] = [];
@@ -21,7 +22,8 @@ export function buildBatchPrompt(tasks: TranslationTask[]): BatchPromptResult {
   }
 
   const prompt = [
-    `Target language BCP 47 tag: "${targetLang}". Translate the values into that language. Return ONLY a JSON object.`,
+    `Source language BCP 47 tag: "${sourceLang}".`,
+    `Target language BCP 47 tag: "${targetLang}". Translate the values from the source language into the target language. Return ONLY a JSON object.`,
     '',
     'Input:',
     `{${entries.join(', ')}}`,
@@ -90,4 +92,3 @@ export function batchTasksByTokenLimit(
 
   return batches;
 }
-

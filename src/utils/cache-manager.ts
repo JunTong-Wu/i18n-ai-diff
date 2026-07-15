@@ -9,7 +9,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 
-const CACHE_VERSION = '1.0.0';
+const CACHE_VERSION = '2.0.0';
 
 /**
  * 缓存管理器类
@@ -39,6 +39,7 @@ export class CacheManager {
       if (parsed.version !== CACHE_VERSION) {
         warn(`Cache version mismatch (${parsed.version} vs ${CACHE_VERSION}), resetting`);
         this.cache = { version: CACHE_VERSION, entries: {} };
+        this.dirty = true;
         return;
       }
 
@@ -85,8 +86,8 @@ export class CacheManager {
    * @param targetLang 目标语言
    * @returns 缓存的翻译结果，如果没有则返回 undefined
    */
-  get(sourceText: string, targetLang: string): string | undefined {
-    const key = this.generateKey(sourceText, targetLang);
+  get(sourceText: string, targetLang: string, sourceLang: string = ''): string | undefined {
+    const key = this.generateKey(sourceText, targetLang, sourceLang);
     const entry = this.cache.entries[key];
     
     if (entry && entry.sourceText === sourceText) {
@@ -103,11 +104,18 @@ export class CacheManager {
    * @param targetLang 目标语言
    * @param model 使用的模型
    */
-  set(sourceText: string, translatedText: string, targetLang: string, model: string): void {
-    const key = this.generateKey(sourceText, targetLang);
+  set(
+    sourceText: string,
+    translatedText: string,
+    targetLang: string,
+    model: string,
+    sourceLang: string = '',
+  ): void {
+    const key = this.generateKey(sourceText, targetLang, sourceLang);
     
     this.cache.entries[key] = {
       sourceText,
+      sourceLang,
       translatedText,
       targetLang,
       timestamp: Date.now(),
@@ -126,10 +134,11 @@ export class CacheManager {
   setBatch(
     items: Array<{ sourceText: string; translatedText: string }>,
     targetLang: string,
-    model: string
+    model: string,
+    sourceLang: string = '',
   ): void {
     for (const item of items) {
-      this.set(item.sourceText, item.translatedText, targetLang, model);
+      this.set(item.sourceText, item.translatedText, targetLang, model, sourceLang);
     }
   }
 
@@ -139,8 +148,8 @@ export class CacheManager {
    * @param targetLang 目标语言
    * @returns 是否存在
    */
-  has(sourceText: string, targetLang: string): boolean {
-    return this.get(sourceText, targetLang) !== undefined;
+  has(sourceText: string, targetLang: string, sourceLang: string = ''): boolean {
+    return this.get(sourceText, targetLang, sourceLang) !== undefined;
   }
 
   /**
@@ -179,10 +188,10 @@ export class CacheManager {
     return removedCount;
   }
 
-  generateKey(sourceText: string, targetLang: string): string {
+  generateKey(sourceText: string, targetLang: string, sourceLang: string = ''): string {
     return crypto
       .createHash('md5')
-      .update(`${sourceText}:${targetLang}`)
+      .update(JSON.stringify([sourceLang, sourceText, targetLang]))
       .digest('hex');
   }
 

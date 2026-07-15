@@ -36,8 +36,24 @@ export interface WatchConfig {
 
 import { IETFBCP47Type } from './IETFBCP47.js';
 
-export interface TranslateConfig {
+/**
+ * 翻译路由：一个源语言母版对应一组目标语言
+ */
+export interface TranslationRoute {
+  /** 母版语言 */
   baseLang: IETFBCP47Type;
+  /** 由该母版生成的目标语言 */
+  targetLangs: IETFBCP47Type[];
+}
+
+export interface TranslateConfig {
+  /**
+   * 翻译路由。通过 loadConfig 加载时始终存在；程序化 API 仍允许省略并使用单母版字段。
+   */
+  routes?: TranslationRoute[];
+  /** 单母版兼容字段；多母版配置加载后为第一条路由的源语言 */
+  baseLang: IETFBCP47Type;
+  /** 单母版兼容字段；多母版配置加载后为所有路由的目标语言 */
   targetLangs: (IETFBCP47Type)[];
   localesDir: string;
   skipKeys: string[];
@@ -49,9 +65,12 @@ export interface TranslateConfig {
   batchSize?: number;
 }
 
-export interface UserConfig {
-  baseLang: IETFBCP47Type;
-  targetLangs: (IETFBCP47Type)[];
+/** 已完成默认值合并和路由归一化的运行时配置 */
+export interface ResolvedTranslateConfig extends Omit<TranslateConfig, 'routes'> {
+  routes: TranslationRoute[];
+}
+
+interface UserConfigBase {
   localesDir: string;
   llm: LLMConfig;
   prompt?: string;
@@ -61,6 +80,22 @@ export interface UserConfig {
   concurrency?: number;
   batchSize?: number;
 }
+
+/** 用户配置：多母版模式和单母版模式二选一 */
+export type UserConfig = UserConfigBase & (
+  | {
+      /** 多母版模式 */
+      routes: TranslationRoute[];
+      baseLang?: never;
+      targetLangs?: never;
+    }
+  | {
+      /** 单母版模式 */
+      routes?: never;
+      baseLang: IETFBCP47Type;
+      targetLangs: IETFBCP47Type[];
+    }
+);
 
 /**
  * 差异分析结果
@@ -84,8 +119,10 @@ export interface DiffResult {
 export interface TranslationTask {
   /** 键路径 */
   key: string;
-  /** 原始文本（英文） */
+  /** 母版源文本 */
   sourceText: string;
+  /** 源语言（母版） */
+  sourceLang: string;
   /** 目标语言 */
   targetLang: string;
   /** 文件路径 */
@@ -116,6 +153,8 @@ export interface FileProcessResult {
   filePath: string;
   /** 目标语言 */
   targetLang: string;
+  /** 源语言（母版） */
+  sourceLang: string;
   /** 新增数量 */
   added: number;
   /** 更新数量 */
@@ -156,6 +195,8 @@ export interface TranslationStats {
 export interface CacheEntry {
   /** 原文 */
   sourceText: string;
+  /** 源语言（母版） */
+  sourceLang: string;
   /** 译文 */
   translatedText: string;
   /** 目标语言 */

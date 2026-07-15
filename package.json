@@ -1,7 +1,7 @@
 {
   "name": "i18n-ai-diff",
-  "version": "1.1.0",
-  "description": "Diff-powered i18n CLI: only translates changed keys. Source snapshots + cache = minimal API cost. Watch mode, skip patterns, any LLM.",
+  "version": "1.2.0",
+  "description": "Multi-master, diff-powered i18n CLI: translate only changed keys with source snapshots, caching, watch mode, and any OpenAI-compatible LLM.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,6 +19,8 @@
     "dev": "tsx src/bin/cli.ts",
     "watch": "tsc --watch",
     "test": "vitest",
+    "test:package": "npm run build && node scripts/package-smoke.mjs",
+    "test:install": "node scripts/install-smoke.mjs",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build"
   },
@@ -44,7 +46,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/JunTong-Wu/i18n-ai-diff.git"
+    "url": "git+https://github.com/JunTong-Wu/i18n-ai-diff.git"
   },
   "homepage": "https://github.com/JunTong-Wu/i18n-ai-diff",
   "bugs": {
@@ -53,7 +55,7 @@
   "author": "",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.19.0"
   },
   "dependencies": {
     "commander": "^12.0.0",
@@ -65,16 +67,16 @@
     "cli-progress": "^3.12.0",
     "minimatch": "^9.0.3",
     "p-limit": "^5.0.0",
-    "tsx": "^4.7.0"
+    "tsx": "^4.23.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/cli-progress": "^3.11.5",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.0",
+    "vitest": "^4.1.10",
     "eslint": "^8.56.0",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0"
+    "@typescript-eslint/eslint-plugin": "^8.64.0",
+    "@typescript-eslint/parser": "^8.64.0"
   },
   "files": [
     "dist/**/*",

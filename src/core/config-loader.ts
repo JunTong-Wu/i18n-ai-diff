@@ -3,12 +3,19 @@
  * 支持 .ts / .js / .json / package.json 等多种配置来源
  */
 
-import { cosmiconfig, CosmiconfigResult } from 'cosmiconfig';
-import { TranslateConfig, UserConfig, LLMConfig, WatchConfig } from '../types/index.js';
-import { info, warn } from '../utils/logger.js';
+import { cosmiconfig } from 'cosmiconfig';
+import {
+  TranslateConfig,
+  ResolvedTranslateConfig,
+  UserConfig,
+  LLMConfig,
+  WatchConfig,
+  TranslationRoute,
+} from '../types/index.js';
+import { info } from '../utils/logger.js';
 import path from 'path';
-import { pathToFileURL } from 'url';
 import fs from 'fs';
+import { tsImport } from 'tsx/esm/api';
 
 const moduleName = 'i18n-translate';
 
@@ -44,13 +51,22 @@ const defaultLLMConfig: LLMConfig = {
 
 /**
  * 加载 TypeScript/ESM 配置文件
- * 使用动态 import() 加载
+ * 使用 tsx 的程序化 API 加载，确保打包后的 Node CLI 也能直接读取 TypeScript。
  */
 async function loadTypeScriptConfig(configPath: string): Promise<TranslateConfig> {
-  // 使用 tsx 加载 TypeScript 文件
-  const fileUrl = pathToFileURL(path.resolve(configPath)).href;
-  const module = await import(fileUrl);
-  const config = module.default || module;
+  const module = await tsImport(path.resolve(configPath), import.meta.url);
+  // tsx 在 CommonJS 项目中加载 `export default` 时可能产生两层 default 包装。
+  let config: unknown = module;
+  while (
+    config !== null
+    && typeof config === 'object'
+    && Object.keys(config).length === 1
+    && 'default' in config
+  ) {
+    const nested = (config as { default: unknown }).default;
+    if (nested === config) break;
+    config = nested;
+  }
   return config as TranslateConfig;
 }
 
@@ -59,9 +75,8 @@ async function loadTypeScriptConfig(configPath: string): Promise<TranslateConfig
  * @param configPath 可选的配置文件路径
  * @returns 合并后的配置对象
  */
-export async function loadConfig(configPath?: string): Promise<TranslateConfig> {
+export async function loadConfig(configPath?: string): Promise<ResolvedTranslateConfig> {
   let userConfig: Partial<TranslateConfig> = {};
-  let loadedPath: string | undefined;
 
   if (configPath) {
     // 如果指定了配置文件路径
@@ -81,7 +96,6 @@ export async function loadConfig(configPath?: string): Promise<TranslateConfig> 
         userConfig = result.config as Partial<TranslateConfig>;
       }
     }
-    loadedPath = configPath;
     info(`Loaded config: ${configPath}`);
   } else {
     // 否则搜索配置文件
@@ -101,6 +115,9 @@ export async function loadConfig(configPath?: string): Promise<TranslateConfig> 
         `${moduleName}.config.mjs`,
         `${moduleName}.config.cjs`,
       ],
+      loaders: {
+        '.ts': async filepath => loadTypeScriptConfig(filepath),
+      },
     });
 
     const result = await explorer.search();
@@ -110,12 +127,7 @@ export async function loadConfig(configPath?: string): Promise<TranslateConfig> 
       );
     }
 
-    if (result.filepath.endsWith('.ts')) {
-      userConfig = await loadTypeScriptConfig(result.filepath);
-    } else {
-      userConfig = result.config as Partial<TranslateConfig>;
-    }
-    loadedPath = result.filepath;
+    userConfig = result.config as Partial<TranslateConfig>;
     info(`Loaded config: ${result.filepath}`);
   }
 
@@ -133,10 +145,16 @@ export async function loadConfig(configPath?: string): Promise<TranslateConfig> 
  * @param userConfig 用户配置
  * @returns 合并后的完整配置
  */
-function mergeConfig(userConfig: Partial<TranslateConfig>): TranslateConfig {
-  const merged: TranslateConfig = {
+function mergeConfig(userConfig: Partial<TranslateConfig>): ResolvedTranslateConfig {
+  const routes = normalizeRoutes(userConfig);
+  const merged: ResolvedTranslateConfig = {
     ...defaultConfig,
     ...userConfig,
+    routes,
+    // 保留单母版字段，避免破坏已有的程序化调用方。多母版模式下取第一条路由
+    // 作为 baseLang，并把所有目标语言展开到 targetLangs。
+    baseLang: routes[0]?.baseLang || userConfig.baseLang || defaultConfig.baseLang!,
+    targetLangs: routes.flatMap(route => route.targetLangs),
     llm: {
       ...defaultLLMConfig,
       ...userConfig.llm,
@@ -145,7 +163,7 @@ function mergeConfig(userConfig: Partial<TranslateConfig>): TranslateConfig {
       ...defaultConfig.watch,
       ...userConfig.watch,
     } as WatchConfig,
-  } as TranslateConfig;
+  } as ResolvedTranslateConfig;
 
   // 处理 localesDir 路径
   if (merged.localesDir) {
@@ -161,20 +179,36 @@ function mergeConfig(userConfig: Partial<TranslateConfig>): TranslateConfig {
 }
 
 /**
+ * 将单母版模式和多母版模式统一成内部 routes 模型。
+ */
+function normalizeRoutes(userConfig: Partial<TranslateConfig>): TranslationRoute[] {
+  if (userConfig.routes !== undefined) {
+    if (userConfig.baseLang !== undefined || userConfig.targetLangs !== undefined) {
+      throw new Error('Config must use either multi-master routes or single-master baseLang + targetLangs, not both');
+    }
+    return userConfig.routes.map(route => ({
+      baseLang: route.baseLang,
+      targetLangs: [...route.targetLangs],
+    }));
+  }
+
+  const baseLang = userConfig.baseLang || defaultConfig.baseLang;
+  const targetLangs = userConfig.targetLangs || defaultConfig.targetLangs || [];
+
+  if (!baseLang) return [];
+  return [{ baseLang, targetLangs: [...targetLangs] }];
+}
+
+/**
  * 验证配置有效性
  * @param config 配置对象
  * @throws 验证失败时抛出错误
  */
-function validateConfig(config: TranslateConfig): void {
+function validateConfig(config: ResolvedTranslateConfig): void {
   const errors: string[] = [];
 
-  // 验证必需字段
-  if (!config.baseLang) {
-    errors.push('baseLang is required');
-  }
-
-  if (!config.targetLangs || config.targetLangs.length === 0) {
-    errors.push('targetLangs must have at least one language');
+  if (!config.routes || config.routes.length === 0) {
+    errors.push('routes must have at least one route (or configure baseLang + targetLangs for single-master mode)');
   }
 
   if (!config.localesDir) {
@@ -185,9 +219,42 @@ function validateConfig(config: TranslateConfig): void {
     errors.push('llm.apiKey is required (set OPENAI_API_KEY env or specify in config)');
   }
 
-  // 验证 targetLangs 不包含 baseLang
-  if (config.targetLangs.includes(config.baseLang)) {
-    errors.push('targetLangs must not contain baseLang');
+  const targetOwners = new Map<string, string>();
+  const baseLangs = new Set(config.routes.map(route => route.baseLang));
+  const seenSources = new Set<string>();
+  for (const [index, route] of config.routes.entries()) {
+    const label = `routes[${index}]`;
+    if (!route.baseLang) {
+      errors.push(`${label}.baseLang is required`);
+    } else if (seenSources.has(route.baseLang)) {
+      errors.push(`master language ${route.baseLang} must be configured in a single route`);
+    } else {
+      seenSources.add(route.baseLang);
+    }
+    if (!route.targetLangs || route.targetLangs.length === 0) {
+      errors.push(`${label}.targetLangs must have at least one language`);
+      continue;
+    }
+    if (route.targetLangs.includes(route.baseLang)) {
+      errors.push(`${label}.targetLangs must not contain its baseLang (${route.baseLang})`);
+    }
+
+    const duplicatesInRoute = route.targetLangs.filter((lang, i) => route.targetLangs.indexOf(lang) !== i);
+    for (const lang of new Set(duplicatesInRoute)) {
+      errors.push(`${label}.targetLangs contains duplicate language: ${lang}`);
+    }
+
+    for (const targetLang of route.targetLangs) {
+      const owner = targetOwners.get(targetLang);
+      if (owner) {
+        errors.push(`target language ${targetLang} is assigned to multiple masters: ${owner}, ${route.baseLang}`);
+      } else {
+        targetOwners.set(targetLang, route.baseLang);
+      }
+      if (baseLangs.has(targetLang)) {
+        errors.push(`language ${targetLang} cannot be both a master and a target language`);
+      }
+    }
   }
 
   // 验证数值范围

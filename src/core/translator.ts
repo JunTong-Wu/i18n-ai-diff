@@ -5,6 +5,7 @@
 
 import {
   TranslateConfig,
+  ResolvedTranslateConfig,
   TranslationTask,
   FileProcessResult,
   TranslationStats,
@@ -13,10 +14,18 @@ import {
 import { LLMClient, createLLMClient } from '../llm/client.js';
 import { batchTasksByTokenLimit } from '../llm/prompt-builder.js';
 import { CacheManager, createCacheManager } from '../utils/cache-manager.js';
-import { analyzeDiff, loadSnapshot, saveSnapshot, updateSnapshot, removeSnapshotKeys } from './diff-analyzer.js';
+import {
+  analyzeDiff,
+  loadSnapshot,
+  saveSnapshot,
+  updateSnapshot,
+  removeSnapshotKeys,
+  removeSnapshotFile,
+  setSnapshotOwner,
+} from './diff-analyzer.js';
 import { flatten, unflatten } from '../utils/json-utils.js';
 import chalk from 'chalk';
-import { info, warn, error as logError, debug } from '../utils/logger.js';
+import { info, warn, debug } from '../utils/logger.js';
 import { FailureLogger, createFailureLogger } from '../utils/failure-logger.js';
 import { ProgressBar, createProgressBar } from '../utils/progress-bar.js';
 import fs from 'fs/promises';
@@ -27,7 +36,7 @@ import pLimit from 'p-limit';
  * 翻译引擎类
  */
 export class Translator {
-  private config: TranslateConfig;
+  private config: ResolvedTranslateConfig;
   private llmClient: LLMClient;
   private cacheManager: CacheManager;
   private failureLogger: FailureLogger;
@@ -35,14 +44,14 @@ export class Translator {
   private force: boolean = false;
 
   constructor(config: TranslateConfig) {
-    this.config = config;
-    this.llmClient = createLLMClient(config.llm);
-    if (config.prompt) {
-      this.llmClient.setCustomPrompt(config.prompt);
+    this.config = resolveRuntimeConfig(config);
+    this.llmClient = createLLMClient(this.config.llm);
+    if (this.config.prompt) {
+      this.llmClient.setCustomPrompt(this.config.prompt);
     }
-    this.cacheManager = createCacheManager(config.cachePath || '.i18n-translate-cache.json');
+    this.cacheManager = createCacheManager(this.config.cachePath || '.i18n-translate-cache.json');
     this.failureLogger = createFailureLogger('.i18n-translate-failures.json');
-    this.limit = pLimit(config.concurrency || 5);
+    this.limit = pLimit(this.config.concurrency || 5);
   }
 
   /**
@@ -104,8 +113,14 @@ export class Translator {
     });
 
     const filePromises = files.map(async fileInfo => {
-      const tag = chalk.cyan(`[${fileInfo.targetLang}/${fileInfo.relativePath}]`);
-      const result = await this.translateFile(fileInfo.relativePath, fileInfo.targetLang, progressBar, tag);
+      const tag = chalk.cyan(`[${fileInfo.sourceLang}→${fileInfo.targetLang}/${fileInfo.relativePath}]`);
+      const result = await this.translateFile(
+        fileInfo.relativePath,
+        fileInfo.targetLang,
+        progressBar,
+        tag,
+        fileInfo.sourceLang,
+      );
       if (result.success) {
         progressBar.increment(`${chalk.green('✓')} ${tag} +${result.added} ~${result.updated} ↷${result.skipped}`);
       } else {
@@ -136,10 +151,7 @@ export class Translator {
     await this.cacheManager.save();
     await saveSnapshot();
 
-    if (this.failureLogger.getFailureCount() > 0) {
-      await this.failureLogger.save();
-      warn(`${this.failureLogger.getFailureCount()} keys failed, see .i18n-translate-failures.md`);
-    }
+    await this.flushFailures();
 
     return stats;
   }
@@ -150,10 +162,18 @@ export class Translator {
    * @param targetLang 目标语言
    * @returns 处理结果
    */
-  async translateFile(relativePath: string, targetLang: string, progressBar?: ProgressBar, tag?: string): Promise<FileProcessResult> {
+  async translateFile(
+    relativePath: string,
+    targetLang: string,
+    progressBar?: ProgressBar,
+    tag?: string,
+    sourceLang?: string,
+  ): Promise<FileProcessResult> {
+    const resolvedSourceLang = sourceLang || this.resolveSourceLang(targetLang);
     const result: FileProcessResult = {
       filePath: relativePath,
       targetLang,
+      sourceLang: resolvedSourceLang,
       added: 0,
       updated: 0,
       skipped: 0,
@@ -162,7 +182,7 @@ export class Translator {
 
     try {
       // 读取基准文件和目标文件
-      const baseFilePath = path.join(this.config.localesDir, this.config.baseLang, relativePath);
+      const baseFilePath = path.join(this.config.localesDir, resolvedSourceLang, relativePath);
       const targetFilePath = path.join(this.config.localesDir, targetLang, relativePath);
 
       let baseContent: NestedJSON;
@@ -189,6 +209,7 @@ export class Translator {
         this.config.skipKeys,
         relativePath,
         targetLang,
+        resolvedSourceLang,
       );
 
       result.added = diff.added.length;
@@ -196,36 +217,50 @@ export class Translator {
       result.skipped = diff.skipped.length;
 
       const baseFlattened = flatten(baseContent);
+      const targetFlattened = targetContent ? flatten(targetContent) : {};
+      const skippedNeedsSync = diff.skipped.some(
+        key => targetFlattened[key] !== baseFlattened[key]
+      );
 
       for (const key of diff.unchanged) {
-        updateSnapshot(relativePath, targetLang, key, baseFlattened[key]);
+        updateSnapshot(relativePath, targetLang, key, baseFlattened[key], resolvedSourceLang);
       }
       if (diff.removed.length > 0) {
-        removeSnapshotKeys(relativePath, targetLang, diff.removed);
+        removeSnapshotKeys(relativePath, targetLang, diff.removed, resolvedSourceLang);
       }
 
       if (diff.added.length === 0 && diff.modified.length === 0) {
-        if (diff.removed.length > 0) {
+        if (diff.removed.length > 0 || skippedNeedsSync || targetContent === null) {
           const mergedContent = this.mergeTranslations(baseContent, targetContent, new Map(), diff.skipped);
           await fs.mkdir(path.dirname(targetFilePath), { recursive: true });
           await fs.writeFile(targetFilePath, JSON.stringify(mergedContent, null, 2), 'utf-8');
         }
+        setSnapshotOwner(relativePath, targetLang, resolvedSourceLang);
         result.success = true;
         return result;
       }
 
       const tasks: TranslationTask[] = [];
       for (const key of [...diff.added, ...diff.modified]) {
-        tasks.push({ key, sourceText: baseFlattened[key], targetLang, filePath: relativePath });
+        tasks.push({
+          key,
+          sourceText: baseFlattened[key],
+          sourceLang: resolvedSourceLang,
+          targetLang,
+          filePath: relativePath,
+        });
       }
 
       const translations = await this.executeTranslations(tasks, progressBar, tag);
 
-      for (const [key, _] of translations) {
+      for (const key of translations.keys()) {
         const task = tasks.find(t => t.key === key);
         if (task) {
-          updateSnapshot(relativePath, targetLang, key, task.sourceText);
+          updateSnapshot(relativePath, targetLang, key, task.sourceText, resolvedSourceLang);
         }
+      }
+      if (translations.size === tasks.length) {
+        setSnapshotOwner(relativePath, targetLang, resolvedSourceLang);
       }
 
       const mergedContent = this.mergeTranslations(
@@ -241,7 +276,11 @@ export class Translator {
       // 写入文件
       await fs.writeFile(targetFilePath, JSON.stringify(mergedContent, null, 2), 'utf-8');
 
-      result.success = true;
+      const failedTranslations = tasks.length - translations.size;
+      result.success = failedTranslations === 0;
+      if (failedTranslations > 0) {
+        result.error = `${failedTranslations} of ${tasks.length} keys failed to translate`;
+      }
 
     } catch (error) {
       result.success = false;
@@ -261,11 +300,12 @@ export class Translator {
     const tasksToTranslate: TranslationTask[] = [];
     const log = (msg: string) => {
       const line = tag ? `${tag} ${msg}` : msg;
-      progressBar ? progressBar.log(line) : info(msg);
+      if (progressBar) progressBar.log(line);
+      else info(msg);
     };
 
     for (const task of tasks) {
-      const cached = this.cacheManager.get(task.sourceText, task.targetLang);
+      const cached = this.cacheManager.get(task.sourceText, task.targetLang, task.sourceLang);
       if (cached) {
         results.set(task.key, cached);
       } else {
@@ -301,7 +341,8 @@ export class Translator {
               task.sourceText,
               res.translatedText,
               task.targetLang,
-              this.config.llm.model || 'unknown'
+              this.config.llm.model || 'unknown',
+              task.sourceLang,
             );
           }
         } else {
@@ -342,13 +383,13 @@ export class Translator {
         // 优先使用翻译结果（如果翻译成功）
         result[key] = translations.get(key)!;
       } else if (skippedKeys.includes(key)) {
-        // 跳过键保持英文原样
+        // 跳过键保持母版原文
         result[key] = baseFlattened[key];
       } else if (targetFlattened[key] && targetFlattened[key] !== baseFlattened[key]) {
-        // 目标文件中有值且与英文不同，保持现有翻译
+        // 目标文件中有值且与母版原文不同，保持现有翻译
         result[key] = targetFlattened[key];
       } else {
-        // 否则使用英文（未翻译或新键）
+        // 否则使用母版原文（未翻译或新键）
         result[key] = baseFlattened[key];
       }
     }
@@ -361,20 +402,22 @@ export class Translator {
    * 获取所有需要处理的文件
    * @returns 文件信息列表
    */
-  private async getAllFiles(): Promise<Array<{ relativePath: string; targetLang: string }>> {
-    const files: Array<{ relativePath: string; targetLang: string }> = [];
-    const baseDir = path.join(this.config.localesDir, this.config.baseLang);
+  private async getAllFiles(): Promise<Array<{ relativePath: string; sourceLang: string; targetLang: string }>> {
+    const files: Array<{ relativePath: string; sourceLang: string; targetLang: string }> = [];
 
-    try {
-      const jsonFiles = await this.scanJsonFiles(baseDir);
+    for (const route of this.config.routes) {
+      const baseDir = path.join(this.config.localesDir, route.baseLang);
+      try {
+        const jsonFiles = await this.scanJsonFiles(baseDir);
 
-      for (const relativePath of jsonFiles) {
-        for (const targetLang of this.config.targetLangs) {
-          files.push({ relativePath, targetLang });
+        for (const relativePath of jsonFiles) {
+          for (const targetLang of route.targetLangs) {
+            files.push({ relativePath, sourceLang: route.baseLang, targetLang });
+          }
         }
+      } catch (error) {
+        throw new Error(`Failed to scan master directory ${route.baseLang}: ${(error as Error).message}`);
       }
-    } catch (error) {
-      logError(`Failed to scan files: ${(error as Error).message}`);
     }
 
     return files;
@@ -389,69 +432,43 @@ export class Translator {
   private async scanJsonFiles(dir: string, basePath: string = dir): Promise<string[]> {
     const files: string[] = [];
 
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
+    const entries = await fs.readdir(dir, { withFileTypes: true });
 
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        const relativePath = path.relative(basePath, fullPath);
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      const relativePath = path.relative(basePath, fullPath);
 
-        if (entry.isDirectory()) {
-          // 递归扫描子目录
-          const subFiles = await this.scanJsonFiles(fullPath, basePath);
-          files.push(...subFiles);
-        } else if (entry.isFile() && entry.name.endsWith('.json')) {
-          files.push(relativePath);
-        }
+      if (entry.isDirectory()) {
+        const subFiles = await this.scanJsonFiles(fullPath, basePath);
+        files.push(...subFiles);
+      } else if (entry.isFile() && entry.name.endsWith('.json')) {
+        files.push(relativePath);
       }
-    } catch (error) {
-      warn(`Failed to scan directory: ${dir} - ${(error as Error).message}`);
     }
 
     return files;
   }
 
-  /**
-   * 按语言分组文件
-   * @param files 文件列表
-   * @returns 分组映射
-   */
-  private groupFilesByLang(
-    files: Array<{ relativePath: string; targetLang: string }>
-  ): Map<string, Array<{ relativePath: string; targetLang: string }>> {
-    const groups = new Map<string, Array<{ relativePath: string; targetLang: string }>>();
-
-    for (const file of files) {
-      if (!groups.has(file.targetLang)) {
-        groups.set(file.targetLang, []);
-      }
-      groups.get(file.targetLang)!.push(file);
-    }
-
-    return groups;
-  }
-
-  /**
-   * 获取缓存统计
-   */
   private async pruneCache(): Promise<number> {
     const activeKeys = new Set<string>();
-    const baseDir = path.join(this.config.localesDir, this.config.baseLang);
-    const jsonFiles = await this.scanJsonFiles(baseDir);
+    for (const route of this.config.routes) {
+      const baseDir = path.join(this.config.localesDir, route.baseLang);
+      const jsonFiles = await this.scanJsonFiles(baseDir);
 
-    for (const relativePath of jsonFiles) {
-      const filePath = path.join(baseDir, relativePath);
-      try {
-        const data = await fs.readFile(filePath, 'utf-8');
-        const content = JSON.parse(data) as NestedJSON;
-        const flattened = flatten(content);
-        for (const value of Object.values(flattened)) {
-          for (const lang of this.config.targetLangs) {
-            activeKeys.add(this.cacheManager.generateKey(value, lang));
+      for (const relativePath of jsonFiles) {
+        const filePath = path.join(baseDir, relativePath);
+        try {
+          const data = await fs.readFile(filePath, 'utf-8');
+          const content = JSON.parse(data) as NestedJSON;
+          const flattened = flatten(content);
+          for (const value of Object.values(flattened)) {
+            for (const lang of route.targetLangs) {
+              activeKeys.add(this.cacheManager.generateKey(value, lang, route.baseLang));
+            }
           }
+        } catch {
+          // skip unreadable files
         }
-      } catch {
-        // skip unreadable files
       }
     }
 
@@ -473,6 +490,32 @@ export class Translator {
   async saveCache(): Promise<void> {
     await this.cacheManager.save();
     await saveSnapshot();
+    await this.flushFailures();
+  }
+
+  private async flushFailures(): Promise<void> {
+    const failureCount = this.failureLogger.getFailureCount();
+    if (failureCount === 0) return;
+    await this.failureLogger.save();
+    warn(`${failureCount} keys failed, see .i18n-translate-failures.md`);
+    this.failureLogger.clear();
+  }
+
+  /**
+   * 删除某条路由对应的目标文件及其快照。供监听模式处理母版文件删除事件。
+   */
+  async removeTargetFile(relativePath: string, targetLang: string): Promise<void> {
+    const targetFilePath = path.join(this.config.localesDir, targetLang, relativePath);
+    await fs.rm(targetFilePath, { force: true });
+    removeSnapshotFile(relativePath, targetLang);
+  }
+
+  private resolveSourceLang(targetLang: string): string {
+    const route = this.config.routes.find(candidate => candidate.targetLangs.some(lang => lang === targetLang));
+    if (!route) {
+      throw new Error(`No master route configured for target language: ${targetLang}`);
+    }
+    return route.baseLang;
   }
 }
 
@@ -483,4 +526,17 @@ export class Translator {
  */
 export function createTranslator(config: TranslateConfig): Translator {
   return new Translator(config);
+}
+
+function resolveRuntimeConfig(config: TranslateConfig): ResolvedTranslateConfig {
+  const routes = config.routes?.length
+    ? config.routes.map(route => ({ ...route, targetLangs: [...route.targetLangs] }))
+    : [{ baseLang: config.baseLang, targetLangs: [...config.targetLangs] }];
+
+  return {
+    ...config,
+    routes,
+    baseLang: routes[0].baseLang,
+    targetLangs: routes.flatMap(route => route.targetLangs),
+  };
 }

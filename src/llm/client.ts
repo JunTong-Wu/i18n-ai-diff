@@ -5,8 +5,8 @@
 
 import OpenAI from 'openai';
 import { LLMConfig, TranslationResult, TranslationTask } from '../types/index.js';
-import { buildBatchPrompt, BatchPromptResult } from './prompt-builder.js';
-import { info, warn, error as logError, debug } from '../utils/logger.js';
+import { buildBatchPrompt } from './prompt-builder.js';
+import { warn, error as logError, debug } from '../utils/logger.js';
 
 /**
  * LLM 客户端类
