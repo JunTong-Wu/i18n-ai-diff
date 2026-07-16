@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "current": "提交取消或退货申请"
+  },
+  "title": "提交取消或退货申请",
+  "description": "如果您需要取消购买或申请退货，请使用此表单提交申请。提交后，我们会向您填写的邮箱发送确认邮件。",
+  "form": {
+    "nameLabel": "姓名",
+    "namePlaceholder": "请输入您的姓名",
+    "emailLabel": "邮箱",
+    "emailPlaceholder": "请输入用于接收确认邮件的邮箱",
+    "orderReferenceLabel": "订单号",
+    "orderReferencePlaceholder": "请输入您的订单号",
+    "itemsLabel": "商品",
+    "itemsPlaceholder": "请描述相关商品和您的处理需求",
+    "messageLabel": "补充说明",
+    "messagePlaceholder": "可填写有助于我们处理申请的其他信息",
+    "submit": "提交申请",
+    "required": "此项为必填项",
+    "emailInvalid": "请输入有效的邮箱地址"
+  },
+  "alert": {
+    "checkInformation": "核对信息",
+    "checkInformationDescription": "请在提交申请前确认您的信息无误。",
+    "confirm": "确认",
+    "cancel": "取消",
+    "submitSuccess": "申请已提交",
+    "submitSuccessDescription": "我们已收到您的申请，并发送了确认邮件。",
+    "submitError": "提交失败",
+    "unknownError": "未知错误",
+    "okGotIt": "知道了"
+  },
+  "email": {
+    "internalSubject": "DWARFLAB 取消或退货申请",
+    "customerSubject": "我们已收到您的 DWARFLAB 取消或退货申请",
+    "internalTitle": "DWARFLAB 取消或退货申请",
+    "internalIntro": "客户通过 DWARFLAB 网站提交了一份取消或退货申请。",
+    "customerTitle": "我们已收到您的申请",
+    "customerGreeting": "{name}，您好：",
+    "customerIntro": "我们已收到您的取消或退货申请。客服团队会进行审核，如需补充信息，我们会与您联系。",
+    "customerReceiptNote": "此邮件用于确认我们已收到您的申请，请妥善保存以备查阅。",
+    "supportSignature": "DWARFLAB 客服团队",
+    "receivedAtLabel": "接收时间",
+    "regionLabel": "地区",
+    "languageLabel": "语言",
+    "emptyValue": "-"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "title": "仕様パラメータ",
+  "subtitle": "どの望遠鏡があなたに合っていますか？",
+  "priceFormat": "{price} から",
+  "parameters": {
+    "weight": "重量",
+    "aperture": "絞り直径",
+    "sensor": "画像センサー",
+    "focalLength": "焦点距離",
+    "rotationRange": "回転範囲",
+    "maxResolution": "最大解像度",
+    "builtInFilter": "内蔵フィルター",
+    "shootingMode": "撮影モード",
+    "equivalentFocalLength": "等価焦点距離",
+    "storage": "保存",
+    "battery": "バッテリー",
+    "npu": "NPU",
+    "maxExposureTime": "最大露光時間",
+    "moreFunctions": "その他の機能",
+    "size": "サイズ"
+  },
+  "actions": {
+    "buyNow": "今すぐ購入",
+    "learnMore": "詳細を見る"
+  },
+  "units": {
+    "gram": "g",
+    "millimeter": "mm"
+  },
+  "productDataNotFound": "製品データが見つかりません",
+  "positionTags": {
+    "dwarfMini": {
+      "beginnerFriendly": "初心者向け",
+      "mostPortable": "最も携帯しやすい",
+      "easySetup": "簡単セットアップ"
+    },
+    "dwarf3": {
+      "strongerImaging": "より強力な撮影性能",
+      "bestForDeepSky": "深空撮影に最適",
+      "advancedChoice": "上級者向け"
+    }
+  }
+}

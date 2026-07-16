@@ -1,0 +1,18 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Trova un rivenditore autorizzato"
+  },
+  "title": "Trova un rivenditore autorizzato",
+  "searchPlaceholder": "Cerca rivenditori per nome, paese o indirizzo",
+  "checkWebsite": "Visita il sito ufficiale",
+  "continents": {
+    "142": "Asia",
+    "150": "Europa",
+    "002": "Africa",
+    "009": "Oceania",
+    "010": "Antartide",
+    "019": "America"
+  },
+  "emptyMessage": "Nessun rivenditore trovato"
+}

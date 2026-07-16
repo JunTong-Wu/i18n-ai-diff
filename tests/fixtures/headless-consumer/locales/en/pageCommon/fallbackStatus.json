@@ -1,0 +1,13 @@
+{
+  "yourCartIsEmpty": "Your shopping cart is empty",
+  "addSomeProductsToGetStarted": "Add some items to start shopping",
+  "continueShopping": "View Product List",
+  "serverError": "Server Error",
+  "productUnavailableTitle": "Product unavailable",
+  "productUnavailableDescription": "This product is currently unavailable in your region.",
+  "failedToLoadProductInformation": "Unable to load product information,\nClient cannot connect to the Shopify proxy server.\nPlease try again later.",
+  "retry": "Retry",
+  "failedToLoadCMSData": "Data loading failed,\nClient cannot connect to CMS server.\nPlease try again later.",
+  "trackingServiceUnavailable": "Network Error",
+  "failedToLoadTrackingService": "The current network connection is unstable,\nunable to connect to the logistics tracking service.\nPlease check your network and try again, or try again later."
+}

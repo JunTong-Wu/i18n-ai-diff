@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "current": "常见问题"
+  },
+  "title": "常见问题",
+  "searchPlaceholder": "搜索问题",
+  "faqGroups": {
+    "ordersAndShipping": "订单 & 发货",
+    "returnsWarrantyAndCustoms": "退货、保修 & 清关",
+    "gettingStarted": "开始使用",
+    "appAndConnection": "App & 连接",
+    "shootingAndFeatures": "拍摄 & 功能",
+    "accessoriesAndFileTransfer": "配件 & 文件传输"
+  },
+  "contact": {
+    "title": "还有问题？给我们留言！",
+    "nameLabel": "您的姓名",
+    "namePlaceholder": "请输入您的姓名",
+    "emailLabel": "您的邮箱",
+    "emailPlaceholder": "请输入您的邮箱地址",
+    "subjectLabel": "选择主题",
+    "subjectPlaceholder": "售前咨询",
+    "messageLabel": "留言",
+    "messagePlaceholder": "请输入您的留言",
+    "submit": "提交"
+  },
+  "emptyMessage": "未找到匹配的问题"
+}

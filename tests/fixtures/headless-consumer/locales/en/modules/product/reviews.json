@@ -1,0 +1,13 @@
+{
+  "loading": {
+    "importing": "Preparing to load user reviews...",
+    "loadingScript": "Loading comment component...",
+    "renderingWidget": "Rendering user reviews...",
+    "retrying": "The connection is a bit unstable, retrying..."
+  },
+  "failed": {
+    "title": "User reviews are temporarily unavailable",
+    "description": "Failed to connect to the review service. Please try again later.",
+    "retryButton": "Reload"
+  }
+}

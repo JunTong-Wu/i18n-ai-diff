@@ -1,0 +1,31 @@
+{
+  "headerText": "您收到了来自在线商店联系表单的新消息。",
+  "countryLabel": "国家/地区代码",
+  "nameLabel": "您的姓名",
+  "namePlaceholder": "请输入您的姓名",
+  "emailLabel": "您的邮箱",
+  "emailPlaceholder": "请输入您的邮箱",
+  "subjectLabel": "选择一个话题",
+  "subjectPlaceholder": "请选择话题",
+  "subjectOptions": {
+    "preSaleInquiry": "售前咨询",
+    "orderStatus": "订单状态",
+    "appFirmwareIssue": "App/固件问题",
+    "accessoriesIssue": "配件问题",
+    "businessCooperation": "商务合作"
+  },
+  "messageLabel": "留言",
+  "messagePlaceholder": "请输入您的留言",
+  "submit": "提交",
+  "required": "此字段为必填项",
+  "emailInvalid": "请输入有效的邮箱地址",
+  "alert": {
+    "checkInformation": "核对信息",
+    "checkInformationDescription": "请再次核对您的信息正确，以确保我们能够及时与您取得联系。",
+    "cancel": "取消",
+    "confirm": "确认",
+    "submitSuccess": "提交成功",
+    "submitError": "提交失败",
+    "okGotIt": "知道了"
+  }
+}

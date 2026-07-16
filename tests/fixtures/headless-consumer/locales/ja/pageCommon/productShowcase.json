@@ -1,0 +1,38 @@
+{
+  "bestSellingAccessories": "人気アクセサリー",
+  "quantity": "数量",
+  "myChoice": "マイセレクション",
+  "addToCart": "カートに追加",
+  "buyItNow": "今すぐ購入",
+  "shipping": "配送",
+  "shippingPolicyHere": "配送ポリシーはこちら",
+  "paymentMethod": "支払い方法",
+  "twoYearWarranty": "2年間保証",
+  "guaranteedDelivery": "確実な納品",
+  "lifetimeSupport": "生涯サポート",
+  "alert": {
+    "success": "成功",
+    "productHasBeenAddedToYourCart": "商品がカートに追加されました",
+    "viewCartAndCheckout": "カートを確認して決済",
+    "continueShopping": "買い物を続ける",
+    "error": "失敗",
+    "failedToAddToCart": "カートへの追加に失敗しました。しばらくしてからもう一度お試しください。",
+    "okGotIt": "はい、わかりました"
+  },
+  "promotions": {
+    "firstNightKit": {
+      "product": {
+        "title": "初回観測キット特典",
+        "endsIn": "終了まで",
+        "days": "日",
+        "description": "ご注文に {buyItems} が含まれると、{giftItems} が無料になります。",
+        "validity": "キャンペーン期間：{startsAt} から {endsAt} {timezoneLabel} まで。なくなり次第終了。",
+        "accessoryHintLead": "{accessoryName}を追加すると",
+        "accessoryHintHighlight": "{giftItems}が無料になります。",
+        "accessoryHintSubtext": "初めての星空撮影に安定したセットアップを用意できます。",
+        "giftUnlockedTitle": "無料ギフトを獲得",
+        "giftUnlockedDescription": "{giftItems}は決済時に無料で追加されます。"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "breadcrumb": {
+    "home": "홈",
+    "products": "제품",
+    "all": "전체"
+  },
+  "pageTitle": {
+    "products": "제품",
+    "allProducts": "전체 제품",
+    "collectionFallback": "제품 분류"
+  },
+  "collectionTitle": {
+    "accessories": "액세서리",
+    "smart-telescope": "스마트 망원경"
+  },
+  "card": {
+    "empty": "판매 가능한 상품이 없습니다",
+    "status": {
+      "soldOut": "품절"
+    },
+    "rating": {
+      "noReviews": "리뷰 없음",
+      "reviewsWord": "리뷰",
+      "jumpToReviewsAriaLabel": "상품 리뷰로 이동"
+    }
+  }
+}

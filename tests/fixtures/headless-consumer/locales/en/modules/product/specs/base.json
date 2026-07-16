@@ -1,0 +1,43 @@
+{
+  "title": "Specifications",
+  "subtitle": "Which telescope is right for you?",
+  "priceFormat": "From {price}",
+  "parameters": {
+    "weight": "Weight",
+    "aperture": "Aperture diameter",
+    "sensor": "Image Sensor",
+    "focalLength": "Focal length",
+    "rotationRange": "Rotation range",
+    "maxResolution": "Maximum Resolution",
+    "builtInFilter": "Built-in filters",
+    "shootingMode": "Shooting Mode",
+    "equivalentFocalLength": "Equivalent focal length",
+    "storage": "Storage",
+    "battery": "Battery",
+    "npu": "NPU",
+    "maxExposureTime": "Maximum exposure time",
+    "moreFunctions": "More Features",
+    "size": "Size"
+  },
+  "actions": {
+    "buyNow": "Buy Now",
+    "learnMore": "Learn More"
+  },
+  "units": {
+    "gram": "g",
+    "millimeter": "mm"
+  },
+  "productDataNotFound": "Product data not found",
+  "positionTags": {
+    "dwarfMini": {
+      "beginnerFriendly": "Beginner Friendly",
+      "mostPortable": "Most Portable",
+      "easySetup": "Easy Setup"
+    },
+    "dwarf3": {
+      "strongerImaging": "Stronger Imaging",
+      "bestForDeepSky": "Best for Deep Sky",
+      "advancedChoice": "Advanced Choice"
+    }
+  }
+}

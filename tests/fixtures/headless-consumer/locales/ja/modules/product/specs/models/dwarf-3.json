@@ -1,0 +1,17 @@
+{
+  "weight": "1350 g",
+  "aperture": "35 mm（望遠）\n3.4 mm（広角）",
+  "sensor": "SONY IMX678 1/1.8'（望遠）\nSONY IMX307 1/2.8'（広角）",
+  "focalLength": "150 mm（望遠）\n6.7 mm（広角）",
+  "rotationRange": "レンズ：240°\nベース：340°",
+  "maxResolution": "3840 × 2160（望遠）\n1920 × 1080（広角）",
+  "builtInFilter": "VIS、Duo-Band、Astro（望遠）\nAstro（広角）",
+  "shootingMode": "写真、ビデオ、天体、連写、タイムラプス\n（望遠 & 広角）",
+  "equivalentFocalLength": "737 mm（望遠）\n45 mm（広角）",
+  "storage": "128 GB",
+  "battery": "内蔵\n10000 mAh\n外部USB充電対応",
+  "npu": "5 TOPS",
+  "maxExposureTime": "60秒（望遠）\n90秒（広角）\n両方ともEQモードで",
+  "moreFunctions": "NFC 一触即発\n天体写真の後処理/予約撮影/天体モザイク",
+  "size": "222 × 142 × 65 mm"
+}

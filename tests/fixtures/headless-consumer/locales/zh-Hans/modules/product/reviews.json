@@ -1,0 +1,13 @@
+{
+  "loading": {
+    "importing": "准备加载用户评论...",
+    "loadingScript": "正在加载评论组件...",
+    "renderingWidget": "正在渲染用户评论...",
+    "retrying": "连接有些不稳定，正在重试..."
+  },
+  "failed": {
+    "title": "用户评论暂时无法加载",
+    "description": "评论服务连接失败，请稍后重试。",
+    "retryButton": "重新加载"
+  }
+}

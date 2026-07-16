@@ -1,0 +1,193 @@
+{
+  "title": "Title on the homepage",
+  "description": "Content on the homepage",
+  "banner": {
+    "slides": {
+      "0": {
+        "subtitle": "Small size, big energy.",
+        "buttons": {
+          "learnMore": "Learn more",
+          "preOrder": "Buy Now"
+        },
+        "images": {
+          "alt": "DWARF mini smart telescope"
+        }
+      },
+      "1": {
+        "subtitle": "Compact in size, powerful in magic.",
+        "buttons": {
+          "learnMore": "Learn more",
+          "buyNow": "Buy Now"
+        },
+        "images": {
+          "alt": "DWARF 3 Smart Telescope"
+        }
+      }
+    }
+  },
+  "sellingPoint": {
+    "title": "Travel light, see further.",
+    "tabs": {
+      "0": {
+        "name": "DWARF mini",
+        "slides": {
+          "0": {
+            "title": "840g ultra-portable"
+          },
+          "1": {
+            "title": "90-second shutter"
+          },
+          "2": {
+            "title": "4-hour battery life"
+          },
+          "3": {
+            "title": "360° Free Rotation"
+          },
+          "4": {
+            "title": "Small size, big energy"
+          }
+        }
+      },
+      "1": {
+        "name": "DWARF 3",
+        "slides": {
+          "0": {
+            "line1": "Always ready",
+            "line2": "Deep Sky Photography"
+          },
+          "1": {
+            "line1": "Panoramic shooting",
+            "line2": "Details are clear"
+          },
+          "2": {
+            "line1": "Auto Tracking",
+            "line2": "Capture the Moment"
+          },
+          "3": {
+            "line1": "Urban Stargazing",
+            "line2": "Within reach"
+          },
+          "4": {
+            "line1": "Galactic Star Trail",
+            "line2": "Explore deeper"
+          },
+          "5": {
+            "line1": "Time-lapse photography",
+            "line2": "From Dusk Till Dawn"
+          }
+        }
+      }
+    }
+  },
+  "productCard": {
+    "cards": {
+      "0": {
+        "tag": "New",
+        "description": "Small yet powerful, with extraordinary capabilities.",
+        "buttons": {
+          "learnMore": "Learn more",
+          "preOrder": "Buy Now"
+        }
+      },
+      "1": {
+        "description": "See further",
+        "buttons": {
+          "learnMore": "Learn more",
+          "buyNow": "Buy Now"
+        }
+      },
+      "2": {
+        "description": "Long Exposure Companion",
+        "buttons": {
+          "learnMore": "Learn more",
+          "buyNow": "Buy Now"
+        }
+      }
+    }
+  },
+  "reviews": {
+    "title": "Review",
+    "slides": {
+      "0": {
+        "title": "DWARF mini Smart Telescope Review: Real Results"
+      },
+      "1": {
+        "title": "Dwarf mini Smart Telescope Review + Tutorial"
+      },
+      "2": {
+        "title": " DWARF mini Hands On Review | Real Footage & Astrophotography Results"
+      },
+      "3": {
+        "title": "Exploring Deep Space with the Dwarf 3 Smart Telescope"
+      },
+      "4": {
+        "title": "Discover Deep Space Photography with Dwarf 3 Smart Telescope"
+      },
+      "5": {
+        "title": "DWARF 3’s Astro and Duo-band filters for Deep Space Photography"
+      },
+      "6": {
+        "title": "DWARF 3 Full Review: Is there Anything this Tiny Scope Can't Do?"
+      }
+    }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "exploreMore": "Explore More"
+  },
+  "trustSupport": {
+    "cards": {
+      "0": {
+        "title": "App Download"
+      },
+      "1": {
+        "title": "Product Guide"
+      },
+      "2": {
+        "title": "Contact Support"
+      }
+    }
+  },
+  "chooseGuide": {
+    "products": {
+      "eyebrow": "Buying guide",
+      "title": "Product comparison and recommendations",
+      "primaryAction": "Help me choose",
+      "secondaryAction": "Product Comparison",
+      "imageAlt": "DWARFLAB smart telescope product comparison"
+    },
+    "accessories": {
+      "eyebrow": "Essential accessories",
+      "title": "Official add-ons for better shoots.",
+      "primaryAction": "Shop now",
+      "imageAlt": "DWARFLAB telescope accessories"
+    },
+    "modal": {
+      "title": "Which DWARF Fits You Best?",
+      "cards": {
+        "mini": {
+          "title": "DWARF mini",
+          "subtitle": "Made for the Night Sky",
+          "points": {
+            "0": "Ultra-portable and easy to set up",
+            "1": "Great for travel & family stargazing",
+            "2": "Effortless astrophotography"
+          }
+        },
+        "dwarf3": {
+          "title": "DWARF 3",
+          "subtitle": "For Astronomy & Nature",
+          "points": {
+            "0": "One device for sky & nature",
+            "1": "Tracks birds & moving subjects",
+            "2": "Great for panoramas, day & night"
+          }
+        }
+      },
+      "actions": {
+        "viewMini": "View DWARF mini",
+        "viewDwarf3": "View DWARF 3"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Submit Withdrawal Request"
+  },
+  "title": "Submit Withdrawal Request",
+  "description": "Use this form to submit your withdrawal request. After submission, we will email a confirmation to the address you provide.",
+  "form": {
+    "nameLabel": "Name",
+    "namePlaceholder": "Enter your full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter the email address for confirmation",
+    "orderReferenceLabel": "Order Number",
+    "orderReferencePlaceholder": "Enter your order number",
+    "itemsLabel": "Items",
+    "itemsPlaceholder": "Describe the items you wish to withdraw from",
+    "messageLabel": "Additional Notes",
+    "messagePlaceholder": "Add any details that may help us process your request",
+    "submit": "Submit withdrawal request",
+    "required": "This field is required",
+    "emailInvalid": "Please enter a valid email address"
+  },
+  "alert": {
+    "checkInformation": "Review your information",
+    "checkInformationDescription": "Please confirm your details before submitting your withdrawal request.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "submitSuccess": "Request submitted",
+    "submitSuccessDescription": "We have received your withdrawal request and sent a confirmation email.",
+    "submitError": "Submission failed",
+    "unknownError": "Unknown error",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "DWARFLAB Withdrawal Request",
+    "customerSubject": "We received your DWARFLAB withdrawal request",
+    "internalTitle": "DWARFLAB Withdrawal Request",
+    "internalIntro": "The customer submitted a withdrawal request through the DWARFLAB website.",
+    "customerTitle": "We received your withdrawal request",
+    "customerGreeting": "Hello {name},",
+    "customerIntro": "We have received your withdrawal request. Our support team will review it and contact you if any additional information is needed.",
+    "customerReceiptNote": "This email confirms receipt of your request. Please keep it for your records.",
+    "supportSignature": "DWARFLAB Support",
+    "receivedAtLabel": "Received at",
+    "regionLabel": "Region",
+    "languageLabel": "Language",
+    "emptyValue": "-"
+  }
+}

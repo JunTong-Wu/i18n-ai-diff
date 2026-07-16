@@ -1,0 +1,31 @@
+{
+  "headerText": "온라인 스토어 문의 양식으로부터 새 메시지를 받았습니다.",
+  "countryLabel": "국가/지역 코드",
+  "nameLabel": "성함",
+  "namePlaceholder": "이름을 입력해 주세요",
+  "emailLabel": "이메일 주소",
+  "emailPlaceholder": "이메일을 입력해 주세요",
+  "subjectLabel": "주제 선택",
+  "subjectPlaceholder": "주제를 선택하세요",
+  "subjectOptions": {
+    "preSaleInquiry": "사전 상담",
+    "orderStatus": "주문 상태",
+    "appFirmwareIssue": "앱/펌웨어 문제",
+    "accessoriesIssue": "액세서리 문제",
+    "businessCooperation": "비즈니스 협력"
+  },
+  "messageLabel": "메시지",
+  "messagePlaceholder": "메시지를 입력해 주세요",
+  "submit": "제출",
+  "required": "이 필드는 필수 항목입니다.",
+  "emailInvalid": "유효한 이메일 주소를 입력해 주세요",
+  "alert": {
+    "checkInformation": "정보 확인",
+    "checkInformationDescription": "연락이 원활히 이루어질 수 있도록 정보가 정확한지 다시 한번 확인해 주세요.",
+    "cancel": "취소",
+    "confirm": "확인",
+    "submitSuccess": "제출 성공",
+    "submitError": "제출 실패",
+    "okGotIt": "알겠습니다"
+  }
+}

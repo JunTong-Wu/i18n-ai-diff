@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "Proteção total",
+      "description": "Camada externa em PVC courino resistente a respingos e rasgos, com camada interna de amortecimento e proteção 360° ajustada."
+    },
+    "portable": {
+      "title": "Ultraportátil",
+      "description": "Contorno minimalista de 21×9×12 cm, alça ajustável de 1,6 m."
+    },
+    "storage": {
+      "title": "Bolsa de armazenamento",
+      "description": "Suporte estável com cinta inferior, compartimento exclusivo para filtros laterais,主机 e acessórios cada um em seu lugar, eliminando a preocupação de procurar itens ao ar livre."
+    },
+    "customFit": {
+      "title": "Personalização exclusiva",
+      "description": "Projetado para o DWARF mini, com forro de algodão acetinado, ajuste perfeito para evitar vibrações e deslocamentos durante o transporte."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "Nome do produto",
+      "value": "Bolsa de proteção portátil para DWARF mini"
+    },
+    "outerMaterial": {
+      "label": "Material externo",
+      "value": "Couro sintético de PVC"
+    },
+    "innerMaterial": {
+      "label": "Material interno",
+      "value": "Algodão mercerizado"
+    },
+    "size": {
+      "label": "Dimensões do contorno",
+      "value": "21 cm de comprimento × 9 cm de largura × 12 cm de altura"
+    },
+    "strap": {
+      "label": "Especificações da alça",
+      "value": "Comprimento ajustável de 1,6 m, com fecho de metal"
+    },
+    "title": "Especificações do produto"
+  },
+  "hero": {
+    "title": "Bolsa para DWARF Mini",
+    "subtitle": "Proteção total｜Máxima portabilidade｜Tudo em uma bolsa｜Sob medida exclusivo"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Become an Affiliate"
+  },
+  "title": "Become an Affiliate",
+  "banner": {
+    "title": "Recommend DWARFLAB products and earn commissions",
+    "steps": {
+      "join": {
+        "title": "Join",
+        "description": "Register a free ShareASale or Affiliatly account as an affiliate partner, or if you already have an account, add DWARFLAB ID."
+      },
+      "share": {
+        "title": "Share",
+        "description": "Use exclusive creator links to share and promote DWARFLAB products online to your audience."
+      },
+      "earn": {
+        "title": "Earn",
+        "description": "Earn 5% commission on qualifying orders. Our brand recognition and product quality help you maximize your earnings."
+      }
+    }
+  },
+  "join": {
+    "title": "Join now and get 5% commission",
+    "description": "Choose any of the following platforms to start earning revenue.",
+    "platforms": {
+      "affiliatly": {
+        "button": "Join Affiliatly"
+      },
+      "awin": {
+        "button": "Join Awin"
+      }
+    },
+    "or": "or"
+  }
+}

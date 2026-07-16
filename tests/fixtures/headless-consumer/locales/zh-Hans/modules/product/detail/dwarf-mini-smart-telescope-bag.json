@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "全方位防护",
+      "description": "PVC 人造革外层防泼水抗撕裂，内置减震夹层，360° 贴合保护。"
+    },
+    "portable": {
+      "title": "极致便携",
+      "description": "21×9×12 cm 极简轮廓，1.6m 可调肩带。"
+    },
+    "storage": {
+      "title": "一包收纳",
+      "description": "底部绑带稳固支架，侧面滤镜专属仓，主机与配件各归其位，告别户外寻找烦恼。"
+    },
+    "customFit": {
+      "title": "专属定制",
+      "description": "专为 DWARF mini 设计，搭配丝光棉内衬，严丝合缝防止路途震动位移。"
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "产品名称",
+      "value": "DWARF mini 专用随行保护包"
+    },
+    "outerMaterial": {
+      "label": "外部材质",
+      "value": "PVC 人造革"
+    },
+    "innerMaterial": {
+      "label": "内部材质",
+      "value": "丝光棉"
+    },
+    "size": {
+      "label": "轮廓尺寸",
+      "value": "长 21cm × 宽 9cm × 高 12cm"
+    },
+    "strap": {
+      "label": "肩带规格",
+      "value": "1.6m 可调节长度，配备金属扣"
+    },
+    "title": "产品规格"
+  },
+  "hero": {
+    "title": "DWARF mini 包",
+    "subtitle": "全方位防护｜极致便携｜一包收纳｜专属定制"
+  }
+}

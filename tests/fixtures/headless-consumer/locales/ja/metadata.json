@@ -1,0 +1,188 @@
+{
+  "products": {
+    "title": "製品 - DWARFLAB",
+    "description": "私たちの革新的な製品シリーズを閲覧する",
+    "dwarf-mini-smart-telescope": {
+      "title": "DWARF Mini スマート望遠鏡 - DWARFLAB",
+      "description": "小型で携帯性に優れたスマート望遠鏡。バードウォッチング、風景鑑賞、初心者向けの天体写真撮影に最適です。"
+    },
+    "dwarf-mini-smart-telescope-open-box": {
+      "title": "DWARF Mini スマート望遠鏡（開封品） - DWARFLAB",
+      "description": "小型で携帯性に優れたスマート望遠鏡。バードウォッチング、風景鑑賞、初心者向けの天体写真撮影に最適です。"
+    },
+    "dwarf-3-smart-telescope": {
+      "title": "DWARF 3 スマート望遠鏡 - DWARFLAB",
+      "description": "軽量一体型スマート天体望遠鏡。太陽、月、深宇宙の撮影に対応。"
+    },
+    "dwarf-3-smart-telescope-open-box": {
+      "title": "DWARF 3 スマート望遠鏡（開封品） - DWARFLAB",
+      "description": "軽量一体型スマート天体望遠鏡。太陽、月、深宇宙の撮影に対応。"
+    },
+    "dwarf-2-smart-telescope": {
+      "title": "DWARF II スマート望遠鏡 - DWARFLAB",
+      "description": "デュアルレンズスマート望遠鏡、長焦点観測と広角記録を両立。"
+    },
+    "dwarf-ii-refurbished": {
+      "title": "DWARF II 公式整備済み品 - DWARFLAB",
+      "description": "DWARF II の公式整備済みモデルをご覧ください。"
+    },
+    "tripod-for-dwarf-3": {
+      "title": "ミニ三脚架 - DWARFLAB",
+      "description": "DWARFシリーズ専用に設計された軽量で安定した三脚。"
+    },
+    "mini-tripod-with-hydraulic-head-open-box": {
+      "title": "Mini Tripod ミニ三脚架（開封品） - DWARFLAB",
+      "description": "DWARFシリーズ専用に設計された軽量で安定した三脚。"
+    },
+    "uhc-nd-telescope-filter-for-dwarf-ii": {
+      "title": "DWARF II UHC・ND 望遠鏡フィルター - DWARFLAB",
+      "description": "DWARF II 用 UHC および ND 望遠鏡フィルター。"
+    },
+    "filter-adapter-for-dwarf-ii": {
+      "title": "DWARF II フィルターアダプターリング - DWARFLAB",
+      "description": "DWARF II用フィルターアダプターリング。"
+    },
+    "rechargeable-lithium-battery-for-dwarf-ii": {
+      "title": "DWARF II 充電式リチウムバッテリー - DWARFLAB",
+      "description": "DWARF II 対応の充電式リチウム電池です。"
+    },
+    "dwarf-mini-smart-telescope-bag": {
+      "title": "DWARF mini バッグ - DWARFLAB",
+      "description": "DWARF Mini 用に設計されたコンパクトなキャリーバッグ。保護ライニングとアクセサリーポケット付き。"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "ホーム - DWARFLAB",
+      "description": "DWARFLAB 公式ウェブサイト、革新的な製品とサービスを探索"
+    },
+    "cart": {
+      "title": "ショッピングカート - DWARFLAB",
+      "description": "あなたのショッピングカート"
+    },
+    "pages": {
+      "dwarf-mini-smart-telescope": {
+        "title": "DWARF mini スマート望遠鏡 - DWARFLAB",
+        "description": "DWARF miniをご紹介します。DWARFLABは、誰もが天体写真を楽しめるスマート望遠鏡を製造しています。"
+      },
+      "astronomy-with-dwarf-3-smart-telescope": {
+        "title": "DWARF 3 スマート望遠鏡による天体観測 - DWARFLAB",
+        "description": "DWARF 3をご紹介します。DWARFLABは、誰もが天体写真を楽しめるスマート望遠鏡を製造しています。"
+      },
+      "birding-with-dwarf-3-smart-telescope": {
+        "title": "DWARF 3 スマート望遠鏡でバードウォッチング - DWARFLAB",
+        "description": "DWARF 3をご紹介。DWARFLABは、誰もが天体観測を楽しめるスマート望遠鏡を製造しています。"
+      },
+      "panorama-with-dwarf-3-smart-telescope": {
+        "title": "DWARF 3 スマート望遠鏡によるパノラマ - DWARFLAB",
+        "description": "DWARF 3をご紹介。DWARFLABは、誰もがパノラマを楽しめるスマート望遠鏡を製造しています。"
+      },
+      "gallery": {
+        "title": "ユーザー作品ギャラリー - DWARFLAB",
+        "description": "私たちのフォトギャラリーをご覧ください。ここが私たちの輝く場所です。"
+      },
+      "youtube-collection": {
+        "title": "YouTube お気に入り - DWARFLAB",
+        "description": "私たちのYoutubeコレクションを閲覧"
+      },
+      "share-your-dwarf-ii-story": {
+        "title": "あなたのDWARF IIストーリーを共有 - DWARFLAB",
+        "description": "DWARF IIについてあなたのストーリーを共有してください"
+      },
+      "dwarflab-app-firmware-download": {
+        "title": "DWARFLABアプリファームウェアダウンロード - DWARFLAB",
+        "description": "DWARFLABアプリファームウェアをダウンロード"
+      },
+      "faqs": {
+        "title": "よくある質問 - DWARFLAB",
+        "description": "よくある質問"
+      },
+      "contact": {
+        "title": "お問い合わせ - DWARFLAB",
+        "description": "DWARFLAB チームに連絡する"
+      },
+      "about-us": {
+        "title": "私たちの物語 - DWARFLAB",
+        "description": "DWARFLAB チームについて"
+      },
+      "reseller": {
+        "title": "販売代理店 - DWARFLAB",
+        "description": "DWARFLAB 販売代理店になる"
+      },
+      "affiliate-program": {
+        "title": "アライアンス - DWARFLAB",
+        "description": "DWARFLAB コラボレーションプログラムに参加する"
+      },
+      "shipping-policy": {
+        "title": "物流ポリシー - DWARFLAB",
+        "description": "DWARFLABの配送ポリシーについて"
+      },
+      "warranty-and-return": {
+        "title": "保証と返品 - DWARFLAB",
+        "description": "DWARFLABの保証および返品ポリシーについて"
+      },
+      "payment-methods": {
+        "title": "支払い方法 - DWARFLAB",
+        "description": "DWARFLABの支払い方法について"
+      },
+      "find-authorized-reseller": {
+        "title": "認定販売店を探す - DWARFLAB",
+        "description": "DWARFLAB製品の正規販売代理店を探す"
+      },
+      "customer-reviews-on-dwarf-telescope": {
+        "title": "お客様の声 - DWARFLAB",
+        "description": "DWARFLABのカスタマーレビューを確認する。"
+      },
+      "share-your-dwarflab-story": {
+        "title": "ユーザーストーリー - DWARFLAB",
+        "description": "あなたのDWARFLABユーザーストーリーを共有してください。"
+      }
+    },
+    "policies": {
+      "privacy-policy": {
+        "title": "プライバシーポリシー - DWARFLAB",
+        "description": "DWARFLABのプライバシーポリシーを理解する"
+      },
+      "terms-of-service": {
+        "title": "利用規約 - DWARFLAB",
+        "description": "DWARFLABの利用規約を理解する"
+      }
+    },
+    "tools": {
+      "track-order": {
+        "title": "トラッキング注文 - DWARFLAB",
+        "description": "注文を追跡する"
+      },
+      "withdrawal": {
+        "title": "キャンセル・返品を申し込む - DWARFLAB",
+        "description": "注文キャンセルまたは返品の申請を送信する"
+      }
+    }
+  },
+  "blogs": {
+    "story": {
+      "title": "ストーリー - DWARFLAB",
+      "description": "私たちのストーリーを閲覧"
+    },
+    "news": {
+      "title": "ニュース - DWARFLAB",
+      "description": "DWARFLABのニュースを閲覧する。"
+    }
+  },
+  "collections": {
+    "title": "カテゴリー - DWARFLAB",
+    "description": "DWARFLAB製品カテゴリーを閲覧",
+    "all": {
+      "title": "すべての製品 - DWARFLAB",
+      "description": "DWARFLABの全製品を閲覧"
+    },
+    "accessories": {
+      "title": "アクセサリー - DWARFLAB",
+      "description": "DWARFLAB アクセサリー製品を閲覧"
+    },
+    "smart-telescope": {
+      "title": "スマート望遠鏡 - DWARFLAB",
+      "description": "DWARFLAB スマート望遠鏡製品を閲覧"
+    }
+  }
+}

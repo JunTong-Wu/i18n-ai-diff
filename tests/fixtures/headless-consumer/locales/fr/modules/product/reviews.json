@@ -1,0 +1,13 @@
+{
+  "loading": {
+    "importing": "Préparation du chargement des avis utilisateurs...",
+    "loadingScript": "Chargement du composant d'avis...",
+    "renderingWidget": "Génération des avis utilisateurs en cours...",
+    "retrying": "Connexion instable, nouvelle tentative en cours..."
+  },
+  "failed": {
+    "title": "Les commentaires des utilisateurs ne peuvent pas être chargés pour le moment",
+    "description": "Échec de la connexion au service de commentaires, veuillez réessayer plus tard.",
+    "retryButton": "Recharger"
+  }
+}

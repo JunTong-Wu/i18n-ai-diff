@@ -1,0 +1,193 @@
+{
+  "title": "ホームページのタイトル",
+  "description": "ホームページの内容",
+  "banner": {
+    "slides": {
+      "0": {
+        "subtitle": "コンパクトなサイズに、大きなパワー。",
+        "buttons": {
+          "learnMore": "詳細を見る",
+          "preOrder": "今すぐ購入"
+        },
+        "images": {
+          "alt": "DWARF mini スマート望遠鏡"
+        }
+      },
+      "1": {
+        "subtitle": "コンパクトなサイズに、強力な魔力を秘めています。",
+        "buttons": {
+          "learnMore": "詳細を見る",
+          "buyNow": "今すぐ購入"
+        },
+        "images": {
+          "alt": "DWARF 3 スマート望遠鏡"
+        }
+      }
+    }
+  },
+  "sellingPoint": {
+    "title": "軽装で臨めば、より遠くを見通せる。",
+    "tabs": {
+      "0": {
+        "name": "DWARF ミニ",
+        "slides": {
+          "0": {
+            "title": "840g 超軽量"
+          },
+          "1": {
+            "title": "90秒シャッター"
+          },
+          "2": {
+            "title": "4時間のバッテリー持続時間"
+          },
+          "3": {
+            "title": "360°自由回転"
+          },
+          "4": {
+            "title": "小さなボディ、大きなエネルギー"
+          }
+        }
+      },
+      "1": {
+        "name": "DWARF 3",
+        "slides": {
+          "0": {
+            "line1": "いつでも準備完了",
+            "line2": "深空天体撮影"
+          },
+          "1": {
+            "line1": "パノラマ撮影",
+            "line2": "詳細が鮮明"
+          },
+          "2": {
+            "line1": "自動追跡",
+            "line2": "素晴らしい瞬間を捉える"
+          },
+          "3": {
+            "line1": "都市の星空観察",
+            "line2": "手の届くところにある"
+          },
+          "4": {
+            "line1": "銀河星軌",
+            "line2": "より深く探求する"
+          },
+          "5": {
+            "line1": "タイムラプス撮影",
+            "line2": "黄昏から夜明けまで"
+          }
+        }
+      }
+    }
+  },
+  "productCard": {
+    "cards": {
+      "0": {
+        "tag": "New",
+        "description": "コンパクトで強力、非凡な能力。",
+        "buttons": {
+          "learnMore": "詳細を見る",
+          "preOrder": "今すぐ購入"
+        }
+      },
+      "1": {
+        "description": "より遠くを見る",
+        "buttons": {
+          "learnMore": "詳細を見る",
+          "buyNow": "今すぐ購入"
+        }
+      },
+      "2": {
+        "description": "長時間露光のパートナー",
+        "buttons": {
+          "learnMore": "詳細を見る",
+          "buyNow": "今すぐ購入"
+        }
+      }
+    }
+  },
+  "reviews": {
+    "title": "レビュー",
+    "slides": {
+      "0": {
+        "title": "DWARF mini スマート望遠鏡レビュー：実際の効果"
+      },
+      "1": {
+        "title": "DWARF mini スマート望遠鏡レビュー + チュートリアル"
+      },
+      "2": {
+        "title": "DWARF mini 実測レビュー | 実写映像と天体撮影効果"
+      },
+      "3": {
+        "title": "DWARF 3 スマート望遠鏡で深宇宙撮影を探索"
+      },
+      "4": {
+        "title": "DWARF 3 スマート望遠鏡で深宇宙を探索"
+      },
+      "5": {
+        "title": "DWARF 3の天文およびデュアルバンドフィルターは、深宇宙撮影に使用されます"
+      },
+      "6": {
+        "title": "DWARF 3 完全レビュー：この小さな望遠鏡にできないことはあるのか？"
+      }
+    }
+  },
+  "gallery": {
+    "title": "ギャラリー",
+    "exploreMore": "もっと見る"
+  },
+  "trustSupport": {
+    "cards": {
+      "0": {
+        "title": "アプリダウンロード"
+      },
+      "1": {
+        "title": "製品ガイド"
+      },
+      "2": {
+        "title": "サポートに連絡"
+      }
+    }
+  },
+  "chooseGuide": {
+    "products": {
+      "eyebrow": "購入ガイド",
+      "title": "製品比較とおすすめ",
+      "primaryAction": "選択を手伝ってください",
+      "secondaryAction": "製品比較",
+      "imageAlt": "DWARFLABスマート望遠鏡の製品比較"
+    },
+    "accessories": {
+      "eyebrow": "おすすめアクセサリー",
+      "title": "公式アクセサリーで撮影をもっと快適に。",
+      "primaryAction": "今すぐ購入",
+      "imageAlt": "DWARFLAB望遠鏡アクセサリー"
+    },
+    "modal": {
+      "title": "あなたにぴったりのDWARFは？",
+      "cards": {
+        "mini": {
+          "title": "DWARF mini",
+          "subtitle": "夜空のために生まれた",
+          "points": {
+            "0": "超軽量・コンパクトで、セットアップも簡単",
+            "1": "旅行や家族での星空観察に最適",
+            "2": "天体写真を手軽に撮影"
+          }
+        },
+        "dwarf3": {
+          "title": "DWARF 3",
+          "subtitle": "天体観測も自然観察も",
+          "points": {
+            "0": "一台で星空と自然を楽しめる",
+            "1": "鳥や動く被写体を追跡",
+            "2": "昼も夜もパノラマ撮影に最適"
+          }
+        }
+      },
+      "actions": {
+        "viewMini": "DWARF miniを見る",
+        "viewDwarf3": "DWARF 3を見る"
+      }
+    }
+  }
+}

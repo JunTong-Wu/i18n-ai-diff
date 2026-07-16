@@ -1,0 +1,193 @@
+{
+  "title": "Titre de la page d'accueil",
+  "description": "Contenu de la page d'accueil",
+  "banner": {
+    "slides": {
+      "0": {
+        "subtitle": "Petite taille, grande énergie.",
+        "buttons": {
+          "learnMore": "En savoir plus",
+          "preOrder": "Acheter maintenant"
+        },
+        "images": {
+          "alt": "DWARF mini télescope intelligent"
+        }
+      },
+      "1": {
+        "subtitle": "Compact in size, powerful in magic.",
+        "buttons": {
+          "learnMore": "En savoir plus",
+          "buyNow": "Acheter maintenant"
+        },
+        "images": {
+          "alt": "DWARF 3 Télescope Intelligent"
+        }
+      }
+    }
+  },
+  "sellingPoint": {
+    "title": "Voyagez léger, voyez plus loin.",
+    "tabs": {
+      "0": {
+        "name": "DWARF mini",
+        "slides": {
+          "0": {
+            "title": "840g ultraportable"
+          },
+          "1": {
+            "title": "Obturateur 90 secondes"
+          },
+          "2": {
+            "title": "Autonomie de 4 heures"
+          },
+          "3": {
+            "title": "Rotation libre à 360°"
+          },
+          "4": {
+            "title": "Petite taille, grande énergie"
+          }
+        }
+      },
+      "1": {
+        "name": "DWARF 3",
+        "slides": {
+          "0": {
+            "line1": "Toujours prêt",
+            "line2": "Astrophotographie"
+          },
+          "1": {
+            "line1": "Photographie panoramique",
+            "line2": "Détails nets"
+          },
+          "2": {
+            "line1": "Suivi automatique",
+            "line2": "Capturez l'exceptionnel"
+          },
+          "3": {
+            "line1": "Observation astronomique en ville",
+            "line2": "À portée de main"
+          },
+          "4": {
+            "line1": "Voie lactée",
+            "line2": "Explorer plus profondément"
+          },
+          "5": {
+            "line1": "Photographie en accéléré",
+            "line2": "Du crépuscule à l'aube"
+          }
+        }
+      }
+    }
+  },
+  "productCard": {
+    "cards": {
+      "0": {
+        "tag": "Nouveau",
+        "description": "Petit mais puissant, aux capacités exceptionnelles.",
+        "buttons": {
+          "learnMore": "En savoir plus",
+          "preOrder": "Acheter maintenant"
+        }
+      },
+      "1": {
+        "description": "Voir plus loin",
+        "buttons": {
+          "learnMore": "En savoir plus",
+          "buyNow": "Acheter maintenant"
+        }
+      },
+      "2": {
+        "description": "Partenaire de longue exposition",
+        "buttons": {
+          "learnMore": "En savoir plus",
+          "buyNow": "Acheter maintenant"
+        }
+      }
+    }
+  },
+  "reviews": {
+    "title": "Évaluation",
+    "slides": {
+      "0": {
+        "title": "Évaluation du télescope intelligent mini DWARF : effets réels"
+      },
+      "1": {
+        "title": "Évaluation et tutoriel du télescope intelligent Dwarf mini"
+      },
+      "2": {
+        "title": "DWARF mini évaluation réelle | effets d'imagerie réelle et d'astrophotographie"
+      },
+      "3": {
+        "title": "Explorer l'espace profond avec le télescope intelligent Dwarf 3"
+      },
+      "4": {
+        "title": "Découvrez la photographie dans l'espace lointain avec le télescope intelligent Dwarf 3"
+      },
+      "5": {
+        "title": "Filtres Astro et Duo-band de DWARF 3 pour la photographie dans l'espace lointain"
+      },
+      "6": {
+        "title": "Examen complet de DWARF 3 : y a-t-il quelque chose que cette petite lunette ne peut pas faire ?"
+      }
+    }
+  },
+  "gallery": {
+    "title": "Galerie",
+    "exploreMore": "Explorer plus"
+  },
+  "trustSupport": {
+    "cards": {
+      "0": {
+        "title": "Téléchargement d'application"
+      },
+      "1": {
+        "title": "Guide du produit"
+      },
+      "2": {
+        "title": "Contacter le support"
+      }
+    }
+  },
+  "chooseGuide": {
+    "products": {
+      "eyebrow": "Guide d’achat",
+      "title": "Comparatif et recommandations produits",
+      "primaryAction": "Aidez-moi à choisir",
+      "secondaryAction": "Comparaison de produits",
+      "imageAlt": "Comparatif des télescopes intelligents DWARFLAB"
+    },
+    "accessories": {
+      "eyebrow": "Accessoires essentiels",
+      "title": "Accessoires officiels pour mieux créer.",
+      "primaryAction": "Acheter",
+      "imageAlt": "Accessoires pour télescopes DWARFLAB"
+    },
+    "modal": {
+      "title": "Quel DWARF vous convient le mieux ?",
+      "cards": {
+        "mini": {
+          "title": "DWARF mini",
+          "subtitle": "Conçu pour le ciel nocturne",
+          "points": {
+            "0": "Ultra-portable et facile à installer",
+            "1": "Idéal pour voyager et observer les étoiles en famille",
+            "2": "L’astrophotographie en toute simplicité"
+          }
+        },
+        "dwarf3": {
+          "title": "DWARF 3",
+          "subtitle": "Pour l’astronomie et la nature",
+          "points": {
+            "0": "Un seul appareil pour le ciel et la nature",
+            "1": "Suit les oiseaux et les sujets en mouvement",
+            "2": "Idéal pour les panoramas, de jour comme de nuit"
+          }
+        }
+      },
+      "actions": {
+        "viewMini": "Voir DWARF mini",
+        "viewDwarf3": "Voir DWARF 3"
+      }
+    }
+  }
+}

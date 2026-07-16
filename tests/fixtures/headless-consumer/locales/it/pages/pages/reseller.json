@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Diventa un rivenditore"
+  },
+  "title": "Diventa rivenditore",
+  "form": {
+    "personalInfo": "Informazioni personali",
+    "companyInfo": "Informazioni aziendali",
+    "fullName": "Il tuo nome completo",
+    "fullNamePlaceholder": "Inserisci",
+    "companyName": "Nome di registrazione dell'azienda",
+    "companyNamePlaceholder": "Inserisci",
+    "companyCountry": "Paese o regione dell'azienda",
+    "companyCountryPlaceholder": "Seleziona il paese o la regione",
+    "companyCity": "Città dell'azienda",
+    "companyCityPlaceholder": "Inserisci la città",
+    "companyAddress": "Indirizzo aziendale",
+    "companyAddressPlaceholder": "Inserisci l'indirizzo dell'azienda",
+    "countryLabel": "Codice paese/regione",
+    "email": "Email di contatto",
+    "emailPlaceholder": "Inserisci l'email",
+    "salesChannel": "Il tuo canale di vendita",
+    "salesChannelOptions": {
+      "online": "Negozio online",
+      "physical": "Negozio fisico",
+      "both": "Entrambi"
+    },
+    "intention": "Intenzione di collaborazione",
+    "intentionPlaceholder": "Descrivi la tua intenzione di collaborazione",
+    "submit": "Invia",
+    "required": "Questo campo è obbligatorio",
+    "emailInvalid": "Inserisci un indirizzo email valido",
+    "headerText": "Hai ricevuto una nuova richiesta di rivenditore.",
+    "alert": {
+      "checkInformation": "Controlla le informazioni",
+      "checkInformationDescription": "La preghiamo di controllare nuovamente che le informazioni siano corrette, per assicurarci di poterla contattare tempestivamente.",
+      "cancel": "Annulla",
+      "confirm": "Conferma",
+      "submitSuccess": "Invio riuscito",
+      "submitError": "Invio fallito",
+      "okGotIt": "Capito"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "ホームページ",
+    "current": "ディーラーになる"
+  },
+  "title": "販売代理店になる",
+  "form": {
+    "personalInfo": "個人情報",
+    "companyInfo": "会社情報",
+    "fullName": "ご氏名",
+    "fullNamePlaceholder": "入力してください",
+    "companyName": "会社登録名",
+    "companyNamePlaceholder": "入力してください",
+    "companyCountry": "会社の所在国または地域",
+    "companyCountryPlaceholder": "国または地域を選択してください",
+    "companyCity": "会社の所在地",
+    "companyCityPlaceholder": "都市を入力してください",
+    "companyAddress": "会社住所",
+    "companyAddressPlaceholder": "会社の住所を入力してください",
+    "countryLabel": "国/地域コード",
+    "email": "連絡先メールアドレス",
+    "emailPlaceholder": "メールアドレスを入力してください",
+    "salesChannel": "あなたの販売チャネル",
+    "salesChannelOptions": {
+      "online": "オンラインストア",
+      "physical": "実店舗",
+      "both": "両方とも"
+    },
+    "intention": "協力意向",
+    "intentionPlaceholder": "ご協力意向についてご説明ください",
+    "submit": "送信",
+    "required": "この項目は必須です",
+    "emailInvalid": "有効なメールアドレスを入力してください",
+    "headerText": "新しいディーラー申請が届きました。",
+    "alert": {
+      "checkInformation": "情報を確認",
+      "checkInformationDescription": "ご連絡がスムーズに取れるよう、お客様の情報が正確かどうか、もう一度ご確認ください。",
+      "cancel": "キャンセル",
+      "confirm": "確認",
+      "submitSuccess": "送信成功",
+      "submitError": "送信失敗",
+      "okGotIt": "了解しました"
+    }
+  }
+}

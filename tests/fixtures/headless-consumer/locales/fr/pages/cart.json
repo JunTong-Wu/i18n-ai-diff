@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "Panier",
+  "items": "articles",
+  "product": "Produit",
+  "price": "Prix",
+  "quantity": "Quantité",
+  "total": "Prix total",
+  "subtotal": "Sous-total",
+  "discount": "Remise",
+  "checkout": "Règlement",
+  "findingShippingProtection": "Nous recherchons une protection d’expédition adaptée à votre commande. Veuillez patienter.",
+  "xcottonConflict": {
+    "title": "Échec de la mise à jour de la protection d’expédition",
+    "description": "La protection d’expédition n’est peut-être plus synchronisée avec votre panier. Actualisez la page pour vérifier le total de votre panier.",
+    "refreshCart": "Actualiser le panier"
+  },
+  "preparingCheckout": "Préparation du paiement sécurisé...",
+  "checkoutTakingLonger": "Cela prend plus de temps que prévu",
+  "checkoutTakingLongerDescription": "Nous préparons toujours votre paiement sécurisé. Vous pouvez patienter ou revenir au produit.",
+  "checkoutFailed": "Impossible d’ouvrir le paiement",
+  "checkoutFailedDescription": "Vérifiez votre connexion et réessayez. Aucun montant ne vous a été facturé.",
+  "returnToProduct": "Retourner au produit",
+  "discountCodeInvalid": "Code promo invalide",
+  "alert": {
+    "confirmRemove": "Confirmer la suppression",
+    "confirmRemoveText": "Confirmez-vous la suppression de cet article ?",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  },
+  "notification": {
+    "error": {
+      "title": "Échec de la mise à jour du panier",
+      "description": "La connexion réseau est instable, le panier a été restauré avec les quantités et montants précédents. Veuillez réessayer plus tard."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "Cadeau offert",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "Offre groupée : débloquez {giftItems}",
+        "claimedTitle": "Vous avez reçu {giftItems}",
+        "progressDescription": "Ajoutez {missingItems} au panier avec {ownedItems} pour débloquer {giftItems} en cadeau.",
+        "claimedDescription": "Votre cadeau est dans le panier : {giftItems}. La réduction finale sera appliquée au paiement."
+      }
+    }
+  }
+}

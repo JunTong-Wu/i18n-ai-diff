@@ -1,0 +1,17 @@
+{
+  "weight": "1200 g",
+  "aperture": "24 mm（望遠）\n2.8 mm（広角）",
+  "sensor": "SONY IMX415\nSTARVIS",
+  "focalLength": "100 mm（望遠）\n6.8 mm（広角）",
+  "rotationRange": "レンズ: 240°\nベース: 340°",
+  "maxResolution": "3840 × 2160（望遠）",
+  "builtInFilter": "VIS/IRパス（望遠）\nVIS（広角）",
+  "shootingMode": "写真（望遠 & 広角）\nビデオ、天体、パノラマ、バースト、タイムラプス（望遠）",
+  "equivalentFocalLength": "675 mm（望遠）\n48 mm（広角）",
+  "storage": "64 GB",
+  "battery": "内蔵\n5600 mAh\n外部USB充電対応",
+  "npu": "2 TOPS",
+  "maxExposureTime": "15秒",
+  "moreFunctions": "なし",
+  "size": "204 × 130 × 62 mm"
+}

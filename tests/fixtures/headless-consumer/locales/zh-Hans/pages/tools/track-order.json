@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "current": "订单追踪"
+  },
+  "title": "订单追踪",
+  "form": {
+    "title": "追踪您的订单",
+    "description": "关于订单号格式，只需填写订单号的 4 或 5 个字符 xxxx 或 xxxxx。",
+    "order_number": "订单号",
+    "email_or_phone_number": "邮箱或手机号",
+    "tracking_number": "物流单号",
+    "track": "追踪",
+    "or": "或",
+    "enterPlaceholder": "请输入",
+    "required": "此字段为必填项"
+  },
+  "loading": {
+    "importing": "正在为你加载内容…",
+    "initializing": "正在准备中…",
+    "loadingConfig": "正在获取必要信息…",
+    "loadingTracking": "正在加载页面…",
+    "patching": "正在调整显示效果…",
+    "retrying": "连接有些不稳定，正在重试…"
+  },
+  "faq": {
+    "title": "常见问题",
+    "q1": "为什么我输入订单号和邮箱后找不到物流单号？",
+    "a1": "您的订单尚未发货。它可能正在前往物流提供商的途中或正在进行清关。物流单号尚未生成，请稍等片刻即可获得。",
+    "q2": "为什么我的物流单号没有任何状态？",
+    "a2": "您的订单从我们的仓库发出后，就会生成物流单号，因此物流单号大约需要一到两天的时间才能更新到在线状态。"
+  }
+}

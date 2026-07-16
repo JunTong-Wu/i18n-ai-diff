@@ -1,0 +1,43 @@
+{
+  "title": "Specifiche tecniche",
+  "subtitle": "Quale telescopio fa per te?",
+  "priceFormat": "da {price}",
+  "parameters": {
+    "weight": "Peso",
+    "aperture": "Diametro dell'apertura",
+    "sensor": "Sensore di immagine",
+    "focalLength": "Distanza focale",
+    "rotationRange": "Intervallo di rotazione",
+    "maxResolution": "Risoluzione massima",
+    "builtInFilter": "Filtri integrati",
+    "shootingMode": "Modalità di ripresa",
+    "equivalentFocalLength": "Lunghezza focale equivalente",
+    "storage": "Memoria",
+    "battery": "Batteria",
+    "npu": "NPU",
+    "maxExposureTime": "Tempo di esposizione massimo",
+    "moreFunctions": "Altre funzioni",
+    "size": "Dimensioni"
+  },
+  "actions": {
+    "buyNow": "Acquista ora",
+    "learnMore": "Scopri di più"
+  },
+  "units": {
+    "gram": "g",
+    "millimeter": "mm"
+  },
+  "productDataNotFound": "Dati prodotto non trovati",
+  "positionTags": {
+    "dwarfMini": {
+      "beginnerFriendly": "Ideale per iniziare",
+      "mostPortable": "Il più portatile",
+      "easySetup": "Configurazione facile"
+    },
+    "dwarf3": {
+      "strongerImaging": "Imaging più potente",
+      "bestForDeepSky": "Ideale per deep sky",
+      "advancedChoice": "Scelta avanzata"
+    }
+  }
+}

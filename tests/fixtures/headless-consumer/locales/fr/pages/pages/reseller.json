@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "Page d'accueil",
+    "current": "Devenir distributeur"
+  },
+  "title": "Devenir distributeur",
+  "form": {
+    "personalInfo": "Informations personnelles",
+    "companyInfo": "Informations sur l'entreprise",
+    "fullName": "Votre nom complet",
+    "fullNamePlaceholder": "Veuillez saisir",
+    "companyName": "Nom d'enregistrement de l'entreprise",
+    "companyNamePlaceholder": "Veuillez saisir",
+    "companyCountry": "Pays ou région de l'entreprise",
+    "companyCountryPlaceholder": "Veuillez sélectionner un pays ou une région",
+    "companyCity": "Ville de l'entreprise",
+    "companyCityPlaceholder": "Veuillez entrer une ville",
+    "companyAddress": "Adresse de l'entreprise",
+    "companyAddressPlaceholder": "Veuillez saisir l'adresse de l'entreprise",
+    "countryLabel": "Code pays/région",
+    "email": "Adresse e-mail de contact",
+    "emailPlaceholder": "Veuillez saisir votre adresse e-mail",
+    "salesChannel": "Votre canal de vente",
+    "salesChannelOptions": {
+      "online": "Boutique en ligne",
+      "physical": "Magasin physique",
+      "both": "Les deux"
+    },
+    "intention": "Intention de coopération",
+    "intentionPlaceholder": "Veuillez décrire votre intention de collaboration",
+    "submit": "Soumettre",
+    "required": "Ce champ est obligatoire",
+    "emailInvalid": "Veuillez saisir une adresse e-mail valide",
+    "headerText": "Vous avez reçu une nouvelle demande de concessionnaire.",
+    "alert": {
+      "checkInformation": "Contrôler les informations",
+      "checkInformationDescription": "Veuillez contrôler à nouveau vos informations pour que nous puissions vous contacter rapidement.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "submitSuccess": "Soumission réussie",
+      "submitError": "Échec de la soumission",
+      "okGotIt": "Compris"
+    }
+  }
+}

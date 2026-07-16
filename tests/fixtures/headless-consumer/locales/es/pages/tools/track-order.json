@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "Página de inicio",
+    "current": "Seguimiento de pedidos"
+  },
+  "title": "Seguimiento de pedidos",
+  "form": {
+    "title": "Seguimiento de su pedido",
+    "description": "En cuanto al formato del número de pedido, solo es necesario completar los 4 o 5 caracteres del número de pedido, xxxx o xxxxx.",
+    "order_number": "Número de pedido",
+    "email_or_phone_number": "Correo electrónico o número de teléfono",
+    "tracking_number": "Número de seguimiento de envío",
+    "track": "Rastrear",
+    "or": "o",
+    "enterPlaceholder": "Por favor, ingrese",
+    "required": "Este campo es obligatorio"
+  },
+  "loading": {
+    "importing": "Cargando contenido para ti…",
+    "initializing": "Preparando…",
+    "loadingConfig": "Obteniendo información necesaria...",
+    "loadingTracking": "Cargando página…",
+    "patching": "Ajustando la visualización…",
+    "retrying": "La conexión es algo inestable, reintentando…"
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "q1": "¿Por qué no encuentro el número de seguimiento después de ingresar el número de pedido y el correo electrónico?",
+    "a1": "Su pedido aún no ha sido enviado. Puede estar en camino al proveedor logístico o en proceso de aduanas. El número de seguimiento aún no se ha generado; por favor, espere un momento para obtenerlo.",
+    "q2": "¿Por qué mi número de seguimiento de logística no muestra ningún estado?",
+    "a2": "Una vez que su pedido salga de nuestro almacén, se generará un número de seguimiento de envío, por lo que el número de seguimiento tardará aproximadamente uno o dos días en actualizarse al estado en línea."
+  }
+}

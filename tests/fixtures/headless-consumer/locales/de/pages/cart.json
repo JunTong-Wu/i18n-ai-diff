@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "Warenkorb",
+  "items": "Artikel",
+  "product": "Produkt",
+  "price": "Preis",
+  "quantity": "Menge",
+  "total": "Gesamtpreis",
+  "subtotal": "Zwischensumme",
+  "discount": "Rabatt",
+  "checkout": "Bezahlen",
+  "findingShippingProtection": "Wir suchen nach einem passenden Versandschutz für Ihre Bestellung. Bitte warten Sie einen Moment.",
+  "xcottonConflict": {
+    "title": "Versandschutz konnte nicht aktualisiert werden",
+    "description": "Der Versandschutz ist möglicherweise nicht mit Ihrem Warenkorb synchronisiert. Aktualisieren Sie die Seite, um die Gesamtsumme Ihres Warenkorbs zu prüfen.",
+    "refreshCart": "Warenkorb aktualisieren"
+  },
+  "preparingCheckout": "Sicherer Checkout wird vorbereitet...",
+  "checkoutTakingLonger": "Dies dauert länger als erwartet",
+  "checkoutTakingLongerDescription": "Wir bereiten Ihren sicheren Checkout weiterhin vor. Sie können warten oder zum Produkt zurückkehren.",
+  "checkoutFailed": "Checkout konnte nicht geöffnet werden",
+  "checkoutFailedDescription": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut. Es wurde nichts berechnet.",
+  "returnToProduct": "Zurück zum Produkt",
+  "discountCodeInvalid": "Rabattcode ungültig",
+  "alert": {
+    "confirmRemove": "Löschen bestätigen",
+    "confirmRemoveText": "Möchten Sie dieses Produkt wirklich löschen?",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen"
+  },
+  "notification": {
+    "error": {
+      "title": "Warenkorbaktualisierung fehlgeschlagen",
+      "description": "Die Netzwerkverbindung ist etwas instabil, der Warenkorb wurde auf die vorherige Anzahl und den vorherigen Betrag zurückgesetzt. Bitte versuchen Sie es später erneut."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "Gratisgeschenk",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "Paketangebot: {giftItems} freischalten",
+        "claimedTitle": "Sie haben {giftItems} erhalten",
+        "progressDescription": "Fügen Sie {missingItems} zusammen mit {ownedItems} in den Warenkorb, um {giftItems} als Gratisgeschenk freizuschalten.",
+        "claimedDescription": "Ihr Gratisgeschenk ist im Warenkorb: {giftItems}. Der endgültige Rabatt wird beim Bezahlen angewendet."
+      }
+    }
+  }
+}

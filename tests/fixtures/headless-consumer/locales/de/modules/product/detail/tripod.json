@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "Mini-Hydraulikkopf-Stativ",
+    "presubtitle": "Leichtes Gepäck, stabiler Halt",
+    "buyNow": "Jetzt kaufen",
+    "title": "Hydraulischer Kugelkopf-Stativ",
+    "subtitle": "Hydraulische Dämpfungskopf｜Stabile Unterstützung｜Leicht und tragbar｜Freiere Winkel"
+  },
+  "bestCompanion": {
+    "subtitle": "Vom Balkon bis zur Weite, einsatzbereit und jederzeit bereit zum Drehen",
+    "title": "Der beste Aufnahmepartner für DWARF",
+    "description": "Bietet stabilen Halt und sanfte Neigungs-/Schwenkverstellung für sorgenfreies Langzeitaufnehmen, Zeitraffer und Beobachten."
+  },
+  "equatorialMode": {
+    "subtitle": "Zwei Modi, nach Belieben wechseln",
+    "title": "Unterstützt den äquatorialen Modus",
+    "description": "Kann frei zwischen äquatorialem Modus und azimutalem Modus umschalten. Der äquatoriale Modus eignet sich für stabileres Langzeit-Tracking, um entspannt zu fotografieren; der azimutale Modus ist ideal für schnelles Ausrichten und tägliches Beobachten – einfach anheben und betrachten, jederzeit anpassbar.",
+    "tab1": "Äquatorialmodus",
+    "tab2": "Alt-Az-Modus"
+  },
+  "portable": {
+    "subtitle": "Fünfteiliges Stativ, kompaktes Volumen",
+    "title": "Tragbar und superleicht",
+    "description": "Aus Aluminiumlegierung gefertigt, lässt es sich auf 25 cm Länge zusammenklappen. Mit einem Leichtgewicht von nur 790 Gramm ist es einfach zu transportieren. Für Stadt-Sternbeobachtung, Reisen, Camping oder das Verfolgen von Sonne und Mond – es ist nie mehr 'zu umständlich'."
+  },
+  "stable": {
+    "subtitle": "Stabile Unterstützung, saubereres Bild",
+    "title": "Aufnahme extrem stabil",
+    "description": "Stabile Beine und solide Stütze. Ermöglicht 360°-Schwenk und -80°/+90°-Neigung für mühelosen Perspektivwechsel; hält die DWARF sicher und reduziert feine Erschütterungen, die das Bild beeinträchtigen könnten."
+  },
+  "hydraulicHead": {
+    "subtitle": "Glatte Drehung, mit einem Schub an Ort und Stelle",
+    "title": "Hydraulischer Neiger, geschmeidig und kontrollierbar",
+    "description": "Integriertes hydraulisches Dämpfungssystem für präzise und flüssige Anpassungen bei jeder Einstellung. Keine plötzlichen Rucke, keine unangenehmen Pausen – sicheres Handling, präzise Bildkomposition."
+  },
+  "flexibility": {
+    "subtitle": "Komposition ohne Einschränkungen",
+    "title": "Winkel sind freier",
+    "description": "Der Griff ermöglicht die Höhenverstellung, das Stativ unterstützt mehrwinklige Beinverstellung – hoch oder niedrig, ganz nach Ihrer Wahl, der Blickwinkel ist nicht mehr eingeschränkt.\nVom Aufwärtsfotografieren der Sterne bis zur Niedrigwinkel-Landschaftsaufnahme und seitlichen Komposition finden Sie stets den idealen Winkel."
+  },
+  "tripodSpecs": {
+    "title": "Stativ",
+    "subtitle": "Bereichsbeschreibung",
+    "specs": {
+      "weight": "Gesamtgewicht",
+      "weightValue": "775 Gramm",
+      "connector": "Stecker",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "Maximale Tragfähigkeit",
+      "maxLoadValue": "3,0 Kilogramm",
+      "maxHeight": "Maximale Höhe",
+      "maxHeightValue": "530 Millimeter",
+      "foldedHeight": "Falthöhe",
+      "foldedHeightValue": "180 Millimeter",
+      "tubeDiameter": "Rohrdurchmesser",
+      "tubeDiameterValue": "9,7/12,6/15,5/18,2/21 Millimeter",
+      "sections": "Anzahl der Segmente",
+      "sectionsValue": "5",
+      "material": "Material",
+      "materialValue": "Aluminiumlegierung",
+      "color": "Farbe",
+      "colorValue": "Schwarz"
+    }
+  },
+  "headSpecs": {
+    "title": "Hydraulikkopf",
+    "subtitle": "Bereichsbeschreibung",
+    "specs": {
+      "weight": "Gesamtgewicht",
+      "weightValue": "300 Gramm",
+      "panRange": "Horizontaler Bereich",
+      "panRangeValue": "360°",
+      "tiltRange": "Neigungsbereich",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "Höhe",
+      "heightValue": "71 Millimeter",
+      "baseDiameter": "Basis Durchmesser",
+      "baseDiameterValue": "40 Millimeter",
+      "loadCapacity": "Lastkapazität",
+      "loadCapacityValue": "3,0 Kilogramm",
+      "material": "Material",
+      "materialValue": "Aluminiumlegierung",
+      "quickRelease": "Schnellwechselplatte",
+      "quickReleaseValue": "1/4-Zoll-Kameraschraube"
+    }
+  }
+}

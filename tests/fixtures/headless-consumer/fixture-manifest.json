@@ -1,0 +1,19 @@
+{
+  "source": "headless-global-site/src/core/i18n/messages",
+  "sourceCommit": "338c07bc1c7a5466925b2f2d21a7c2674c1592c6",
+  "capturedAt": "2026-07-16",
+  "languages": [
+    "zh-Hans",
+    "en",
+    "ja",
+    "ko",
+    "de",
+    "es",
+    "fr",
+    "it",
+    "pt"
+  ],
+  "jsonFiles": 333,
+  "translationFileTasks": 259,
+  "notes": "Pinned, reviewed business translations. Secrets and project source code are excluded."
+}

@@ -1,0 +1,17 @@
+{
+  "weight": "840 g",
+  "aperture": "30 mm (teleobjetivo)\n3.4 mm (gran angular)",
+  "sensor": "SONY IMX662 1/2.8\" (teleobjetivo)\nOmniVision OS02K10 1/2.8\" (gran angular)",
+  "focalLength": "150 mm (teleobjetivo)\n6.7 mm (gran angular)",
+  "rotationRange": "Lente: 225°\nBase: 360°",
+  "maxResolution": "1920 × 1080\n(teleobjetivo y gran angular)",
+  "builtInFilter": "Astro, Dark, Duo-Band (teleobjetivo)\nAstro (gran angular)",
+  "shootingMode": "Fotos, videos, astronomía, ráfaga, fotografía de lapso de tiempo",
+  "equivalentFocalLength": "1016 mm (teleobjetivo)\n45 mm (gran angular)",
+  "storage": "64 GB",
+  "battery": "Integrado\n7000 mAh\nSoporta carga USB externa",
+  "npu": "1 TOPS",
+  "maxExposureTime": "90s (teleobjetivo y gran angular)\nAmbos en modo EQ",
+  "moreFunctions": "NFC con un toque\nProcesamiento astronómico/Reserva de fotos/Mosaico astronómico",
+  "size": "100,38 × 183,61 × 60,70 mm"
+}

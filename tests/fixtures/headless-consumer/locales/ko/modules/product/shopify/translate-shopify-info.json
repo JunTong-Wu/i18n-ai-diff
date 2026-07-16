@@ -1,0 +1,50 @@
+{
+  "dwarf-3-smart-telescope": {
+    "title": "DWARF 3 스마트 망원경",
+    "description": "경량화된 일체형 스마트 천체 망원경으로 태양, 달, 심우주 촬영을 지원합니다."
+  },
+  "dwarf-3-smart-telescope-open-box": {
+    "title": "DWARF 3 스마트 망원경 (개봉 상품)",
+    "description": "경량 일체형 스마트 천체 망원경으로 태양, 달, 심우주 촬영을 지원합니다."
+  },
+  "dwarf-mini-smart-telescope": {
+    "title": "DWARF mini 스마트 망원경",
+    "description": "조류 관찰, 풍경 감상, 입문용 천체 사진에 적합한 작고 휴대성 좋은 스마트 망원경입니다."
+  },
+  "dwarf-mini-smart-telescope-open-box": {
+    "title": "DWARF mini 스마트 망원경 (개봉 상품)",
+    "description": "조류 관찰, 풍경 감상, 입문용 천체 사진에 적합한 작고 휴대성 좋은 스마트 망원경입니다."
+  },
+  "dwarf-2-smart-telescope": {
+    "title": "DWARF II 스마트 망원경",
+    "description": "망원 관측과 광각 기록을 모두 지원하는 듀얼 렌즈 스마트 망원경입니다."
+  },
+  "dwarf-ii-refurbished": {
+    "title": "DWARF II 공식 리퍼비시",
+    "description": "DWARF II 공식 리퍼비시 모델을 확인해 보세요."
+  },
+  "tripod-for-dwarf-3": {
+    "title": "미니 유압 헤드 삼각대",
+    "description": "DWARF 시리즈를 위해 설계된 가볍고 안정적인 삼각대입니다."
+  },
+  "mini-tripod-with-hydraulic-head-open-box": {
+    "title": "미니 유압 헤드 삼각대 (개봉 상품)",
+    "description": "DWARF 시리즈를 위해 설계된 가볍고 안정적인 삼각대입니다."
+  },
+  "uhc-nd-telescope-filter-for-dwarf-ii": {
+    "title": "DWARF II UHC 및 ND 망원경 필터",
+    "description": "DWARF II용 UHC 및 ND 망원경 필터입니다."
+  },
+  "filter-adapter-for-dwarf-ii": {
+    "title": "DWARF II 필터 어댑터 링",
+    "description": "DWARF II용 필터 어댑터 링입니다."
+  },
+  "rechargeable-lithium-battery-for-dwarf-ii": {
+    "title": "DWARF II 충전식 리튬 배터리",
+    "description": "DWARF II용 충전식 리튬 배터리입니다."
+  },
+  "dwarf-mini-smart-telescope-bag": {
+    "title": "DWARF 미니 가방",
+    "description": "DWARF Mini 전용 컴팩트 캐리백으로, 보호 안감과 액세서리 수납 포켓을 제공합니다."
+  }
+}

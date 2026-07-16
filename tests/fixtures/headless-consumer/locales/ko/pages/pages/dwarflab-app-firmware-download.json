@@ -1,0 +1,21 @@
+{
+  "breadcrumb": {
+    "home": "홈페이지",
+    "downloadCenter": "다운로드 센터"
+  },
+  "app": {
+    "title": "DWARFLAB 앱",
+    "description": "DWARF 스마트 망원경을 무선으로 제어할 수 있도록 도와드립니다",
+    "download": "다운로드",
+    "lastUpdate": "마지막 업데이트",
+    "updateContent": "업데이트 내용",
+    "supportedDevices": "지원 장치",
+    "globalDownloadApkText": "다운로드를 클릭하거나 QR 코드를 스캔하여 Google Play에서 DWARFLAB 앱을 설치하거나 <link>APK 파일</link>을 다운로드하세요."
+  },
+  "firmware": {
+    "title": "펌웨어",
+    "description": "DWARF 스마트 망원경을 무선으로 제어할 수 있도록 도와드립니다",
+    "lastUpdate": "최종 업데이트",
+    "updateContent": "업데이트 내용"
+  }
+}

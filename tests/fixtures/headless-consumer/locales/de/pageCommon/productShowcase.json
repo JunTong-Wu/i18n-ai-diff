@@ -1,0 +1,38 @@
+{
+  "bestSellingAccessories": "Bestseller-Zubehör",
+  "quantity": "Menge",
+  "myChoice": "Meine Auswahl",
+  "addToCart": "In den Warenkorb",
+  "buyItNow": "Jetzt kaufen",
+  "shipping": "Versand",
+  "shippingPolicyHere": "Versandrichtlinien hier",
+  "paymentMethod": "Zahlungsmethoden",
+  "twoYearWarranty": "Zwei Jahre Garantie",
+  "guaranteedDelivery": "Liefergarantie",
+  "lifetimeSupport": "Lebenslange Unterstützung",
+  "alert": {
+    "success": "Erfolg",
+    "productHasBeenAddedToYourCart": "Artikel wurde zum Warenkorb hinzugefügt",
+    "viewCartAndCheckout": "Warenkorb ansehen und zur Kasse gehen",
+    "continueShopping": "Weiter einkaufen",
+    "error": "Fehlschlag",
+    "failedToAddToCart": "Fehler beim Hinzufügen zum Warenkorb, bitte versuchen Sie es später erneut",
+    "okGotIt": "Okay, verstanden"
+  },
+  "promotions": {
+    "firstNightKit": {
+      "product": {
+        "title": "Angebot für die erste Nacht",
+        "endsIn": "Endet in",
+        "days": "Tagen",
+        "description": "Wenn Ihre Bestellung {buyItems} enthält, erhalten Sie {giftItems} kostenlos.",
+        "validity": "Aktionszeitraum: {startsAt} bis {endsAt} {timezoneLabel}. Solange der Vorrat reicht.",
+        "accessoryHintLead": "{accessoryName} hinzufügen und",
+        "accessoryHintHighlight": "{giftItems} kostenlos erhalten.",
+        "accessoryHintSubtext": "Ein stabiles Setup für Ihre erste Aufnahme des Nachthimmels.",
+        "giftUnlockedTitle": "Kostenloses Geschenk freigeschaltet",
+        "giftUnlockedDescription": "{giftItems} wird beim Bezahlen kostenlos hinzugefügt."
+      }
+    }
+  }
+}

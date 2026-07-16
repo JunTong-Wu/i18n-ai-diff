@@ -21,6 +21,9 @@
     "test": "vitest",
     "test:package": "npm run build && node scripts/package-smoke.mjs",
     "test:install": "node scripts/install-smoke.mjs",
+    "test:consumer": "node scripts/consumer-workspace.mjs verify",
+    "test:release": "npm test -- --run && npm run test:package && npm run test:install && npm run test:consumer",
+    "consumer:prepare": "node scripts/consumer-workspace.mjs prepare",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build"
   },

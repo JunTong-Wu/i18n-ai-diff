@@ -1,0 +1,16 @@
+{
+  "regionSelector": {
+    "title": "Sélectionnez votre pays ou région",
+    "searchPlaceholder": "Rechercher",
+    "emptyMessage": "Aucun pays ou région correspondant trouvé"
+  },
+  "continents": {
+    "142": "Asie",
+    "150": "Europe",
+    "002": "Afrique",
+    "009": "Océanie",
+    "010": "Antarctique",
+    "019": "Amérique"
+  },
+  "loading": "Chargement..."
+}

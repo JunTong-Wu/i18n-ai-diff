@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "Página inicial",
+    "current": "Torne-se um parceiro da aliança"
+  },
+  "title": "Torne-se um parceiro da aliança",
+  "banner": {
+    "title": "Recomende produtos DWARFLAB, ganhe comissão",
+    "steps": {
+      "join": {
+        "title": "Adicionar",
+        "description": "Registe uma conta gratuita da ShareASale ou Affiliatly como afiliado, ou se já tiver uma conta, adicione o ID DWARFLAB."
+      },
+      "share": {
+        "title": "Compartilhar",
+        "description": "Use o link exclusivo do criador para compartilhar e promover produtos DWARFLAB online para seu público."
+      },
+      "earn": {
+        "title": "Ganhar",
+        "description": "Ganhe 5% de comissão em pedidos qualificados. Nossa notoriedade de marca e qualidade do produto ajudam você a maximizar seus ganhos."
+      }
+    }
+  },
+  "join": {
+    "title": "Junte-se agora e ganhe 5% de comissão",
+    "description": "Escolha qualquer uma das seguintes plataformas para começar a ganhar renda.",
+    "platforms": {
+      "affiliatly": {
+        "button": "Junte-se à Affiliatly"
+      },
+      "awin": {
+        "button": "Junte-se à Awin"
+      }
+    },
+    "or": "ou"
+  }
+}

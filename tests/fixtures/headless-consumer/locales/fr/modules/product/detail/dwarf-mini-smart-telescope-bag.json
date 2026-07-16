@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "Protection complète",
+      "description": "Extérieur en similicuir PVC déperlant et résistant aux déchirures, avec couche amortissante intérieure pour une protection épousant parfaitement l'appareil à 360°."
+    },
+    "portable": {
+      "title": "Ultra-portable",
+      "description": "Contour minimaliste de 21×9×12 cm, bandoulière réglable de 1,6 m."
+    },
+    "storage": {
+      "title": "Sac de rangement",
+      "description": "Sangle de fixation inférieure pour une stabilité optimale, compartiment latéral dédié aux filtres, hôte et accessoires chacun à leur place, fini les tracas de recherche en extérieur."
+    },
+    "customFit": {
+      "title": "Personnalisation exclusive",
+      "description": "Conçu spécialement pour le DWARF mini, avec une doublure en coton mercerisé, ajusté parfaitement pour éviter les vibrations et déplacements en transit."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "Nom du produit",
+      "value": "Sac de protection dédié pour DWARF mini"
+    },
+    "outerMaterial": {
+      "label": "Matériau extérieur",
+      "value": "PVC cuir synthétique"
+    },
+    "innerMaterial": {
+      "label": "Matériau intérieur",
+      "value": "Coton mercerisé"
+    },
+    "size": {
+      "label": "Dimensions extérieures",
+      "value": "L 21 cm × l 9 cm × H 12 cm"
+    },
+    "strap": {
+      "label": "Spécifications de la bandoulière",
+      "value": "Longueur réglable de 1,6 m avec crochet métallique"
+    },
+    "title": "Spécifications du produit"
+  },
+  "hero": {
+    "title": "Sacoche DWARF mini",
+    "subtitle": "Protection complète｜Extrême portabilité｜Tout dans un seul sac｜Sur mesure"
+  }
+}

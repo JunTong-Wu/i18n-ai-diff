@@ -1,0 +1,17 @@
+{
+  "weight": "840 g",
+  "aperture": "30 mm（长焦）\n3.4 mm（广角）",
+  "sensor": "SONY IMX662 1/2.8'（长焦）\nOmniVision OS02K10 1/2.8'（广角）",
+  "focalLength": "150 mm（长焦）\n6.7 mm（广角）",
+  "rotationRange": "镜头：225°\n底座：360°",
+  "maxResolution": "1920 × 1080\n(长焦 & 广角）",
+  "builtInFilter": "Astro、Dark、Duo-Band（长焦）\nAstro（广角）",
+  "shootingMode": "照片、视频、天文、连拍、延时摄影",
+  "equivalentFocalLength": "1016 mm（长焦）\n45 mm（广角）",
+  "storage": "64 GB",
+  "battery": "内置\n7000 mAh\n支持外部 USB 充电",
+  "npu": "1 TOPS",
+  "maxExposureTime": "90s（长焦 & 广角）\n均在 EQ 模式下",
+  "moreFunctions": "NFC 一触即连\n天文后期/预约拍摄/天文拼图",
+  "size": "100.38 × 183.61 × 60.70 mm"
+}

@@ -1,0 +1,188 @@
+{
+  "products": {
+    "title": "产品 - DWARFLAB",
+    "description": "浏览我们的创新产品系列",
+    "dwarf-mini-smart-telescope": {
+      "title": "DWARF Mini 智能望远镜 - DWARFLAB",
+      "description": "小巧便携的智能望远镜，适合观鸟、观景与入门级天文摄影。"
+    },
+    "dwarf-mini-smart-telescope-open-box": {
+      "title": "DWARF Mini 智能望远镜（开箱品） - DWARFLAB",
+      "description": "小巧便携的智能望远镜，适合观鸟、观景与入门级天文摄影。"
+    },
+    "dwarf-3-smart-telescope": {
+      "title": "DWARF 3 智能望远镜 - DWARFLAB",
+      "description": "轻量化一体式智能天文望远镜，支持太阳、月球与深空拍摄。"
+    },
+    "dwarf-3-smart-telescope-open-box": {
+      "title": "DWARF 3 智能望远镜（开箱品） - DWARFLAB",
+      "description": "轻量化一体式智能天文望远镜，支持太阳、月球与深空拍摄。"
+    },
+    "dwarf-2-smart-telescope": {
+      "title": "DWARF II 智能望远镜 - DWARFLAB",
+      "description": "双镜头智能望远镜，兼顾长焦观测与广角记录。"
+    },
+    "dwarf-ii-refurbished": {
+      "title": "DWARF II 官方翻新 - DWARFLAB",
+      "description": "了解 DWARF II 官方翻新机型。"
+    },
+    "tripod-for-dwarf-3": {
+      "title": "Mini Tripod 迷你三脚架 - DWARFLAB",
+      "description": "专为 DWARF 系列设计的轻量稳定三脚架。"
+    },
+    "mini-tripod-with-hydraulic-head-open-box": {
+      "title": "Mini Tripod 迷你三脚架（开箱品） - DWARFLAB",
+      "description": "专为 DWARF 系列设计的轻量稳定三脚架。"
+    },
+    "uhc-nd-telescope-filter-for-dwarf-ii": {
+      "title": "DWARF II UHC 与 ND 望远镜滤镜 - DWARFLAB",
+      "description": "适用于 DWARF II 的 UHC 与 ND 望远镜滤镜。"
+    },
+    "filter-adapter-for-dwarf-ii": {
+      "title": "DWARF II 滤镜转接环 - DWARFLAB",
+      "description": "适用于 DWARF II 的滤镜转接环。"
+    },
+    "rechargeable-lithium-battery-for-dwarf-ii": {
+      "title": "DWARF II 可充电锂电池 - DWARFLAB",
+      "description": "适用于 DWARF II 的可充电锂电池。"
+    },
+    "dwarf-mini-smart-telescope-bag": {
+      "title": "DWARF mini 包 - DWARFLAB",
+      "description": "专为 DWARF mini 设计的小巧收纳包，配有防护内衬与配件分区口袋。"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "首页 - DWARFLAB",
+      "description": "DWARFLAB 官方网站，探索我们的创新产品和服务"
+    },
+    "cart": {
+      "title": "购物车 - DWARFLAB",
+      "description": "你的购物车"
+    },
+    "pages": {
+      "dwarf-mini-smart-telescope": {
+        "title": "DWARF mini 智能望远镜 - DWARFLAB",
+        "description": "认识DWARF mini。DWARFLAB 制造智能望远镜，让每个人都可以使用天文摄影。"
+      },
+      "astronomy-with-dwarf-3-smart-telescope": {
+        "title": "天文 with DWARF 3 智能望远镜 - DWARFLAB",
+        "description": "认识DWARF 3。DWARFLAB 制造智能望远镜，让每个人都可以使用天文摄影。"
+      },
+      "birding-with-dwarf-3-smart-telescope": {
+        "title": "观鸟 with DWARF 3 智能望远镜 - DWARFLAB",
+        "description": "认识DWARF 3。DWARFLAB 制造智能望远镜，让每个人都可以使用观鸟。"
+      },
+      "panorama-with-dwarf-3-smart-telescope": {
+        "title": "全景 with DWARF 3 智能望远镜 - DWARFLAB",
+        "description": "认识DWARF 3。DWARFLAB 制造智能望远镜，让每个人都可以使用全景。"
+      },
+      "gallery": {
+        "title": "用户照片墙 - DWARFLAB",
+        "description": "浏览我们的照片墙，这里是我们大放异彩的地方。"
+      },
+      "youtube-collection": {
+        "title": "Youtube 收藏 - DWARFLAB",
+        "description": "浏览我们的 Youtube 收藏"
+      },
+      "share-your-dwarf-ii-story": {
+        "title": "分享你的 DWARF II 故事 - DWARFLAB",
+        "description": "分享你的故事关于DWARF II"
+      },
+      "dwarflab-app-firmware-download": {
+        "title": "DWARFLAB App 固件下载 - DWARFLAB",
+        "description": "下载 DWARFLAB App 固件"
+      },
+      "faqs": {
+        "title": "常见问题 - DWARFLAB",
+        "description": "常见问题"
+      },
+      "contact": {
+        "title": "联系我们 - DWARFLAB",
+        "description": "联系 DWARFLAB 团队"
+      },
+      "about-us": {
+        "title": "我们的故事 - DWARFLAB",
+        "description": "了解 DWARFLAB 团队"
+      },
+      "reseller": {
+        "title": "经销商 - DWARFLAB",
+        "description": "成为 DWARFLAB 经销商"
+      },
+      "affiliate-program": {
+        "title": "联盟 - DWARFLAB",
+        "description": "加入 DWARFLAB 合作计划"
+      },
+      "shipping-policy": {
+        "title": "物流政策 - DWARFLAB",
+        "description": "了解 DWARFLAB 的物流政策"
+      },
+      "warranty-and-return": {
+        "title": "保修和退货 - DWARFLAB",
+        "description": "了解 DWARFLAB 的保修和退货政策"
+      },
+      "payment-methods": {
+        "title": "支付方式 - DWARFLAB",
+        "description": "了解 DWARFLAB 的支付方式"
+      },
+      "find-authorized-reseller": {
+        "title": "查找授权经销商 - DWARFLAB",
+        "description": "查找 DWARFLAB 产品的授权经销商"
+      },
+      "customer-reviews-on-dwarf-telescope": {
+        "title": "客户评价 - DWARFLAB",
+        "description": "查看 DWARFLAB 客户评价。"
+      },
+      "share-your-dwarflab-story": {
+        "title": "用户故事 - DWARFLAB",
+        "description": "分享你的 DWARFLAB 用户故事。"
+      }
+    },
+    "policies": {
+      "privacy-policy": {
+        "title": "隐私政策 - DWARFLAB",
+        "description": "了解 DWARFLAB 的隐私政策"
+      },
+      "terms-of-service": {
+        "title": "服务条款 - DWARFLAB",
+        "description": "了解 DWARFLAB 的服务条款"
+      }
+    },
+    "tools": {
+      "track-order": {
+        "title": "跟踪订单 - DWARFLAB",
+        "description": "跟踪你的订单"
+      },
+      "withdrawal": {
+        "title": "提交取消或退货申请 - DWARFLAB",
+        "description": "提交取消购买或退货申请"
+      }
+    }
+  },
+  "blogs": {
+    "story": {
+      "title": "故事 - DWARFLAB",
+      "description": "浏览我们的故事"
+    },
+    "news": {
+      "title": "新闻 - DWARFLAB",
+      "description": "浏览 DWARFLAB 新闻。"
+    }
+  },
+  "collections": {
+    "title": "品类 - DWARFLAB",
+    "description": "浏览 DWARFLAB 产品品类",
+    "all": {
+      "title": "所有产品 - DWARFLAB",
+      "description": "浏览 DWARFLAB 全部产品"
+    },
+    "accessories": {
+      "title": "配件 - DWARFLAB",
+      "description": "浏览 DWARFLAB 配件产品"
+    },
+    "smart-telescope": {
+      "title": "智能望远镜 - DWARFLAB",
+      "description": "浏览 DWARFLAB 智能望远镜产品"
+    }
+  }
+}

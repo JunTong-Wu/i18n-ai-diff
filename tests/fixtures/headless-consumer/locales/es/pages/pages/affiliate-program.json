@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "Página de inicio",
+    "current": "Conviértase en socio de la alianza"
+  },
+  "title": "Convertirse en socio de la alianza",
+  "banner": {
+    "title": "Recomendar productos DWARFLAB, ganar comisiones",
+    "steps": {
+      "join": {
+        "title": "Unirse",
+        "description": "Registra una cuenta gratuita de ShareASale o Affiliatly como afiliado, o si ya tienes una cuenta, añade el ID de DWARFLAB."
+      },
+      "share": {
+        "title": "Compartir",
+        "description": "Utilice enlaces exclusivos de creadores para compartir y promocionar productos DWARFLAB en línea entre su audiencia."
+      },
+      "earn": {
+        "title": "Ganar",
+        "description": "Gane una comisión del 5% en pedidos que cumplan con los requisitos. Nuestro reconocimiento de marca y calidad de producto le ayudan a maximizar sus ganancias."
+      }
+    }
+  },
+  "join": {
+    "title": "Únete ahora y obtén un 5% de comisión",
+    "description": "Selecciona cualquiera de las siguientes plataformas para comenzar a generar ingresos.",
+    "platforms": {
+      "affiliatly": {
+        "button": "Únete a Affiliatly"
+      },
+      "awin": {
+        "button": "Únete a Awin"
+      }
+    },
+    "or": "o"
+  }
+}

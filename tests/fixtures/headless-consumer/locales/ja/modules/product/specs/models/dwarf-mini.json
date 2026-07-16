@@ -1,0 +1,17 @@
+{
+  "weight": "840 g",
+  "aperture": "30 mm（望遠）\n3.4 mm（広角）",
+  "sensor": "SONY IMX662 1/2.8インチ（望遠）\nOmniVision OS02K10 1/2.8インチ（広角）",
+  "focalLength": "150 mm（望遠）\n6.7 mm（広角）",
+  "rotationRange": "レンズ：225°\nベース：360°",
+  "maxResolution": "1920 × 1080\n（望遠 & 広角）",
+  "builtInFilter": "Astro、Dark、Duo-Band（望遠）\nAstro（広角）",
+  "shootingMode": "写真、ビデオ、天文、連写、タイムラプス撮影",
+  "equivalentFocalLength": "1016 mm（望遠）\n45 mm（広角）",
+  "storage": "64 GB",
+  "battery": "内蔵\n7000 mAh\n外部USB充電対応",
+  "npu": "1 TOPS",
+  "maxExposureTime": "90年代（望遠 & 広角）\nすべてEQモードで",
+  "moreFunctions": "NFC 一触即発\n天体写真の後処理/予約撮影/天体モザイク",
+  "size": "100.38 × 183.61 × 60.70 mm"
+}

@@ -1,0 +1,13 @@
+{
+  "yourCartIsEmpty": "カートは空です",
+  "addSomeProductsToGetStarted": "商品を追加してショッピングを始めましょう",
+  "continueShopping": "製品リストを表示",
+  "serverError": "サーバーエラー",
+  "productUnavailableTitle": "商品は現在購入できません",
+  "productUnavailableDescription": "この商品は現在、お住まいの地域では在庫がありません。",
+  "failedToLoadProductInformation": "製品情報を読み込めません。\nクライアントがShopifyプロキシサーバーに接続できません。\n後でもう一度お試しください。",
+  "retry": "再試行",
+  "failedToLoadCMSData": "データの読み込みに失敗しました。\nクライアントがCMSサーバーに接続できません。\n後でもう一度お試しください。",
+  "trackingServiceUnavailable": "ネットワーク異常",
+  "failedToLoadTrackingService": "現在のネットワーク接続が不安定です。\n物流追跡サービスに接続できません。\nネットワークを確認して再試行するか、後ほどお試しください。"
+}

@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Il panorama non è solo grandioso, ma anche nitido",
+    "buttons": {
+      "buyNow": "Acquista ora",
+      "watchVideo": "Guarda il video"
+    }
+  },
+  "portable": {
+    "label": "Dimensioni del dizionario, peso leggero fino a 1,35 kg",
+    "title": "Viaggia leggero, pronto a scattare in qualsiasi momento",
+    "description": "DWARF 3 è il tuo compagno di viaggio ideale, pronto a partire con te in qualsiasi momento.\nCon un peso corporeo di circa 1,35 kg, è facile da portare in viaggio, in campeggio o per un weekend fuori porta."
+  },
+  "billionPixel": {
+    "label": "Miliardi di pixel per vedere il mondo",
+    "title": "Tutto in un istante, in una sola foto",
+    "description": "Esperienza la fotografia panoramica da un miliardo di pixel! Una singola foto cattura sia il macro che il dettaglio. Anche ingrandendo e ritagliando, mantiene una nitidezza sorprendente."
+  },
+  "shootMode": {
+    "label": "Due modalità di ripresa",
+    "title": "Seleziona l'area, inizia a filmare, questo è tutto",
+    "description": "Basta inquadrare il paesaggio che desideri fotografare nell'App per generare un'anteprima della scena panoramica. Un clic per iniziare a filmare, ciò che vedi è ciò che ottieni!",
+    "altDescription": "Certamente, se hai familiarità con i parametri di ripresa, puoi anche impostare direttamente le righe e le colonne di scatto, lasciando che DWARF scatti automaticamente per te."
+  },
+  "seamlessStitch": {
+    "label": "Giunzione senza soluzione di continuità",
+    "title": "Senza soluzione di continuità come nel mondo reale",
+    "description": "DWARF 3 può controllare con alta precisione il movimento fluido dell'obiettivo, garantendo l'accuratezza di ogni posizione di ripresa. Il server utilizzerà algoritmi per completare automaticamente l'elaborazione del montaggio. Senza bisogno di post-produzione complessa, si ottiene una perfetta immagine panoramica!"
+  },
+  "panoramaMosaic": {
+    "label": "Panoramica Puzzle",
+    "title": "Ingrandisci per vedere il mondo",
+    "description": "Il puzzle panoramico utilizza la composizione cloud per unire una serie di scatti a teleobiettivo in un'unica super nitida e ampia panoramica. Nessuna elaborazione locale necessaria, basta scattare e caricare.",
+    "mosaicLabel": "Panoramica Puzzle",
+    "mosaicDescription": "Cattura panorami grandiosi in gigapixel, goditi una vista a 360°.\nSupporta la stampa in formati extra-large e lo zoom estremo per osservare da vicino scenari mozzafiato."
+  },
+  "share": {
+    "label": "Condivisione della qualità senza perdita",
+    "title": "Condividi, senza limiti",
+    "description": "Dopo che la foto panoramica è stata caricata sul cloud e completata la composizione, è possibile generare un link panoramico ad alta definizione che supporta lo zoom approfondito. Condividilo con un clic su qualsiasi piattaforma, permettendo a più persone di ammirare insieme lo stesso paesaggio.\n\nDalla stessa panoramica è possibile generare più link indipendenti; ogni link può essere configurato singolarmente per stile cromatico e informazioni di visualizzazione, adattandosi a diversi scenari come la condivisione sui social e la raccolta personale."
+  },
+  "appFeatures": {
+    "mainTitle": "Esperienza più fluida, riprese più semplici",
+    "mainDescription": "Connessione NFC rapida, supporto multilingue, ripresa continua in background, protezione IP54: per un'esperienza all'aperto più serena e riprese più fluide.",
+    "nfc": {
+      "label": "Collega con un tocco, scatta all'istante",
+      "title": "Connessione NFC con un tocco",
+      "description": "Avvicina il telefono all'area dell'anello luminoso per connetterti rapidamente a DWARF 3 e iniziare subito a scattare."
+    },
+    "multiLanguage": {
+      "title": "App multilingue",
+      "description": "Copre utenti in tutto il mondo, supportando attualmente 10 lingue tra cui cinese, inglese, giapponese, spagnolo, tedesco e altre."
+    },
+    "background": {
+      "title": "Esecuzione automatica offline",
+      "description": "Anche se l'app viene messa in background, minimizzata o la connessione viene interrotta, DWARF 3 continua a funzionare, permettendo di tornare in qualsiasi momento per controllare i progressi."
+    },
+    "ip54": {
+      "title": "Protezione IP54",
+      "description": "Antipolvere e antirugiada, per un utilizzo all'aperto più sicuro, offrendo protezione aggiuntiva per l'osservazione e la ripresa."
+    }
+  },
+  "moreFun": {
+    "label": "Più divertimento",
+    "title": "Fotografia astronomica e di birdwatching",
+    "description": "Dalla fotografia astronomica, ai panorami ultra HD, fino al birdwatching e al follow-up, un solo dispositivo rende l'osservazione e la registrazione più semplici.",
+    "astronomy": {
+      "title": "Astronomia",
+      "description": "Fotografia automatizzata con un solo clic, rende l'esplorazione dell'universo più semplice che mai.\nIn pochi minuti è possibile catturare immagini di galassie, nebulose, ammassi stellari e altro.",
+      "button": "Scopri di più"
+    },
+    "birding": {
+      "title": "Blocca automaticamente il bersaglio e segui continuamente",
+      "description": "Dopo aver identificato l'obiettivo, DWARF 3 si blocca automaticamente e lo traccia continuamente.\nAnche in caso di decollo improvviso, il sistema a doppia fotocamera si riposiziona rapidamente, seguendo in modo stabile.",
+      "button": "Scopri di più"
+    }
+  },
+  "packageSection": {
+    "title": "Contenuto della confezione",
+    "mainBody": {
+      "title": "DWARF 3 Telescopio Intelligente"
+    },
+    "bag": {
+      "title": "Borsa per il trasporto"
+    },
+    "filters": {
+      "title": "Filtro solare magnetico integrato"
+    },
+    "filtersPouch": {
+      "title": "Borsa protettiva per filtri"
+    },
+    "cable": {
+      "title": "Cavo dati Type-C"
+    },
+    "wipeCloth": {
+      "title": "Panno per la pulizia delle lenti"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "全方位保護",
+      "description": "PVC人工皮革製の外層は撥水性と耐引き裂き性を備え、内部には緩衝層を内蔵。360°フィットでしっかり保護します。"
+    },
+    "portable": {
+      "title": "超軽量・超ポータブル",
+      "description": "21×9×12cm のミニマルなシルエット、1.6m 調節可能ショルダーストラップ。"
+    },
+    "storage": {
+      "title": "収納パック",
+      "description": "底部のバンドで安定するスタンド、側面のフィルター専用収納、本体とアクセサリーがそれぞれ所定の位置に収まり、屋外での紛失の悩みから解放されます。"
+    },
+    "customFit": {
+      "title": "専用カスタマイズ",
+      "description": "DWARF mini専用設計、シルケット加工コットン内張りで、ぴったりとフィットし、移動中の振動やズレを防ぎます。"
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "製品名",
+      "value": "DWARF mini 専用携帯保護ケース"
+    },
+    "outerMaterial": {
+      "label": "外部素材",
+      "value": "PVC レザー"
+    },
+    "innerMaterial": {
+      "label": "内部素材",
+      "value": "シルケット加工綿"
+    },
+    "size": {
+      "label": "外形寸法",
+      "value": "長さ21cm × 幅9cm × 高さ12cm"
+    },
+    "strap": {
+      "label": "肩帶規格",
+      "value": "1.6m 調節可能な長さ、金属製バックル付き"
+    },
+    "title": "製品仕様"
+  },
+  "hero": {
+    "title": "DWARF mini バッグ",
+    "subtitle": "全方位保護｜驚異の携帯性｜ワンパック収納｜専用カスタム"
+  }
+}

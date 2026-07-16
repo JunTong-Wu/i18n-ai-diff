@@ -1,0 +1,50 @@
+{
+  "dwarf-3-smart-telescope": {
+    "title": "DWARF 3 スマート望遠鏡",
+    "description": "軽量一体型スマート天体望遠鏡。太陽、月、深宇宙の撮影に対応。"
+  },
+  "dwarf-3-smart-telescope-open-box": {
+    "title": "DWARF 3 スマート望遠鏡（開封品）",
+    "description": "軽量一体型スマート天体望遠鏡。太陽、月、深宇宙の撮影に対応。"
+  },
+  "dwarf-mini-smart-telescope": {
+    "title": "DWARF mini スマート望遠鏡",
+    "description": "バードウォッチング、風景観察、入門向け天体写真に最適な、コンパクトで持ち運びやすいスマート望遠鏡。"
+  },
+  "dwarf-mini-smart-telescope-open-box": {
+    "title": "DWARF mini スマート望遠鏡（開封品）",
+    "description": "バードウォッチング、風景観察、入門向け天体写真に最適な、コンパクトで持ち運びやすいスマート望遠鏡。"
+  },
+  "dwarf-2-smart-telescope": {
+    "title": "DWARF II スマート望遠鏡",
+    "description": "望遠観測と広角記録を両立するデュアルレンズのスマート望遠鏡。"
+  },
+  "dwarf-ii-refurbished": {
+    "title": "DWARF II 公式整備済み品",
+    "description": "DWARF II の公式整備済みモデルをご覧ください。"
+  },
+  "tripod-for-dwarf-3": {
+    "title": "ミニ油圧雲台三脚",
+    "description": "DWARF シリーズ向けに設計された、軽量で安定性の高い三脚。"
+  },
+  "mini-tripod-with-hydraulic-head-open-box": {
+    "title": "ミニ油圧雲台三脚（開封品）",
+    "description": "DWARF シリーズ向けに設計された、軽量で安定性の高い三脚。"
+  },
+  "uhc-nd-telescope-filter-for-dwarf-ii": {
+    "title": "DWARF II UHC・ND 望遠鏡フィルター",
+    "description": "DWARF II 用の UHC・ND 望遠鏡フィルター。"
+  },
+  "filter-adapter-for-dwarf-ii": {
+    "title": "DWARF II フィルターアダプターリング",
+    "description": "DWARF II 用のフィルターアダプターリング。"
+  },
+  "rechargeable-lithium-battery-for-dwarf-ii": {
+    "title": "DWARF II 充電式リチウムバッテリー",
+    "description": "DWARF II 用の充電式リチウムバッテリー。"
+  },
+  "dwarf-mini-smart-telescope-bag": {
+    "title": "DWARF mini バッグ",
+    "description": "DWARF Mini 用に設計されたコンパクトなキャリーバッグ。保護ライニングとアクセサリーポケット付き。"
+  }
+}

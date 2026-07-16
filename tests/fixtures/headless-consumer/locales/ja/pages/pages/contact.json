@@ -1,0 +1,101 @@
+{
+  "breadcrumb": {
+    "home": "ホームページ",
+    "current": "お問い合わせ"
+  },
+  "title": "お問い合わせ",
+  "intro": {
+    "title": "お問い合わせ",
+    "description": "ご質問がある場合は、まず<link1>よくある質問</link1>と<link2>ヘルプセンター</link2>をご覧になることをお勧めします。そこで答えが見つからない場合は、以下の方法でお問い合わせください。"
+  },
+  "methods": {
+    "address": "住所：武漢東湖新技術開発区関東街道老武黄公路206号慧谷時空1棟21階01室\n電話：027-65527110",
+    "grid": {
+      "wecom": {
+        "label": "企業微信",
+        "value_global": "扫码添加企业微信",
+        "action": "QRコードを表示"
+      },
+      "weChatServiceAccount": {
+        "label": "WeChatサービスアカウント",
+        "value_global": "扫码获取最新讯息",
+        "action": "QRコードを表示"
+      },
+      "saleCooperate": {
+        "label": "販売とマーケティングの連携",
+        "value_global": "hello@dwarflab.com",
+        "action": "メールを送信"
+      },
+      "douyin": {
+        "label": "TikTokをフォロー",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "フォローする"
+      },
+      "weChatChannels": {
+        "label": "ビデオチャンネルをフォロー",
+        "value_global": "@DWARFLAB",
+        "action": "微信ビデオチャンネルにアクセスし、検索してフォローしてください"
+      },
+      "xiaoHongshu": {
+        "label": "小红书をフォロー",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "フォローする"
+      },
+      "bilibili": {
+        "label": "bilibiliをフォロー",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "フォローする"
+      },
+      "email": {
+        "label": "メールボックス",
+        "value_global": "support@dwarflab.com",
+        "value_JP": "hello.jp@dwarflab.com",
+        "action": "メールを送信"
+      },
+      "videoCall": {
+        "label": "ビデオ通話を予約する",
+        "value_global": "预约专家",
+        "valueTranslate": "専門家を予約",
+        "action": "予約"
+      },
+      "facebookGroup": {
+        "label": "Facebookユーザーグループ",
+        "value_global": "@DWARFLAB Official Community",
+        "value_JP": "@DWARFLAB 公式コミュニティ",
+        "action": "Facebookグループに参加"
+      },
+      "facebook": {
+        "label": "Facebookでフォローしてください",
+        "value_global": "@DWARFLAB",
+        "value_JP": "@DWARFLAB.jp",
+        "action": "Facebookへ"
+      },
+      "instagram": {
+        "label": "Instagramでフォローしてください",
+        "value_global": "@DWARFLAB",
+        "action": "Instagramへ"
+      },
+      "tiktok": {
+        "label": "TikTokで私たちをフォローしてください",
+        "value_global": "@dwarf_lab",
+        "action": "TikTokへ"
+      },
+      "youtube": {
+        "label": "YouTubeで私たちをフォローしてください",
+        "value_global": "@dwarflabofficial",
+        "value_JP": "@DWARFLABJapan",
+        "action": "YouTubeへ"
+      },
+      "x": {
+        "label": "X（旧Twitter）で私たちをフォローしてください",
+        "value_global": "@DwarflabJapan",
+        "value_JP": "@DwarflabJapan",
+        "action": "X（旧Twitter）へ"
+      }
+    }
+  },
+  "form": {
+    "title": "他に質問はありますか？私たちにメッセージを残してください！",
+    "description": "また、<link>Messenger</link>から直接お問い合わせいただくか、フォームを送信してメッセージをお寄せいただくこともできます。"
+  }
+}

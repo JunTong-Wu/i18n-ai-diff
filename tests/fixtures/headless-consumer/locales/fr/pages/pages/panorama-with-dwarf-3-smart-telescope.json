@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Le panorama ne doit pas seulement être grandiose, il doit aussi être net.",
+    "buttons": {
+      "buyNow": "Acheter maintenant",
+      "watchVideo": "Regarder la vidéo"
+    }
+  },
+  "portable": {
+    "label": "Taille du dictionnaire, léger jusqu'à 1,35 kg",
+    "title": "Voyagez léger, prêt à filmer à tout moment",
+    "description": "DWARF 3 est votre compagnon de voyage idéal, prêt à partir à tout moment.\nAvec un poids d'environ 1,35 kg, il est facile à emporter en voyage, en camping ou pour un week-end."
+  },
+  "billionPixel": {
+    "label": "Voir le monde en gigapixels",
+    "title": "L'éphémère et l'éternel, le tout en une seule photo",
+    "description": "Expérimentez la photographie panoramique gigapixel ! Une seule photo capture à la fois la vue d'ensemble et les détails. Même en zoomant et en recadrant, elle conserve une clarté époustouflante."
+  },
+  "shootMode": {
+    "label": "Deux modes de prise de vue",
+    "title": "Cadrez, enregistrez, c'est tout",
+    "description": "Il suffit de sélectionner le paysage que vous souhaitez photographier dans l'application pour générer un aperçu de la prise de vue panoramique. Un clic pour commencer à filmer, ce que vous voyez est ce que vous obtenez !",
+    "altDescription": "Bien sûr, si vous êtes familier avec les paramètres de prise de vue, vous pouvez également définir directement les rangées et colonnes de prise de vue, laissant DWARF effectuer la capture automatique pour vous."
+  },
+  "seamlessStitch": {
+    "label": "Assemblage sans couture",
+    "title": "Aussi fluide que le monde réel",
+    "description": "DWARF 3 permet un contrôle précis des mouvements fluides de la caméra, garantissant l'exactitude de chaque position de prise de vue. Le serveur utilisera des algorithmes pour effectuer automatiquement le traitement d'assemblage. Sans post-traitement complexe, vous obtenez une image panoramique parfaite !"
+  },
+  "panoramaMosaic": {
+    "label": "Puzzle panoramique",
+    "title": "Voir le monde en grand",
+    "description": "Le panorama utilise un assemblage en nuage, combinant une série de photos téléobjectif en une seule image ultra-haute définition. Aucun traitement local n'est nécessaire, il suffit de photographier et de télécharger.",
+    "mosaicLabel": "Puzzle panoramique",
+    "mosaicDescription": "Capturez des scènes grandioses en gigapixel et profitez d'une vue panoramique.\nPrend en charge les sorties en très grand format et un zoom extrême pour observer de près des paysages époustouflants."
+  },
+  "share": {
+    "label": "Partage de qualité sans perte",
+    "title": "Partagez, sans restrictions",
+    "description": "Une fois la photo panoramique téléchargée sur le cloud et l'assemblage terminé, un lien panoramique haute définition prenant en charge un zoom profond peut être généré. Partagez-le en un clic sur n'importe quelle plateforme, permettant à plus de personnes d'apprécier le même paysage.\n\nUne même photo panoramique peut générer plusieurs liens indépendants ; chaque lien peut être configuré individuellement avec un style de couleur et des informations d'affichage, s'adaptant ainsi à différents scénarios tels que le partage sur les réseaux sociaux ou la collection personnelle."
+  },
+  "appFeatures": {
+    "mainTitle": "Expérience plus fluide, prise de vue plus facile",
+    "mainDescription": "Connexion NFC rapide, prise en charge multilingue, capture continue en arrière-plan, protection IP54 — pour plus de sérénité en extérieur et une prise de vue plus fluide.",
+    "nfc": {
+      "label": "Connexion instantanée, tournage immédiat",
+      "title": "Connexion NFC en un seul toucher",
+      "description": "Approchez votre téléphone de la zone de l'anneau lumineux pour vous connecter rapidement au DWARF 3 et commencer à filmer immédiatement."
+    },
+    "multiLanguage": {
+      "title": "Application multilingue",
+      "description": "Couvrant les utilisateurs du monde entier, il prend désormais en charge 10 langues, dont le chinois, l'anglais, le japonais, l'espagnol et l'allemand."
+    },
+    "background": {
+      "title": "Fonctionnement automatique hors ligne",
+      "description": "Même si l'application est mise en arrière-plan, minimisée ou que la connexion est interrompue, DWARF 3 continue de fonctionner, permettant de consulter la progression à tout moment."
+    },
+    "ip54": {
+      "title": "Protection IP54",
+      "description": "Protection contre la poussière et la condensation, pour une utilisation en extérieur plus sereine, offrant une protection supplémentaire pour l'observation et la photographie."
+    }
+  },
+  "moreFun": {
+    "label": "Plus de plaisir",
+    "title": "Photographie astronomique et ornithologique",
+    "description": "De l'astrophotographie et des panoramas ultra HD à l'observation et au suivi des oiseaux, un seul appareil simplifie l'observation et l'enregistrement.",
+    "astronomy": {
+      "title": "Astronomie",
+      "description": "La photographie automatisée en un clic rend l'exploration de l'univers plus simple que jamais.\nCapturer des images de galaxies, de nébuleuses, d'amas stellaires, etc., en quelques minutes.",
+      "button": "En savoir plus"
+    },
+    "birding": {
+      "title": "Verrouillage automatique de la cible, suivi continu",
+      "description": "Après avoir identifié la cible, le DWARF 3 se verrouille et suit automatiquement de manière continue.\nMême en cas de décollage soudain, le système à double caméra peut se repositionner rapidement et suivre de manière stable.",
+      "button": "En savoir plus"
+    }
+  },
+  "packageSection": {
+    "title": "Contenu de l'emballage",
+    "mainBody": {
+      "title": "DWARF 3 Télescope Intelligent"
+    },
+    "bag": {
+      "title": "Sac de rangement"
+    },
+    "filters": {
+      "title": "Filtre solaire magnétique tout-en-un"
+    },
+    "filtersPouch": {
+      "title": "Sac de protection pour filtres"
+    },
+    "cable": {
+      "title": "Câble de données Type-C"
+    },
+    "wipeCloth": {
+      "title": "Chiffon pour objectif"
+    }
+  }
+}

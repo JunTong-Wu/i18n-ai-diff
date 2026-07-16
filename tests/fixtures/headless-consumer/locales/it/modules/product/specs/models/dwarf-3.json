@@ -1,0 +1,17 @@
+{
+  "weight": "1350 g",
+  "aperture": "35 mm（teleobiettivo）\n3,4 mm（grandangolo）",
+  "sensor": "SONY IMX678 1/1.8' (teleobiettivo)\nSONY IMX307 1/2.8' (grandangolo)",
+  "focalLength": "150 mm (teleobiettivo)\n6,7 mm (grandangolo)",
+  "rotationRange": "Obiettivo: 240°\nBase: 340°",
+  "maxResolution": "3840 × 2160 (teleobiettivo)\n1920 × 1080 (grandangolo)",
+  "builtInFilter": "VIS, Duo-Band, Astro (teleobiettivo)\nAstro (grandangolo)",
+  "shootingMode": "Foto, video, astronomia, scatto continuo, time-lapse\n(teleobiettivo & grandangolo)",
+  "equivalentFocalLength": "737 mm (teleobiettivo)\n45 mm (grandangolare)",
+  "storage": "128 GB",
+  "battery": "Integrato\n10000 mAh\nSupporta la ricarica USB esterna",
+  "npu": "5 TOPS",
+  "maxExposureTime": "60s (teleobiettivo)\n90s (grandangolo)\nEntrambi in modalità EQ",
+  "moreFunctions": "NFC connessione con un tocco\nPost-elaborazione astronomica/Prenotazione scatti/Mosaico astronomico",
+  "size": "222 × 142 × 65 mm"
+}

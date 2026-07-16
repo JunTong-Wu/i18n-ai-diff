@@ -1,0 +1,221 @@
+{
+  "first-image-section": {
+    "buttons": {
+      "learnMore": "Learn more",
+      "preOrder": "Buy Now"
+    },
+    "images": {
+      "alt": "DWARF mini smart telescope"
+    }
+  },
+  "first-grid": {
+    "header": {
+      "title": "The world's smallest smart telescope",
+      "subtitle": "Powerful and compact. Excellent performance."
+    },
+    "cards": {
+      "0": {
+        "title": "840g\nUltra-portable"
+      },
+      "1": {
+        "title": "90-second shutter\nReady"
+      },
+      "2": {
+        "title": "4 hours\nbattery life"
+      },
+      "3": {
+        "title": "Automatic GoTo\nPrecision"
+      },
+      "4": {
+        "title": "One-click post-processing"
+      },
+      "5": {
+        "title": "360° Rotation\nFreedom"
+      }
+    }
+  },
+  "common-text-content-section": {
+    "text": "Big universe. Small telescope. Built for portability.\nThe DWARF mini is equipped with a precision astro camera, auto-tracking mount, and intelligent control system—all integrated into a body weighing just 840g.\nNo heavy equipment. No complicated setup. Just point, shoot, explore.\n\"This is not just a simplified telescope. It’s a whole new way to explore the universe.\"\nView the Andromeda Galaxy and the Milky Way like never before.\nThe universe is finally within reach."
+  },
+  "pocket-universe-section": {
+    "title": "DWARF mini Pocket Universe"
+  },
+  "common-full-width-section": {
+    "small-size": {
+      "title": "Small size, big view",
+      "description": "DWARF mini weighs only 840g, lightweight and portable, easy to carry along. It is your ultimate stargazing companion—whether in the backyard, by the lake, or on a mountaintop."
+    },
+    "three-minutes": {
+      "title": "From unboxing to shooting in 3 minutes",
+      "description": "Astrophotography is as easy as making instant noodles—just a few clicks, and this starry feast is ready!"
+    },
+    "capture-universe": {
+      "title": "Capture the universe tonight!",
+      "description": "It is incredibly intelligent, automatically tackling every challenge with precise autofocus, seamless GoTo navigation, and intelligent star tracking. Let advanced technology handle the complexities, so you can freely capture the beauty of the universe."
+    },
+    "big-ideas": {
+      "title": "Small size, big achievements",
+      "description": "There has never been such a compact smart telescope that offers such exceptional performance and powerful features."
+    },
+    "cosmos-adventure": {
+      "title": "Daily New Universe Exploration",
+      "description": "Bid farewell to single-mode astrophotography! The Milky Way, the Sun, the Moon, star trails, deep-sky nebulae...\nEvery glance upward is a celestial feast.",
+      "moreHighlights": "More Highlights",
+      "slides": {
+        "0": {
+          "title": "Daily Photography"
+        },
+        "1": {
+          "title": "Deep Space"
+        },
+        "2": {
+          "title": "Solar System"
+        },
+        "3": {
+          "title": "Milky Way"
+        },
+        "4": {
+          "title": "Star Trail"
+        }
+      }
+    },
+    "stand-out": {
+      "title": "Want photos that stand out?",
+      "description": "From International Space Station transits (lunar transits) and solar/lunar eclipses to wide-field mosaics, the DWARF mini is capable of handling a rich variety of astrophotography subjects.",
+      "items": {
+        "iss-transit": {
+          "title": "ISS Transit"
+        },
+        "lunar-eclipse": {
+          "title": "Lunar eclipse"
+        },
+        "sun-eclipse": {
+          "title": "Solar eclipse"
+        },
+        "mosaic": {
+          "title": "Astro Mosaic"
+        }
+      }
+    },
+    "shoot-when-asleep": {
+      "title": "Even while sleeping... it can shoot!?",
+      "description": "Set the time and target, then let the DWARF mini handle everything. You just need to sleep peacefully. When you wake up, there will already be a clear photo of the Andromeda Galaxy and the Milky Way in the gallery."
+    },
+    "pro-level-editing": {
+      "title": "Professional-grade photo editing, no computer needed",
+      "description": "Traditional astrophotography requires expensive computers and complex post-processing software—but now, DWARF mini allows you to achieve professional-level editing directly on your phone!\nFor professionals, RAW files can be exported to Photoshop, Siril, or PixInsight to unleash the full potential of your images—unlimited possibilities, no compromises."
+    },
+    "auto-correct": {
+      "title": "Stellar Studio built into the app",
+      "description": "Instant Enhancement: Automatically correct star points, eliminate noise, and enhance nebula details.\n3-Second Processing: Why is this important? From click to generating a share-worthy image takes less than 3 seconds. Edit and share your cosmic masterpiece anytime, anywhere."
+    },
+    "signature": {
+      "title": "Exclusive Signature Under the Starry Sky",
+      "description": "Post images with personal tags on social media: whether it's poetic musings or the story behind the shot, create a watermark unique to you. Because, the most beautiful starry sky deserves the best sharing."
+    }
+  },
+  "dual-camera-system-section": {
+    "title": "Dual Camera Rapid Aiming System",
+    "telephoto": {
+      "title": "Telephoto lens",
+      "description": "30mm aperture\nEquivalent to full-frame 1,016mm\n6 apochromatic optical lenses for sharp and clear images"
+    },
+    "wide-angle": {
+      "title": "Wide-angle lens",
+      "description": "Quick framing and target capture, also ideal for photographing the Milky Way and star trails"
+    }
+  },
+  "common-two-columns-section": {
+    "imaging-precision": {
+      "title": "Imaging precision,\nPeak performance",
+      "description": "Built-in IMX662 sensor, 1/2.8-inch format, 2.9μm large pixels for clearer details and more realistic imaging.\n\nSupports 2-megapixel RAW shooting, revealing every minute detail of deep space with stunning clarity."
+    },
+    "sharp-stars": {
+      "title": "Star points sharp,\n90-second long exposure",
+      "description": "Switch to equatorial mount mode, DWARF mini will accurately track the sky—compensating for Earth's rotation, allowing you to capture wider, richer star fields with no trailing and no cropping."
+    },
+    "360-freedom": {
+      "title": "360° Free Rotation",
+      "description": "The lens barrel can rotate 225° + the gimbal allows 360° unlimited rotation. Supports manual/APP dual control, easily tracking targets from any angle. Manual or joystick lens control enables you to effortlessly track targets from any perspective."
+    },
+    "triple-filters": {
+      "title": "Built-in triple filter",
+      "description": "Dark-Frame Filter: Auto-capture darks to suppress thermal noise.\n\nAstro Filter (430–690 nm): Boosts nebula contrast by enhancing infrared.\n\nDual Narrowband Filter: Optimized for Hα (656.3 nm) & O III (500.7 nm) to cut moonlight and city glow."
+    },
+    "together-challenge": {
+      "title": "Challenge the Universe Together",
+      "description": "Imagine collaborating with friends or other astronomy enthusiasts to piece together a vast deep-sky image—stargazing has never been so social and fun!"
+    },
+    "stellar-badges": {
+      "title": "Get Your Starry Badge",
+      "description": "Complete one, unlock the next. Witness your journey to becoming an astrophotography master!\n\nShare your personalized starry achievement poster to amaze your friends!"
+    }
+  },
+  "common-screen-section": {
+    "free-to-frame": {
+      "title": "Free composition, brilliant talent"
+    },
+    "team-up": {
+      "title": "Team collaboration, one step further"
+    }
+  },
+  "share-section": {
+    "title": "Share your cosmic masterpiece"
+  },
+  "badges": {
+    "star-seeker": {
+      "title": "Star Trails\nExplorer"
+    },
+    "star-trail-weaver": {
+      "title": "Star Trail\nWeaver"
+    },
+    "nebula-hunter": {
+      "title": "Nebula\nHunter"
+    },
+    "nebula-collector": {
+      "title": "Nebula\nCollector"
+    },
+    "mosaic-master": {
+      "title": "Splicing\nMaster"
+    },
+    "deep-sky-trekker": {
+      "title": "Deep Space\nExplorer"
+    },
+    "galaxy-catcher": {
+      "title": "Milky Way\nCatcher"
+    },
+    "cosmic-lone-ranger": {
+      "title": "Universe\nLone Ranger"
+    }
+  },
+  "take-it-further-section": {
+    "title": "Want to go further?",
+    "calibration": {
+      "title": "Super Custom Calibration Frame:\nDark Field/Bias Field/Flat Field",
+      "description": "From 'captured' to 'captured correctly', every frame is calibrated!",
+      "items": {
+        "0": {
+          "title": "Dark field"
+        },
+        "1": {
+          "title": "Bias field"
+        },
+        "2": {
+          "title": "Flat field"
+        }
+      }
+    },
+    "filtering": {
+      "title": "Frame-by-frame selection",
+      "description": "Check and remove unnecessary frames before stacking to ensure perfect alignment."
+    },
+    "megastack": {
+      "title": "Multi-night Super Stack",
+      "description": "DWARF mini collects exposures from multiple nights and merges them into one stunning image. Every clear night sky becomes a part of your final masterpiece."
+    }
+  },
+  "last-image-section": {
+    "subtitle": "Small size, big view",
+    "button": "Buy Now"
+  }
+}

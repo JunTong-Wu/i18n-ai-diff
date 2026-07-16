@@ -1,0 +1,188 @@
+{
+  "products": {
+    "title": "제품 - DWARFLAB",
+    "description": "우리의 혁신적인 제품 시리즈를 둘러보세요",
+    "dwarf-mini-smart-telescope": {
+      "title": "DWARF Mini 스마트 망원경 - DWARFLAB",
+      "description": "소형 휴대용 스마트 망원경으로, 조류 관찰, 풍경 감상 및 입문용 천체 사진 촬영에 적합합니다."
+    },
+    "dwarf-mini-smart-telescope-open-box": {
+      "title": "DWARF Mini 스마트 망원경 (개봉 제품) - DWARFLAB",
+      "description": "소형 휴대용 스마트 망원경으로, 조류 관찰, 풍경 감상 및 입문용 천체 사진 촬영에 적합합니다."
+    },
+    "dwarf-3-smart-telescope": {
+      "title": "DWARF 3 스마트 망원경 - DWARFLAB",
+      "description": "경량화된 일체형 스마트 천체 망원경으로, 태양, 달 및 심우주 촬영을 지원합니다."
+    },
+    "dwarf-3-smart-telescope-open-box": {
+      "title": "DWARF 3 스마트 망원경 (개봉 상품) - DWARFLAB",
+      "description": "경량 일체형 스마트 천체 망원경으로, 태양, 달 및 심우주 촬영을 지원합니다."
+    },
+    "dwarf-2-smart-telescope": {
+      "title": "DWARF II 스마트 망원경 - DWARFLAB",
+      "description": "듀얼 렌즈 스마트 망원경, 장초점 관측과 광각 기록을 동시에 수행합니다."
+    },
+    "dwarf-ii-refurbished": {
+      "title": "DWARF II 공식 리퍼비시 - DWARFLAB",
+      "description": "DWARF II 공식 리퍼비시 모델을 확인해 보세요."
+    },
+    "tripod-for-dwarf-3": {
+      "title": "미니 삼각대 - DWARFLAB",
+      "description": "DWARF 시리즈를 위해 특별히 설계된 가볍고 안정적인 삼각대입니다."
+    },
+    "mini-tripod-with-hydraulic-head-open-box": {
+      "title": "Mini Tripod 미니 삼각대 (개봉 상품) - DWARFLAB",
+      "description": "DWARF 시리즈를 위해 특별히 설계된 가볍고 안정적인 삼각대입니다."
+    },
+    "uhc-nd-telescope-filter-for-dwarf-ii": {
+      "title": "DWARF II UHC 및 ND 망원경 필터 - DWARFLAB",
+      "description": "DWARF II용 UHC 및 ND 망원경 필터."
+    },
+    "filter-adapter-for-dwarf-ii": {
+      "title": "DWARF II 필터 어댑터 링 - DWARFLAB",
+      "description": "DWARF II용 필터 어댑터 링."
+    },
+    "rechargeable-lithium-battery-for-dwarf-ii": {
+      "title": "DWARF II 충전식 리튬 배터리 - DWARFLAB",
+      "description": "DWARF II용 충전식 리튬 배터리."
+    },
+    "dwarf-mini-smart-telescope-bag": {
+      "title": "DWARF 미니 가방 - DWARFLAB",
+      "description": "DWARF Mini 전용 컴팩트 캐리백으로, 보호 안감과 액세서리 수납 포켓을 제공합니다."
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "홈페이지 - DWARFLAB",
+      "description": "DWARFLAB 공식 웹사이트, 혁신적인 제품과 서비스를 탐색하세요"
+    },
+    "cart": {
+      "title": "장바구니 - DWARFLAB",
+      "description": "장바구니"
+    },
+    "pages": {
+      "dwarf-mini-smart-telescope": {
+        "title": "DWARF 미니 스마트 망원경 - DWARFLAB",
+        "description": "DWARF mini를 만나보세요. DWARFLAB은 누구나 천체 사진을 찍을 수 있도록 스마트 망원경을 제작합니다."
+      },
+      "astronomy-with-dwarf-3-smart-telescope": {
+        "title": "DWARF 3 스마트 망원경을 활용한 천문 - DWARFLAB",
+        "description": "DWARF 3를 만나보세요. DWARFLAB은 누구나 천체 사진을 찍을 수 있도록 스마트 망원경을 제작합니다."
+      },
+      "birding-with-dwarf-3-smart-telescope": {
+        "title": "DWARF 3 스마트 망원경으로 조류 관찰 - DWARFLAB",
+        "description": "DWARF 3를 만나보세요. DWARFLAB은 누구나 쉽게 천체 관측을 할 수 있도록 스마트 망원경을 제작합니다."
+      },
+      "panorama-with-dwarf-3-smart-telescope": {
+        "title": "DWARF 3 스마트 망원경으로 촬영한 파노라마 - DWARFLAB",
+        "description": "DWARF 3을 만나보세요. DWARFLAB은 누구나 파노라마를 사용할 수 있도록 하는 스마트 망원경을 제작합니다."
+      },
+      "gallery": {
+        "title": "사용자 사진 갤러리 - DWARFLAB",
+        "description": "포토월을 살펴보세요. 바로 여기가 우리가 빛을 발하는 곳입니다."
+      },
+      "youtube-collection": {
+        "title": "YouTube 즐겨찾기 - DWARFLAB",
+        "description": "저희 Youtube 컬렉션 둘러보기"
+      },
+      "share-your-dwarf-ii-story": {
+        "title": "당신의 DWARF II 이야기를 공유하세요 - DWARFLAB",
+        "description": "DWARF II에 대한 당신의 이야기를 공유하세요"
+      },
+      "dwarflab-app-firmware-download": {
+        "title": "DWARFLAB 앱 펌웨어 다운로드 - DWARFLAB",
+        "description": "DWARFLAB 앱 펌웨어 다운로드"
+      },
+      "faqs": {
+        "title": "자주 묻는 질문 - DWARFLAB",
+        "description": "자주 묻는 질문"
+      },
+      "contact": {
+        "title": "문의하기 - DWARFLAB",
+        "description": "DWARFLAB 팀에 문의하기"
+      },
+      "about-us": {
+        "title": "우리의 이야기 - DWARFLAB",
+        "description": "DWARFLAB 팀 알아보기"
+      },
+      "reseller": {
+        "title": "딜러 - DWARFLAB",
+        "description": "DWARFLAB 딜러 되기"
+      },
+      "affiliate-program": {
+        "title": "연합 - DWARFLAB",
+        "description": "DWARFLAB 협력 프로그램에 참여하기"
+      },
+      "shipping-policy": {
+        "title": "배송 정책 - DWARFLAB",
+        "description": "DWARFLAB의 물류 정책 이해하기"
+      },
+      "warranty-and-return": {
+        "title": "보증 및 반품 - DWARFLAB",
+        "description": "DWARFLAB의 보증 및 반품 정책 알아보기"
+      },
+      "payment-methods": {
+        "title": "결제 방법 - DWARFLAB",
+        "description": "DWARFLAB 결제 방법 알아보기"
+      },
+      "find-authorized-reseller": {
+        "title": "공인 딜러 찾기 - DWARFLAB",
+        "description": "DWARFLAB 제품의 공인 대리점 찾기"
+      },
+      "customer-reviews-on-dwarf-telescope": {
+        "title": "고객 평가 - DWARFLAB",
+        "description": "DWARFLAB 고객 평가 확인하기."
+      },
+      "share-your-dwarflab-story": {
+        "title": "사용자 스토리 - DWARFLAB",
+        "description": "DWARFLAB 사용자 이야기를 공유해 주세요."
+      }
+    },
+    "policies": {
+      "privacy-policy": {
+        "title": "개인정보 처리방침 - DWARFLAB",
+        "description": "DWARFLAB 개인정보 처리방침 이해하기"
+      },
+      "terms-of-service": {
+        "title": "이용 약관 - DWARFLAB",
+        "description": "DWARFLAB 서비스 약관 이해하기"
+      }
+    },
+    "tools": {
+      "track-order": {
+        "title": "주문 추적 - DWARFLAB",
+        "description": "주문 추적"
+      },
+      "withdrawal": {
+        "title": "취소 및 반품 신청하기 - DWARFLAB",
+        "description": "주문 취소 또는 반품 요청 제출"
+      }
+    }
+  },
+  "blogs": {
+    "story": {
+      "title": "스토리 - DWARFLAB",
+      "description": "우리의 이야기 둘러보기"
+    },
+    "news": {
+      "title": "뉴스 - DWARFLAB",
+      "description": "DWARFLAB 뉴스를 둘러보세요."
+    }
+  },
+  "collections": {
+    "title": "카테고리 - DWARFLAB",
+    "description": "DWARFLAB 제품 카테고리 둘러보기",
+    "all": {
+      "title": "모든 제품 - DWARFLAB",
+      "description": "DWARFLAB 전체 제품 둘러보기"
+    },
+    "accessories": {
+      "title": "액세서리 - DWARFLAB",
+      "description": "DWARFLAB 액세서리 제품 둘러보기"
+    },
+    "smart-telescope": {
+      "title": "스마트 망원경 - DWARFLAB",
+      "description": "DWARFLAB 스마트 망원경 제품 둘러보기"
+    }
+  }
+}

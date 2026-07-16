@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "Tripé Mini Hidráulico",
+    "presubtitle": "Leve para levar, suporte estável",
+    "buyNow": "Comprar Agora",
+    "title": "Tripé com Cabeça Hidráulica",
+    "subtitle": "Cabeçote de amortecimento hidráulico | Suporte estável | Portátil e leve | Ângulos mais livres"
+  },
+  "bestCompanion": {
+    "subtitle": "Da varanda ao campo aberto, uma configuração pronta para filmar a qualquer momento",
+    "title": "O melhor parceiro de fotografia do DWARF",
+    "description": "Fornece suporte estável e ajustes suaves de inclinação/panorâmica, tornando as sessões prolongadas de filmagem, time-lapse e observação mais tranquilas."
+  },
+  "equatorialMode": {
+    "subtitle": "Dois modos, mude conforme desejar",
+    "title": "Suporte ao modo de montagem equatorial",
+    "description": "Pode alternar livremente entre o modo equatorial e o modo altazimutal. O modo equatorial é usado para rastreamento mais estável por longos períodos, tornando a captura mais tranquila; o modo altazimutal é adequado para apontamento rápido e navegação diária, basta levantar e observar, ajustando a qualquer momento.",
+    "tab1": "Modo de montagem equatorial",
+    "tab2": "Modo Alt-Az"
+  },
+  "portable": {
+    "subtitle": "Perna de cinco seções, volume compacto",
+    "title": "Leve e fácil de transportar",
+    "description": "Feito de liga de alumínio, pode ser dobrado até 25 cm de comprimento. Peso leve de 790 gramas, fácil de transportar. Observação de estrelas na cidade, acampamento em viagens, perseguir o sol e a lua — não será mais 'chato'."
+  },
+  "stable": {
+    "subtitle": "Suporte estável, imagem mais limpa",
+    "title": "Filmagem super estável",
+    "description": "Pernas robustas e suporte estável. Suporta rotação de 360° e inclinação de -80°/+90°, permitindo mudança fácil de perspectiva; segura firmemente o DWARF, reduzindo o impacto de vibrações sutis na imagem."
+  },
+  "hydraulicHead": {
+    "subtitle": "Gira suavemente, encaixa com um empurrão",
+    "title": "Cabeça hidráulica, suave e controlável",
+    "description": "Sistema de amortecimento hidráulico integrado, cada ajuste é preciso e suave. Sem solavancos repentinos, sem pausas constrangedoras — controle confiante, composição precisa."
+  },
+  "flexibility": {
+    "subtitle": "Composição sem restrições",
+    "title": "Ângulo mais livre",
+    "description": "O manípulo ajusta para cima e para baixo, o tripé suporta pernas dobráveis em múltiplos ângulos, alto ou baixo conforme sua escolha, a perspectiva não é mais limitada.\nDesde apontar para cima para fotografar estrelas até ângulos baixos para paisagens, e composições laterais, você pode encontrar o ângulo ideal para tudo."
+  },
+  "tripodSpecs": {
+    "title": "Tripé",
+    "subtitle": "Introdução às Partes",
+    "specs": {
+      "weight": "Peso total",
+      "weightValue": "775 gramas",
+      "connector": "Conector",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "Capacidade máxima de carga",
+      "maxLoadValue": "3,0 kg",
+      "maxHeight": "Altura máxima",
+      "maxHeightValue": "530 milímetros",
+      "foldedHeight": "Altura de Dobramento",
+      "foldedHeightValue": "180 milímetros",
+      "tubeDiameter": "Diâmetro do tubo",
+      "tubeDiameterValue": "9,7/12,6/15,5/18,2/21 milímetros",
+      "sections": "Número de segmentos",
+      "sectionsValue": "5",
+      "material": "Material",
+      "materialValue": "Liga de alumínio",
+      "color": "Cor",
+      "colorValue": "Preto"
+    }
+  },
+  "headSpecs": {
+    "title": "Cabeça de Tripé Hidráulica",
+    "subtitle": "Introdução às Partes",
+    "specs": {
+      "weight": "Peso total",
+      "weightValue": "300 gramas",
+      "panRange": "Faixa horizontal",
+      "panRangeValue": "360°",
+      "tiltRange": "Faixa de inclinação",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "Altura",
+      "heightValue": "71 milímetros",
+      "baseDiameter": "Diâmetro da base",
+      "baseDiameterValue": "40 milímetros",
+      "loadCapacity": "Capacidade de carga",
+      "loadCapacityValue": "3,0 quilogramas",
+      "material": "Material",
+      "materialValue": "Liga de alumínio",
+      "quickRelease": "Placa de liberação rápida",
+      "quickReleaseValue": "Parafuso de câmera de 1/4 de polegada"
+    }
+  }
+}

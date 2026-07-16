@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "Shopping Cart",
+  "items": "items",
+  "product": "Product",
+  "price": "Price",
+  "quantity": "Quantity",
+  "total": "Total",
+  "subtotal": "Subtotal",
+  "discount": "Discount",
+  "checkout": "Checkout",
+  "findingShippingProtection": "We're finding shipping protection options for your order. Please wait a moment.",
+  "xcottonConflict": {
+    "title": "Shipping protection update failed",
+    "description": "Shipping protection may be out of sync with your cart. Refresh the page to confirm your cart total.",
+    "refreshCart": "Refresh cart"
+  },
+  "preparingCheckout": "Preparing secure checkout...",
+  "checkoutTakingLonger": "This is taking longer than expected",
+  "checkoutTakingLongerDescription": "We're still preparing your secure checkout. You can keep waiting or return to the product.",
+  "checkoutFailed": "Unable to open checkout",
+  "checkoutFailedDescription": "Check your connection and try again. You have not been charged.",
+  "returnToProduct": "Return to product",
+  "discountCodeInvalid": "Discount code invalid",
+  "alert": {
+    "confirmRemove": "Confirm deletion",
+    "confirmRemoveText": "Are you sure you want to delete this product?",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "notification": {
+    "error": {
+      "title": "Shopping cart update failed",
+      "description": "The network is somewhat unstable; the shopping cart has been restored to its previous quantity and amount. Please try again later."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "Free gift",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "Bundle offer: unlock {giftItems}",
+        "claimedTitle": "You've got {giftItems}",
+        "progressDescription": "Add {missingItems} to your cart with {ownedItems} to unlock {giftItems} as a free gift.",
+        "claimedDescription": "Your free gift is in the cart: {giftItems}. The final discount will be applied at checkout."
+      }
+    }
+  }
+}

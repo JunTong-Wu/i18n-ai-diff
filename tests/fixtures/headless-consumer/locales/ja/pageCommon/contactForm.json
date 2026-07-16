@@ -1,0 +1,31 @@
+{
+  "headerText": "オンラインストアの問い合わせフォームから新しいメッセージが届きました。",
+  "countryLabel": "国/地域コード",
+  "nameLabel": "お名前",
+  "namePlaceholder": "お名前を入力してください",
+  "emailLabel": "メールアドレス",
+  "emailPlaceholder": "メールアドレスを入力してください",
+  "subjectLabel": "トピックを選択",
+  "subjectPlaceholder": "トピックを選択してください",
+  "subjectOptions": {
+    "preSaleInquiry": "販売前相談",
+    "orderStatus": "注文ステータス",
+    "appFirmwareIssue": "アプリ/ファームウェアの問題",
+    "accessoriesIssue": "アクセサリーの問題",
+    "businessCooperation": "ビジネス提携"
+  },
+  "messageLabel": "メッセージ",
+  "messagePlaceholder": "メッセージを入力してください",
+  "submit": "送信",
+  "required": "この項目は必須です",
+  "emailInvalid": "有効なメールアドレスを入力してください",
+  "alert": {
+    "checkInformation": "情報を確認",
+    "checkInformationDescription": "ご連絡がスムーズに取れるよう、お客様の情報が正確かどうか、もう一度ご確認ください。",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "submitSuccess": "送信成功",
+    "submitError": "送信失敗",
+    "okGotIt": "了解しました"
+  }
+}

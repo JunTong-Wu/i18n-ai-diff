@@ -1,0 +1,17 @@
+{
+  "weight": "1200g",
+  "aperture": "24 mm(망원)\n2.8 mm(광각)",
+  "sensor": "소니 IMX415\n스타비스",
+  "focalLength": "100 mm(망원)\n6.8 mm(광각)",
+  "rotationRange": "렌즈: 240°\n베이스: 340°",
+  "maxResolution": "3840 × 2160（망원）",
+  "builtInFilter": "VIS/IR 패스(망원)\nVIS(광각)",
+  "shootingMode": "사진(망원 및 광각)\n비디오, 천체, 파노라마, 연사, 타임랩스(망원)",
+  "equivalentFocalLength": "675 mm(망원)\n48 mm(광각)",
+  "storage": "64GB",
+  "battery": "내장\n5600 mAh\n외부 USB 충전 지원",
+  "npu": "2TOPS",
+  "maxExposureTime": "15초",
+  "moreFunctions": "없음",
+  "size": "204 × 130 × 62mm"
+}

@@ -1,0 +1,13 @@
+{
+  "yourCartIsEmpty": "您的购物车为空",
+  "addSomeProductsToGetStarted": "添加一些商品以开始购物",
+  "continueShopping": "查看产品列表",
+  "serverError": "服务器错误",
+  "productUnavailableTitle": "商品暂不可售",
+  "productUnavailableDescription": "该商品当前在您所在地区暂无库存。",
+  "failedToLoadProductInformation": "无法加载产品信息，\n客户端无法连接到 Shopify 代理服务器。\n请稍后再试。",
+  "retry": "重试",
+  "failedToLoadCMSData": "数据加载失败，\n客户端无法连接到 CMS 服务器。\n请稍后再试。",
+  "trackingServiceUnavailable": "网络异常",
+  "failedToLoadTrackingService": "当前网络连接不稳定，\n无法连接物流追踪服务。\n请检查网络后重试，或稍后再试。"
+}

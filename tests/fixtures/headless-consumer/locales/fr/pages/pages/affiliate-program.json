@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "Page d'accueil",
+    "current": "Devenir partenaire de l'Affiliate"
+  },
+  "title": "Devenir partenaire de l'Affiliate",
+  "banner": {
+    "title": "Recommandez les produits DWARFLAB, gagnez des commissions",
+    "steps": {
+      "join": {
+        "title": "Rejoindre",
+        "description": "Inscrivez-vous pour un compte gratuit ShareASale ou Affiliatly en tant qu'affilié, ou si vous avez déjà un compte, ajoutez DWARFLAB ID."
+      },
+      "share": {
+        "title": "Partager",
+        "description": "Utilisez des liens de créateur exclusifs pour partager et promouvoir en ligne les produits DWARFLAB auprès de votre public."
+      },
+      "earn": {
+        "title": "Gagner",
+        "description": "Gagnez une commission de 5 % sur les commandes éligibles. La notoriété de notre marque et la qualité de nos produits vous aident à maximiser vos revenus."
+      }
+    }
+  },
+  "join": {
+    "title": "Rejoignez maintenant et obtenez 5% de commission",
+    "description": "Choisissez l'une des plateformes suivantes pour commencer à générer des revenus.",
+    "platforms": {
+      "affiliatly": {
+        "button": "Rejoignez Affiliatly"
+      },
+      "awin": {
+        "button": "Rejoindre Awin"
+      }
+    },
+    "or": "ou"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "dwarf-3-smart-telescope": {
+    "title": "Télescope intelligent DWARF 3",
+    "description": "Télescope astronomique intelligent tout-en-un léger, prenant en charge la photographie du Soleil, de la Lune et du ciel profond."
+  },
+  "dwarf-3-smart-telescope-open-box": {
+    "title": "Télescope intelligent DWARF 3 (produit ouvert)",
+    "description": "Télescope astronomique intelligent tout-en-un léger, prenant en charge la photographie solaire, lunaire et du ciel profond."
+  },
+  "dwarf-mini-smart-telescope": {
+    "title": "Télescope intelligent DWARF mini",
+    "description": "Un télescope intelligent compact et portable, idéal pour l'observation des oiseaux, des paysages et l'astrophotographie débutante."
+  },
+  "dwarf-mini-smart-telescope-open-box": {
+    "title": "Télescope intelligent DWARF mini (produit ouvert)",
+    "description": "Un télescope intelligent compact et portable, idéal pour l'observation des oiseaux, des paysages et l'astrophotographie débutante."
+  },
+  "dwarf-2-smart-telescope": {
+    "title": "Télescope intelligent DWARF II",
+    "description": "Un télescope intelligent à double objectif qui combine observation au téléobjectif et capture grand angle."
+  },
+  "dwarf-ii-refurbished": {
+    "title": "DWARF II reconditionné officiel",
+    "description": "Découvrez le modèle DWARF II officiellement reconditionné."
+  },
+  "tripod-for-dwarf-3": {
+    "title": "Trépied Mini avec Tête Hydraulique",
+    "description": "Un trépied léger et stable conçu pour la série DWARF."
+  },
+  "mini-tripod-with-hydraulic-head-open-box": {
+    "title": "Trépied Mini avec rotule hydraulique (Open Box)",
+    "description": "Un trépied léger et stable conçu pour la série DWARF."
+  },
+  "uhc-nd-telescope-filter-for-dwarf-ii": {
+    "title": "Filtres télescope UHC et ND pour DWARF II",
+    "description": "Filtres UHC et ND pour télescope, compatibles avec DWARF II."
+  },
+  "filter-adapter-for-dwarf-ii": {
+    "title": "Bague d'adaptation de filtre pour DWARF II",
+    "description": "Bague d'adaptation de filtre pour DWARF II."
+  },
+  "rechargeable-lithium-battery-for-dwarf-ii": {
+    "title": "Batterie lithium rechargeable pour DWARF II",
+    "description": "Batterie lithium rechargeable compatible avec DWARF II."
+  },
+  "dwarf-mini-smart-telescope-bag": {
+    "title": "Sacoche DWARF mini",
+    "description": "Un sac de transport compact pour DWARF Mini, avec doublure de protection et poches pour accessoires."
+  }
+}

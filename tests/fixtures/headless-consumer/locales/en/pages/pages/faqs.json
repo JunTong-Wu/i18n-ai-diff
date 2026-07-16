@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "FAQ"
+  },
+  "title": "FAQs",
+  "searchPlaceholder": "Search Issues",
+  "faqGroups": {
+    "ordersAndShipping": "Orders & Shipping",
+    "returnsWarrantyAndCustoms": "Returns, Warranty & Customs",
+    "gettingStarted": "Getting Started",
+    "appAndConnection": "App & Connection",
+    "shootingAndFeatures": "Shooting & Features",
+    "accessoriesAndFileTransfer": "Accessories & File Transfer"
+  },
+  "contact": {
+    "title": "Still have questions? Leave us a message!",
+    "nameLabel": "Your name",
+    "namePlaceholder": "Please enter your name",
+    "emailLabel": "Your email",
+    "emailPlaceholder": "Please enter your email address",
+    "subjectLabel": "Select Theme",
+    "subjectPlaceholder": "Pre-sales consultation",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Please enter your message",
+    "submit": "Submit"
+  },
+  "emptyMessage": "No matching FAQs found"
+}

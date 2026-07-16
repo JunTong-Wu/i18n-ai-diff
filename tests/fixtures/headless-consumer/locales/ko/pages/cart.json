@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "장바구니",
+  "items": "개 상품",
+  "product": "상품",
+  "price": "가격",
+  "quantity": "수량",
+  "total": "총액",
+  "subtotal": "소계",
+  "discount": "할인",
+  "checkout": "결제",
+  "findingShippingProtection": "주문에 적용 가능한 배송 보호를 확인하고 있습니다. 잠시만 기다려 주세요.",
+  "xcottonConflict": {
+    "title": "배송 보호 업데이트 실패",
+    "description": "배송 보호와 장바구니 상태가 일치하지 않을 수 있습니다. 페이지를 새로고침하여 장바구니 총액을 확인해 주세요.",
+    "refreshCart": "장바구니 새로고침"
+  },
+  "preparingCheckout": "안전한 결제 페이지를 준비하는 중...",
+  "checkoutTakingLonger": "예상보다 시간이 오래 걸리고 있습니다",
+  "checkoutTakingLongerDescription": "안전한 결제 페이지를 계속 준비하고 있습니다. 계속 기다리거나 상품 페이지로 돌아갈 수 있습니다.",
+  "checkoutFailed": "결제 페이지를 열 수 없습니다",
+  "checkoutFailedDescription": "네트워크 연결을 확인한 후 다시 시도해 주세요. 결제된 금액은 없습니다.",
+  "returnToProduct": "상품으로 돌아가기",
+  "discountCodeInvalid": "할인 코드가 유효하지 않습니다.",
+  "alert": {
+    "confirmRemove": "삭제 확인",
+    "confirmRemoveText": "이 상품을 삭제하시겠습니까?",
+    "confirm": "확인",
+    "cancel": "취소"
+  },
+  "notification": {
+    "error": {
+      "title": "장바구니 업데이트 실패",
+      "description": "네트워크가 약간 불안정하여 장바구니가 이전 수량과 금액으로 복원되었습니다. 잠시 후 다시 시도해 주세요."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "무료 사은품",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "세트 혜택: {giftItems} 받기",
+        "claimedTitle": "{giftItems}을(를) 받으셨습니다",
+        "progressDescription": "{ownedItems}와 함께 {missingItems}을(를) 장바구니에 추가하면 {giftItems}을(를) 무료 사은품으로 받을 수 있습니다.",
+        "claimedDescription": "무료 사은품이 장바구니에 있습니다: {giftItems}. 최종 할인은 결제 시 적용됩니다."
+      }
+    }
+  }
+}

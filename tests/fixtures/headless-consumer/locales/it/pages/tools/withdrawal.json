@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "Pagina iniziale",
+    "current": "Invia richiesta di recesso"
+  },
+  "title": "Invia richiesta di recesso",
+  "description": "Usa questo modulo per inviarci la tua richiesta di recesso dal contratto. Dopo l'invio, manderemo una conferma all'indirizzo e-mail indicato.",
+  "form": {
+    "nameLabel": "Nome",
+    "namePlaceholder": "Inserisci il tuo nome completo",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "Inserisci l'indirizzo e-mail per la conferma",
+    "orderReferenceLabel": "Numero ordine",
+    "orderReferencePlaceholder": "Inserisci il tuo numero d'ordine",
+    "itemsLabel": "Articoli",
+    "itemsPlaceholder": "Descrivi gli articoli per cui desideri esercitare il recesso",
+    "messageLabel": "Note aggiuntive",
+    "messagePlaceholder": "Aggiungi eventuali dettagli utili per elaborare la richiesta",
+    "submit": "Invia richiesta",
+    "required": "Questo campo è obbligatorio",
+    "emailInvalid": "Inserisci un indirizzo e-mail valido"
+  },
+  "alert": {
+    "checkInformation": "Controlla le informazioni",
+    "checkInformationDescription": "Conferma i tuoi dati prima di inviare la richiesta di recesso.",
+    "confirm": "Conferma",
+    "cancel": "Annulla",
+    "submitSuccess": "Richiesta inviata",
+    "submitSuccessDescription": "Abbiamo ricevuto la tua richiesta di recesso e inviato un'e-mail di conferma.",
+    "submitError": "Invio non riuscito",
+    "unknownError": "Errore sconosciuto",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "Richiesta di recesso DWARFLAB",
+    "customerSubject": "Abbiamo ricevuto la tua richiesta di recesso DWARFLAB",
+    "internalTitle": "Richiesta di recesso DWARFLAB",
+    "internalIntro": "Un cliente ha inviato una richiesta di recesso tramite il sito web DWARFLAB.",
+    "customerTitle": "Abbiamo ricevuto la tua richiesta di recesso",
+    "customerGreeting": "Ciao {name},",
+    "customerIntro": "Abbiamo ricevuto la tua richiesta di recesso dal contratto. Il nostro team di supporto la esaminerà e ti contatterà se saranno necessarie ulteriori informazioni.",
+    "customerReceiptNote": "Questa e-mail conferma la ricezione della tua richiesta. Conservala per i tuoi archivi.",
+    "supportSignature": "Supporto DWARFLAB",
+    "receivedAtLabel": "Ricevuto il",
+    "regionLabel": "Regione",
+    "languageLabel": "Lingua",
+    "emptyValue": "-"
+  }
+}

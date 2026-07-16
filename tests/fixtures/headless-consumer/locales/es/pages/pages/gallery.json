@@ -1,0 +1,32 @@
+{
+  "title": "Muro de fotos del usuario",
+  "description1": "¡Bienvenido al muro de fotos de usuarios de DWARFLAB! Aquí es donde brillamos.",
+  "description2": "Aquí puedes explorar las increíbles fotos y videos que todos han tomado con el telescopio DWARFLAB.",
+  "description3": "Obtén inspiración de estas imágenes, comparte tu trabajo para tener la oportunidad de ser destacado, ¡y deja que tu creatividad ilumine todo el universo!",
+  "submitYourWork": "Enviar obra",
+  "searchImages": "Buscar imagen",
+  "loadMore": "Cargar más",
+  "noImagesFound": "No se encontraron imágenes",
+  "tabs": {
+    "nebulaGalaxy": {
+      "name": "Objetos de cielo profundo"
+    },
+    "sunMoon": {
+      "name": "Sol / Luna"
+    },
+    "milkyWay": {
+      "name": "Vía Láctea / Estelas estelares"
+    },
+    "bird": {
+      "name": "Pájaro"
+    },
+    "panorama": {
+      "name": "Panorama"
+    },
+    "others": {
+      "name": "Otro"
+    }
+  },
+  "productLinkLabel": "Tomada con {product}",
+  "buyNow": "Comprar ahora"
+}

@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "Carrito de compras",
+  "items": "artículos",
+  "product": "Producto",
+  "price": "Precio",
+  "quantity": "Cantidad",
+  "total": "Precio total",
+  "subtotal": "Subtotal",
+  "discount": "Descuento",
+  "checkout": "Pagar",
+  "findingShippingProtection": "Estamos buscando una protección de envío adecuada para tu pedido. Espera un momento.",
+  "xcottonConflict": {
+    "title": "No se pudo actualizar la protección de envío",
+    "description": "Es posible que la protección de envío no esté sincronizada con tu carrito. Actualiza la página para confirmar el total del carrito.",
+    "refreshCart": "Actualizar carrito"
+  },
+  "preparingCheckout": "Preparando el pago seguro...",
+  "checkoutTakingLonger": "Está tardando más de lo esperado",
+  "checkoutTakingLongerDescription": "Seguimos preparando tu pago seguro. Puedes continuar esperando o volver al producto.",
+  "checkoutFailed": "No se pudo abrir el pago",
+  "checkoutFailedDescription": "Comprueba tu conexión e inténtalo de nuevo. No se ha realizado ningún cargo.",
+  "returnToProduct": "Volver al producto",
+  "discountCodeInvalid": "Código de descuento no válido",
+  "alert": {
+    "confirmRemove": "Confirmar eliminación",
+    "confirmRemoveText": "¿Confirmar la eliminación de este producto?",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
+  },
+  "notification": {
+    "error": {
+      "title": "Error al actualizar el carrito",
+      "description": "La red está algo inestable, el carrito de compras se ha restaurado a la cantidad y el monto anteriores. Por favor, inténtelo de nuevo más tarde."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "Regalo gratis",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "Oferta de paquete: desbloquea {giftItems}",
+        "claimedTitle": "Has recibido {giftItems}",
+        "progressDescription": "Añade {missingItems} al carrito junto con {ownedItems} para desbloquear {giftItems} como regalo gratis.",
+        "claimedDescription": "Tu regalo gratis está en el carrito: {giftItems}. El descuento final se aplicará al pagar."
+      }
+    }
+  }
+}

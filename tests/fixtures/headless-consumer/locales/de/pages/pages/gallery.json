@@ -1,0 +1,32 @@
+{
+  "title": "Benutzerfotowand",
+  "description1": "Willkommen auf der Benutzer-Fotowand von DWARFLAB! Hier ist der Ort, an dem wir glänzen.",
+  "description2": "Hier können Sie die beeindruckenden Fotos und Videos durchsuchen, die andere mit dem DWARFLAB-Teleskop aufgenommen haben.",
+  "description3": "Lassen Sie sich von diesen Bildern inspirieren, teilen Sie Ihre Werke für eine Ausstellungsmöglichkeit und lassen Sie Ihre Kreativität das ganze Universum erleuchten!",
+  "submitYourWork": "Einreichung des Werks",
+  "searchImages": "Bilder suchen",
+  "loadMore": "Mehr laden",
+  "noImagesFound": "Keine Bilder gefunden",
+  "tabs": {
+    "nebulaGalaxy": {
+      "name": "Deep-Sky-Objekte"
+    },
+    "sunMoon": {
+      "name": "Sonne / Mond"
+    },
+    "milkyWay": {
+      "name": "Milchstraße / Sternspuren"
+    },
+    "bird": {
+      "name": "Vogel"
+    },
+    "panorama": {
+      "name": "Panorama-Mosaik"
+    },
+    "others": {
+      "name": "Sonstiges"
+    }
+  },
+  "productLinkLabel": "Aufgenommen mit {product}",
+  "buyNow": "Jetzt kaufen"
+}

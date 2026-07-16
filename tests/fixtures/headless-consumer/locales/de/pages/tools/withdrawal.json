@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "Startseite",
+    "current": "Widerrufsanfrage senden"
+  },
+  "title": "Widerrufsanfrage senden",
+  "description": "Nutzen Sie dieses Formular, um Ihre Widerrufsanfrage zu senden. Nach dem Absenden senden wir eine Bestätigung an die angegebene E-Mail-Adresse.",
+  "form": {
+    "nameLabel": "Vollständiger Name",
+    "namePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "E-Mail-Adresse für die Bestätigung eingeben",
+    "orderReferenceLabel": "Bestellnummer",
+    "orderReferencePlaceholder": "Geben Sie Ihre Bestellnummer ein",
+    "itemsLabel": "Artikel",
+    "itemsPlaceholder": "Beschreiben Sie die Artikel, für die Sie den Widerruf erklären möchten",
+    "messageLabel": "Zusätzliche Hinweise",
+    "messagePlaceholder": "Fügen Sie Details hinzu, die uns bei der Bearbeitung helfen",
+    "submit": "Widerrufsanfrage senden",
+    "required": "Dieses Feld ist erforderlich",
+    "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
+  },
+  "alert": {
+    "checkInformation": "Informationen prüfen",
+    "checkInformationDescription": "Bitte bestätigen Sie Ihre Angaben, bevor Sie die Widerrufsanfrage absenden.",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "submitSuccess": "Anfrage gesendet",
+    "submitSuccessDescription": "Wir haben Ihren Widerruf erhalten und eine Bestätigungs-E-Mail gesendet.",
+    "submitError": "Senden fehlgeschlagen",
+    "unknownError": "Unbekannter Fehler",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "DWARFLAB Widerrufsanfrage",
+    "customerSubject": "Wir haben Ihren DWARFLAB Widerruf erhalten",
+    "internalTitle": "DWARFLAB Widerrufsanfrage",
+    "internalIntro": "Ein Kunde hat über die DWARFLAB-Website eine Widerrufsanfrage eingereicht.",
+    "customerTitle": "Wir haben Ihre Widerrufsanfrage erhalten",
+    "customerGreeting": "Hallo {name},",
+    "customerIntro": "Wir haben Ihre Widerrufsanfrage erhalten. Unser Support-Team prüft die Anfrage und kontaktiert Sie, falls weitere Informationen erforderlich sind.",
+    "customerReceiptNote": "Diese E-Mail bestätigt den Eingang Ihrer Anfrage. Bitte bewahren Sie sie für Ihre Unterlagen auf.",
+    "supportSignature": "DWARFLAB Kundenservice",
+    "receivedAtLabel": "Eingegangen am",
+    "regionLabel": "Land/Region",
+    "languageLabel": "Sprache",
+    "emptyValue": "-"
+  }
+}

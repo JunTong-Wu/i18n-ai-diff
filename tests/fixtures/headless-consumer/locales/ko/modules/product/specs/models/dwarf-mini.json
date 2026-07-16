@@ -1,0 +1,17 @@
+{
+  "weight": "840g",
+  "aperture": "30 mm（망원）\n3.4 mm（광각）",
+  "sensor": "SONY IMX662 1/2.8인치(망원)\nOmniVision OS02K10 1/2.8인치(광각)",
+  "focalLength": "150 mm(망원)\n6.7 mm(광각)",
+  "rotationRange": "렌즈: 225°\n베이스: 360°",
+  "maxResolution": "1920 × 1080\n(망원 & 광각)",
+  "builtInFilter": "Astro、Dark、Duo-Band（망원）\nAstro（광각）",
+  "shootingMode": "사진, 비디오, 천문, 연속 촬영, 타임랩스",
+  "equivalentFocalLength": "1016 mm(망원)\n45 mm(광각)",
+  "storage": "64GB",
+  "battery": "내장\n7000 mAh\n외부 USB 충전 지원",
+  "npu": "1 TOPS",
+  "maxExposureTime": "90년대(망원 및 광각)\n모두 EQ 모드에서",
+  "moreFunctions": "NFC 터치 연결\n천문 후처리/예약 촬영/천문 퍼즐",
+  "size": "100.38 × 183.61 × 60.70mm"
+}

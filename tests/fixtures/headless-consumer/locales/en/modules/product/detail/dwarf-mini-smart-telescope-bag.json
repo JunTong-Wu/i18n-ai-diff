@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "All-round Protection",
+      "description": "PVC faux leather outer layer is water-repellent and tear-resistant, with a built-in shock-absorbing interlayer for 360° snug protection."
+    },
+    "portable": {
+      "title": "Ultra Portable",
+      "description": "21×9×12 cm minimalist silhouette, 1.6m adjustable shoulder strap."
+    },
+    "storage": {
+      "title": "One-Bag Storage",
+      "description": "Bottom strap stabilizes the mount, side compartment for filters, host and accessories each have their place, eliminating the hassle of searching outdoors."
+    },
+    "customFit": {
+      "title": "Exclusive Customization",
+      "description": "Designed specifically for the DWARF Mini, featuring a mercerized cotton inner lining that fits snugly to prevent vibration and shifting during travel."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "Product Name",
+      "value": "DWARF Mini Dedicated Travel Protection Bag"
+    },
+    "outerMaterial": {
+      "label": "External Material",
+      "value": "PVC synthetic leather"
+    },
+    "innerMaterial": {
+      "label": "Internal Material",
+      "value": "Mercerized cotton"
+    },
+    "size": {
+      "label": "Overall dimensions",
+      "value": "Length 21cm × Width 9cm × Height 12cm"
+    },
+    "strap": {
+      "label": "Strap Specifications",
+      "value": "1.6m adjustable length with metal buckle"
+    },
+    "title": "Product Specifications"
+  },
+  "hero": {
+    "title": "DWARF mini Bag",
+    "subtitle": "All-Around Protection | Ultra-Portable | One-Bag Storage | Custom-Designed"
+  }
+}

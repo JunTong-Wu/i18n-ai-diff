@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "Página de inicio",
+    "current": "Convertirse en distribuidor"
+  },
+  "title": "Convertirse en distribuidor",
+  "form": {
+    "personalInfo": "Información personal",
+    "companyInfo": "Información de la empresa",
+    "fullName": "Su nombre completo",
+    "fullNamePlaceholder": "Por favor, ingresa",
+    "companyName": "Nombre de registro de la empresa",
+    "companyNamePlaceholder": "Por favor, ingresa",
+    "companyCountry": "País o región de la empresa",
+    "companyCountryPlaceholder": "Seleccione país o región",
+    "companyCity": "Ciudad de la empresa",
+    "companyCityPlaceholder": "Ingresa la ciudad",
+    "companyAddress": "Dirección de la empresa",
+    "companyAddressPlaceholder": "Por favor, ingrese la dirección de la empresa",
+    "countryLabel": "Código de país/región",
+    "email": "Correo de contacto",
+    "emailPlaceholder": "Por favor, introduce tu correo electrónico",
+    "salesChannel": "Su canal de ventas",
+    "salesChannelOptions": {
+      "online": "Tienda en línea",
+      "physical": "Tienda física",
+      "both": "Ambos"
+    },
+    "intention": "Intención de colaboración",
+    "intentionPlaceholder": "Por favor, describa su intención de colaboración",
+    "submit": "Enviar",
+    "required": "Este campo es obligatorio",
+    "emailInvalid": "Por favor, introduce una dirección de correo electrónico válida",
+    "headerText": "Ha recibido una nueva solicitud de distribuidor.",
+    "alert": {
+      "checkInformation": "Comprobar información",
+      "checkInformationDescription": "Por favor, compruebe nuevamente que su información sea correcta para garantizar que podamos contactarlo oportunamente.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "submitSuccess": "Envío exitoso",
+      "submitError": "Error en el envío",
+      "okGotIt": "Entendido"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "Inicio",
+    "current": "Enviar solicitud de desistimiento"
+  },
+  "title": "Enviar solicitud de desistimiento",
+  "description": "Utiliza este formulario para enviarnos tu solicitud de desistimiento del contrato. Después de enviarla, mandaremos una confirmación al correo electrónico que indiques.",
+  "form": {
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Introduce tu nombre completo",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Introduce el correo electrónico para la confirmación",
+    "orderReferenceLabel": "Número de pedido",
+    "orderReferencePlaceholder": "Introduce tu número de pedido",
+    "itemsLabel": "Artículos",
+    "itemsPlaceholder": "Describe los artículos para los que deseas ejercer el desistimiento",
+    "messageLabel": "Notas adicionales",
+    "messagePlaceholder": "Añade cualquier detalle que pueda ayudarnos a procesar tu solicitud",
+    "submit": "Enviar solicitud",
+    "required": "Este campo es obligatorio",
+    "emailInvalid": "Introduce una dirección de correo electrónico válida"
+  },
+  "alert": {
+    "checkInformation": "Revisa tu información",
+    "checkInformationDescription": "Confirma tus datos antes de enviar la solicitud de desistimiento.",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "submitSuccess": "Solicitud enviada",
+    "submitSuccessDescription": "Hemos recibido tu solicitud de desistimiento y enviado un correo electrónico de confirmación.",
+    "submitError": "No se pudo enviar",
+    "unknownError": "Error desconocido",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "Solicitud de desistimiento de DWARFLAB",
+    "customerSubject": "Hemos recibido tu solicitud de desistimiento de DWARFLAB",
+    "internalTitle": "Solicitud de desistimiento de DWARFLAB",
+    "internalIntro": "Un cliente ha enviado una solicitud de desistimiento a través del sitio web de DWARFLAB.",
+    "customerTitle": "Hemos recibido tu solicitud de desistimiento",
+    "customerGreeting": "Hola {name},",
+    "customerIntro": "Hemos recibido tu solicitud de desistimiento del contrato. Nuestro equipo de soporte la revisará y se pondrá en contacto contigo si necesita información adicional.",
+    "customerReceiptNote": "Este correo electrónico confirma la recepción de tu solicitud. Consérvalo para tus registros.",
+    "supportSignature": "Soporte de DWARFLAB",
+    "receivedAtLabel": "Recibido el",
+    "regionLabel": "Región",
+    "languageLabel": "Idioma",
+    "emptyValue": "-"
+  }
+}

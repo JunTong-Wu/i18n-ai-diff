@@ -1,0 +1,18 @@
+{
+  "breadcrumb": {
+    "home": "Page d'accueil",
+    "current": "Trouver un distributeur agréé"
+  },
+  "title": "Trouver un distributeur agréé",
+  "searchPlaceholder": "Rechercher un revendeur par nom, pays ou adresse",
+  "checkWebsite": "Visiter le site officiel",
+  "continents": {
+    "142": "Asie",
+    "150": "Europe",
+    "002": "Afrique",
+    "009": "Océanie",
+    "010": "Antarctique",
+    "019": "Amérique"
+  },
+  "emptyMessage": "Aucun revendeur trouvé"
+}

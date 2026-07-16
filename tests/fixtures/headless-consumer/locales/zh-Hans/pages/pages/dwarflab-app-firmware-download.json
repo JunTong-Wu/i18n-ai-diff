@@ -1,0 +1,21 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "downloadCenter": "下载中心"
+  },
+  "app": {
+    "title": "DWARFLAB APP",
+    "description": "帮助您无线控制 DWARF 智能望远镜",
+    "download": "下载",
+    "lastUpdate": "最后更新",
+    "updateContent": "更新内容",
+    "supportedDevices": "支持设备",
+    "globalDownloadApkText": "点击下载或扫描二维码从 Google Play 安装 DWARFLAB App，或下载 <link>APK 文件</link>"
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "帮助您无线控制 DWARF 智能望远镜",
+    "lastUpdate": "最后更新",
+    "updateContent": "更新内容"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Verrouillez l'oiseau en vol, suivez-le avec stabilité",
+    "buttons": {
+      "buyNow": "Acheter maintenant",
+      "watchVideo": "Regarder la vidéo"
+    }
+  },
+  "portable": {
+    "label": "Taille du dictionnaire, léger jusqu'à 1,35 kg",
+    "title": "Voyagez léger, prêt à filmer à tout moment",
+    "description": "DWARF 3 est votre compagnon de voyage idéal, prêt à partir à tout moment.\nAvec un poids d'environ 1,35 kg, il est facile à emporter en voyage, en camping ou pour un week-end."
+  },
+  "dualCamera": {
+    "label": "Observation intelligente des oiseaux",
+    "title": "Téléobjectif + grand angle, système double caméra",
+    "description": "Localisation rapide · Suivi continu · Capturez les moments magiques des oiseaux en vol",
+    "subLabel": "Trouver rapidement la cible",
+    "subTitle": "Photographie à double caméra synchronisée",
+    "subDescription": "Le système à double caméra est conçu pour que les objectifs travaillent en synergie. L'objectif grand angle offre un champ de vision plus large, facilitant la découverte rapide de la cible.\nUne fois la cible sélectionnée, le téléobjectif effectue une mise au point précise sur l'oiseau, capturant clairement chaque instant clé.",
+    "telephoto": {
+      "title": "Téléobjectif"
+    },
+    "wideAngle": {
+      "title": "Grand angle"
+    }
+  },
+  "afc": {
+    "label": "En mouvement, toujours net",
+    "title": "AF-C autofocus continu",
+    "description": "En mode autofocus continu AF-C, DWARF 3 peut identifier et suivre en continu les sujets en mouvement dans l'image, ajustant automatiquement la mise au point lorsque la cible se déplace, change de direction ou de distance. Qu'il s'agisse d'oiseaux en vol ou d'instants de décollage soudain et de passage rapide, l'image reste toujours nette et parfaitement mise au point."
+  },
+  "freeSelect": {
+    "label": "Cible sélectionnée, suivi précis",
+    "title": "Prise en charge de la sélection libre",
+    "description": "En mode de prise de vue libre, cliquez pour suivre et encadrer le sujet, l'appareil continuera à suivre cette cible, garantissant que l'image reste centrée sur l'objet."
+  },
+  "autoTracking": {
+    "label": "Cible sélectionnée, suivi précis",
+    "title": "Mode de suivi automatique",
+    "description": "Une fois le mode de suivi automatique activé, l'appareil détecte et commence automatiquement à suivre et à filmer les oiseaux lorsqu'ils entrent dans le cadre. Plus besoin d'attendre ou de surveiller constamment ; même si vous vous absentez temporairement, l'appareil enregistre automatiquement dès que la cible apparaît. Ce mode convient également à d'autres cibles dynamiques, permettant de répondre à divers besoins d'enregistrement automatique, que ce soit pour l'observation des oiseaux ou dans d'autres scènes naturelles ou quotidiennes."
+  },
+  "hdQuality": {
+    "label": "Les plumes sont d'un réalisme saisissant",
+    "title": "Qualité d'image haute définition",
+    "description": "DWARF 3 vous apporte une mise à niveau complète de l'optique, des capteurs et du processeur, garantissant des images claires, vives et vivantes.",
+    "cards": {
+      "sensor": {
+        "label": "Sony IMX678 · Capteur STARVIS 2",
+        "title": "Des niveaux d'image plus fins",
+        "description": "Équipé du capteur STARVIS 2 aux performances exceptionnelles, le DWARF 3 voit la taille de ses pixels individuels augmenter d'environ 90 %, atteignant 2 μm. Cela permet de supporter des temps d'exposition plus longs tout en réduisant efficacement les interférences de bruit. Même dans des environnements à éclairage complexe, l'image reste pure et détaillée."
+      },
+      "filter": {
+        "label": "Filtre VIS intégré pour la lumière visible",
+        "title": "Restaurer les couleurs réelles",
+        "description": "Le filtre VIS couvre la bande de lumière visible de 430 à 650 nm, bloquant efficacement les interférences infrarouges pour garantir des couleurs d'image authentiques, naturelles et riches, faisant du DWARF 3 un choix idéal pour la photographie quotidienne et l'enregistrement ornithologique."
+      },
+      "aperture": {
+        "label": "35mm téléobjectif à ouverture",
+        "title": "Distance focale équivalente de 737 mm",
+        "description": "Le téléobjectif et l'ouverture de 35 mm travaillent de concert, permettant au DWARF 3 de restituer avec netteté le sujet lors de prises de vue à distance, tout en créant un flou d'arrière-plan naturel et doux. Cela met davantage en valeur les ailes et confère à l'image plus de profondeur et une sensation d'espace accrue."
+      },
+      "lens": {
+        "label": "Combinaison d'objectifs innovante",
+        "title": "Excellentes performances optiques",
+        "description": "L'objectif DWARF 3 est composé de plusieurs lentilles ED (à faible dispersion) qui réduisent l'aberration chromatique et améliorent la netteté de l'image. Chaque détail de l'oiseau est clairement révélé, comme si vous pouviez le toucher."
+      }
+    }
+  },
+  "video": {
+    "label": "Prend en charge jusqu'à 60 images par seconde",
+    "title": "Vidéo dynamique fluide",
+    "description": "En plus de la photographie ornithologique, grâce à sa capacité de suivi automatique, il convient également à l'enregistrement vidéo haute définition dans divers scénarios dynamiques, prenant en charge une résolution maximale de 4K et une fluidité d'image de 60 images par seconde. Les moments sportifs, les paysages naturels ou les moments forts de la vie quotidienne peuvent être capturés avec aisance."
+  },
+  "appFeatures": {
+    "mainTitle": "Expérience plus fluide, prise de vue plus facile",
+    "mainDescription": "Connexion NFC rapide, prise en charge multilingue, capture continue en arrière-plan, protection IP54 — pour plus de sérénité en extérieur et une prise de vue plus fluide.",
+    "nfc": {
+      "label": "Connexion instantanée, tournage immédiat",
+      "title": "Connexion NFC en un seul toucher",
+      "description": "Approchez votre téléphone de la zone de l'anneau lumineux pour connecter rapidement DWARF 3 et commencer à filmer immédiatement."
+    },
+    "multiLanguage": {
+      "title": "Application multilingue",
+      "description": "Couvrant les utilisateurs du monde entier, il prend désormais en charge 10 langues, dont le chinois, l'anglais, le japonais, l'espagnol et l'allemand."
+    },
+    "background": {
+      "title": "Fonctionnement automatique hors ligne",
+      "description": "Même si l'application est mise en arrière-plan, minimisée ou que la connexion est interrompue, DWARF 3 continue de fonctionner, permettant de consulter la progression à tout moment."
+    },
+    "ip54": {
+      "title": "Protection IP54",
+      "description": "Protection contre la poussière et la condensation, pour une utilisation en extérieur plus sereine, offrant une protection supplémentaire pour l'observation et la photographie."
+    }
+  },
+  "moreFun": {
+    "label": "Plus de plaisir",
+    "title": "Astronomie & Photographie panoramique",
+    "description": "De l'astrophotographie et des panoramas ultra HD à l'observation et au suivi des oiseaux, un seul appareil simplifie l'observation et l'enregistrement.",
+    "astronomy": {
+      "title": "Astronomie",
+      "description": "L'automatisation de la prise de vue en un clic rend l'exploration de l'univers plus simple que jamais.\nCapturer des images de galaxies, de nébuleuses, d'amas stellaires, etc., en quelques minutes.",
+      "button": "En savoir plus"
+    },
+    "panorama": {
+      "title": "Panorama de mille milliards de pixels",
+      "description": "L'algorithme assemble intelligemment, l'image reste naturelle sans défaut.\nChamp de vision ultra-large + détails abondants, chaque zoom reste net.",
+      "button": "En savoir plus"
+    }
+  },
+  "packageSection": {
+    "title": "Liste d'emballage",
+    "mainBody": {
+      "title": "DWARF 3 Télescope Intelligent"
+    },
+    "bag": {
+      "title": "Sac de rangement portable"
+    },
+    "filters": {
+      "title": "Filtre solaire magnétique"
+    },
+    "filtersPouch": {
+      "title": "Sac de rangement pour filtres"
+    },
+    "cable": {
+      "title": "Câble USB-C"
+    },
+    "wipeCloth": {
+      "title": "Chiffon à lunettes"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "Carrello",
+  "items": "articoli",
+  "product": "Prodotto",
+  "price": "Prezzo",
+  "quantity": "Quantità",
+  "total": "Totale",
+  "subtotal": "Subtotale",
+  "discount": "Sconto",
+  "checkout": "Checkout",
+  "findingShippingProtection": "Stiamo cercando una protezione di spedizione adatta al tuo ordine. Attendi un momento.",
+  "xcottonConflict": {
+    "title": "Aggiornamento della protezione spedizione non riuscito",
+    "description": "La protezione della spedizione potrebbe non essere sincronizzata con il carrello. Aggiorna la pagina per verificare il totale del carrello.",
+    "refreshCart": "Aggiorna carrello"
+  },
+  "preparingCheckout": "Preparazione del pagamento sicuro...",
+  "checkoutTakingLonger": "L’operazione richiede più tempo del previsto",
+  "checkoutTakingLongerDescription": "Stiamo ancora preparando il pagamento sicuro. Puoi continuare ad attendere o tornare al prodotto.",
+  "checkoutFailed": "Impossibile aprire il pagamento",
+  "checkoutFailedDescription": "Controlla la connessione e riprova. Non è stato effettuato alcun addebito.",
+  "returnToProduct": "Torna al prodotto",
+  "discountCodeInvalid": "Codice sconto non valido",
+  "alert": {
+    "confirmRemove": "Conferma eliminazione",
+    "confirmRemoveText": "Confermi l'eliminazione di questo prodotto?",
+    "confirm": "Conferma",
+    "cancel": "Annulla"
+  },
+  "notification": {
+    "error": {
+      "title": "Aggiornamento carrello non riuscito",
+      "description": "La rete è un po' instabile, il carrello è stato ripristinato alla quantità e all'importo precedenti. Riprova più tardi."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "Omaggio",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "Offerta pacchetto: sblocca {giftItems}",
+        "claimedTitle": "Hai ottenuto {giftItems}",
+        "progressDescription": "Aggiungi {missingItems} al carrello insieme a {ownedItems} per sbloccare {giftItems} come omaggio.",
+        "claimedDescription": "Il tuo omaggio è nel carrello: {giftItems}. Lo sconto finale verrà applicato al pagamento."
+      }
+    }
+  }
+}

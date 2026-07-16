@@ -1,0 +1,221 @@
+{
+  "first-image-section": {
+    "buttons": {
+      "learnMore": "了解更多",
+      "preOrder": "立即购买"
+    },
+    "images": {
+      "alt": "DWARF mini 智能望远镜"
+    }
+  },
+  "first-grid": {
+    "header": {
+      "title": "全球最小的智能望远镜",
+      "subtitle": "强大而紧凑。性能卓越。"
+    },
+    "cards": {
+      "0": {
+        "title": "840g\n超便携"
+      },
+      "1": {
+        "title": "90秒快门\n就绪"
+      },
+      "2": {
+        "title": "4小时\n续航"
+      },
+      "3": {
+        "title": "自动GoTo\n精准"
+      },
+      "4": {
+        "title": "一键后期\n处理"
+      },
+      "5": {
+        "title": "360°旋转\n自由"
+      }
+    }
+  },
+  "common-text-content-section": {
+    "text": "大宇宙。小望远镜。为便携而生。\nDWARF mini 配备了精密天文相机、自动跟踪云台和智能控制系统——所有这些都集成在仅重 840g 的机身中。\n没有沉重设备。没有繁琐设置。只需指向、拍摄、探索。\n“这不仅仅是一个简化版的望远镜。它是一种全新的探索宇宙的方式。”\n前所未见地欣赏仙女座星系与银河。\n宇宙终于触手可及。"
+  },
+  "pocket-universe-section": {
+    "title": "DWARF mini 口袋宇宙"
+  },
+  "common-full-width-section": {
+    "small-size": {
+      "title": "小身材，大视野",
+      "description": "DWARF mini 仅重 840g，轻巧便携，轻松随行。它是您终极的观星伴侣——无论是在后院、湖畔，还是山巅。"
+    },
+    "three-minutes": {
+      "title": "3 分钟从开箱到拍摄",
+      "description": "天文摄影就像泡面一样简单——几次点击，这道星空盛宴就做好了！"
+    },
+    "capture-universe": {
+      "title": "今晚就捕捉宇宙！",
+      "description": "它聪明绝顶，凭借精准的自动对焦、无缝的 GoTo 导航和智能恒星跟踪，自动解决每一个挑战。让先进技术处理复杂问题，您只需尽情捕捉宇宙之美。"
+    },
+    "big-ideas": {
+      "title": "小身材，大有作为",
+      "description": "从未有过如此小巧的智能望远镜，能提供如此卓越的性能和强大的功能。"
+    },
+    "cosmos-adventure": {
+      "title": "每日新宇宙探险",
+      "description": "告别单一模式天文摄影！银河、太阳、月亮、星轨、深空星云……\n每个抬头都是一场天空盛宴。",
+      "moreHighlights": "更多亮点",
+      "slides": {
+        "0": {
+          "title": "日常拍摄"
+        },
+        "1": {
+          "title": "深空"
+        },
+        "2": {
+          "title": "太阳系"
+        },
+        "3": {
+          "title": "银河"
+        },
+        "4": {
+          "title": "星轨"
+        }
+      }
+    },
+    "stand-out": {
+      "title": "渴望脱颖而出的照片？",
+      "description": "从国际空间站凌日（凌月）、日月食到广域拼接，DWARF mini 可胜任丰富多样的天文拍摄题材。",
+      "items": {
+        "iss-transit": {
+          "title": "ISS 过境"
+        },
+        "lunar-eclipse": {
+          "title": "月食"
+        },
+        "sun-eclipse": {
+          "title": "日食"
+        },
+        "mosaic": {
+          "title": "天文拼图"
+        }
+      }
+    },
+    "shoot-when-asleep": {
+      "title": "睡觉时……也能拍摄！？",
+      "description": "设定好时间和目标，然后让 DWARF mini 处理一切，您只需安心睡觉。醒来时，画廊里已有一张清晰的仙女座星系与银河大片。"
+    },
+    "pro-level-editing": {
+      "title": "专业级修图，无需电脑",
+      "description": "传统天文摄影需要昂贵的电脑和复杂的后期软件——但现在，DWARF mini 让您直接在手机上实现专业级编辑！\n对于专业人士，可将 RAW 文件导出到 Photoshop、Siril 或 PixInsight，释放图像的全部潜力——无限可能，绝不妥协。"
+    },
+    "auto-correct": {
+      "title": "App 内置 Stellar Studio",
+      "description": "即刻润色：自动校正星点、消除噪点并增强星云细节。\n3 秒出片：为什么这很重要？从点击到生成值得分享的图像只需不到 3 秒。随时随地，编辑并分享您的宇宙大片。"
+    },
+    "signature": {
+      "title": "星空下的专属签名",
+      "description": "在社交媒体上发布带有个人标签的图像：无论是诗意的随想，还是拍摄背后的故事，打造独属于您的水印。因为，最美的星空值得最好的分享。"
+    }
+  },
+  "dual-camera-system-section": {
+    "title": "双摄像头快速瞄准系统",
+    "telephoto": {
+      "title": "长焦镜头",
+      "description": "30 毫米光圈\n等效全画幅 1,016 毫米\n6 片复消色差光学镜片，呈现锐利清晰的影像"
+    },
+    "wide-angle": {
+      "title": "广角镜头",
+      "description": "快速取景和目标捕获，也非常适合拍摄银河和星轨"
+    }
+  },
+  "common-two-columns-section": {
+    "imaging-precision": {
+      "title": "成像精准，\n性能巅峰",
+      "description": "内置 IMX662 传感器，1/2.8 英寸画幅、2.9μm 大像素，细节更清晰，成像更真实。\n\n支持 200 万像素 RAW 拍摄，让深空每一处细节都纤毫毕现。"
+    },
+    "sharp-stars": {
+      "title": "星点锐利，\n90秒长曝光",
+      "description": "切换到赤道仪模式，DWARF mini 将精准追踪天空——抵消地球自转，让您捕捉更宽广、更丰富的星域，无拖尾，无裁剪。"
+    },
+    "360-freedom": {
+      "title": "360° 自由旋转",
+      "description": "镜筒可旋转 225° + 云台可 360° 无限制旋转。支持手动/APP 双重控制，轻松追踪任意角度的目标。手动或摇杆镜头控制，让您可以从任何角度轻松追踪目标。"
+    },
+    "triple-filters": {
+      "title": "内置三重滤镜",
+      "description": "暗帧滤镜：自动捕捉暗帧以抑制热噪点。\n\n天文滤镜（430–690纳米）：通过增强红外光来提升星云的对比度。\n\n双窄带滤镜：针对Hα（656.3纳米）和O III（500.7纳米）波长进行了优化，以滤除月光和城市光污染。"
+    },
+    "together-challenge": {
+      "title": "一起挑战宇宙",
+      "description": "想象一下与朋友或其他天文爱好者合作，共同拼接出一幅广阔的深空图像，观星从未如此社交且充满乐趣！"
+    },
+    "stellar-badges": {
+      "title": "获取你的星空徽章",
+      "description": "完成一个，解锁下一个。见证您通往天文摄影大师之路！\n\n分享您的个性化星空成就海报，让朋友们惊叹！"
+    }
+  },
+  "common-screen-section": {
+    "free-to-frame": {
+      "title": "自由构图，才华横溢"
+    },
+    "team-up": {
+      "title": "团队协作，更进一步"
+    }
+  },
+  "share-section": {
+    "title": "分享您的宇宙大片"
+  },
+  "badges": {
+    "star-seeker": {
+      "title": "星迹\n探索者"
+    },
+    "star-trail-weaver": {
+      "title": "星轨\n编织者"
+    },
+    "nebula-hunter": {
+      "title": "星云\n猎手"
+    },
+    "nebula-collector": {
+      "title": "星云\n收藏家"
+    },
+    "mosaic-master": {
+      "title": "拼接\n大师"
+    },
+    "deep-sky-trekker": {
+      "title": "深空\n探险家"
+    },
+    "galaxy-catcher": {
+      "title": "星系\n捕手"
+    },
+    "cosmic-lone-ranger": {
+      "title": "宇宙\n独行侠"
+    }
+  },
+  "take-it-further-section": {
+    "title": "想要更进一步？",
+    "calibration": {
+      "title": "超级自定义校准帧：\n暗场/偏置场/平场",
+      "description": "从 “拍到了” 到 “拍对了” ，每一帧都经过校准！",
+      "items": {
+        "0": {
+          "title": "暗场"
+        },
+        "1": {
+          "title": "偏置场"
+        },
+        "2": {
+          "title": "平场"
+        }
+      }
+    },
+    "filtering": {
+      "title": "逐帧筛选",
+      "description": "在堆栈前检查并移除不需要的帧，确保完美叠加。"
+    },
+    "megastack": {
+      "title": "多夜超级叠加",
+      "description": "DWARF mini 收集多个夜晚的曝光，并将它们融合成一张令人惊叹的图像。每一个晴朗的夜空都成为您最终杰作的一部分。"
+    }
+  },
+  "last-image-section": {
+    "subtitle": "小身材，大视野",
+    "button": "立即购买"
+  }
+}

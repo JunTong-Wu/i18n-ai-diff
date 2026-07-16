@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "홈페이지",
+    "current": "딜러 되기"
+  },
+  "title": "딜러 되기",
+  "form": {
+    "personalInfo": "개인정보",
+    "companyInfo": "회사 정보",
+    "fullName": "귀하의 성함",
+    "fullNamePlaceholder": "입력해 주세요",
+    "companyName": "회사 등록명",
+    "companyNamePlaceholder": "입력해 주세요",
+    "companyCountry": "회사 소재 국가 또는 지역",
+    "companyCountryPlaceholder": "국가 또는 지역을 선택하세요",
+    "companyCity": "회사 소재 도시",
+    "companyCityPlaceholder": "도시를 입력하세요",
+    "companyAddress": "회사 주소",
+    "companyAddressPlaceholder": "회사 주소를 입력해 주세요",
+    "countryLabel": "국가/지역 코드",
+    "email": "연락처 이메일",
+    "emailPlaceholder": "이메일을 입력하세요",
+    "salesChannel": "귀하의 판매 채널",
+    "salesChannelOptions": {
+      "online": "온라인 스토어",
+      "physical": "오프라인 매장",
+      "both": "둘 다"
+    },
+    "intention": "협력 의향",
+    "intentionPlaceholder": "협업 의향을 설명해 주세요",
+    "submit": "제출",
+    "required": "이 필드는 필수 항목입니다.",
+    "emailInvalid": "유효한 이메일 주소를 입력해 주세요",
+    "headerText": "새로운 딜러 신청이 접수되었습니다.",
+    "alert": {
+      "checkInformation": "정보 확인",
+      "checkInformationDescription": "연락이 원활히 이루어질 수 있도록 정보가 정확한지 다시 한번 확인해 주세요.",
+      "cancel": "취소",
+      "confirm": "확인",
+      "submitSuccess": "제출 성공",
+      "submitError": "제출 실패",
+      "okGotIt": "알겠습니다"
+    }
+  }
+}

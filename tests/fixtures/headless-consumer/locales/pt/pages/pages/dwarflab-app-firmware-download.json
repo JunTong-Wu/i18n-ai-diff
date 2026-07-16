@@ -1,0 +1,21 @@
+{
+  "breadcrumb": {
+    "home": "Página inicial",
+    "downloadCenter": "Centro de downloads"
+  },
+  "app": {
+    "title": "APLICATIVO DWARFLAB",
+    "description": "Ajuda você a controlar sem fio o telescópio inteligente DWARF",
+    "download": "Baixar",
+    "lastUpdate": "Última atualização",
+    "updateContent": "Conteúdo atualizado",
+    "supportedDevices": "Dispositivos suportados",
+    "globalDownloadApkText": "Clique para baixar ou escaneie o código QR para instalar o aplicativo DWARFLAB no Google Play, ou baixe o <link>arquivo APK</link>"
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Ajuda você a controlar sem fio o telescópio inteligente DWARF",
+    "lastUpdate": "Última atualização",
+    "updateContent": "Conteúdo atualizado"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "weight": "1200 g",
+  "aperture": "24 mm (teleobjetivo)\n2.8 mm (gran angular)",
+  "sensor": "SONY IMX415\nSTARVIS",
+  "focalLength": "100 mm (teleobjetivo)\n6.8 mm (gran angular)",
+  "rotationRange": "Lente: 240°\nBase: 340°",
+  "maxResolution": "3840 × 2160 (teleobjetivo)",
+  "builtInFilter": "Pase VIS/IR (teleobjetivo)\nVIS (gran angular)",
+  "shootingMode": "Foto (teleobjetivo y gran angular)\nVideo, Astro, Pano, Ráfaga, Time-lapse (teleobjetivo)",
+  "equivalentFocalLength": "675 mm (teleobjetivo)\n48 mm (gran angular)",
+  "storage": "64 GB",
+  "battery": "Integrado\n5600 mAh\nSoporta carga USB externa",
+  "npu": "2 TOPS",
+  "maxExposureTime": "15 s",
+  "moreFunctions": "Ninguno",
+  "size": "204 × 130 × 62 mm"
+}

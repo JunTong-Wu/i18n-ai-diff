@@ -1,0 +1,32 @@
+{
+  "title": "ユーザー写真ギャラリー",
+  "description1": "DWARFLABのユーザーフォトギャラリーへようこそ！ここは私たちが輝く場所です。",
+  "description2": "ここでは、皆さんがDWARFLAB望遠鏡で撮影した素晴らしい写真や動画を閲覧できます。",
+  "description3": "これらの映像からインスピレーションを得て、あなたの作品を共有して展示の機会を得ましょう。あなたの創造力で宇宙全体を照らしましょう！",
+  "submitYourWork": "作品を提出",
+  "searchImages": "画像を検索",
+  "loadMore": "さらに読み込む",
+  "noImagesFound": "画像が見つかりません",
+  "tabs": {
+    "nebulaGalaxy": {
+      "name": "深空天体"
+    },
+    "sunMoon": {
+      "name": "太陽 / 月"
+    },
+    "milkyWay": {
+      "name": "天の川 / 星の軌跡"
+    },
+    "bird": {
+      "name": "鳥"
+    },
+    "panorama": {
+      "name": "パノラマモザイク"
+    },
+    "others": {
+      "name": "その他"
+    }
+  },
+  "productLinkLabel": "{product}で撮影",
+  "buyNow": "今すぐ購入"
+}

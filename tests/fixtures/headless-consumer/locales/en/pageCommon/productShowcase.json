@@ -1,0 +1,38 @@
+{
+  "bestSellingAccessories": "Best-Selling Accessories",
+  "quantity": "Quantity",
+  "myChoice": "My Selection",
+  "addToCart": "Add to Cart",
+  "buyItNow": "Buy Now",
+  "shipping": "Shipping",
+  "shippingPolicyHere": "Shipping policy here",
+  "paymentMethod": "Payment Methods",
+  "twoYearWarranty": "Two-year warranty",
+  "guaranteedDelivery": "Guaranteed delivery",
+  "lifetimeSupport": "Lifetime Support",
+  "alert": {
+    "success": "Success",
+    "productHasBeenAddedToYourCart": "Item has been added to the cart",
+    "viewCartAndCheckout": "View Cart and Checkout",
+    "continueShopping": "Continue Shopping",
+    "error": "Failure",
+    "failedToAddToCart": "Failed to add to cart, please try again later",
+    "okGotIt": "Okay, got it"
+  },
+  "promotions": {
+    "firstNightKit": {
+      "product": {
+        "title": "First Night Kit Offer",
+        "endsIn": "Ends in",
+        "days": "days",
+        "description": "Get {giftItems} free when your order includes {buyItems}.",
+        "validity": "Promotion period: {startsAt} to {endsAt} {timezoneLabel}. While supplies last.",
+        "accessoryHintLead": "Add {accessoryName} and",
+        "accessoryHintHighlight": "receive {giftItems} free.",
+        "accessoryHintSubtext": "A stable setup for your first night-sky shot.",
+        "giftUnlockedTitle": "Free Gift Unlocked",
+        "giftUnlockedDescription": "{giftItems} will be added free at checkout."
+      }
+    }
+  }
+}

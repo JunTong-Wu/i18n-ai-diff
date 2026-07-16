@@ -1,0 +1,221 @@
+{
+  "first-image-section": {
+    "buttons": {
+      "learnMore": "En savoir plus",
+      "preOrder": "Acheter maintenant"
+    },
+    "images": {
+      "alt": "DWARF mini télescope intelligent"
+    }
+  },
+  "first-grid": {
+    "header": {
+      "title": "Le plus petit télescope intelligent au monde",
+      "subtitle": "Puissant et compact. Performance exceptionnelle."
+    },
+    "cards": {
+      "0": {
+        "title": "840g\nUltraportable"
+      },
+      "1": {
+        "title": "Obturateur 90 secondes\nPrêt"
+      },
+      "2": {
+        "title": "4 heures\nautonomie"
+      },
+      "3": {
+        "title": "GoTo automatique\nPrécision"
+      },
+      "4": {
+        "title": "Traitement\nen un clic"
+      },
+      "5": {
+        "title": "Rotation 360°\nLibre"
+      }
+    }
+  },
+  "common-text-content-section": {
+    "text": "Grand univers. Petit télescope. Conçu pour la portabilité.\nLe DWARF mini est équipé d'une caméra astronomique de précision, d'une monture à suivi automatique et d'un système de contrôle intelligent — le tout intégré dans un boîtier ne pesant que 840 g.\nPas d'équipement lourd. Pas de configuration compliquée. Il suffit de pointer, de capturer et d'explorer.\n« Ce n'est pas seulement un télescope simplifié. C'est une toute nouvelle façon d'explorer l'univers. »\nAdmirez la galaxie d'Andromède et la Voie lactée comme jamais auparavant.\nL'univers est enfin à portée de main."
+  },
+  "pocket-universe-section": {
+    "title": "DWARF mini univers de poche"
+  },
+  "common-full-width-section": {
+    "small-size": {
+      "title": "Petite taille, grand champ de vision",
+      "description": "DWARF mini ne pèse que 840g, léger et portable, facile à emporter. C'est votre compagnon ultime pour observer les étoiles, que ce soit dans le jardin, au bord du lac ou au sommet d'une montagne."
+    },
+    "three-minutes": {
+      "title": "3 minutes de déballage à la prise de vue",
+      "description": "L'astrophotographie est aussi simple que des nouilles instantanées – quelques clics, et ce festin d'étoiles est prêt !"
+    },
+    "capture-universe": {
+      "title": "Capturez l'univers ce soir !",
+      "description": "Il est incroyablement intelligent, résolvant automatiquement chaque défi grâce à sa mise au point automatique précise, sa navigation GoTo fluide et son suivi intelligent des étoiles. Laissez la technologie avancée gérer les complexités, tandis que vous vous concentrez sur la capture de la beauté de l'univers."
+    },
+    "big-ideas": {
+      "title": "Petite taille, grandes réalisations",
+      "description": "Il n'y a jamais eu de télescope intelligent aussi compact, offrant des performances exceptionnelles et des fonctionnalités puissantes."
+    },
+    "cosmos-adventure": {
+      "title": "Nouvelle exploration de l'univers quotidienne",
+      "description": "Adieu la photographie astronomique en mode unique ! Galaxie, Soleil, Lune, trainées d'étoiles, nébuleuses du ciel profond…\nChaque regard vers le ciel est un festin céleste.",
+      "moreHighlights": "Plus de points forts",
+      "slides": {
+        "0": {
+          "title": "Photographie quotidienne"
+        },
+        "1": {
+          "title": "Espace profond"
+        },
+        "2": {
+          "title": "Système solaire"
+        },
+        "3": {
+          "title": "Voie lactée"
+        },
+        "4": {
+          "title": "Trajectoire stellaire"
+        }
+      }
+    },
+    "stand-out": {
+      "title": "Vous voulez des photos qui sortent du lot ?",
+      "description": "Du transit de la Station spatiale internationale devant le Soleil ou la Lune, aux éclipses solaires et lunaires, en passant par les mosaïques grand champ, le DWARF mini est capable de traiter une grande variété de sujets en astrophotographie.",
+      "items": {
+        "iss-transit": {
+          "title": "Transit de l'ISS"
+        },
+        "lunar-eclipse": {
+          "title": "Éclipse lunaire"
+        },
+        "sun-eclipse": {
+          "title": "Éclipse solaire"
+        },
+        "mosaic": {
+          "title": "Mosaïque Astro"
+        }
+      }
+    },
+    "shoot-when-asleep": {
+      "title": "Même en dormant... on peut prendre des photos !?",
+      "description": "Réglez l'heure et la cible, puis laissez le DWARF mini s'occuper de tout, vous n'avez qu'à dormir tranquillement. Au réveil, une magnifique photo claire de la galaxie d'Andromède et de la Voie lactée vous attend dans la galerie."
+    },
+    "pro-level-editing": {
+      "title": "Retouche professionnelle, sans ordinateur",
+      "description": "L'astrophotographie traditionnelle nécessite des ordinateurs coûteux et des logiciels de post-traitement complexes—mais maintenant, DWARF mini vous permet d'effectuer des montages de niveau professionnel directement sur votre téléphone !\nPour les professionnels, exportez les fichiers RAW vers Photoshop, Siril ou PixInsight pour libérer tout le potentiel de l'image—des possibilités infinies, sans compromis."
+    },
+    "auto-correct": {
+      "title": "Stellar Studio intégré à l'application",
+      "description": "Retouche instantanée : correction automatique des étoiles, suppression du bruit et amélioration des détails des nébuleuses.\n3 secondes pour une image : pourquoi est-ce important ? Moins de 3 secondes entre le clic et la génération d'une image digne d'être partagée. Où que vous soyez, éditez et partagez vos chefs-d'œuvre cosmiques."
+    },
+    "signature": {
+      "title": "Signature exclusive sous les étoiles",
+      "description": "Publiez des images avec votre marque personnelle sur les réseaux sociaux : qu'il s'agisse de réflexions poétiques ou de l'histoire derrière la photo, créez un filigrane qui vous est propre. Car le plus beau ciel étoilé mérite d'être partagé de la meilleure façon."
+    }
+  },
+  "dual-camera-system-section": {
+    "title": "Système de visée rapide à double caméra",
+    "telephoto": {
+      "title": "Téléobjectif",
+      "description": "Ouverture de 30 mm\nÉquivalent plein format de 1 016 mm\n6 lentilles optiques apochromatiques pour des images nettes et précises"
+    },
+    "wide-angle": {
+      "title": "Objectif grand angle",
+      "description": "Cadrage rapide et capture de cibles, également idéal pour photographier la Voie lactée et les traînées d'étoiles"
+    }
+  },
+  "common-two-columns-section": {
+    "imaging-precision": {
+      "title": "Imagerie précise,\nPerformance de pointe",
+      "description": "Capteur IMX662 intégré, format 1/2,8 pouce, grands pixels de 2,9 μm pour des détails plus nets et une imagerie plus réaliste.\n\nPrend en charge la capture RAW de 2 mégapixels, révélant chaque détail du ciel profond avec une précision extrême."
+    },
+    "sharp-stars": {
+      "title": "Points stellaires nets,\n90 secondes de pose longue",
+      "description": "Passez en mode équatorial, DWARF mini suivra le ciel avec précision – compensant la rotation terrestre pour vous permettre de capturer des champs stellaires plus larges et plus riches, sans traînées ni recadrage."
+    },
+    "360-freedom": {
+      "title": "Rotation libre à 360°",
+      "description": "Le tube optique peut pivoter de 225° et la rotule à 360° sans restriction. Il prend en charge un double contrôle manuel/par application, permettant de suivre facilement des cibles sous n'importe quel angle. Le contrôle manuel ou par joystick de l'objectif vous permet de suivre aisément des cibles depuis n'importe quelle perspective."
+    },
+    "triple-filters": {
+      "title": "Filtre triple intégré",
+      "description": "Filtre Dark Frame : capture automatique de dark frames pour réduire le bruit thermique.\n\nFiltre astronomique (430–690 nm) : améliore le contraste des nébuleuses en renforçant la lumière infrarouge.\n\nFiltre double bande étroite : optimisé pour les longueurs d'onde Hα (656,3 nm) et O III (500,7 nm), pour filtrer la pollution lumineuse lunaire et urbaine."
+    },
+    "together-challenge": {
+      "title": "Défions ensemble l'univers",
+      "description": "Imaginez collaborer avec des amis ou d'autres passionnés d'astronomie pour assembler une vaste image du ciel profond, l'observation des étoiles n'a jamais été aussi sociale et amusante !"
+    },
+    "stellar-badges": {
+      "title": "Obtenez votre badge stellaire",
+      "description": "Terminez-en un, débloquez le suivant. Témoignez de votre chemin vers la maîtrise de l'astrophotographie !\n\nPartagez votre poster de réussite personnalisé du ciel étoilé pour émerveiller vos amis !"
+    }
+  },
+  "common-screen-section": {
+    "free-to-frame": {
+      "title": "Composition libre, talentueux"
+    },
+    "team-up": {
+      "title": "Collaboration d'équipe, un pas de plus"
+    }
+  },
+  "share-section": {
+    "title": "Partagez vos clichés cosmiques"
+  },
+  "badges": {
+    "star-seeker": {
+      "title": "Traces d'étoiles\nExplorateur"
+    },
+    "star-trail-weaver": {
+      "title": "Tisseur\nde la Voie lactée"
+    },
+    "nebula-hunter": {
+      "title": "Nébuleuse\nChasseur"
+    },
+    "nebula-collector": {
+      "title": "Nébuleuse\nCollectionneur"
+    },
+    "mosaic-master": {
+      "title": "Maître\ndu montage"
+    },
+    "deep-sky-trekker": {
+      "title": "Explorateur de l'espace\nprofond"
+    },
+    "galaxy-catcher": {
+      "title": "Galaxie\nAttrapeur"
+    },
+    "cosmic-lone-ranger": {
+      "title": "Univers\nSolitaire"
+    }
+  },
+  "take-it-further-section": {
+    "title": "Vous voulez aller plus loin ?",
+    "calibration": {
+      "title": "Super Calibration Personnalisée :\nChamp Noir/Biais/Flat",
+      "description": "De « l'avoir capturé » à « l'avoir bien capturé », chaque image est calibrée !",
+      "items": {
+        "0": {
+          "title": "Champ sombre"
+        },
+        "1": {
+          "title": "Champ de biais"
+        },
+        "2": {
+          "title": "Champ plat"
+        }
+      }
+    },
+    "filtering": {
+      "title": "Sélection image par image",
+      "description": "Vérifiez et supprimez les trames non nécessaires avant l'empilement pour garantir une superposition parfaite."
+    },
+    "megastack": {
+      "title": "Superposition multi-nuits",
+      "description": "DWARF mini collecte les expositions de plusieurs nuits et les fusionne en une image étonnante. Chaque nuit claire devient une partie de votre chef-d'œuvre final."
+    }
+  },
+  "last-image-section": {
+    "subtitle": "Petite taille, grand champ de vision",
+    "button": "Acheter maintenant"
+  }
+}

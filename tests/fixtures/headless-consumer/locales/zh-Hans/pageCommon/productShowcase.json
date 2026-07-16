@@ -1,0 +1,38 @@
+{
+  "bestSellingAccessories": "畅销配件",
+  "quantity": "数量",
+  "myChoice": "我的选择",
+  "addToCart": "加入购物车",
+  "buyItNow": "立即购买",
+  "shipping": "配送",
+  "shippingPolicyHere": "配送政策在这里",
+  "paymentMethod": "支付方式",
+  "twoYearWarranty": "两年质保",
+  "guaranteedDelivery": "保证交付",
+  "lifetimeSupport": "终身支持",
+  "alert": {
+    "success": "成功",
+    "productHasBeenAddedToYourCart": "商品已添加到购物车",
+    "viewCartAndCheckout": "查看购物车并结算",
+    "continueShopping": "继续购物",
+    "error": "失败",
+    "failedToAddToCart": "添加购物车失败，请稍后再试",
+    "okGotIt": "好的，知道了"
+  },
+  "promotions": {
+    "firstNightKit": {
+      "product": {
+        "title": "首夜套装优惠",
+        "endsIn": "剩余",
+        "days": "天",
+        "description": "订单包含 {buyItems} 时，即可免费获得 {giftItems}。",
+        "validity": "活动有效期：{startsAt} 至 {endsAt} {timezoneLabel}。赠完即止。",
+        "accessoryHintLead": "添加 {accessoryName}，即可",
+        "accessoryHintHighlight": "免费获得 {giftItems}。",
+        "accessoryHintSubtext": "为你的首次星空拍摄准备更稳定的套装。",
+        "giftUnlockedTitle": "已解锁免费赠品",
+        "giftUnlockedDescription": "{giftItems} 将在结账时免费加入。"
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "Page d'accueil",
+    "current": "Suivi de commande"
+  },
+  "title": "Suivi de commande",
+  "form": {
+    "title": "Suivez votre commande",
+    "description": "Concernant le format du numéro de commande, il suffit de renseigner les 4 ou 5 caractères du numéro de commande, soit xxxx ou xxxxx.",
+    "order_number": "Numéro de commande",
+    "email_or_phone_number": "Adresse e-mail ou numéro de téléphone",
+    "tracking_number": "Numéro de suivi",
+    "track": "Suivre",
+    "or": "ou",
+    "enterPlaceholder": "Veuillez saisir",
+    "required": "Ce champ est obligatoire"
+  },
+  "loading": {
+    "importing": "Chargement du contenu en cours…",
+    "initializing": "En cours de préparation…",
+    "loadingConfig": "Récupération des informations nécessaires…",
+    "loadingTracking": "Chargement de la page…",
+    "patching": "Ajustement de l'affichage en cours…",
+    "retrying": "La connexion est un peu instable, nouvelle tentative en cours..."
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "q1": "Pourquoi ne puis-je pas trouver le numéro de suivi après avoir saisi le numéro de commande et l'adresse e-mail ?",
+    "a1": "Votre commande n'a pas encore été expédiée. Elle est peut-être en route vers le prestataire logistique ou en cours de dédouanement. Le numéro de suivi n'a pas encore été généré, veuillez patienter un instant pour l'obtenir.",
+    "q2": "Pourquoi mon numéro de suivi logistique n'affiche aucun statut ?",
+    "a2": "Une fois votre commande expédiée de notre entrepôt, un numéro de suivi est généré. Il faut donc environ un à deux jours pour que ce numéro soit mis à jour et devienne consultable en ligne."
+  }
+}

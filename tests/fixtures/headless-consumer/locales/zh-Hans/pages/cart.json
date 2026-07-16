@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "购物车",
+  "items": "件商品",
+  "product": "商品",
+  "price": "价格",
+  "quantity": "数量",
+  "total": "总价",
+  "subtotal": "小计",
+  "discount": "折扣",
+  "checkout": "结算",
+  "findingShippingProtection": "正在为你的订单查找适用的配送保护，请稍等。",
+  "xcottonConflict": {
+    "title": "配送保护更新失败",
+    "description": "配送保护与购物车状态可能不同步。请刷新页面后确认购物车金额。",
+    "refreshCart": "刷新购物车"
+  },
+  "preparingCheckout": "正在准备安全结算页面...",
+  "checkoutTakingLonger": "结算页面准备时间比预期更长",
+  "checkoutTakingLongerDescription": "我们仍在准备安全结算页面。你可以继续等待或返回商品页面。",
+  "checkoutFailed": "无法打开结算页面",
+  "checkoutFailedDescription": "请检查网络连接后重试。当前不会产生任何扣款。",
+  "returnToProduct": "返回商品页面",
+  "discountCodeInvalid": "折扣码无效",
+  "alert": {
+    "confirmRemove": "确认删除",
+    "confirmRemoveText": "确认删除该商品吗？",
+    "confirm": "确认",
+    "cancel": "取消"
+  },
+  "notification": {
+    "error": {
+      "title": "购物车更新失败",
+      "description": "网络有些不稳定，购物车已恢复为之前的数量和金额。请稍后重试。"
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "免费赠品",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "组合优惠：解锁 {giftItems}",
+        "claimedTitle": "你已获得 {giftItems} 赠品",
+        "progressDescription": "将 {missingItems} 与 {ownedItems} 一起加入购物车，即可解锁 {giftItems} 免费赠品。",
+        "claimedDescription": "免费赠品已加入购物车：{giftItems}。最终折扣会在结算页应用。"
+      }
+    }
+  }
+}

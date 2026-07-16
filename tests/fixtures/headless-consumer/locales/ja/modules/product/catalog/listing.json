@@ -1,0 +1,27 @@
+{
+  "breadcrumb": {
+    "home": "ホーム",
+    "products": "製品",
+    "all": "すべて"
+  },
+  "pageTitle": {
+    "products": "製品",
+    "allProducts": "すべての製品",
+    "collectionFallback": "製品カテゴリ"
+  },
+  "collectionTitle": {
+    "accessories": "アクセサリー",
+    "smart-telescope": "スマート望遠鏡"
+  },
+  "card": {
+    "empty": "販売可能な商品はありません",
+    "status": {
+      "soldOut": "完売"
+    },
+    "rating": {
+      "noReviews": "レビューはまだありません",
+      "reviewsWord": "件のレビュー",
+      "jumpToReviewsAriaLabel": "商品レビューへ移動"
+    }
+  }
+}

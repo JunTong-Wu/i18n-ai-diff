@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "Startseite",
+    "current": "Häufig gestellte Fragen"
+  },
+  "title": "Häufig gestellte Fragen",
+  "searchPlaceholder": "Suchprobleme",
+  "faqGroups": {
+    "ordersAndShipping": "Bestellung & Versand",
+    "returnsWarrantyAndCustoms": "Rückgabe, Garantie & Zollabfertigung",
+    "gettingStarted": "Erste Schritte",
+    "appAndConnection": "App & Verbindung",
+    "shootingAndFeatures": "Aufnahme & Funktionen",
+    "accessoriesAndFileTransfer": "Zubehör & Dateiübertragung"
+  },
+  "contact": {
+    "title": "Noch Fragen? Hinterlassen Sie uns eine Nachricht!",
+    "nameLabel": "Ihr Name",
+    "namePlaceholder": "Bitte geben Sie Ihren Namen ein",
+    "emailLabel": "Ihre E-Mail-Adresse",
+    "emailPlaceholder": "Bitte geben Sie Ihre E-Mail-Adresse ein",
+    "subjectLabel": "Thema auswählen",
+    "subjectPlaceholder": "Verkaufsberatung",
+    "messageLabel": "Nachricht",
+    "messagePlaceholder": "Bitte geben Sie Ihre Nachricht ein",
+    "submit": "Absenden"
+  },
+  "emptyMessage": "Keine passenden FAQs gefunden"
+}

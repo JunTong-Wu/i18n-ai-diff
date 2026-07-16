@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "current": "成为经销商"
+  },
+  "title": "成为经销商",
+  "form": {
+    "personalInfo": "个人信息",
+    "companyInfo": "公司信息",
+    "fullName": "您的全名",
+    "fullNamePlaceholder": "请输入",
+    "companyName": "公司注册名称",
+    "companyNamePlaceholder": "请输入",
+    "companyCountry": "公司所在国家或地区",
+    "companyCountryPlaceholder": "请选择国家或地区",
+    "companyCity": "公司所在城市",
+    "companyCityPlaceholder": "请输入城市",
+    "companyAddress": "公司地址",
+    "companyAddressPlaceholder": "请输入公司地址",
+    "countryLabel": "国家/地区代码",
+    "email": "联系邮箱",
+    "emailPlaceholder": "请输入邮箱",
+    "salesChannel": "您的销售渠道",
+    "salesChannelOptions": {
+      "online": "在线商店",
+      "physical": "实体店",
+      "both": "两者皆有"
+    },
+    "intention": "合作意向",
+    "intentionPlaceholder": "请描述您的合作意向",
+    "submit": "提交",
+    "required": "此字段为必填项",
+    "emailInvalid": "请输入有效的邮箱地址",
+    "headerText": "您收到了一条新的经销商申请。",
+    "alert": {
+      "checkInformation": "核对信息",
+      "checkInformationDescription": "请再次核对您的信息正确，以确保我们能够及时与您取得联系。",
+      "cancel": "取消",
+      "confirm": "确认",
+      "submitSuccess": "提交成功",
+      "submitError": "提交失败",
+      "okGotIt": "知道了"
+    }
+  }
+}

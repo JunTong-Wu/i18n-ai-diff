@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "전방위 보호",
+      "description": "PVC 인조가죽 외부 소재는 발수 및 내파열성, 내부에는 완충 레이어가 있어 360° 밀착 보호합니다."
+    },
+    "portable": {
+      "title": "초경량 휴대성",
+      "description": "21×9×12cm의 미니멀한 실루엣, 1.6m 조절 가능한 숄더 스트랩."
+    },
+    "storage": {
+      "title": "원팩 수납",
+      "description": "하단 스트랩으로 안정적인 거치, 측면 필터 전용 수납공간, 본체와 액세서리가 각자 제자리를 찾아 야외에서 찾는 번거로움을 없앴습니다."
+    },
+    "customFit": {
+      "title": "전용 맞춤 제작",
+      "description": "DWARF mini 전용으로 설계되었으며, 실크 면 안감이 적용되어 완벽하게 밀착되어 이동 중 진동과 움직임을 방지합니다."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "제품명",
+      "value": "DWARF mini 전용 휴대용 보호 파우치"
+    },
+    "outerMaterial": {
+      "label": "외부 재질",
+      "value": "PVC 인조가죽"
+    },
+    "innerMaterial": {
+      "label": "내부 재질",
+      "value": "실크 면"
+    },
+    "size": {
+      "label": "외곽 치수",
+      "value": "길이 21cm × 너비 9cm × 높이 12cm"
+    },
+    "strap": {
+      "label": "Shoulder Strap Specifications",
+      "value": "1.6m 조절 가능 길이, 금속 걸쇠 포함"
+    },
+    "title": "제품 사양"
+  },
+  "hero": {
+    "title": "드워프 미니 가방",
+    "subtitle": "전방위 보호｜극한의 휴대성｜원팩 수납｜전용 맞춤 제작"
+  }
+}

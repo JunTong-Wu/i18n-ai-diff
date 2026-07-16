@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "全景不止宏大，更要清晰",
+    "buttons": {
+      "buyNow": "立即购买",
+      "watchVideo": "观看视频"
+    }
+  },
+  "portable": {
+    "label": "字典大小，轻至 1.35kg",
+    "title": "轻装出发，随时开拍",
+    "description": "DWARF 3 是你的旅行绝佳伴侣，陪你随时启程。\n约 1.35 kg 的机身重量，旅行、露营、周末出行都能轻松带上。"
+  },
+  "billionPixel": {
+    "label": "十亿像素看世界",
+    "title": "瞬息万物，只在一张照片",
+    "description": "体验十亿像素级全景拍摄！一张照片，同时容纳宏观与细节。即使放大与裁切，依旧能展现惊人的清晰。"
+  },
+  "shootMode": {
+    "label": "两种拍摄模式",
+    "title": "框选，开拍，这就是全部",
+    "description": "只需在 App 中框选你想拍摄的风景，即可生成全景取景预览。一键开拍，所见即所得！",
+    "altDescription": "当然，如果你熟悉拍摄参数，也可以直接设置拍摄行列，让DWARF 为您自动拍摄。"
+  },
+  "seamlessStitch": {
+    "label": "无缝拼接",
+    "title": "和现实世界一样无缝",
+    "description": "DWARF 3 能高精度控制镜头平稳移动，确保每一个拍摄位置的准确性。服务器将利用算法，自动完成拼接处理。无需复杂后期，就能得到一张完美的全景图！"
+  },
+  "panoramaMosaic": {
+    "label": "全景拼图",
+    "title": "放大看世界",
+    "description": "全景拼图采用云端拼接，将一组长焦连拍画面合成为一张超清大全景。无需本地处理，只需拍摄并上传。",
+    "mosaicLabel": "全景拼图",
+    "mosaicDescription": "捕捉宏伟的十亿像素景象，尽享全景视野。\n支持超大幅面输出与极限放大，近距离观察令人惊叹的景致。"
+  },
+  "share": {
+    "label": "无损画质分享",
+    "title": "分享，不受限制",
+    "description": "全景照片上传云端完成拼接后，可生成支持深度放大的高清全景链接。一键分享到任意平台，让更多人一起欣赏同一片风景。\n\n同一张全景可生成多个独立链接；每个链接都可单独设置色彩风格与展示信息，适配社交分享与个人收藏等不同场景。"
+  },
+  "appFeatures": {
+    "mainTitle": "体验更顺，拍摄更轻松",
+    "mainDescription": "NFC 快速连接、多语言支持、后台持续拍摄、IP54 防护——让户外更从容，拍摄更连贯。",
+    "nfc": {
+      "label": "一触即连，即刻开拍",
+      "title": "NFC 一触连接",
+      "description": "手机靠近灯环区域，即可快速连接 DWARF 3，立即开始拍摄。"
+    },
+    "multiLanguage": {
+      "title": "多语言 App",
+      "description": "覆盖全球用户，现已支持中文、英语、日语、西班牙语、德语等 10 种语言。"
+    },
+    "background": {
+      "title": "离线自动运行",
+      "description": "即使 App 退到后台、最小化或连接中断，DWARF 3 仍会持续运行，随时可返回查看进度。"
+    },
+    "ip54": {
+      "title": "IP54 防护",
+      "description": "防尘防露，户外使用更安心，为观测与拍摄提供额外保护。"
+    }
+  },
+  "moreFun": {
+    "label": "更多乐趣",
+    "title": "天文 & 观鸟摄影",
+    "description": "从天文摄影、超清全景到观鸟跟拍，一台设备，把观察与记录变得更简单。",
+    "astronomy": {
+      "title": "天文",
+      "description": "一键自动化拍摄，让探索宇宙从未如此简单。\n在几分钟内就可以捕捉星系、星云、星团等图像。",
+      "button": "了解更多"
+    },
+    "birding": {
+      "title": "自动锁定目标，持续跟拍",
+      "description": "识别目标后，DWARF 3 自动锁定并持续追踪。\n就算突然起飞，双摄系统也能快速重定位，稳稳跟上。",
+      "button": "了解更多"
+    }
+  },
+  "packageSection": {
+    "title": "包装内容",
+    "mainBody": {
+      "title": "DWARF 3 智能望远镜"
+    },
+    "bag": {
+      "title": "收纳包"
+    },
+    "filters": {
+      "title": "磁吸一体式太阳滤镜"
+    },
+    "filtersPouch": {
+      "title": "滤镜保护袋"
+    },
+    "cable": {
+      "title": "Type-C 数据线"
+    },
+    "wipeCloth": {
+      "title": "镜头擦拭布"
+    }
+  }
+}

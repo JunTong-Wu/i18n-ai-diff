@@ -1,0 +1,21 @@
+{
+  "breadcrumb": {
+    "home": "ホームページ",
+    "downloadCenter": "ダウンロードセンター"
+  },
+  "app": {
+    "title": "DWARFLAB アプリ",
+    "description": "DWARFスマート望遠鏡をワイヤレスで制御するお手伝いをします",
+    "download": "ダウンロード",
+    "lastUpdate": "最終更新",
+    "updateContent": "更新内容",
+    "supportedDevices": "対応デバイス",
+    "globalDownloadApkText": "ダウンロードをクリックするか、QRコードをスキャンしてGoogle PlayからDWARFLABアプリをインストールするか、<link>APKファイル</link>をダウンロードしてください"
+  },
+  "firmware": {
+    "title": "ファームウェア",
+    "description": "DWARF スマート望遠鏡をワイヤレスで制御するお手伝いをします",
+    "lastUpdate": "最終更新",
+    "updateContent": "更新内容"
+  }
+}

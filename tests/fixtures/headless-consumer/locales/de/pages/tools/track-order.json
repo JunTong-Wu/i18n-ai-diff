@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "Startseite",
+    "current": "Bestellverfolgung"
+  },
+  "title": "Bestellverfolgung",
+  "form": {
+    "title": "Verfolgen Sie Ihre Bestellung",
+    "description": "Bezüglich des Formats der Bestellnummer geben Sie bitte nur die 4 oder 5 Zeichen der Bestellnummer ein: xxxx oder xxxxx.",
+    "order_number": "Bestellnummer",
+    "email_or_phone_number": "E-Mail oder Handynummer",
+    "tracking_number": "Sendungsnummer",
+    "track": "Verfolgen",
+    "or": "oder",
+    "enterPlaceholder": "Bitte eingeben",
+    "required": "Dieses Feld ist ein Pflichtfeld"
+  },
+  "loading": {
+    "importing": "Inhalte werden für Sie geladen…",
+    "initializing": "Wird vorbereitet…",
+    "loadingConfig": "Erforderliche Informationen werden abgerufen…",
+    "loadingTracking": "Seite wird geladen...",
+    "patching": "Anzeigeeffekte werden angepasst...",
+    "retrying": "Die Verbindung ist etwas instabil, wird neu versucht..."
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "q1": "Warum finde ich die Sendungsverfolgungsnummer nicht, nachdem ich die Bestellnummer und E-Mail eingegeben habe?",
+    "a1": "Ihre Bestellung wurde noch nicht versendet. Sie könnte sich auf dem Weg zum Logistikdienstleister befinden oder sich im Zollabfertigungsprozess. Die Sendungsverfolgungsnummer wurde noch nicht generiert, bitte warten Sie einen Moment, um sie zu erhalten.",
+    "q2": "Warum hat meine Sendungsverfolgungsnummer keinen Status?",
+    "a2": "Sobald Ihre Bestellung von unserem Lager versendet wird, wird eine Sendungsverfolgungsnummer generiert, daher dauert es etwa ein bis zwei Tage, bis die Sendungsverfolgungsnummer online aktualisiert wird."
+  }
+}

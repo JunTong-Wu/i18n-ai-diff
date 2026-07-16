@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "Homepage",
+    "current": "Tracciamento ordini"
+  },
+  "title": "Tracciamento ordine",
+  "form": {
+    "title": "Traccia il tuo ordine",
+    "description": "Per quanto riguarda il formato del numero d'ordine, è sufficiente inserire le 4 o 5 cifre del numero d'ordine, cioè xxxx o xxxxx.",
+    "order_number": "Numero ordine",
+    "email_or_phone_number": "Email o numero di telefono",
+    "tracking_number": "Numero di spedizione",
+    "track": "Tracciamento",
+    "or": "o",
+    "enterPlaceholder": "Inserisci",
+    "required": "Questo campo è obbligatorio"
+  },
+  "loading": {
+    "importing": "Caricamento dei contenuti in corso…",
+    "initializing": "In preparazione...",
+    "loadingConfig": "Recupero delle informazioni necessarie in corso...",
+    "loadingTracking": "Caricamento della pagina in corso…",
+    "patching": "Regolazione dell'effetto di visualizzazione in corso...",
+    "retrying": "La connessione è un po' instabile, riprovo..."
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "q1": "Perché dopo aver inserito il numero d'ordine e l'email non riesco a trovare il numero di spedizione?",
+    "a1": "Il tuo ordine non è ancora stato spedito. Potrebbe essere in viaggio verso il fornitore logistico o in fase di sdoganamento. Il numero di tracciamento logistico non è ancora stato generato, attendi qualche istante per ottenerlo.",
+    "q2": "Perché il mio numero di spedizione non mostra alcuno stato?",
+    "a2": "Una volta che il tuo ordine viene spedito dal nostro magazzino, viene generato un numero di tracciamento, quindi potrebbero essere necessari circa uno o due giorni affinché il numero di tracciamento diventi attivo online."
+  }
+}

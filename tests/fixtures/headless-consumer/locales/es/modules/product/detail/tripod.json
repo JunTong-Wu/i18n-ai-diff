@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "Trípode de rótula hidráulica mini",
+    "presubtitle": "Ligero para llevar, soporte estable",
+    "buyNow": "Comprar ahora",
+    "title": "Trípode con rótula hidráulica",
+    "subtitle": "Plataforma de amortiguación hidráulica｜Soporte estable｜Portátil y ligero｜Ángulos más libres"
+  },
+  "bestCompanion": {
+    "subtitle": "Del balcón al campo abierto, un solo equipo, listo para rodar en cualquier momento",
+    "title": "El mejor compañero de fotografía de DWARF",
+    "description": "Proporciona un soporte estable y un ajuste suave de inclinación/panorámica, para mayor tranquilidad en sesiones prolongadas, time-lapse y observación."
+  },
+  "equatorialMode": {
+    "subtitle": "Dos modos, cambia a tu gusto",
+    "title": "Soporta el modo de montura ecuatorial",
+    "description": "Puede cambiar libremente entre el modo ecuatorial y el modo altazimutal. El modo ecuatorial se utiliza para un seguimiento más estable durante largos períodos, permitiendo una captura más relajada; el modo altazimutal es adecuado para apuntar rápidamente y para la observación diaria, levantando para ver y ajustando en cualquier momento.",
+    "tab1": "Modo de montura ecuatorial",
+    "tab2": "Modo Alt-Az"
+  },
+  "portable": {
+    "subtitle": "Pata de cinco secciones, volumen compacto",
+    "title": "Portátil y súper ligero",
+    "description": "Fabricado en aleación de aluminio, se pliega hasta alcanzar una longitud de 25 cm. Con un peso ligero de solo 790 gramos, es fácil de transportar. Observación de estrellas urbanas, viajes de campamento, seguimiento del sol y la luna: ya no será una 'molestia'."
+  },
+  "stable": {
+    "subtitle": "Soporte estable, imágenes más limpias",
+    "title": "Captura súper estable",
+    "description": "Patas robustas y soporte estable. Admite rotación de 360° e inclinación de -80°/+90° para cambiar fácilmente de perspectiva; sostiene firmemente el DWARF, reduciendo el impacto de las vibraciones mínimas en la imagen."
+  },
+  "hydraulicHead": {
+    "subtitle": "Giro suave, se coloca en su lugar con un solo empujón",
+    "title": "Cabeza hidráulica, suave y controlable",
+    "description": "Sistema de amortiguación hidráulica integrado, cada ajuste es preciso y fluido. Sin sacudidas repentinas, sin pausas incómodas: controla con confianza, compone con precisión."
+  },
+  "flexibility": {
+    "subtitle": "Composición sin restricciones",
+    "title": "Ángulo más libre",
+    "description": "El mango permite ajustes verticales, el trípode soporta patas plegables en múltiples ángulos, ya sea alto o bajo, la elección es tuya, sin limitaciones de perspectiva.\nDesde apuntar hacia arriba para capturar estrellas hasta ángulos bajos para paisajes, o composiciones laterales, siempre encontrarás el ángulo ideal."
+  },
+  "tripodSpecs": {
+    "title": "Trípode",
+    "subtitle": "Introducción a las partes",
+    "specs": {
+      "weight": "Peso total",
+      "weightValue": "775 gramos",
+      "connector": "Conector",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "Capacidad máxima de carga",
+      "maxLoadValue": "3.0 kilogramos",
+      "maxHeight": "Altura máxima",
+      "maxHeightValue": "530 milímetros",
+      "foldedHeight": "Altura plegada",
+      "foldedHeightValue": "180 milímetros",
+      "tubeDiameter": "Diámetro de la tubería",
+      "tubeDiameterValue": "9,7/12,6/15,5/18,2/21 milímetros",
+      "sections": "Número de segmentos",
+      "sectionsValue": "5",
+      "material": "Material",
+      "materialValue": "Aleación de aluminio",
+      "color": "Color",
+      "colorValue": "Negro"
+    }
+  },
+  "headSpecs": {
+    "title": "Cabeza hidráulica",
+    "subtitle": "Introducción a las partes",
+    "specs": {
+      "weight": "Peso total",
+      "weightValue": "300 gramos",
+      "panRange": "Rango horizontal",
+      "panRangeValue": "360°",
+      "tiltRange": "Rango de inclinación",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "Altura",
+      "heightValue": "71 milímetros",
+      "baseDiameter": "Diámetro de la base",
+      "baseDiameterValue": "40 milímetros",
+      "loadCapacity": "Capacidad de carga",
+      "loadCapacityValue": "3.0 kilogramos",
+      "material": "Material",
+      "materialValue": "Aleación de aluminio",
+      "quickRelease": "Placa de liberación rápida",
+      "quickReleaseValue": "Tornillo de cámara de 1/4 de pulgada"
+    }
+  }
+}

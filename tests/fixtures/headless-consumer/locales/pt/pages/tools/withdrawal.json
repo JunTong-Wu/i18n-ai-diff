@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "Início",
+    "current": "Enviar solicitação de desistência"
+  },
+  "title": "Enviar solicitação de desistência",
+  "description": "Use este formulário para nos enviar sua solicitação de desistência do contrato. Após o envio, encaminharemos uma confirmação para o e-mail informado.",
+  "form": {
+    "nameLabel": "Nome",
+    "namePlaceholder": "Digite seu nome completo",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "Digite o e-mail para confirmação",
+    "orderReferenceLabel": "Número do pedido",
+    "orderReferencePlaceholder": "Digite o número do seu pedido",
+    "itemsLabel": "Itens",
+    "itemsPlaceholder": "Descreva os itens para os quais deseja solicitar a desistência",
+    "messageLabel": "Observações adicionais",
+    "messagePlaceholder": "Adicione qualquer detalhe que possa nos ajudar a processar sua solicitação",
+    "submit": "Enviar solicitação",
+    "required": "Este campo é obrigatório",
+    "emailInvalid": "Digite um endereço de e-mail válido"
+  },
+  "alert": {
+    "checkInformation": "Revise suas informações",
+    "checkInformationDescription": "Confirme seus dados antes de enviar a solicitação de desistência.",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "submitSuccess": "Solicitação enviada",
+    "submitSuccessDescription": "Recebemos sua solicitação de desistência e enviamos um e-mail de confirmação.",
+    "submitError": "Falha no envio",
+    "unknownError": "Erro desconhecido",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "Solicitação de desistência DWARFLAB",
+    "customerSubject": "Recebemos sua solicitação de desistência DWARFLAB",
+    "internalTitle": "Solicitação de desistência DWARFLAB",
+    "internalIntro": "Um cliente enviou uma solicitação de desistência pelo site DWARFLAB.",
+    "customerTitle": "Recebemos sua solicitação de desistência",
+    "customerGreeting": "Olá {name},",
+    "customerIntro": "Recebemos sua solicitação de desistência do contrato. Nossa equipe de suporte irá analisá-la e entrará em contato caso precise de informações adicionais.",
+    "customerReceiptNote": "Este e-mail confirma o recebimento da sua solicitação. Guarde-o para seus registros.",
+    "supportSignature": "Suporte DWARFLAB",
+    "receivedAtLabel": "Recebido em",
+    "regionLabel": "Região",
+    "languageLabel": "Idioma",
+    "emptyValue": "-"
+  }
+}

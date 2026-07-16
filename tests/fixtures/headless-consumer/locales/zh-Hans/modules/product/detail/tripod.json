@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "迷你液压云台三脚架",
+    "presubtitle": "轻装随行，稳固支撑",
+    "buyNow": "立即购买",
+    "title": "液压云台三脚架",
+    "subtitle": "液压阻尼云台｜稳固支撑｜轻装便携｜角度更自由"
+  },
+  "bestCompanion": {
+    "subtitle": "从阳台到旷野，一架到位，随时开拍",
+    "title": "DWARF 的最佳拍摄搭档",
+    "description": "提供稳固的支撑与顺滑的俯仰/水平调节，让长时间拍摄、延时、观测更安心。"
+  },
+  "equatorialMode": {
+    "subtitle": "两种模式，随心切换",
+    "title": "支持赤道仪模式",
+    "description": "可在赤道仪模式与经纬仪模式之间自由切换。赤道仪模式用于更稳定的长时间跟踪，让拍摄更从容；经纬仪模式则适合快速指向与日常浏览，抬起就看、随时调整。",
+    "tab1": "赤道仪模式",
+    "tab2": "经纬仪模式"
+  },
+  "portable": {
+    "subtitle": "五节脚管，体积小巧",
+    "title": "携带超轻松",
+    "description": "铝合金材质，折叠可缩至25厘米长。重量轻达790克，轻松携带。城市观星、旅行露营、追日追月——都不再「嫌麻烦」。"
+  },
+  "stable": {
+    "subtitle": "稳固支撑，画面更干净",
+    "title": "拍摄超稳固",
+    "description": "扎实脚管与稳固支撑。支持 360° 平移 与 -80°/+90° 倾斜，轻松切换视角；稳稳托住 DWARF，减少细微晃动对画面的影响。"
+  },
+  "hydraulicHead": {
+    "subtitle": "顺滑转动，一推就到位",
+    "title": "液压云台，顺滑可控",
+    "description": "内置液压阻尼系统，每次调整都精准流畅。没有突然的顿挫，没有尴尬的停顿——自信掌控，精准构图。"
+  },
+  "flexibility": {
+    "subtitle": "构图不受限",
+    "title": "角度更自由",
+    "description": "手柄调节上下，三脚架支持多角度翻折腿，高或者矮都任你选择，视角不再受限。\n从抬头拍星到低角度拍景，再到侧向构图，都能找到理想角度。"
+  },
+  "tripodSpecs": {
+    "title": "三脚架",
+    "subtitle": "部位介绍",
+    "specs": {
+      "weight": "总重量",
+      "weightValue": "775克",
+      "connector": "连接器",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "最大承载量",
+      "maxLoadValue": "3.0千克",
+      "maxHeight": "最大高度",
+      "maxHeightValue": "530毫米",
+      "foldedHeight": "折叠高度",
+      "foldedHeightValue": "180毫米",
+      "tubeDiameter": "管径",
+      "tubeDiameterValue": "9.7/12.6/15.5/18.2/21毫米",
+      "sections": "段数",
+      "sectionsValue": "5",
+      "material": "材料",
+      "materialValue": "铝合金",
+      "color": "颜色",
+      "colorValue": "黑色"
+    }
+  },
+  "headSpecs": {
+    "title": "液压云台",
+    "subtitle": "部位介绍",
+    "specs": {
+      "weight": "总重量",
+      "weightValue": "300克",
+      "panRange": "水平范围",
+      "panRangeValue": "360°",
+      "tiltRange": "倾斜范围",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "高度",
+      "heightValue": "71毫米",
+      "baseDiameter": "底座直径",
+      "baseDiameterValue": "40毫米",
+      "loadCapacity": "负载容量",
+      "loadCapacityValue": "3.0千克",
+      "material": "材料",
+      "materialValue": "铝合金",
+      "quickRelease": "快拆板",
+      "quickReleaseValue": "1/4 英寸相机螺丝"
+    }
+  }
+}

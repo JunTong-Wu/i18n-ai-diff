@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "미니 유압 헤드 삼각대",
+    "presubtitle": "가볍게 휴대하며 안정적인 지지",
+    "buyNow": "지금 구매",
+    "title": "유압식 팬틸트 삼각대",
+    "subtitle": "유압 댐핑 짐벌｜안정적인 지지｜가벼운 휴대｜각도 더 자유롭게"
+  },
+  "bestCompanion": {
+    "subtitle": "발코니에서 광야까지, 한 번에 설치, 언제든 촬영 가능",
+    "title": "DWARF의 최고의 촬영 파트너",
+    "description": "견고한 지지와 부드러운 피치/수평 조절을 제공하여 장시간 촬영, 타임랩스, 관찰을 더욱 안심하고 할 수 있습니다."
+  },
+  "equatorialMode": {
+    "subtitle": "두 가지 모드, 자유롭게 전환",
+    "title": "적도의 모드 지원",
+    "description": "적의의 모드와 경위의 모드 사이에서 자유롭게 전환할 수 있습니다. 적의의 모드는 더 안정적인 장시간 추적에 사용되어 촬영을 더욱 여유롭게 해주며, 경위의 모드는 빠른 포인팅과 일상적인 관측에 적합하여 들어 올려 바로 보고 언제든 조정할 수 있습니다.",
+    "tab1": "적도의 모드",
+    "tab2": "경위의 모드"
+  },
+  "portable": {
+    "subtitle": "5단 다리, 소형 디자인",
+    "title": "휴대 초간편",
+    "description": "알루미늄 합금 소재, 접으면 25cm 길이로 줄어듭니다. 무게는 790g에 불과하여 휴대가 간편합니다. 도시에서 별 보기, 여행 캠핑, 일식 월식 관측—더 이상 '귀찮다'고 느끼지 않아도 됩니다."
+  },
+  "stable": {
+    "subtitle": "안정적인 지지, 더 깨끗한 화면",
+    "title": "초안정 촬영",
+    "description": "견고한 다리와 안정적인 지지. 360° 팬과 -80°/+90° 틸트를 지원하여 시각을 쉽게 전환할 수 있으며, DWARF를 안정적으로 받쳐 미세한 흔들림이 화면에 미치는 영향을 줄입니다."
+  },
+  "hydraulicHead": {
+    "subtitle": "부드러운 회전, 한 번 밀면 제자리에",
+    "title": "유압 팬헤드, 부드럽고 제어 가능",
+    "description": "내장된 유압 댐퍼 시스템으로, 모든 조정이 정확하고 부드럽습니다. 갑작스러운 멈춤이나 어색한 정지 없이 자신 있게 제어하고 정밀하게 구성하세요."
+  },
+  "flexibility": {
+    "subtitle": "구도에 제한 없음",
+    "title": "각도가 더 자유롭습니다",
+    "description": "핸들은 상하 조절이 가능하며, 삼각대는 다중 각도로 다리 접힘이 가능해 높거나 낮은 위치 모두 선택할 수 있어 시야각이 제한되지 않습니다.\n별을 올려다보며 촬영하는 것부터 낮은 각도의 풍경 촬영, 측면 구도까지 이상적인 각도를 찾을 수 있습니다."
+  },
+  "tripodSpecs": {
+    "title": "삼각대",
+    "subtitle": "부위 소개",
+    "specs": {
+      "weight": "총 무게",
+      "weightValue": "775g",
+      "connector": "커넥터",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "최대 수용량",
+      "maxLoadValue": "3.0킬로그램",
+      "maxHeight": "최대 높이",
+      "maxHeightValue": "530밀리미터",
+      "foldedHeight": "접힌 높이",
+      "foldedHeightValue": "180밀리미터",
+      "tubeDiameter": "관경",
+      "tubeDiameterValue": "9.7/12.6/15.5/18.2/21밀리미터",
+      "sections": "단계 수",
+      "sectionsValue": "5",
+      "material": "재료",
+      "materialValue": "알루미늄 합금",
+      "color": "색상",
+      "colorValue": "검정색"
+    }
+  },
+  "headSpecs": {
+    "title": "유압 팬헤드",
+    "subtitle": "부위 소개",
+    "specs": {
+      "weight": "총 무게",
+      "weightValue": "300g",
+      "panRange": "수평 범위",
+      "panRangeValue": "360°",
+      "tiltRange": "기울기 범위",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "고도",
+      "heightValue": "71밀리미터",
+      "baseDiameter": "베이스 직경",
+      "baseDiameterValue": "40mm",
+      "loadCapacity": "부하 용량",
+      "loadCapacityValue": "3.0킬로그램",
+      "material": "재료",
+      "materialValue": "알루미늄 합금",
+      "quickRelease": "퀵 릴리스 플레이트",
+      "quickReleaseValue": "1/4인치 카메라 나사"
+    }
+  }
+}

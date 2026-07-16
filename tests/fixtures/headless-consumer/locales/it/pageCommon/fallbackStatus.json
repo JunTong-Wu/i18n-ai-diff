@@ -1,0 +1,13 @@
+{
+  "yourCartIsEmpty": "Il tuo carrello è vuoto",
+  "addSomeProductsToGetStarted": "Aggiungi alcuni prodotti per iniziare a fare acquisti",
+  "continueShopping": "Visualizza elenco prodotti",
+  "serverError": "Errore del server",
+  "productUnavailableTitle": "Prodotto non disponibile",
+  "productUnavailableDescription": "Questo prodotto e attualmente esaurito nella tua area geografica.",
+  "failedToLoadProductInformation": "Impossibile caricare le informazioni del prodotto,\nIl client non può connettersi al server proxy Shopify.\nRiprova più tardi.",
+  "retry": "Riprova",
+  "failedToLoadCMSData": "Caricamento dati non riuscito,\nIl client non può connettersi al server CMS.\nRiprova più tardi.",
+  "trackingServiceUnavailable": "Anomalia di rete",
+  "failedToLoadTrackingService": "La connessione di rete attuale è instabile,\nnon è possibile connettersi al servizio di tracciamento della logistica.\nControlla la rete e riprova, o riprova più tardi."
+}

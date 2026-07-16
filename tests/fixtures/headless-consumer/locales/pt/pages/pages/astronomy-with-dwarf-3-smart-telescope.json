@@ -1,0 +1,245 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Pequeno em tamanho, grande em surpresas.",
+    "buttons": {
+      "buyNow": "Comprar agora",
+      "watchVideo": "Assistir vídeo"
+    }
+  },
+  "slogan": {
+    "line1": "Leve",
+    "line2": "mas ainda mais poderoso"
+  },
+  "featureGrid": {
+    "title": "Concentre a expertise\nExplore à vont",
+    "cards": {
+      "portable": "Fácil de transportar",
+      "portableValue": "1,3kg",
+      "oneClickPost": "Pós-processamento Astronômico com Um Toque",
+      "tripleFilters": "Três filtros integrados",
+      "dualLens": "Grupo de lentes duplas apocromáticas",
+      "longExposure": "Exposição longa de 60s",
+      "sensor": "Sensor",
+      "sensorValue": "SONY IMX678",
+      "dailyRecommend": "Recomendação Diária do Star Chart",
+      "autoGoTo": "Busca Automática de Estrelas",
+      "moreShootingModes": "Mais modos de captura para você escolher",
+      "panorama": "Fotografia panorâmica",
+      "autoTracking": "Seguimento Automático"
+    }
+  },
+  "deepSpace": {
+    "title": "Ver o espaço profundo",
+    "subtitle": "Tornar o distante, visível e claro"
+  },
+  "lightweightBody": {
+    "title": "Corpo leve",
+    "subtitle": "Tamanho do dicionário, leve com apenas 1,35 kg",
+    "description1": "DWARF 3 é o seu <light>companheiro de viagem perfeito,</light> pronto para partir a qualquer momento.",
+    "description2": "<light>Com um peso corporal de aproximadamente 1,35 kg,</light> é fácil de levar em viagens, acampamentos ou passeios de fim de semana."
+  },
+  "easyStart": {
+    "title": "Fácil de usar",
+    "subtitle": "Controle inteligente, gravação com um toque no aplicativo.",
+    "nfc": {
+      "title": "Emparelhamento eficiente, conecte com um toque",
+      "description1": "O DWARF 3 <light>suporta conexão rápida NFC, permitindo emparelhamento eficiente com um simples toque,</light> e inicia o processo de captura.",
+      "description2": "Reduza o tempo de conexão, deixe a atenção para a imagem."
+    },
+    "starChart": {
+      "title": "Encontre estrelas no mapa estelar e comece a fotografar com um toque",
+      "description1": "No mapa estelar, selecione o alvo e o DWARF 3 posiciona e rastreia automaticamente.",
+      "description2": "<light>De \"o que filmar\" para \"filmando agora\", é só um passo.</light>"
+    }
+  },
+  "hardware": {
+    "title": "Imagem Excepcional\nOriginária de Capacidade Sólida",
+    "dualLens": {
+      "title": "6 lentes apocromáticas duplas",
+      "subtitle": "Lentes duplas de grande angular e telefoto colaboram, abrangendo tanto o céu estrelado quanto a paisagem.",
+      "telephoto": {
+        "title": "Lente telefoto de 1/1,8 polegadas",
+        "pixels": "8,3 megapixels",
+        "focalLength": "737 mm de distância focal equivalente"
+      },
+      "wideAngle": {
+        "title": "Lente grande angular de 1/2,8 polegadas",
+        "pixels": "2 megapixels",
+        "focalLength": "Distância focal equivalente de 45 mm"
+      }
+    },
+    "sensor": {
+      "title": "Sensor Sony IMX678 Starvis 2",
+      "subtitle": "Alta sensibilidade + baixo ruído, tornam as nebulosas fracas e escuras mais estratificadas.",
+      "specs": {
+        "qe": "83% de eficiência quântica",
+        "qeDesc": "Capturar mais luz fraca",
+        "bitDepth": "Saída de 12 bits",
+        "bitDepthDesc": "Níveis mais refinados, transições mais naturais",
+        "readNoise": "0,6 e- ruído de leitura",
+        "readNoiseDesc": "As sombras mais puras, os detalhes mais estáveis",
+        "fullWell": "11.270 e- Capacidade de Poço Completo",
+        "fullWellDesc": "Destaques mais suaves, menos propensos a estouro"
+      }
+    },
+    "filters": {
+      "title": "Três filtros integrados",
+      "subtitle": "Pode alternar entre três modos: VIS / Astro / Dual-Band, adaptando-se a diversos ambientes de luz. Filtros diferentes, céu noturno diferente.",
+      "specs": {
+        "standard": "Filtro padrão",
+        "standardDesc": "Cobre a faixa de luz visível de 430-650nm, adequado para filmagens diurnas e regulares.",
+        "astro": "Filtro astronômico",
+        "astroDesc": "Estendido para a faixa de infravermelho de 440-690nm, adequado para ambientes de espaço profundo e baixa luminosidade.",
+        "dualBand": "Filtro de banda dupla estreita",
+        "dualBandDesc": "Design de filtro de dupla banda OIII (500.7nm) + Hα (656.3nm) que reduz significativamente os efeitos da poluição luminosa urbana, aumenta o contraste e os detalhes das nebulosas de emissão, resultando em imagens mais limpas."
+      }
+    },
+    "formats": {
+      "title": "Vários formatos, feito para o pós-produção",
+      "subtitle": "Do compartilhamento direto à edição profissional, uma câmera versátil.",
+      "description": "Oferece saída em múltiplos formatos de imagem, como JPG, PNG, FITS e TIFF, proporcionando mais espaço e possibilidades para pós-processamento e seleção de fotos finais."
+    }
+  },
+  "creativeCenter": {
+    "sectionLabel": "Remodelar a jogabilidade",
+    "title": "Centro de Criação",
+    "subtitle": "Capacidade integrada de pós-processamento e empilhamento astronômico, tornando a fotografia astronômica mais simples e eficiente",
+    "astroPost": {
+      "label": "Pós-processamento astronômico",
+      "title": "Otimização com um toque\nO espaço profundo fica mais nítido",
+      "tabs": {
+        "oneClick": "Otimização com um clique",
+        "denoise": "Redução de ruído",
+        "starCorrection": "Calibração de pontos estelares",
+        "starRemoval": "Remoção de estrelas",
+        "watermark": "Adicionar marca d'água"
+      },
+      "description": {
+        "oneClick": "Mesmo sem entender de pós-processamento, você consegue deixar as fotos «bonitas e confiáveis».",
+        "denoise": "Redução de ruído sem perder detalhes, limpo mas sem borrão",
+        "starCorrection": "Corrigir a forma dos pontos estelares, restaurando o céu estrelado natural",
+        "starRemoval": "Separe as estrelas, destaque a estrutura da nebulosa e reserve espaço para criações avançadas.",
+        "watermark": "Marque informações-chave com um clique, compartilhe de forma mais profissional e dê mais pertencimento ao seu trabalho."
+      }
+    },
+    "megaStack": {
+      "label": "Imagens Empilhadas de Múltiplas Noites",
+      "title": "Pilha Multitemporal\nSíntese Fácil",
+      "subtitle": "Suporta empilhamento perfeito de múltiplas capturas, aumentando a nitidez e reduzindo o ruído, para imagens mais limpas e de maior resolução",
+      "before": "Exposição de 60 segundos,\n200 imagens empilhadas, saída original",
+      "after": "500 imagens empilhadas,\nprocessadas pelo Stellar Studio"
+    }
+  },
+  "proPerformance": {
+    "title": "Desempenho profissional,\nmuito além das expectativas.",
+    "wideView": {
+      "sectionTitle": "Ampla Perspectiva\nProfundidade e Amplitude",
+      "title": "Campo de visão de 3°",
+      "description": "Um único campo de visão pode cobrir facilmente a maioria dos objetos do céu profundo em sua totalidade, apresentando detalhes de imagem completos e refinados."
+    },
+    "mosaic": {
+      "title": "Mosaico, área aumentou significativamente",
+      "description": "O mosaico astronômico também pode aprimorar ainda mais o campo de visão, expandindo a área de captura de uma única imagem para 4 vezes o tamanho original através do modo de montagem 2×2. Gire e amplie livremente para compor como desejar. Capture a totalidade da nebulosa de forma mais completa."
+    }
+  },
+  "advancedFeatures": {
+    "title": "Funcionalidades Avançadas",
+    "subtitle": "Recursos exclusivos de vantagem, essenciais para jogadores de alto nível",
+    "exposure": {
+      "title": "Exposição\nlonga até 60 s",
+      "description": "Suporta um tempo de exposição de até 60 s, aumentando significativamente a capacidade de recuperação de detalhes e a qualidade da imagem em ambientes de pouca luz, tornando as camadas dos objetos do espaço profundo mais ricas e os detalhes mais nítidos."
+    },
+    "equatorial": {
+      "title": "Modo de montagem equatorial",
+      "description": "Supera as limitações dos equipamentos tradicionais de teodolito, permitindo um rastreamento celeste mais preciso. Elimina simultaneamente a rotação de campo da imagem, preservando ao máximo a integridade das estrelas."
+    },
+    "curves": {
+      "title": "Com ajuste de cor de curva",
+      "description": "Função de correção de cor de curva integrada, suporta ajuste fino do canal RGB, redistribuição do equilíbrio de cores, restaurando com precisão a representação de cores reais dos corpos celestes."
+    },
+    "scheduled": {
+      "title": "Agendar sessão de fotos",
+      "description": "Defina antecipadamente o plano de captura de imagens, e o DWARF 3 começará automaticamente a fotografar no momento certo.\nNão é necessário ficar acordado a noite toda, nem se preocupar em perder a janela de oportunidade."
+    },
+    "battery": {
+      "title": "Duração da bateria",
+      "description": "Equipado com uma bateria de alto desempenho, não teme o frio intenso nem o calor extremo, garantindo operação contínua e estável durante toda a noite.",
+      "note": "*Em condições de temperatura ambiente, a duração média da bateria para fotografia astronômica pode chegar a 5,5 horas, adaptando-se a temperaturas operacionais de -20°C a 45°C."
+    }
+  },
+  "moreSubjects": {
+    "title": "Mais temas de fotografia",
+    "subtitle": "Além do céu estrelado, também há mundos",
+    "slides": {
+      "0": {
+        "title": "Via Láctea",
+        "description": "DWARF aponta para o céu para localizar a galáxia, captura com um toque,\nseparação e sobreposição automática de paisagem, fotos fáceis de obter."
+      },
+      "1": {
+        "title": "Trilha Estelar",
+        "description": "Modo de trilha estelar, separação e sobreposição automática da paisagem.\nUma única captura, obtém-se fotos e vídeos de trilha estelar."
+      },
+      "2": {
+        "title": "Sol",
+        "description": "Bloqueio solar com um toque, rastreamento estável,\nmanchas solares claramente visíveis."
+      },
+      "3": {
+        "title": "Lua",
+        "description": "Acompanhe a lua com estabilidade,\nregistre cada mudança de fase lunar."
+      }
+    }
+  },
+  "appFeatures": {
+    "mainTitle": "Experiência mais suave, fotografar com mais facilidade",
+    "mainDescription": "Suporte multilíngue, captura contínua em segundo plano, proteção IP54 — para maior tranquilidade ao ar livre e filmagens mais ininterruptas.",
+    "multiLanguage": {
+      "title": "Aplicativo Multilíngue",
+      "description": "Atendendo usuários globalmente, agora compatível com 10 idiomas, incluindo chinês, inglês, japonês, espanhol, alemão e outros."
+    },
+    "background": {
+      "title": "Execução automática offline",
+      "description": "Mesmo que o App seja minimizado, colocado em segundo plano ou a conexão seja interrompida, o DWARF 3 continuará funcionando, permitindo que você volte para ver o progresso a qualquer momento."
+    },
+    "ip54": {
+      "title": "Proteção IP54",
+      "description": "Proteção contra poeira e orvalho, para maior tranquilidade em uso ao ar livre, oferecendo proteção extra para observação e captura de imagens."
+    }
+  },
+  "moreFun": {
+    "sectionLabel": "Mais diversão",
+    "title": "Observação de aves & Fotografia panorâmica",
+    "subtitle": "Da observação de aves à panorâmica ultra HD, um único dispositivo torna a observação e o registo mais simples",
+    "birding": {
+      "title": "Trava automática do alvo, filmagem contínua",
+      "description": "Após identificar o alvo, o DWARF 3 trava automaticamente e mantém o rastreamento contínuo.\nMesmo que haja uma decolagem repentina, o sistema de câmera dupla consegue se reposicionar rapidamente e acompanhar com firmeza.",
+      "button": "Saiba mais"
+    },
+    "panorama": {
+      "title": "Panorama de bilhões de pixels",
+      "description": "Algoritmo de emenda inteligente, imagem natural sem cortes.\nCampo de visão amplo + detalhes abundantes, amplie o quanto quiser com nitidez.",
+      "button": "Saiba mais"
+    }
+  },
+  "packageSection": {
+    "title": "Conteúdo da embalagem",
+    "mainBody": {
+      "title": "DWARF 3 Telescópio Inteligente"
+    },
+    "bag": {
+      "title": "Bolsa de armazenamento"
+    },
+    "filters": {
+      "title": "Filtro solar magnético integrado"
+    },
+    "filtersPouch": {
+      "title": "Bolsa de proteção para filtros"
+    },
+    "cable": {
+      "title": "Cabo de dados Type-C"
+    },
+    "wipeCloth": {
+      "title": "Pano para limpeza de lentes"
+    }
+  }
+}

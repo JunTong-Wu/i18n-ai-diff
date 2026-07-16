@@ -1,0 +1,32 @@
+{
+  "title": "User Photo Wall",
+  "description1": "Welcome to DWARFLAB's user photo wall! This is where we shine.",
+  "description2": "Here, you can browse the amazing photos and videos captured by everyone using the DWARFLAB telescope.",
+  "description3": "Get inspired by these images, share your work for a chance to be featured, and let your creativity illuminate the entire universe!",
+  "submitYourWork": "Submit Work",
+  "searchImages": "Search Images",
+  "loadMore": "Load more",
+  "noImagesFound": "No images found",
+  "tabs": {
+    "nebulaGalaxy": {
+      "name": "Deep Sky Objects"
+    },
+    "sunMoon": {
+      "name": "Sun / Moon"
+    },
+    "milkyWay": {
+      "name": "Milky Way / Star Trails"
+    },
+    "bird": {
+      "name": "Bird"
+    },
+    "panorama": {
+      "name": "Panoramic Mosaic"
+    },
+    "others": {
+      "name": "Other"
+    }
+  },
+  "productLinkLabel": "Shot on {product}",
+  "buyNow": "Buy Now"
+}

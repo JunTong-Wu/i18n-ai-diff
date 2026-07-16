@@ -1,0 +1,193 @@
+{
+  "title": "首页页面中的标题",
+  "description": "首页页面中的内容",
+  "banner": {
+    "slides": {
+      "0": {
+        "subtitle": "小身材，大能量。",
+        "buttons": {
+          "learnMore": "了解更多",
+          "preOrder": "立即购买"
+        },
+        "images": {
+          "alt": "DWARF mini 智能望远镜"
+        }
+      },
+      "1": {
+        "subtitle": "体积小巧，魔力强大。",
+        "buttons": {
+          "learnMore": "了解更多",
+          "buyNow": "立即购买"
+        },
+        "images": {
+          "alt": "DWARF 3 智能望远镜"
+        }
+      }
+    }
+  },
+  "sellingPoint": {
+    "title": "轻装上阵，看得更远。",
+    "tabs": {
+      "0": {
+        "name": "DWARF mini",
+        "slides": {
+          "0": {
+            "title": "840g 超便携"
+          },
+          "1": {
+            "title": "90秒快门"
+          },
+          "2": {
+            "title": "4小时续航"
+          },
+          "3": {
+            "title": "360°自由旋转"
+          },
+          "4": {
+            "title": "小身材，大能量"
+          }
+        }
+      },
+      "1": {
+        "name": "DWARF 3",
+        "slides": {
+          "0": {
+            "line1": "随时准备",
+            "line2": "深空摄影"
+          },
+          "1": {
+            "line1": "全景拍摄",
+            "line2": "细节清晰"
+          },
+          "2": {
+            "line1": "自动跟踪",
+            "line2": "捕捉精彩"
+          },
+          "3": {
+            "line1": "城市观星",
+            "line2": "触手可及"
+          },
+          "4": {
+            "line1": "银河星轨",
+            "line2": "探索更深"
+          },
+          "5": {
+            "line1": "延时摄影",
+            "line2": "从黄昏到黎明"
+          }
+        }
+      }
+    }
+  },
+  "productCard": {
+    "cards": {
+      "0": {
+        "tag": "新品",
+        "description": "小巧强大，能力非凡。",
+        "buttons": {
+          "learnMore": "了解更多",
+          "preOrder": "立即购买"
+        }
+      },
+      "1": {
+        "description": "看得更远",
+        "buttons": {
+          "learnMore": "了解更多",
+          "buyNow": "立即购买"
+        }
+      },
+      "2": {
+        "description": "长曝光伴侣",
+        "buttons": {
+          "learnMore": "了解更多",
+          "buyNow": "立即购买"
+        }
+      }
+    }
+  },
+  "reviews": {
+    "title": "评测",
+    "slides": {
+      "0": {
+        "title": "DWARF mini 智能望远镜评测：真实效果"
+      },
+      "1": {
+        "title": "Dwarf mini 智能望远镜评测 + 教程"
+      },
+      "2": {
+        "title": "DWARF mini 实测评测 | 真实影像 & 天文摄影效果"
+      },
+      "3": {
+        "title": "使用 Dwarf 3 智能望远镜探索深空摄影"
+      },
+      "4": {
+        "title": "用 Dwarf 3 智能望远镜探索深空"
+      },
+      "5": {
+        "title": "DWARF 3 的天文和双波段滤镜用于深空摄影"
+      },
+      "6": {
+        "title": "DWARF 3 完整评测：这款小望远镜有什么不能做的吗？"
+      }
+    }
+  },
+  "gallery": {
+    "title": "图库",
+    "exploreMore": "探索更多"
+  },
+  "trustSupport": {
+    "cards": {
+      "0": {
+        "title": "应用下载"
+      },
+      "1": {
+        "title": "产品指南"
+      },
+      "2": {
+        "title": "联系支持"
+      }
+    }
+  },
+  "chooseGuide": {
+    "products": {
+      "eyebrow": "选购指南",
+      "title": "产品对比和推荐",
+      "primaryAction": "帮我选择",
+      "secondaryAction": "产品对比",
+      "imageAlt": "DWARFLAB 智能望远镜产品对比"
+    },
+    "accessories": {
+      "eyebrow": "精选配件",
+      "title": "官方正版产品，让创作更出彩。",
+      "primaryAction": "立即购买",
+      "imageAlt": "DWARFLAB 望远镜配件"
+    },
+    "modal": {
+      "title": "哪款 DWARF 更适合你？",
+      "cards": {
+        "mini": {
+          "title": "DWARF mini",
+          "subtitle": "为夜空而生",
+          "points": {
+            "0": "超便携，轻松完成设置",
+            "1": "适合旅行与全家观星",
+            "2": "轻松拍摄天文影像"
+          }
+        },
+        "dwarf3": {
+          "title": "DWARF 3",
+          "subtitle": "天文与自然，一机兼顾",
+          "points": {
+            "0": "一台设备，探索星空与自然",
+            "1": "自动追踪鸟类及其他移动目标",
+            "2": "昼夜皆可拍摄精彩全景"
+          }
+        }
+      },
+      "actions": {
+        "viewMini": "查看 DWARF mini",
+        "viewDwarf3": "查看 DWARF 3"
+      }
+    }
+  }
+}

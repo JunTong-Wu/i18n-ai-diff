@@ -1,0 +1,38 @@
+{
+  "bestSellingAccessories": "Accessoires les plus vendus",
+  "quantity": "Quantité",
+  "myChoice": "Mon choix",
+  "addToCart": "Ajouter au panier",
+  "buyItNow": "Acheter maintenant",
+  "shipping": "Livraison",
+  "shippingPolicyHere": "Politique de livraison ici",
+  "paymentMethod": "Modes de paiement",
+  "twoYearWarranty": "Garantie de deux ans",
+  "guaranteedDelivery": "Livraison garantie",
+  "lifetimeSupport": "Support à vie",
+  "alert": {
+    "success": "Succès",
+    "productHasBeenAddedToYourCart": "L'article a été ajouté au panier",
+    "viewCartAndCheckout": "Voir le panier et passer à la caisse",
+    "continueShopping": "Continuer les achats",
+    "error": "Échec",
+    "failedToAddToCart": "Échec de l'ajout au panier, veuillez réessayer plus tard",
+    "okGotIt": "D'accord, compris"
+  },
+  "promotions": {
+    "firstNightKit": {
+      "product": {
+        "title": "Offre du kit première nuit",
+        "endsIn": "Se termine dans",
+        "days": "jours",
+        "description": "Recevez {giftItems} gratuitement lorsque votre commande comprend {buyItems}.",
+        "validity": "Période de promotion : du {startsAt} au {endsAt} {timezoneLabel}. Dans la limite des stocks disponibles.",
+        "accessoryHintLead": "Ajoutez {accessoryName} et",
+        "accessoryHintHighlight": "recevez {giftItems} gratuitement.",
+        "accessoryHintSubtext": "Une configuration stable pour votre première prise du ciel nocturne.",
+        "giftUnlockedTitle": "Cadeau gratuit débloqué",
+        "giftUnlockedDescription": "{giftItems} sera ajouté gratuitement au paiement."
+      }
+    }
+  }
+}

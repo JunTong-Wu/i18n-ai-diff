@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Domande frequenti"
+  },
+  "title": "Domande frequenti",
+  "searchPlaceholder": "Cerca domande",
+  "faqGroups": {
+    "ordersAndShipping": "Ordini & Spedizioni",
+    "returnsWarrantyAndCustoms": "Resi, garanzie e sdoganamento",
+    "gettingStarted": "Inizia a utilizzare",
+    "appAndConnection": "App & Connessione",
+    "shootingAndFeatures": "Acquisizione & Funzioni",
+    "accessoriesAndFileTransfer": "Accessori & Trasferimento File"
+  },
+  "contact": {
+    "title": "Altre domande? Lasciaci un messaggio!",
+    "nameLabel": "Il tuo nome",
+    "namePlaceholder": "Inserisci il tuo nome",
+    "emailLabel": "La tua email",
+    "emailPlaceholder": "Inserisci il tuo indirizzo email",
+    "subjectLabel": "Seleziona sujeto",
+    "subjectPlaceholder": "Consulenza pre-vendita",
+    "messageLabel": "Lascia un messaggio",
+    "messagePlaceholder": "Inserisci il tuo messaggio",
+    "submit": "Invia"
+  },
+  "emptyMessage": "Nessuna FAQ corrispondente trovata"
+}

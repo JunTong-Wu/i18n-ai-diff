@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "Protezione a 360°",
+      "description": "Rivestimento esterno in PVC ecopelle resistente all'acqua e agli strappi, strato interno ammortizzante per una protezione avvolgente a 360°."
+    },
+    "portable": {
+      "title": "Massima portabilità",
+      "description": "Profilo minimalista 21×9×12 cm, tracolla regolabile da 1,6 m."
+    },
+    "storage": {
+      "title": "Kit di stoccaggio",
+      "description": "Supporto stabile con cinghia inferiore, vano dedicato per filtri laterali, custodia ordinata per host e accessori, niente più ricerche all'aperto."
+    },
+    "customFit": {
+      "title": "Personalizzazione esclusiva",
+      "description": "Progettato appositamente per DWARF mini, con fodera interna in cotone mercerizzato, aderente perfettamente per prevenire vibrazioni e spostamenti durante il trasporto."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "Nome del prodotto",
+      "value": "Borsa protettiva portatile dedicata per DWARF mini"
+    },
+    "outerMaterial": {
+      "label": "Materiale esterno",
+      "value": "PVC similpelle"
+    },
+    "innerMaterial": {
+      "label": "Materiale interno",
+      "value": "Cotone mercerizzato"
+    },
+    "size": {
+      "label": "Dimensioni del profilo",
+      "value": "Lunghezza 21 cm × Larghezza 9 cm × Altezza 12 cm"
+    },
+    "strap": {
+      "label": "Specifiche della tracolla",
+      "value": "Lunghezza regolabile 1,6 m con ganci in metallo"
+    },
+    "title": "Specifiche del prodotto"
+  },
+  "hero": {
+    "title": "Borsa per DWARF mini",
+    "subtitle": "Protezione a 360°｜Massima portabilità｜Tutto in un unico zaino｜Su misura"
+  }
+}

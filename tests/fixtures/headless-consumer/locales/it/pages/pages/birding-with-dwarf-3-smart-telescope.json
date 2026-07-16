@@ -1,0 +1,133 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Blocca l'uccello in volo, segui con stabilità",
+    "buttons": {
+      "buyNow": "Acquista ora",
+      "watchVideo": "Guarda il video"
+    }
+  },
+  "portable": {
+    "label": "Dimensioni del dizionario, peso leggero fino a 1,35 kg",
+    "title": "Viaggia leggero, pronto a scattare in qualsiasi momento",
+    "description": "DWARF 3 è il tuo compagno di viaggio ideale, pronto a partire con te in qualsiasi momento.\nCon un peso corporeo di circa 1,35 kg, è facile da portare in viaggio, in campeggio o per un weekend fuori."
+  },
+  "dualCamera": {
+    "label": "Birdwatching intelligente",
+    "title": "Teleobiettivo + grandangolare, sistema a doppia fotocamera",
+    "description": "Posizionamento rapido · Tracciamento continuo · Cattura momenti mozzafiato degli uccelli in volo",
+    "subLabel": "Trova rapidamente l'obiettivo",
+    "subTitle": "Scatto con doppia fotocamera",
+    "subDescription": "Il sistema a doppia fotocamera è progettato con obiettivi che lavorano in sinergia: l'obiettivo grandangolare offre un campo visivo più ampio, facilitando l'individuazione rapida del bersaglio.\nUna volta selezionato il bersaglio, l'obiettivo tele si concentra con precisione sull'uccello, catturando ogni momento cruciale con nitidezza.",
+    "telephoto": {
+      "title": "Teleobiettivo"
+    },
+    "wideAngle": {
+      "title": "Grandangolo"
+    }
+  },
+  "afc": {
+    "label": "In movimento, rimane nitido",
+    "title": "AF-C autofocus continuo",
+    "description": "In modalità autofocus continuo AF-C, DWARF 3 può identificare e seguire continuamente il soggetto in movimento nell'inquadratura, regolando automaticamente la messa a fuoco quando il target si sposta, cambia direzione o varia la distanza. Che si tratti di uccelli in volo o di momenti di decollo improvviso e passaggi rapidi, l'immagine rimane sempre nitida e a fuoco."
+  },
+  "freeSelect": {
+    "label": "Seleziona il bersaglio, traccia con precisione",
+    "title": "Supporta la selezione libera",
+    "description": "In modalità di ripresa Free, tocca per tracciare e seleziona con un riquadro il soggetto. Il dispositivo continuerà a seguire il bersaglio, mantenendolo sempre al centro dell'inquadratura."
+  },
+  "autoTracking": {
+    "label": "Seleziona l'obiettivo, traccia con precisione",
+    "title": "Modalità di inseguimento automatico",
+    "description": "Dopo aver attivato la modalità di inseguimento automatico, quando un uccello entra nell'inquadratura, il dispositivo lo riconosce automaticamente e inizia a seguirlo con la ripresa. Non è necessario attendere né stare a guardare; anche se ti allontani temporaneamente, il dispositivo inizierà automaticamente a registrare quando il bersaglio appare. Questa modalità è adatta anche per altri bersagli dinamici e, oltre al birdwatching, può soddisfare varie esigenze di registrazione automatica in scenari naturali o di vita quotidiana."
+  },
+  "hdQuality": {
+    "label": "Le piume sono vivide",
+    "title": "Alta definizione",
+    "description": "DWARF 3 vi porta un aggiornamento completo di ottica, sensore e processore, garantendo immagini nitide, vivide e vivaci.",
+    "cards": {
+      "sensor": {
+        "label": "Sony IMX678 · Sensore STARVIS 2",
+        "title": "Livelli di immagine più dettagliati",
+        "description": "Dotato dell'eccellente sensore STARVIS 2, il DWARF 3 vede aumentate le dimensioni del singolo pixel di circa il 90%, raggiungendo i 2μm, supportando tempi di esposizione più lunghi e riducendo efficacemente il disturbo da rumore. Anche in condizioni di luce complesse, l'immagine rimane pura e dettagliata."
+      },
+      "filter": {
+        "label": "Filtro VIS integrato per luce visibile",
+        "title": "Ripristinare i colori reali",
+        "description": "Il filtro VIS copre la banda di luce visibile da 430 a 650 nm, bloccando efficacemente le interferenze della luce infrarossa, garantendo colori dell'immagine autentici, naturali e saturi, rendendo DWARF 3 la scelta ideale per le riprese quotidiane e la registrazione del birdwatching."
+      },
+      "aperture": {
+        "label": "35mm teleobiettivo",
+        "title": "737 mm lunghezza focale equivalente",
+        "description": "Il teleobiettivo e l'apertura di 35mm lavorano in sinergia, consentendo a DWARF 3 di catturare soggetti a distanza con nitidezza, creando uno sfocato naturale e morbido che esalta le piume, aggiungendo profondità e tridimensionalità all'immagine."
+      },
+      "lens": {
+        "label": "Combinazione obiettivi innovativa",
+        "title": "Prestazioni ottiche eccezionali",
+        "description": "L'obiettivo DWARF 3 è composto da più lenti ED (a bassissima dispersione), che riducono l'aberrazione cromatica e migliorano la nitidezza dell'immagine. Ogni dettaglio degli uccelli viene mostrato chiaramente, come se fosse a portata di mano."
+      }
+    }
+  },
+  "video": {
+    "label": "Supporta fino a 60 fotogrammi al secondo",
+    "title": "Video dinamico fluido",
+    "description": "Oltre alla fotografia di birdwatching, grazie al supporto della capacità di tracciamento automatico, è altrettanto adatto per la registrazione video ad alta definizione in molteplici scenari dinamici, supportando una risoluzione massima di 4K e una fluidità di 60 fotogrammi al secondo. I momenti di azione, i paesaggi naturali o i frammenti emozionanti della vita quotidiana possono essere catturati con facilità."
+  },
+  "appFeatures": {
+    "mainTitle": "Esperienza più fluida, scattare foto più facile",
+    "mainDescription": "Connessione NFC rapida, supporto multilingue, ripresa continua in background, protezione IP54: per un'esperienza all'aperto più fluida e riprese senza interruzioni.",
+    "nfc": {
+      "label": "Tocco e connetti, scatta immediatamente",
+      "title": "Connessione NFC con un tocco",
+      "description": "Avvicina il telefono all'area dell'anello luminoso per connetterti rapidamente a DWARF 3 e iniziare subito a scattare."
+    },
+    "multiLanguage": {
+      "title": "App multilingue",
+      "description": "Copre utenti in tutto il mondo, supportando attualmente 10 lingue tra cui cinese, inglese, giapponese, spagnolo, tedesco e altre."
+    },
+    "background": {
+      "title": "Esecuzione automatica offline",
+      "description": "Anche se l'app viene messa in background, minimizzata o la connessione viene interrotta, DWARF 3 continua a funzionare, permettendo di tornare in qualsiasi momento per controllare i progressi."
+    },
+    "ip54": {
+      "title": "Protezione IP54",
+      "description": "Antipolvere e antirugiada, per un utilizzo all'aperto più sicuro, offrendo protezione aggiuntiva per l'osservazione e la ripresa."
+    }
+  },
+  "moreFun": {
+    "label": "Più divertimento",
+    "title": "Astronomia & Fotografia panoramica",
+    "description": "Dalla fotografia astronomica, ai panorami ultra-definiti, fino al birdwatching e al tracking, un solo dispositivo rende l'osservazione e la registrazione più semplici.",
+    "astronomy": {
+      "title": "Astronomia",
+      "description": "Fotografa automaticamente con un solo clic, rendendo l'esplorazione dell'universo più semplice che mai.\nIn pochi minuti puoi catturare immagini di galassie, nebulose, ammassi stellari e altro.",
+      "button": "Scopri di più"
+    },
+    "panorama": {
+      "title": "Panorama da mille miliardi di pixel",
+      "description": "L'algoritmo di intelligenza artificiale esegue una giunzione intelligente, garantendo immagini naturali senza difetti.\nCampo visivo ampio + dettagli abbondanti, nitidezza impeccabile ad ogni ingrandimento.",
+      "button": "Scopri di più"
+    }
+  },
+  "packageSection": {
+    "title": "Lista di imballaggio",
+    "mainBody": {
+      "title": "DWARF 3 Telescopio Intelligente"
+    },
+    "bag": {
+      "title": "Borsa portatile per il trasporto"
+    },
+    "filters": {
+      "title": "Filtro solare magnetico"
+    },
+    "filtersPouch": {
+      "title": "Borsa per filtri"
+    },
+    "cable": {
+      "title": "Cavo dati USB-C"
+    },
+    "wipeCloth": {
+      "title": "Panno per pulire le lenti"
+    }
+  }
+}

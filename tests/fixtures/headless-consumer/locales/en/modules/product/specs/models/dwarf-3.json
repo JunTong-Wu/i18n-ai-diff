@@ -1,0 +1,17 @@
+{
+  "weight": "1350 g",
+  "aperture": "35 mm (telephoto)\n3.4 mm (wide angle)",
+  "sensor": "SONY IMX678 1/1.8' (Telephoto)\nSONY IMX307 1/2.8' (Wide-angle)",
+  "focalLength": "150 mm (telephoto)\n6.7 mm (wide-angle)",
+  "rotationRange": "Lens: 240°\nBase: 340°",
+  "maxResolution": "3840 × 2160 (Telephoto)\n1920 × 1080 (Wide-angle)",
+  "builtInFilter": "VIS, Duo-Band, Astro (telephoto)\nAstro (wide-angle)",
+  "shootingMode": "Photos, Videos, Astronomy, Burst Shooting, Time-lapse Photography\n(Telephoto & Wide-angle)",
+  "equivalentFocalLength": "737 mm (telephoto)\n45 mm (wide-angle)",
+  "storage": "128 GB",
+  "battery": "Built-in\n10000 mAh\nSupports external USB charging",
+  "npu": "5 TOPS",
+  "maxExposureTime": "60s (telephoto)\n90s (wide-angle)\nBoth in EQ mode",
+  "moreFunctions": "NFC One-Touch Connection\nAstronomy Post-Processing/Scheduled Shooting/Astronomy Mosaic",
+  "size": "222 × 142 × 65 mm"
+}

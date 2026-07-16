@@ -1,0 +1,21 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "downloadCenter": "Download Center"
+  },
+  "app": {
+    "title": "DWARFLAB APP",
+    "description": "Helps you wirelessly control the DWARF smart telescope",
+    "download": "Download",
+    "lastUpdate": "Last updated",
+    "updateContent": "Update Content",
+    "supportedDevices": "Supported Devices",
+    "globalDownloadApkText": "Click to download or scan the QR code to install the DWARFLAB App from Google Play, or download the <link>APK file</link>"
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Helps you wirelessly control the DWARF smart telescope",
+    "lastUpdate": "Last updated",
+    "updateContent": "Update content"
+  }
+}

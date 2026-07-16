@@ -1,0 +1,31 @@
+{
+  "headerText": "Vous avez reçu un nouveau message via le formulaire de contact de la boutique en ligne.",
+  "countryLabel": "Code pays/région",
+  "nameLabel": "Votre nom",
+  "namePlaceholder": "Veuillez saisir votre nom",
+  "emailLabel": "Votre adresse e-mail",
+  "emailPlaceholder": "Veuillez saisir votre adresse e-mail",
+  "subjectLabel": "Choisissez un sujet",
+  "subjectPlaceholder": "Veuillez choisir un sujet",
+  "subjectOptions": {
+    "preSaleInquiry": "Consultation pré-vente",
+    "orderStatus": "Statut de la commande",
+    "appFirmwareIssue": "Problème d'application/firmware",
+    "accessoriesIssue": "Problèmes d'accessoires",
+    "businessCooperation": "Coopération commerciale"
+  },
+  "messageLabel": "Message",
+  "messagePlaceholder": "Veuillez saisir votre message",
+  "submit": "Soumettre",
+  "required": "Ce champ est obligatoire",
+  "emailInvalid": "Veuillez saisir une adresse e-mail valide",
+  "alert": {
+    "checkInformation": "Contrôler les informations",
+    "checkInformationDescription": "Veuillez contrôler à nouveau vos informations pour que nous puissions vous contacter rapidement.",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "submitSuccess": "Soumission réussie",
+    "submitError": "Échec de la soumission",
+    "okGotIt": "Compris"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "headerText": "Hai ricevuto un nuovo messaggio dal modulo di contatto del negozio online.",
+  "countryLabel": "Codice paese/regione",
+  "nameLabel": "Il tuo nome",
+  "namePlaceholder": "Inserisci il tuo nome",
+  "emailLabel": "La tua email",
+  "emailPlaceholder": "Inserisci la tua email",
+  "subjectLabel": "Scegli un argomento",
+  "subjectPlaceholder": "Seleziona un argomento",
+  "subjectOptions": {
+    "preSaleInquiry": "Consulenza pre-vendita",
+    "orderStatus": "Stato dell'ordine",
+    "appFirmwareIssue": "Problema App/firmware",
+    "accessoriesIssue": "Problemi con gli accessori",
+    "businessCooperation": "Collaborazione commerciale"
+  },
+  "messageLabel": "Messaggio",
+  "messagePlaceholder": "Inserisci il tuo messaggio",
+  "submit": "Invia",
+  "required": "Questo campo è obbligatorio",
+  "emailInvalid": "Inserisci un indirizzo email valido",
+  "alert": {
+    "checkInformation": "Controlla le informazioni",
+    "checkInformationDescription": "La preghiamo di controllare nuovamente che le informazioni siano corrette, per assicurarci di poterla contattare tempestivamente.",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "submitSuccess": "Invio riuscito",
+    "submitError": "Invio fallito",
+    "okGotIt": "Capito"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "loading": {
+    "importing": "Preparazione caricamento recensioni utenti...",
+    "loadingScript": "Caricamento del componente recensioni in corso...",
+    "renderingWidget": "Caricamento dei commenti degli utenti...",
+    "retrying": "Connessione instabile, tentativo di riconnessione..."
+  },
+  "failed": {
+    "title": "Impossibile caricare le recensioni degli utenti al momento",
+    "description": "Connessione al servizio di commenti fallita, riprova più tardi.",
+    "retryButton": "Ricarica"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "ホーム",
+    "current": "キャンセル・返品を申し込む"
+  },
+  "title": "キャンセル・返品を申し込む",
+  "description": "注文のキャンセルまたは返品をご希望の場合は、このフォームからお申し込みください。送信後、ご入力のメールアドレス宛に確認メールをお送りします。",
+  "form": {
+    "nameLabel": "氏名",
+    "namePlaceholder": "氏名を入力してください",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "確認メールを受け取るメールアドレスを入力してください",
+    "orderReferenceLabel": "注文番号",
+    "orderReferencePlaceholder": "注文番号を入力してください",
+    "itemsLabel": "商品",
+    "itemsPlaceholder": "対象の商品とご希望内容を記入してください",
+    "messageLabel": "追加メモ",
+    "messagePlaceholder": "申請の処理に役立つ補足情報があれば入力してください",
+    "submit": "申請を送信",
+    "required": "この項目は必須です",
+    "emailInvalid": "有効なメールアドレスを入力してください"
+  },
+  "alert": {
+    "checkInformation": "申請内容の確認",
+    "checkInformationDescription": "申請を送信する前に、入力内容をご確認ください。",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "submitSuccess": "申請を送信しました",
+    "submitSuccessDescription": "申請を受け付け、確認メールを送信しました。",
+    "submitError": "送信に失敗しました",
+    "unknownError": "不明なエラー",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "DWARFLAB キャンセル・返品申請",
+    "customerSubject": "DWARFLAB キャンセル・返品申請を受け付けました",
+    "internalTitle": "DWARFLAB キャンセル・返品申請",
+    "internalIntro": "お客様がDWARFLABのウェブサイトからキャンセルまたは返品の申請を提出されました。",
+    "customerTitle": "申請を受け付けました",
+    "customerGreeting": "{name} 様",
+    "customerIntro": "キャンセルまたは返品の申請を受け付けました。サポートチームが内容を確認し、追加情報が必要な場合はご連絡いたします。",
+    "customerReceiptNote": "このメールは申請受付の確認です。控えとして保管してください。",
+    "supportSignature": "DWARFLAB サポート",
+    "receivedAtLabel": "受付日時",
+    "regionLabel": "地域",
+    "languageLabel": "言語",
+    "emptyValue": "-"
+  }
+}

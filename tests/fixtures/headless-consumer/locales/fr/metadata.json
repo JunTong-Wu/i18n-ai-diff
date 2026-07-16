@@ -1,0 +1,188 @@
+{
+  "products": {
+    "title": "Produits - DWARFLAB",
+    "description": "Parcourez notre série de produits innovants",
+    "dwarf-mini-smart-telescope": {
+      "title": "Télescope intelligent DWARF Mini - DWARFLAB",
+      "description": "Télescope intelligent compact et portable, idéal pour l'observation des oiseaux, des paysages et l'astrophotographie débutante."
+    },
+    "dwarf-mini-smart-telescope-open-box": {
+      "title": "Télescope intelligent DWARF Mini (Open Box) - DWARFLAB",
+      "description": "Télescope intelligent compact et portable, idéal pour l'observation des oiseaux, des paysages et l'astrophotographie débutante."
+    },
+    "dwarf-3-smart-telescope": {
+      "title": "Télescope intelligent DWARF 3 - DWARFLAB",
+      "description": "Télescope astronomique intelligent tout-en-un léger, prenant en charge la photographie solaire, lunaire et du ciel profond."
+    },
+    "dwarf-3-smart-telescope-open-box": {
+      "title": "Télescope intelligent DWARF 3 (produit ouvert) - DWARFLAB",
+      "description": "Télescope astronomique intelligent tout-en-un léger, prenant en charge la photographie solaire, lunaire et du ciel profond."
+    },
+    "dwarf-2-smart-telescope": {
+      "title": "DWARF II - Télescope intelligent DWARFLAB",
+      "description": "Télescope intelligent à double objectif, alliant observation longue focale et enregistrement grand angle."
+    },
+    "dwarf-ii-refurbished": {
+      "title": "DWARF II reconditionné officiel - DWARFLAB",
+      "description": "Découvrez le modèle DWARF II officiellement reconditionné."
+    },
+    "tripod-for-dwarf-3": {
+      "title": "Mini Tripod - DWARFLAB",
+      "description": "Trépied léger et stable conçu spécialement pour la série DWARF."
+    },
+    "mini-tripod-with-hydraulic-head-open-box": {
+      "title": "Mini Tripod (Produit Open Box) - DWARFLAB",
+      "description": "Trépied léger et stable conçu spécialement pour la série DWARF."
+    },
+    "uhc-nd-telescope-filter-for-dwarf-ii": {
+      "title": "Filtres télescope UHC et ND pour DWARF II - DWARFLAB",
+      "description": "Filtres télescopiques UHC et ND pour DWARF II."
+    },
+    "filter-adapter-for-dwarf-ii": {
+      "title": "Bague d'adaptation de filtre pour DWARF II - DWARFLAB",
+      "description": "Bague d'adaptation de filtre pour DWARF II."
+    },
+    "rechargeable-lithium-battery-for-dwarf-ii": {
+      "title": "Batterie lithium rechargeable pour DWARF II - DWARFLAB",
+      "description": "Batterie lithium-ion rechargeable pour DWARF II."
+    },
+    "dwarf-mini-smart-telescope-bag": {
+      "title": "Sac DWARF mini - DWARFLAB",
+      "description": "Un sac de transport compact pour DWARF Mini, avec doublure de protection et poches pour accessoires."
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Accueil - DWARFLAB",
+      "description": "Site officiel de DWARFLAB, découvrez nos produits et services innovants"
+    },
+    "cart": {
+      "title": "Panier - DWARFLAB",
+      "description": "Votre panier"
+    },
+    "pages": {
+      "dwarf-mini-smart-telescope": {
+        "title": "Télescope intelligent DWARF mini - DWARFLAB",
+        "description": "Découvrez le DWARF mini. DWARFLAB fabrique des télescopes intelligents qui rendent l'astrophotographie accessible à tous."
+      },
+      "astronomy-with-dwarf-3-smart-telescope": {
+        "title": "Astronomie avec le télescope intelligent DWARF 3 - DWARFLAB",
+        "description": "Découvrez le DWARF 3. DWARFLAB fabrique des télescopes intelligents qui rendent l'astrophotographie accessible à tous."
+      },
+      "birding-with-dwarf-3-smart-telescope": {
+        "title": "Observation d'oiseaux avec le télescope intelligent DWARF 3 - DWARFLAB",
+        "description": "Découvrez le DWARF 3. DWARFLAB fabrique des télescopes intelligents qui rendent l'observation des étoiles accessible à tous."
+      },
+      "panorama-with-dwarf-3-smart-telescope": {
+        "title": "Panorama avec le télescope intelligent DWARF 3 - DWARFLAB",
+        "description": "Découvrez le DWARF 3. DWARFLAB fabrique des télescopes intelligents qui rendent l'astrophotographie accessible à tous."
+      },
+      "gallery": {
+        "title": "Mur des photos des utilisateurs - DWARFLAB",
+        "description": "Parcourez notre mur de photos, c'est ici que nous brillons de mille feux."
+      },
+      "youtube-collection": {
+        "title": "Favoris YouTube - DWARFLAB",
+        "description": "Parcourez notre collection YouTube"
+      },
+      "share-your-dwarf-ii-story": {
+        "title": "Partagez votre histoire avec le DWARF II - DWARFLAB",
+        "description": "Partagez votre histoire sur DWARF II"
+      },
+      "dwarflab-app-firmware-download": {
+        "title": "Téléchargement du micrologiciel de l'application DWARFLAB - DWARFLAB",
+        "description": "Télécharger le firmware de l'application DWARFLAB"
+      },
+      "faqs": {
+        "title": "Foire aux questions - DWARFLAB",
+        "description": "Questions fréquentes"
+      },
+      "contact": {
+        "title": "Contactez-nous - DWARFLAB",
+        "description": "Contacter l'équipe DWARFLAB"
+      },
+      "about-us": {
+        "title": "Notre histoire - DWARFLAB",
+        "description": "Découvrez l'équipe DWARFLAB"
+      },
+      "reseller": {
+        "title": "Revendeur - DWARFLAB",
+        "description": "Devenir distributeur DWARFLAB"
+      },
+      "affiliate-program": {
+        "title": "Affiliate - DWARFLAB",
+        "description": "Rejoignez le programme de partenariat DWARFLAB"
+      },
+      "shipping-policy": {
+        "title": "Politique logistique - DWARFLAB",
+        "description": "Comprendre la politique logistique de DWARFLAB"
+      },
+      "warranty-and-return": {
+        "title": "Garantie et Retours - DWARFLAB",
+        "description": "Comprendre la politique de garantie et de retour de DWARFLAB"
+      },
+      "payment-methods": {
+        "title": "Modes de paiement - DWARFLAB",
+        "description": "Découvrez les modes de paiement de DWARFLAB"
+      },
+      "find-authorized-reseller": {
+        "title": "Trouver un revendeur agréé - DWARFLAB",
+        "description": "Trouver un revendeur agréé pour les produits DWARFLAB"
+      },
+      "customer-reviews-on-dwarf-telescope": {
+        "title": "Avis clients - DWARFLAB",
+        "description": "Consultez les avis clients DWARFLAB."
+      },
+      "share-your-dwarflab-story": {
+        "title": "Histoire utilisateur - DWARFLAB",
+        "description": "Partagez votre histoire d'utilisateur DWARFLAB."
+      }
+    },
+    "policies": {
+      "privacy-policy": {
+        "title": "Politique de confidentialité - DWARFLAB",
+        "description": "Consultez la politique de confidentialité de DWARFLAB"
+      },
+      "terms-of-service": {
+        "title": "Conditions d'utilisation - DWARFLAB",
+        "description": "Comprendre les conditions d'utilisation de DWARFLAB"
+      }
+    },
+    "tools": {
+      "track-order": {
+        "title": "Suivi de commande - DWARFLAB",
+        "description": "Suivez votre commande"
+      },
+      "withdrawal": {
+        "title": "Envoyer une demande de rétractation - DWARFLAB",
+        "description": "Envoyer une demande de rétractation"
+      }
+    }
+  },
+  "blogs": {
+    "story": {
+      "title": "Histoire - DWARFLAB",
+      "description": "Parcourez notre histoire"
+    },
+    "news": {
+      "title": "Actualités - DWARFLAB",
+      "description": "Parcourez les actualités DWARFLAB."
+    }
+  },
+  "collections": {
+    "title": "Catégorie - DWARFLAB",
+    "description": "Parcourir les catégories de produits DWARFLAB",
+    "all": {
+      "title": "Tous les produits - DWARFLAB",
+      "description": "Parcourir tous les produits DWARFLAB"
+    },
+    "accessories": {
+      "title": "Accessoires - DWARFLAB",
+      "description": "Parcourir les accessoires DWARFLAB"
+    },
+    "smart-telescope": {
+      "title": "Télescope intelligent - DWARFLAB",
+      "description": "Découvrez les produits de télescope intelligent DWARFLAB"
+    }
+  }
+}

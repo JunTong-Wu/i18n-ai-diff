@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "Startseite",
+    "current": "Partner werden"
+  },
+  "title": "Partner werden",
+  "banner": {
+    "title": "Empfehlen Sie DWARFLAB-Produkte und verdienen Sie Provision",
+    "steps": {
+      "join": {
+        "title": "beitreten",
+        "description": "Registrieren Sie ein kostenloses ShareASale- oder Affiliatly-Konto als Affiliate-Partner, oder wenn Sie bereits ein Konto haben, fügen Sie DWARFLAB ID hinzu."
+      },
+      "share": {
+        "title": "Teilen",
+        "description": "Nutzen Sie exklusive Creator-Links, um DWARFLAB-Produkte online mit Ihrem Publikum zu teilen und zu bewerben."
+      },
+      "earn": {
+        "title": "Verdienen",
+        "description": "Verdienen Sie 5% Provision auf qualifizierte Bestellungen. Unsere Markenbekanntheit und Produktqualität helfen Ihnen, Ihre Einnahmen zu maximieren."
+      }
+    }
+  },
+  "join": {
+    "title": "Jetzt beitreten und 5% Provision erhalten",
+    "description": "Wählen Sie eine der folgenden Plattformen aus, um mit dem Verdienen zu beginnen.",
+    "platforms": {
+      "affiliatly": {
+        "button": "Affiliatly beitreten"
+      },
+      "awin": {
+        "button": "Awin beitreten"
+      }
+    },
+    "or": "oder"
+  }
+}

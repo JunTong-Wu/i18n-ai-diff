@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "Página inicial",
+    "current": "Rastreamento de pedidos"
+  },
+  "title": "Rastreamento de Pedidos",
+  "form": {
+    "title": "Rastreie seu pedido",
+    "description": "Sobre o formato do número do pedido, basta preencher os 4 ou 5 caracteres do número do pedido, xxxx ou xxxxx.",
+    "order_number": "Número do pedido",
+    "email_or_phone_number": "E-mail ou número de telefone",
+    "tracking_number": "Número de rastreamento",
+    "track": "Rastrear",
+    "or": "ou",
+    "enterPlaceholder": "Por favor, insira",
+    "required": "Este campo é obrigatório"
+  },
+  "loading": {
+    "importing": "A carregar conteúdo para si…",
+    "initializing": "A preparar…",
+    "loadingConfig": "Obtendo informações necessárias...",
+    "loadingTracking": "A carregar a página…",
+    "patching": "Ajustando o efeito de exibição…",
+    "retrying": "A conexão está um pouco instável, tentando novamente..."
+  },
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "q1": "Por que não consigo encontrar o número de rastreamento após inserir o número do pedido e o e-mail?",
+    "a1": "O seu pedido ainda não foi enviado. Pode estar a caminho do fornecedor de logística ou em processo de desalfandegamento. O número de rastreamento ainda não foi gerado, aguarde um momento para obtê-lo.",
+    "q2": "Por que meu número de rastreamento não apresenta nenhum status?",
+    "a2": "Após o seu pedido ser enviado do nosso armazém, um número de rastreamento será gerado, portanto, levará aproximadamente um a dois dias para que o número de rastreamento seja atualizado para o status online."
+  }
+}

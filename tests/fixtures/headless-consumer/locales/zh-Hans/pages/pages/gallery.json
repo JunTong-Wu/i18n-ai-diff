@@ -1,0 +1,32 @@
+{
+  "title": "用户照片墙",
+  "description1": "欢迎来到 DWARFLAB 的用户照片墙！这里是我们大放异彩的地方。",
+  "description2": "在这里，你可以浏览大家用 DWARFLAB 望远镜拍摄的精彩照片和视频。",
+  "description3": "从这些影像中获取灵感，分享你的作品以获得展示机会，让你的创造力照亮整个宇宙！",
+  "submitYourWork": "提交作品",
+  "searchImages": "搜索图片",
+  "loadMore": "加载更多",
+  "noImagesFound": "没有找到图片",
+  "tabs": {
+    "nebulaGalaxy": {
+      "name": "深空目标"
+    },
+    "sunMoon": {
+      "name": "太阳 / 月亮"
+    },
+    "milkyWay": {
+      "name": "银河 / 星轨"
+    },
+    "bird": {
+      "name": "鸟"
+    },
+    "panorama": {
+      "name": "全景拼图"
+    },
+    "others": {
+      "name": "其他"
+    }
+  },
+  "productLinkLabel": "使用 {product} 拍摄",
+  "buyNow": "立即购买"
+}

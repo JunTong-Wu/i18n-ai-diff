@@ -1,0 +1,13 @@
+{
+  "loading": {
+    "importing": "Benutzerbewertungen werden geladen...",
+    "loadingScript": "Lade Bewertungskomponente...",
+    "renderingWidget": "Benutzerbewertungen werden gerendert...",
+    "retrying": "Verbindung instabil, versuche erneut..."
+  },
+  "failed": {
+    "title": "Benutzerbewertungen können vorübergehend nicht geladen werden",
+    "description": "Verbindung zum Bewertungsdienst fehlgeschlagen, bitte später erneut versuchen.",
+    "retryButton": "Neu laden"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "Mini treppiede con testa idraulica",
+    "presubtitle": "Leggero da portare, supporto stabile",
+    "buyNow": "Acquista ora",
+    "title": "Treppiede con testa idraulica",
+    "subtitle": "Testa idraulica con smorzamento | Supporto stabile | Leggera e portatile | Angoli più liberi"
+  },
+  "bestCompanion": {
+    "subtitle": "Dal balcone alla vasta distesa, un drone in posizione, pronto a filmare in qualsiasi momento",
+    "title": "Il miglior partner di scatto per DWARF",
+    "description": "Offre un support stabile e una regolazione fluida dell'inclinazione/orizzontale, rendendo più sicure le riprese prolungate, i time-lapse e l'osservazione."
+  },
+  "equatorialMode": {
+    "subtitle": "Due modalità, cambia a tuo piacimento",
+    "title": "Supporta la modalità equatoriale",
+    "description": "Può passare liberamente tra la modalità equatoriale e la modalità altazimutale. La modalità equatoriale è utilizzata per un tracciamento più stabile e a lungo termine, rendendo le riprese più rilassate; la modalità altazimutale è invece adatta per il puntamento rapido e la navigazione quotidiana, basta sollevare per guardare e regolare in qualsiasi momento.",
+    "tab1": "Modalità equatoriale",
+    "tab2": "Modalità Alt-Az"
+  },
+  "portable": {
+    "subtitle": "Tubolare a cinque sezioni, compatto",
+    "title": "Portabilità estrema",
+    "description": "Realizzato in lega di alluminio, si ripiega fino a 25 cm di lunghezza. Leggero, pesa solo 790 grammi, facile da trasportare. Osservazione stellare urbana, viaggi in campeggio, inseguimento del sole e della luna: niente più 'è una seccatura'."
+  },
+  "stable": {
+    "subtitle": "Supporto stabile, immagini più nitide",
+    "title": "Riprese super stabili",
+    "description": "Gambe robuste e supporto stabile. Supporta la rotazione a 360° e l'inclinazione da -80° a +90°, consentendo un cambio di prospettiva agevole; sostiene saldamente il DWARF, riducendo l'impatto delle vibrazioni minori sull'immagine."
+  },
+  "hydraulicHead": {
+    "subtitle": "Rotazione fluida, si posiziona con una sola spinta",
+    "title": "Testa idraulica, fluida e controllabile",
+    "description": "Sistema di smorzamento idraulico integrato, ogni regolazione è precisa e fluida. Nessuna brusca interruzione, nessuna pausa imbarazzante: controllo sicuro, composizione precisa."
+  },
+  "flexibility": {
+    "subtitle": "Composizione senza limiti",
+    "title": "Angoli più liberi",
+    "description": "La maniglia regola l'altezza, il treppiede supporta gambe pieghevoli multi-angolo, alto o basso a tua scelta, la prospettiva non è più limitata.\nDallo scatto stellare verso l'alto alla ripresa paesaggistica a basso angolo, fino alla composizione laterale, puoi sempre trovare l'angolazione ideale."
+  },
+  "tripodSpecs": {
+    "title": "Treppiede",
+    "subtitle": "Introduzione alle parti",
+    "specs": {
+      "weight": "Peso totale",
+      "weightValue": "775 grammi",
+      "connector": "Connettore",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "Capacità massima di carico",
+      "maxLoadValue": "3,0 kg",
+      "maxHeight": "Altezza massima",
+      "maxHeightValue": "530 millimetri",
+      "foldedHeight": "Altezza di ripiegamento",
+      "foldedHeightValue": "180 mm",
+      "tubeDiameter": "Diametro del tubo",
+      "tubeDiameterValue": "9,7/12,6/15,5/18,2/21 millimetri",
+      "sections": "Numero di segmenti",
+      "sectionsValue": "5",
+      "material": "Materiali",
+      "materialValue": "Leghe di alluminio",
+      "color": "Colore",
+      "colorValue": "Nero"
+    }
+  },
+  "headSpecs": {
+    "title": "Testa idraulica",
+    "subtitle": "Introduzione alle parti",
+    "specs": {
+      "weight": "Peso totale",
+      "weightValue": "300 grammi",
+      "panRange": "Gamma orizzontale",
+      "panRangeValue": "360°",
+      "tiltRange": "Intervallo di inclinazione",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "Altezza",
+      "heightValue": "71 millimetri",
+      "baseDiameter": "Diametro della base",
+      "baseDiameterValue": "40 mm",
+      "loadCapacity": "Capacità di carico",
+      "loadCapacityValue": "3,0 kg",
+      "material": "Materiale",
+      "materialValue": "Lega di alluminio",
+      "quickRelease": "Piastra di sgancio rapido",
+      "quickReleaseValue": "Vite per fotocamera da 1/4 di pollice"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "yourCartIsEmpty": "Su carrito de compras está vacío",
+  "addSomeProductsToGetStarted": "Agrega algunos productos para comenzar a comprar",
+  "continueShopping": "Ver lista de productos",
+  "serverError": "Error del servidor",
+  "productUnavailableTitle": "Producto no disponible",
+  "productUnavailableDescription": "Este producto no tiene stock en su region por el momento.",
+  "failedToLoadProductInformation": "No se pudo cargar la información del producto,\nel cliente no pudo conectarse al servidor proxy de Shopify.\nPor favor, inténtelo de nuevo más tarde.",
+  "retry": "Reintentar",
+  "failedToLoadCMSData": "Error al cargar los datos,\nel cliente no pudo conectarse al servidor CMS.\nPor favor, inténtelo de nuevo más tarde.",
+  "trackingServiceUnavailable": "Error de red",
+  "failedToLoadTrackingService": "La conexión de red actual es inestable,\nno se puede conectar al servicio de seguimiento de envíos.\nVerifique la conexión de red e intente nuevamente, o inténtelo más tarde."
+}

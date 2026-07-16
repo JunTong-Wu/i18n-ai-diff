@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "Trépied à tête hydraulique mini",
+    "presubtitle": "Léger à transporter, support stable",
+    "buyNow": "Acheter maintenant",
+    "title": "Trépied avec rotule hydraulique",
+    "subtitle": "Plateau à amortissement hydraulique｜Support stable｜Portable et léger｜Angles plus libres"
+  },
+  "bestCompanion": {
+    "subtitle": "Du balcon à la nature sauvage, une installation, prêt à filmer",
+    "title": "Le meilleur partenaire de prise de vue pour DWARF",
+    "description": "Offre un support stable et une régulation fluide en tangage et en roulis, pour une plus grande tranquillité d'esprit lors de prises de vue prolongées, de time-lapses ou d'observations."
+  },
+  "equatorialMode": {
+    "subtitle": "Deux modes, changement à volonté",
+    "title": "Prise en charge du mode équatorial",
+    "description": "Peut basculer librement entre le mode équatorial et le mode azimutal. Le mode équatorial est utilisé pour un suivi plus stable sur de longues périodes, permettant une prise de vue plus détendue ; le mode azimutal convient à un pointage rapide et à la navigation quotidienne, il suffit de le soulever pour observer et de l'ajuster à tout moment.",
+    "tab1": "Mode équatorial",
+    "tab2": "Mode Alt-Az"
+  },
+  "portable": {
+    "subtitle": "Pied à cinq sections, volume compact",
+    "title": "Portabilité ultra légère",
+    "description": "En alliage d'aluminium, il se replie jusqu'à 25 cm de long. Léger à seulement 790 grammes, il est facile à transporter. Observation des étoiles en ville, camping en voyage, poursuite du soleil et de la lune — plus de « tracas »."
+  },
+  "stable": {
+    "subtitle": "Support stable, image plus propre",
+    "title": "Tournage ultra stable",
+    "description": "Pieds robustes et support stable. Permet une rotation à 360° et une inclinaison de -80°/+90° pour changer facilement de perspective ; maintient fermement le DWARF, réduisant l'impact des micro-vibrations sur l'image."
+  },
+  "hydraulicHead": {
+    "subtitle": "Rotation fluide, se met en place d'une simple poussée",
+    "title": "Tête hydraulique, fluide et contrôlable",
+    "description": "Système d'amortissement hydraulique intégré, chaque réglage est précis et fluide. Pas de saccades soudaines, pas de pauses gênantes — maîtrisez avec confiance, composition précise."
+  },
+  "flexibility": {
+    "subtitle": "Composition sans limites",
+    "title": "Angle plus libre",
+    "description": "La poignée permet un réglage vertical, le trépied supporte des pieds pliables à plusieurs angles, que vous préfériez une position haute ou basse, le choix vous appartient, la perspective n'est plus limitée.\nDe la photographie d'étoiles en levant la tête aux prises de vue à bas angle pour les paysages, en passant par les compositions latérales, vous trouverez toujours l'angle idéal."
+  },
+  "tripodSpecs": {
+    "title": "Trépied",
+    "subtitle": "Présentation des parties",
+    "specs": {
+      "weight": "Poids total",
+      "weightValue": "775 grammes",
+      "connector": "Connecteur",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "Capacité de charge maximale",
+      "maxLoadValue": "3,0 kg",
+      "maxHeight": "Hauteur maximale",
+      "maxHeightValue": "530 millimètres",
+      "foldedHeight": "Hauteur repliée",
+      "foldedHeightValue": "180 millimètres",
+      "tubeDiameter": "Diamètre du tuyau",
+      "tubeDiameterValue": "9,7/12,6/15,5/18,2/21 mm",
+      "sections": "Nombre de segments",
+      "sectionsValue": "5",
+      "material": "Matériaux",
+      "materialValue": "Alliage d'aluminium",
+      "color": "Couleur",
+      "colorValue": "Noir"
+    }
+  },
+  "headSpecs": {
+    "title": "Tête hydraulique",
+    "subtitle": "Présentation des parties",
+    "specs": {
+      "weight": "Poids total",
+      "weightValue": "300 grammes",
+      "panRange": "Plage horizontale",
+      "panRangeValue": "360°",
+      "tiltRange": "Plage d'inclinaison",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "Altitude",
+      "heightValue": "71 millimètres",
+      "baseDiameter": "Diamètre de la base",
+      "baseDiameterValue": "40 millimètres",
+      "loadCapacity": "Capacité de charge",
+      "loadCapacityValue": "3,0 kilogrammes",
+      "material": "Matériau",
+      "materialValue": "Alliage d'aluminium",
+      "quickRelease": "Plaque à dégagement rapide",
+      "quickReleaseValue": "Vis de caméra 1/4 de pouce"
+    }
+  }
+}

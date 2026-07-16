@@ -1,0 +1,18 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Find an Authorized Dealer"
+  },
+  "title": "Find Authorized Dealers",
+  "searchPlaceholder": "Search for dealers by name, country/region, or address",
+  "checkWebsite": "Visit the official website",
+  "continents": {
+    "142": "Asia",
+    "150": "Europe",
+    "002": "Africa",
+    "009": "Oceania",
+    "010": "Antarctica",
+    "019": "America"
+  },
+  "emptyMessage": "No dealers found"
+}

@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "Protección integral",
+      "description": "Cubierta exterior de PVC de cuero sintético, resistente al agua y a desgarros, con capa interior amortiguadora y protección envolvente de 360°."
+    },
+    "portable": {
+      "title": "Ultraportátil",
+      "description": "Contorno minimalista de 21×9×12 cm, correa ajustable de 1,6 m."
+    },
+    "storage": {
+      "title": "Bolsa de almacenamiento",
+      "description": "Correa de sujeción inferior para un soporte estable, compartimento lateral exclusivo para filtros, el equipo principal y los accesorios cada uno en su lugar, olvídate de buscar al aire libre."
+    },
+    "customFit": {
+      "title": "Personalización exclusiva",
+      "description": "Diseñado específicamente para DWARF mini, con forro interior de algodón mercerizado que se ajusta perfectamente para evitar vibraciones y desplazamientos durante el transporte."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "Nombre del producto",
+      "value": "Bolsa de protección portátil para DWARF mini"
+    },
+    "outerMaterial": {
+      "label": "Material exterior",
+      "value": "Cuero sintético de PVC"
+    },
+    "innerMaterial": {
+      "label": "Material interior",
+      "value": "Algodón mercerizado"
+    },
+    "size": {
+      "label": "Dimensiones del contorno",
+      "value": "21 cm de largo × 9 cm de ancho × 12 cm de alto"
+    },
+    "strap": {
+      "label": "Especificaciones de la correa para el hombro",
+      "value": "Longitud ajustable de 1.6 m, equipado con broche metálico"
+    },
+    "title": "Especificaciones del producto"
+  },
+  "hero": {
+    "title": "Funda para DWARF mini",
+    "subtitle": "Protección total｜Máxima portabilidad｜Todo en un solo estuche｜Diseño personalizado"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "Página de inicio",
+    "current": "Preguntas frecuentes"
+  },
+  "title": "Preguntas frecuentes",
+  "searchPlaceholder": "Buscar problemas",
+  "faqGroups": {
+    "ordersAndShipping": "Pedidos y envíos",
+    "returnsWarrantyAndCustoms": "Devoluciones, garantía y aduanas",
+    "gettingStarted": "Comenzar a usar",
+    "appAndConnection": "App y conexión",
+    "shootingAndFeatures": "Captura y funciones",
+    "accessoriesAndFileTransfer": "Accesorios y Transferencia de Archivos"
+  },
+  "contact": {
+    "title": "¿Tienes más preguntas? ¡Déjanos un mensaje!",
+    "nameLabel": "Su nombre",
+    "namePlaceholder": "Por favor, ingrese su nombre",
+    "emailLabel": "Su correo electrónico",
+    "emailPlaceholder": "Por favor, ingrese su dirección de correo electrónico",
+    "subjectLabel": "Seleccionar sujeto",
+    "subjectPlaceholder": "Consulta previa a la venta",
+    "messageLabel": "Mensaje",
+    "messagePlaceholder": "Por favor, ingrese su mensaje",
+    "submit": "Enviar"
+  },
+  "emptyMessage": "No se encontraron preguntas frecuentes coincidentes"
+}

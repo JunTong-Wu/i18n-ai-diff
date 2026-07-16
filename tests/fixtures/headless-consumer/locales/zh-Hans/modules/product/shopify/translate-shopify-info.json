@@ -1,0 +1,50 @@
+{
+  "dwarf-3-smart-telescope": {
+    "title": "DWARF 3 智能望远镜",
+    "description": "轻量化一体式智能天文望远镜，支持太阳、月球与深空拍摄。"
+  },
+  "dwarf-3-smart-telescope-open-box": {
+    "title": "DWARF 3 智能望远镜（开箱品）",
+    "description": "轻量化一体式智能天文望远镜，支持太阳、月球与深空拍摄。"
+  },
+  "dwarf-mini-smart-telescope": {
+    "title": "DWARF mini 口袋天文相机",
+    "description": "小巧便携的智能望远镜，适合观鸟、观景与入门级天文摄影。"
+  },
+  "dwarf-mini-smart-telescope-open-box": {
+    "title": "DWARF mini 口袋天文相机（开箱品）",
+    "description": "小巧便携的智能望远镜，适合观鸟、观景与入门级天文摄影。"
+  },
+  "dwarf-2-smart-telescope": {
+    "title": "DWARF II 智能望远镜",
+    "description": "双镜头智能望远镜，兼顾长焦观测与广角记录。"
+  },
+  "dwarf-ii-refurbished": {
+    "title": "DWARF II 官方翻新",
+    "description": "了解 DWARF II 官方翻新机型。"
+  },
+  "tripod-for-dwarf-3": {
+    "title": "迷你液压云台三脚架",
+    "description": "专为 DWARF 系列设计的轻量稳定三脚架。"
+  },
+  "mini-tripod-with-hydraulic-head-open-box": {
+    "title": "迷你液压云台三脚架（开箱品）",
+    "description": "专为 DWARF 系列设计的轻量稳定三脚架。"
+  },
+  "uhc-nd-telescope-filter-for-dwarf-ii": {
+    "title": "DWARF II UHC 与 ND 望远镜滤镜",
+    "description": "适用于 DWARF II 的 UHC 与 ND 望远镜滤镜。"
+  },
+  "filter-adapter-for-dwarf-ii": {
+    "title": "DWARF II 滤镜转接环",
+    "description": "适用于 DWARF II 的滤镜转接环。"
+  },
+  "rechargeable-lithium-battery-for-dwarf-ii": {
+    "title": "DWARF II 可充电锂电池",
+    "description": "适用于 DWARF II 的可充电锂电池。"
+  },
+  "dwarf-mini-smart-telescope-bag": {
+    "title": "DWARF mini 包",
+    "description": "专为 DWARF mini 设计的小巧收纳包，配有防护内衬与配件分区口袋。"
+  }
+}

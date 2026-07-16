@@ -1,0 +1,18 @@
+{
+  "breadcrumb": {
+    "home": "Página de inicio",
+    "current": "Encontrar distribuidor autorizado"
+  },
+  "title": "Encontrar un distribuidor autorizado",
+  "searchPlaceholder": "Buscar distribuidor por nombre, país o dirección",
+  "checkWebsite": "Visita el sitio web oficial",
+  "continents": {
+    "142": "Asia",
+    "150": "Europa",
+    "002": "África",
+    "009": "Oceanía",
+    "010": "Antártida",
+    "019": "América"
+  },
+  "emptyMessage": "No se encontraron distribuidores"
+}

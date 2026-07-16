@@ -1,0 +1,188 @@
+{
+  "products": {
+    "title": "Productos - DWARFLAB",
+    "description": "Explora nuestra serie de productos innovadores",
+    "dwarf-mini-smart-telescope": {
+      "title": "Telescopio inteligente DWARF Mini - DWARFLAB",
+      "description": "Telescopio inteligente compacto y portátil, ideal para observación de aves, paisajes y astrofotografía de nivel inicial."
+    },
+    "dwarf-mini-smart-telescope-open-box": {
+      "title": "Telescopio inteligente DWARF Mini (Producto de caja abierta) - DWARFLAB",
+      "description": "Telescopio inteligente compacto y portátil, ideal para observación de aves, paisajes y astrofotografía de nivel inicial."
+    },
+    "dwarf-3-smart-telescope": {
+      "title": "Telescopio inteligente DWARF 3 - DWARFLAB",
+      "description": "Telescopio astronómico inteligente todo en uno y ligero, compatible con la fotografía solar, lunar y de espacio profundo."
+    },
+    "dwarf-3-smart-telescope-open-box": {
+      "title": "Telescopio inteligente DWARF 3 (Open Box) - DWARFLAB",
+      "description": "Telescopio astronómico inteligente todo en uno y ligero, compatible con la fotografía solar, lunar y de espacio profundo."
+    },
+    "dwarf-2-smart-telescope": {
+      "title": "DWARF II Telescopio Inteligente - DWARFLAB",
+      "description": "Telescopio inteligente de doble lente, que combina observación con teleobjetivo y registro gran angular."
+    },
+    "dwarf-ii-refurbished": {
+      "title": "DWARF II reacondicionado oficial - DWARFLAB",
+      "description": "Descubre el modelo oficial reacondicionado de DWARF II."
+    },
+    "tripod-for-dwarf-3": {
+      "title": "Trípode Mini - DWARFLAB",
+      "description": "Trípode ligero y estable diseñado específicamente para la serie DWARF."
+    },
+    "mini-tripod-with-hydraulic-head-open-box": {
+      "title": "Mini Tripod (Producto Open Box) - DWARFLAB",
+      "description": "Trípode ligero y estable diseñado específicamente para la serie DWARF."
+    },
+    "uhc-nd-telescope-filter-for-dwarf-ii": {
+      "title": "Filtros de telescopio UHC y ND para DWARF II - DWARFLAB",
+      "description": "Filtros de telescopio UHC y ND para DWARF II."
+    },
+    "filter-adapter-for-dwarf-ii": {
+      "title": "Anillo adaptador de filtros para DWARF II - DWARFLAB",
+      "description": "Anillo adaptador de filtro para DWARF II."
+    },
+    "rechargeable-lithium-battery-for-dwarf-ii": {
+      "title": "Batería de litio recargable para DWARF II - DWARFLAB",
+      "description": "Batería de litio recargable compatible con DWARF II."
+    },
+    "dwarf-mini-smart-telescope-bag": {
+      "title": "Funda para DWARF mini - DWARFLAB",
+      "description": "Un bolso compacto para transportar el DWARF Mini, con forro protector y bolsillos para accesorios."
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Inicio - DWARFLAB",
+      "description": "Sitio web oficial de DWARFLAB, explora nuestros productos y servicios innovadores"
+    },
+    "cart": {
+      "title": "Carrito de compras - DWARFLAB",
+      "description": "Tu carrito de compras"
+    },
+    "pages": {
+      "dwarf-mini-smart-telescope": {
+        "title": "DWARF mini telescopio inteligente - DWARFLAB",
+        "description": "Conoce el DWARF mini. DWARFLAB fabrica telescopios inteligentes que hacen que la astrofotografía sea accesible para todos."
+      },
+      "astronomy-with-dwarf-3-smart-telescope": {
+        "title": "Astronomía con el telescopio inteligente DWARF 3 - DWARFLAB",
+        "description": "Conoce el DWARF 3. DWARFLAB fabrica telescopios inteligentes que hacen que la astrofotografía sea accesible para todos."
+      },
+      "birding-with-dwarf-3-smart-telescope": {
+        "title": "Observación de aves con el telescopio inteligente DWARF 3 - DWARFLAB",
+        "description": "Conoce el DWARF 3. DWARFLAB fabrica telescopios inteligentes que hacen que la observación de aves sea accesible para todos."
+      },
+      "panorama-with-dwarf-3-smart-telescope": {
+        "title": "Panorámica con el telescopio inteligente DWARF 3 - DWARFLAB",
+        "description": "Conoce el DWARF 3. DWARFLAB fabrica telescopios inteligentes que hacen que la astrofotografía sea accesible para todos."
+      },
+      "gallery": {
+        "title": "Muro de fotos de usuarios - DWARFLAB",
+        "description": "Explora nuestro muro de fotos, aquí es donde brillamos."
+      },
+      "youtube-collection": {
+        "title": "Favoritos de YouTube - DWARFLAB",
+        "description": "Explora nuestra colección de Youtube"
+      },
+      "share-your-dwarf-ii-story": {
+        "title": "Comparte tu historia con DWARF II - DWARFLAB",
+        "description": "Comparte tu historia sobre DWARF II"
+      },
+      "dwarflab-app-firmware-download": {
+        "title": "Descarga de firmware de la aplicación DWARFLAB - DWARFLAB",
+        "description": "Descargar firmware de la aplicación DWARFLAB"
+      },
+      "faqs": {
+        "title": "Preguntas frecuentes - DWARFLAB",
+        "description": "Preguntas frecuentes"
+      },
+      "contact": {
+        "title": "Contáctanos - DWARFLAB",
+        "description": "Contactar al equipo de DWARFLAB"
+      },
+      "about-us": {
+        "title": "Nuestra historia - DWARFLAB",
+        "description": "Conoce al equipo de DWARFLAB"
+      },
+      "reseller": {
+        "title": "Distribuidor - DWARFLAB",
+        "description": "Conviértase en distribuidor de DWARFLAB"
+      },
+      "affiliate-program": {
+        "title": "Alianza - DWARFLAB",
+        "description": "Únete al programa de colaboración DWARFLAB"
+      },
+      "shipping-policy": {
+        "title": "Política de logística - DWARFLAB",
+        "description": "Conoce la política de logística de DWARFLAB"
+      },
+      "warranty-and-return": {
+        "title": "Garantía y Devoluciones - DWARFLAB",
+        "description": "Conozca la política de garantía y devoluciones de DWARFLAB"
+      },
+      "payment-methods": {
+        "title": "Métodos de pago - DWARFLAB",
+        "description": "Conoce los métodos de pago de DWARFLAB"
+      },
+      "find-authorized-reseller": {
+        "title": "Encuentra un distribuidor autorizado - DWARFLAB",
+        "description": "Encuentra distribuidores autorizados de productos DWARFLAB"
+      },
+      "customer-reviews-on-dwarf-telescope": {
+        "title": "Evaluaciones de clientes - DWARFLAB",
+        "description": "Consulta las reseñas de clientes de DWARFLAB."
+      },
+      "share-your-dwarflab-story": {
+        "title": "Historia de usuario - DWARFLAB",
+        "description": "Comparte tu historia como usuario de DWARFLAB."
+      }
+    },
+    "policies": {
+      "privacy-policy": {
+        "title": "Política de privacidad - DWARFLAB",
+        "description": "Conoce la política de privacidad de DWARFLAB"
+      },
+      "terms-of-service": {
+        "title": "Términos de servicio - DWARFLAB",
+        "description": "Conoce los términos de servicio de DWARFLAB"
+      }
+    },
+    "tools": {
+      "track-order": {
+        "title": "Seguimiento de pedido - DWARFLAB",
+        "description": "Rastrea tu pedido"
+      },
+      "withdrawal": {
+        "title": "Enviar solicitud de desistimiento - DWARFLAB",
+        "description": "Enviar una solicitud de desistimiento del contrato"
+      }
+    }
+  },
+  "blogs": {
+    "story": {
+      "title": "Historia - DWARFLAB",
+      "description": "Explora nuestra historia"
+    },
+    "news": {
+      "title": "Noticias - DWARFLAB",
+      "description": "Explora las noticias de DWARFLAB."
+    }
+  },
+  "collections": {
+    "title": "Categoría - DWARFLAB",
+    "description": "Explora las categorías de productos DWARFLAB",
+    "all": {
+      "title": "Todos los productos - DWARFLAB",
+      "description": "Explora todos los productos de DWARFLAB"
+    },
+    "accessories": {
+      "title": "Accesorios - DWARFLAB",
+      "description": "Explora los accesorios de DWARFLAB"
+    },
+    "smart-telescope": {
+      "title": "Telescopio inteligente - DWARFLAB",
+      "description": "Explora los productos de telescopios inteligentes DWARFLAB"
+    }
+  }
+}

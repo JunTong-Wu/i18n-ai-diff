@@ -1,0 +1,49 @@
+{
+  "breadcrumb": {
+    "home": "Accueil",
+    "current": "Envoyer une demande de rétractation"
+  },
+  "title": "Envoyer une demande de rétractation",
+  "description": "Utilisez ce formulaire pour nous envoyer votre demande de rétractation. Après l'envoi, nous vous adresserons une confirmation à l'adresse e-mail indiquée.",
+  "form": {
+    "nameLabel": "Nom",
+    "namePlaceholder": "Saisissez votre nom complet",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "Saisissez l'adresse e-mail pour la confirmation",
+    "orderReferenceLabel": "Numéro de commande",
+    "orderReferencePlaceholder": "Saisissez votre numéro de commande",
+    "itemsLabel": "Articles",
+    "itemsPlaceholder": "Décrivez les articles concernés par votre rétractation",
+    "messageLabel": "Informations complémentaires",
+    "messagePlaceholder": "Ajoutez toute précision utile au traitement de votre demande",
+    "submit": "Envoyer la demande",
+    "required": "Ce champ est obligatoire",
+    "emailInvalid": "Veuillez saisir une adresse e-mail valide"
+  },
+  "alert": {
+    "checkInformation": "Vérifier vos informations",
+    "checkInformationDescription": "Veuillez confirmer vos informations avant d'envoyer votre demande de rétractation.",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "submitSuccess": "Demande envoyée",
+    "submitSuccessDescription": "Nous avons reçu votre demande de rétractation et envoyé un e-mail de confirmation.",
+    "submitError": "Échec de l'envoi",
+    "unknownError": "Erreur inconnue",
+    "okGotIt": "OK"
+  },
+  "email": {
+    "internalSubject": "Demande de rétractation DWARFLAB",
+    "customerSubject": "Nous avons reçu votre demande de rétractation DWARFLAB",
+    "internalTitle": "Demande de rétractation DWARFLAB",
+    "internalIntro": "Un client a envoyé une demande de rétractation depuis le site web DWARFLAB.",
+    "customerTitle": "Nous avons reçu votre demande de rétractation",
+    "customerGreeting": "Bonjour {name},",
+    "customerIntro": "Nous avons reçu votre demande de rétractation. Notre équipe d'assistance l'examinera et vous contactera si des informations complémentaires sont nécessaires.",
+    "customerReceiptNote": "Cet e-mail confirme la réception de votre demande. Veuillez le conserver pour vos dossiers.",
+    "supportSignature": "Assistance DWARFLAB",
+    "receivedAtLabel": "Reçu le",
+    "regionLabel": "Région",
+    "languageLabel": "Langue",
+    "emptyValue": "-"
+  }
+}

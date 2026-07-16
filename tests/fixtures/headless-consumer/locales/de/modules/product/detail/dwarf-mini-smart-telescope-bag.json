@@ -1,0 +1,47 @@
+{
+  "features": {
+    "protection": {
+      "title": "Rundumschutz",
+      "description": "Außenlage aus PVC-Kunstleder: wasserabweisend und reißfest, innenliegende Stoßdämpfungsschicht, 360°-Schutz."
+    },
+    "portable": {
+      "title": "Extrem tragbar",
+      "description": "21×9×12 cm schlichtes Profil, 1,6 m verstellbarer Schultergurt."
+    },
+    "storage": {
+      "title": "Aufbewahrungstasche",
+      "description": "Stabiler Halter mit Bodenband, seitliches Filterfach, Hauptgerät und Zubehör haben ihren festen Platz – Schluss mit der Sucherei im Freien."
+    },
+    "customFit": {
+      "title": "Exklusive Personalisierung",
+      "description": "Speziell für den DWARF mini entwickelt, mit seidigem Baumwoll-Innenfutter, passgenau und schützt vor Vibrationen und Verrutschen auf Reisen."
+    }
+  },
+  "specs": {
+    "productName": {
+      "label": "Produktname",
+      "value": "Schutztasche für DWARF Mini"
+    },
+    "outerMaterial": {
+      "label": "Außenmaterial",
+      "value": "PVC-Kunstleder"
+    },
+    "innerMaterial": {
+      "label": "Innenmaterial",
+      "value": "Mercerisierte Baumwolle"
+    },
+    "size": {
+      "label": "Abmessungen",
+      "value": "21 cm × 9 cm × 12 cm (L × B × H)"
+    },
+    "strap": {
+      "label": "Schultergurt-Spezifikationen",
+      "value": "1,6 m verstellbare Länge, mit Metallhaken"
+    },
+    "title": "Produktspezifikationen"
+  },
+  "hero": {
+    "title": "DWARF mini Tasche",
+    "subtitle": "Rundumschutz｜Extrem tragbar｜Alles in einer Tasche｜Individuell angepasst"
+  }
+}

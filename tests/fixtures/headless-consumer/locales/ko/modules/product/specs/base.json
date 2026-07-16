@@ -1,0 +1,43 @@
+{
+  "title": "사양 매개변수",
+  "subtitle": "어떤 망원경이 당신에게 적합할까요?",
+  "priceFormat": "{price}부터",
+  "parameters": {
+    "weight": "무게",
+    "aperture": "조리개 직경",
+    "sensor": "이미지 센서",
+    "focalLength": "초점 거리",
+    "rotationRange": "회전 범위",
+    "maxResolution": "최대 해상도",
+    "builtInFilter": "내장 필터",
+    "shootingMode": "촬영 모드",
+    "equivalentFocalLength": "등가 초점 거리",
+    "storage": "저장",
+    "battery": "배터리",
+    "npu": "NPU",
+    "maxExposureTime": "최대 노출 시간",
+    "moreFunctions": "더 많은 기능",
+    "size": "크기"
+  },
+  "actions": {
+    "buyNow": "지금 구매하기",
+    "learnMore": "더 알아보기"
+  },
+  "units": {
+    "gram": "g",
+    "millimeter": "mm"
+  },
+  "productDataNotFound": "제품 데이터를 찾을 수 없습니다",
+  "positionTags": {
+    "dwarfMini": {
+      "beginnerFriendly": "초보자에게 적합",
+      "mostPortable": "가장 휴대하기 좋음",
+      "easySetup": "간편한 설치"
+    },
+    "dwarf3": {
+      "strongerImaging": "더 강력한 이미징",
+      "bestForDeepSky": "딥스카이에 최적",
+      "advancedChoice": "고급 선택"
+    }
+  }
+}

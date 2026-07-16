@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "ミニ油圧雲台三脚",
+    "presubtitle": "軽装で持ち運び、安定したサポート",
+    "buyNow": "今すぐ購入",
+    "title": "油圧雲台三脚",
+    "subtitle": "油圧ダンパージンバル｜安定したサポート｜軽量携帯｜角度がより自由"
+  },
+  "bestCompanion": {
+    "subtitle": "バルコニーから広野まで、一台で完結、いつでも撮影開始",
+    "title": "DWARF の最高の撮影パートナー",
+    "description": "安定したサポートと滑らかなピッチ/水平調整を提供し、長時間の撮影、タイムラプス、観測をより安心して行えます。"
+  },
+  "equatorialMode": {
+    "subtitle": "二つのモード、自由に切り替え",
+    "title": "赤道儀モードをサポート",
+    "description": "赤道儀モードと経緯儀モードの間で自由に切り替え可能です。赤道儀モードはより安定した長時間追跡に適し、撮影をより落ち着いて行えます。経緯儀モードは素早い指向と日常的な観察に適しており、持ち上げてすぐに見られ、いつでも調整できます。",
+    "tab1": "赤道儀モード",
+    "tab2": "セオドライトモード"
+  },
+  "portable": {
+    "subtitle": "5節脚管、コンパクトなサイズ",
+    "title": "持ち運び超軽量",
+    "description": "アルミニウム合金素材で、折りたたむと25cmの長さまで縮小可能。軽量でわずか790g、持ち運びが簡単。都市での星空観測、旅行やキャンプ、日食や月食の観測——もう「面倒」とは言わせません。"
+  },
+  "stable": {
+    "subtitle": "安定したサポートで、よりクリーンな映像",
+    "title": "超安定撮影",
+    "description": "しっかりとした脚部と安定したサポート。360°パンと-80°/+90°チルトをサポートし、視点を簡単に切り替えられます。DWARFをしっかりと支え、わずかな揺れが画像に与える影響を軽減します。"
+  },
+  "hydraulicHead": {
+    "subtitle": "滑らかに回転し、一押しで所定の位置に収まります",
+    "title": "油圧雲台、滑らかで制御可能",
+    "description": "内蔵油圧ダンパーシステムにより、毎回の調整が正確かつスムーズです。突然のぎこちなさも、気まずい間もなし——自信を持ってコントロールし、正確に構図を決めます。"
+  },
+  "flexibility": {
+    "subtitle": "構図に制限なし",
+    "title": "角度がより自由",
+    "description": "ハンドルで上下を調整し、三脚架は多角度での折りたたみ脚をサポート。高さも低さも自由に選択でき、視角はもはや制限されません。\n星空を仰ぎ見る撮影から低角度の風景撮影、さらには横方向の構図まで、理想的な角度を見つけることができます。"
+  },
+  "tripodSpecs": {
+    "title": "三脚",
+    "subtitle": "部位の紹介",
+    "specs": {
+      "weight": "総重量",
+      "weightValue": "775グラム",
+      "connector": "コネクタ",
+      "connectorValue": "1/4インチ 3/8インチ",
+      "maxLoad": "最大積載量",
+      "maxLoadValue": "3.0キログラム",
+      "maxHeight": "最大高さ",
+      "maxHeightValue": "530ミリメートル",
+      "foldedHeight": "折りたたみ高さ",
+      "foldedHeightValue": "180ミリメートル",
+      "tubeDiameter": "口径",
+      "tubeDiameterValue": "9.7/12.6/15.5/18.2/21ミリメートル",
+      "sections": "ステップ数",
+      "sectionsValue": "5",
+      "material": "素材",
+      "materialValue": "アルミニウム合金",
+      "color": "色",
+      "colorValue": "黒"
+    }
+  },
+  "headSpecs": {
+    "title": "油圧雲台",
+    "subtitle": "部位紹介",
+    "specs": {
+      "weight": "総重量",
+      "weightValue": "300グラム",
+      "panRange": "水平範囲",
+      "panRangeValue": "360°",
+      "tiltRange": "傾斜範囲",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "高度",
+      "heightValue": "71ミリメートル",
+      "baseDiameter": "ベース直径",
+      "baseDiameterValue": "40ミリメートル",
+      "loadCapacity": "負荷容量",
+      "loadCapacityValue": "3.0キログラム",
+      "material": "材質",
+      "materialValue": "アルミニウム合金",
+      "quickRelease": "クイックリリースプレート",
+      "quickReleaseValue": "1/4インチカメラネジ"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "ショッピングカート",
+  "items": "個の商品",
+  "product": "商品",
+  "price": "価格",
+  "quantity": "数量",
+  "total": "合計金額",
+  "subtotal": "小計",
+  "discount": "割引",
+  "checkout": "決済",
+  "findingShippingProtection": "ご注文に適用できる配送保護を確認しています。しばらくお待ちください。",
+  "xcottonConflict": {
+    "title": "配送保護の更新に失敗しました",
+    "description": "配送保護とカートの状態が一致していない可能性があります。ページを更新して、カートの合計金額をご確認ください。",
+    "refreshCart": "カートを更新"
+  },
+  "preparingCheckout": "安全な決済ページを準備しています...",
+  "checkoutTakingLonger": "予想より時間がかかっています",
+  "checkoutTakingLongerDescription": "安全な決済ページを引き続き準備しています。このまま待つか、商品ページに戻ることができます。",
+  "checkoutFailed": "決済ページを開けませんでした",
+  "checkoutFailedDescription": "ネットワーク接続を確認して、もう一度お試しください。請求は発生していません。",
+  "returnToProduct": "商品ページに戻る",
+  "discountCodeInvalid": "割引コードが無効です",
+  "alert": {
+    "confirmRemove": "削除を確認",
+    "confirmRemoveText": "この商品を削除してもよろしいですか？",
+    "confirm": "確認",
+    "cancel": "キャンセル"
+  },
+  "notification": {
+    "error": {
+      "title": "ショッピングカートの更新に失敗しました",
+      "description": "ネットワークが不安定なため、ショッピングカートは以前の数量と金額に戻りました。後でもう一度お試しください。"
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "無料ギフト",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "セット特典：{giftItems} を獲得できます",
+        "claimedTitle": "{giftItems} を獲得しました",
+        "progressDescription": "{ownedItems} と一緒に {missingItems} をカートに追加すると、{giftItems} を無料ギフトとして獲得できます。",
+        "claimedDescription": "無料ギフトがカートに入っています：{giftItems}。最終割引は決済時に適用されます。"
+      }
+    }
+  }
+}

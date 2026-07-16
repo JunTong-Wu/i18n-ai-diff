@@ -1,0 +1,18 @@
+{
+  "breadcrumb": {
+    "home": "Startseite",
+    "current": "Autorisierte Händler finden"
+  },
+  "title": "Autorisierte Händler finden",
+  "searchPlaceholder": "Händler nach Name, Land oder Adresse suchen",
+  "checkWebsite": "Besuchen Sie die offizielle Website",
+  "continents": {
+    "142": "Asien",
+    "150": "Europa",
+    "002": "Afrika",
+    "009": "Ozeanien",
+    "010": "Antarktis",
+    "019": "Amerika"
+  },
+  "emptyMessage": "Keine Händler gefunden"
+}

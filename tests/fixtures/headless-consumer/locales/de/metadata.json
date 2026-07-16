@@ -1,0 +1,188 @@
+{
+  "products": {
+    "title": "Produkte - DWARFLAB",
+    "description": "Entdecken Sie unsere innovative Produktreihe",
+    "dwarf-mini-smart-telescope": {
+      "title": "DWARF Mini Smartes Teleskop - DWARFLAB",
+      "description": "Kompakter und tragbarer Smart-Teleskop, ideal für Vogelbeobachtung, Landschaftsbetrachtung und Einsteiger-Astrofotografie."
+    },
+    "dwarf-mini-smart-telescope-open-box": {
+      "title": "DWARF Mini Smartes Teleskop (Open Box) - DWARFLAB",
+      "description": "Kompakter und tragbarer Smart-Teleskop, ideal für Vogelbeobachtung, Landschaftsbetrachtung und Einsteiger-Astrofotografie."
+    },
+    "dwarf-3-smart-telescope": {
+      "title": "DWARF 3 Smart-Teleskop - DWARFLAB",
+      "description": "Leichtes, kompaktes und intelligentes Teleskop für die Sonnen-, Mond- und Deep-Sky-Fotografie."
+    },
+    "dwarf-3-smart-telescope-open-box": {
+      "title": "DWARF 3 Smartes Teleskop (Open Box) - DWARFLAB",
+      "description": "Leichtes, kompaktes und intelligentes Teleskop für die Sonnen-, Mond- und Deep-Sky-Fotografie."
+    },
+    "dwarf-2-smart-telescope": {
+      "title": "DWARF II Smartes Teleskop - DWARFLAB",
+      "description": "Doppelobjektiv-Smartteleskop, kombiniert Langzeitbeobachtung mit Weitwinkelaufzeichnung."
+    },
+    "dwarf-ii-refurbished": {
+      "title": "DWARF II Offiziell Generalüberholt - DWARFLAB",
+      "description": "Entdecken Sie das offiziell generalüberholte DWARF II Modell."
+    },
+    "tripod-for-dwarf-3": {
+      "title": "Mini-Stativ - DWARFLAB",
+      "description": "Ein leichtes und stabiles Stativ, speziell für die DWARF-Serie entwickelt."
+    },
+    "mini-tripod-with-hydraulic-head-open-box": {
+      "title": "Mini Tripod (Open Box) - DWARFLAB",
+      "description": "Ein leichtes und stabiles Stativ, speziell für die DWARF-Serie entwickelt."
+    },
+    "uhc-nd-telescope-filter-for-dwarf-ii": {
+      "title": "DWARF II UHC- und ND-Teleskopfilter - DWARFLAB",
+      "description": "UHC- und ND-Teleskopfilter für die DWARF II."
+    },
+    "filter-adapter-for-dwarf-ii": {
+      "title": "DWARF II Filteradapterring - DWARFLAB",
+      "description": "Filteradapterring für DWARF II."
+    },
+    "rechargeable-lithium-battery-for-dwarf-ii": {
+      "title": "DWARF II Wiederaufladbarer Lithium-Akku - DWARFLAB",
+      "description": "Wiederaufladbare Lithiumbatterie für DWARF II."
+    },
+    "dwarf-mini-smart-telescope-bag": {
+      "title": "DWARF mini Tasche - DWARFLAB",
+      "description": "Eine kompakte Tragetasche für den DWARF Mini mit schützendem Innenfutter und Zubehörfächern."
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Startseite - DWARFLAB",
+      "description": "Offizielle DWARFLAB-Website, entdecken Sie unsere innovativen Produkte und Dienstleistungen"
+    },
+    "cart": {
+      "title": "Warenkorb - DWARFLAB",
+      "description": "Ihr Warenkorb"
+    },
+    "pages": {
+      "dwarf-mini-smart-telescope": {
+        "title": "DWARF mini Smartteleskop - DWARFLAB",
+        "description": "Lernen Sie den DWARF mini kennen. DWARFLAB stellt intelligente Teleskope her, die Astrofotografie für jeden zugänglich machen."
+      },
+      "astronomy-with-dwarf-3-smart-telescope": {
+        "title": "Astronomie mit dem DWARF 3 Smart Telescope - DWARFLAB",
+        "description": "Lernen Sie den DWARF 3 kennen. DWARFLAB stellt intelligente Teleskope her, die Astrofotografie für jeden zugänglich machen."
+      },
+      "birding-with-dwarf-3-smart-telescope": {
+        "title": "Vogelbeobachtung mit dem DWARF 3 Smart Telescope - DWARFLAB",
+        "description": "Lernen Sie den DWARF 3 kennen. DWARFLAB stellt intelligente Teleskope her, die die Vogelbeobachtung für jeden zugänglich machen."
+      },
+      "panorama-with-dwarf-3-smart-telescope": {
+        "title": "Panorama mit dem DWARF 3 Smart Telescope - DWARFLAB",
+        "description": "Lernen Sie den DWARF 3 kennen. DWARFLAB stellt intelligente Teleskope her, die Panoramaaufnahmen für jeden zugänglich machen."
+      },
+      "gallery": {
+        "title": "Benutzerfotowand - DWARFLAB",
+        "description": "Durchstöbern Sie unsere Fotogalerie – hier zeigen wir, was in uns steckt."
+      },
+      "youtube-collection": {
+        "title": "YouTube-Favoriten - DWARFLAB",
+        "description": "Durchsuchen Sie unsere YouTube-Sammlung"
+      },
+      "share-your-dwarf-ii-story": {
+        "title": "Teile deine DWARF II Geschichte - DWARFLAB",
+        "description": "Teile deine Geschichte über DWARF II"
+      },
+      "dwarflab-app-firmware-download": {
+        "title": "DWARFLAB App Firmware-Download - DWARFLAB",
+        "description": "DWARFLAB App-Firmware herunterladen"
+      },
+      "faqs": {
+        "title": "Häufig gestellte Fragen - DWARFLAB",
+        "description": "Häufig gestellte Fragen"
+      },
+      "contact": {
+        "title": "Kontaktieren Sie uns - DWARFLAB",
+        "description": "Kontaktieren Sie das DWARFLAB-Team"
+      },
+      "about-us": {
+        "title": "Unsere Geschichte - DWARFLAB",
+        "description": "Lernen Sie das DWARFLAB-Team kennen"
+      },
+      "reseller": {
+        "title": "Händler - DWARFLAB",
+        "description": "DWARFLAB-Händler werden"
+      },
+      "affiliate-program": {
+        "title": "Allianz - DWARFLAB",
+        "description": "Dem DWARFLAB-Partnerprogramm beitreten"
+      },
+      "shipping-policy": {
+        "title": "Versandrichtlinien - DWARFLAB",
+        "description": "Erfahren Sie mehr über die Logistikrichtlinien von DWARFLAB"
+      },
+      "warranty-and-return": {
+        "title": "Garantie und Rückgabe - DWARFLAB",
+        "description": "Erfahren Sie mehr über die Garantie- und Rückgabebedingungen von DWARFLAB"
+      },
+      "payment-methods": {
+        "title": "Zahlungsmethoden - DWARFLAB",
+        "description": "Erfahren Sie mehr über die Zahlungsmethoden von DWARFLAB"
+      },
+      "find-authorized-reseller": {
+        "title": "Autorisierte Händler finden - DWARFLAB",
+        "description": "Finden Sie autorisierte Händler für DWARFLAB-Produkte"
+      },
+      "customer-reviews-on-dwarf-telescope": {
+        "title": "Kundenbewertungen - DWARFLAB",
+        "description": "DWARFLAB Kundenbewertungen ansehen."
+      },
+      "share-your-dwarflab-story": {
+        "title": "Benutzerstory - DWARFLAB",
+        "description": "Teilen Sie Ihre DWARFLAB-Benutzerstory."
+      }
+    },
+    "policies": {
+      "privacy-policy": {
+        "title": "Datenschutzrichtlinie - DWARFLAB",
+        "description": "Erfahren Sie mehr über die Datenschutzrichtlinie von DWARFLAB"
+      },
+      "terms-of-service": {
+        "title": "Nutzungsbedingungen - DWARFLAB",
+        "description": "Die Nutzungsbedingungen von DWARFLAB verstehen"
+      }
+    },
+    "tools": {
+      "track-order": {
+        "title": "Bestellung verfolgen - DWARFLAB",
+        "description": "Verfolgen Sie Ihre Bestellung"
+      },
+      "withdrawal": {
+        "title": "Widerrufsanfrage senden - DWARFLAB",
+        "description": "Senden Sie eine Widerrufsanfrage"
+      }
+    }
+  },
+  "blogs": {
+    "story": {
+      "title": "Geschichte - DWARFLAB",
+      "description": "Entdecken Sie unsere Geschichten"
+    },
+    "news": {
+      "title": "Neuigkeiten - DWARFLAB",
+      "description": "DWARFLAB-Nachrichten durchsuchen."
+    }
+  },
+  "collections": {
+    "title": "Kategorie - DWARFLAB",
+    "description": "Durchsuchen Sie die DWARFLAB-Produktkategorien",
+    "all": {
+      "title": "Alle Produkte - DWARFLAB",
+      "description": "Alle DWARFLAB-Produkte durchsuchen"
+    },
+    "accessories": {
+      "title": "Zubehör - DWARFLAB",
+      "description": "DWARFLAB Zubehörprodukte durchsuchen"
+    },
+    "smart-telescope": {
+      "title": "Intelligentes Teleskop - DWARFLAB",
+      "description": "Entdecken Sie die DWARFLAB Smart Telescope Produkte"
+    }
+  }
+}

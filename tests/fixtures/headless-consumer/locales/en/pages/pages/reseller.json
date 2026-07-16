@@ -1,0 +1,45 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Become a Dealer"
+  },
+  "title": "Become a Dealer",
+  "form": {
+    "personalInfo": "Personal information",
+    "companyInfo": "Company Information",
+    "fullName": "Your Full Name",
+    "fullNamePlaceholder": "Please enter",
+    "companyName": "Company Registration Name",
+    "companyNamePlaceholder": "Please enter",
+    "companyCountry": "Country or region where the company is located",
+    "companyCountryPlaceholder": "Please select a country or region",
+    "companyCity": "Company City",
+    "companyCityPlaceholder": "Please enter the city",
+    "companyAddress": "Company Address",
+    "companyAddressPlaceholder": "Please enter the company address",
+    "countryLabel": "Country/Region Code",
+    "email": "Contact Email",
+    "emailPlaceholder": "Please enter email",
+    "salesChannel": "Your sales channel",
+    "salesChannelOptions": {
+      "online": "Online Store",
+      "physical": "Physical store",
+      "both": "Both"
+    },
+    "intention": "Cooperation Intent",
+    "intentionPlaceholder": "Please describe your cooperation intention",
+    "submit": "Submit",
+    "required": "This field is required",
+    "emailInvalid": "Please enter a valid email address",
+    "headerText": "You have received a new dealer application.",
+    "alert": {
+      "checkInformation": "Check Information",
+      "checkInformationDescription": "Please double-check your information to ensure we can contact you promptly.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "submitSuccess": "Submission successful",
+      "submitError": "Submission failed",
+      "okGotIt": "Got it"
+    }
+  }
+}

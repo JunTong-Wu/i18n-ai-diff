@@ -1,0 +1,31 @@
+{
+  "headerText": "You have received a new message from the online store contact form.",
+  "countryLabel": "Country/Region Code",
+  "nameLabel": "Your Name",
+  "namePlaceholder": "Please enter your name",
+  "emailLabel": "Your email",
+  "emailPlaceholder": "Please enter your email",
+  "subjectLabel": "Select a subject",
+  "subjectPlaceholder": "Please select a subject",
+  "subjectOptions": {
+    "preSaleInquiry": "Pre-sales consultation",
+    "orderStatus": "Order Status",
+    "appFirmwareIssue": "App/Firmware Issue",
+    "accessoriesIssue": "Accessory Issues",
+    "businessCooperation": "Business Cooperation"
+  },
+  "messageLabel": "Message",
+  "messagePlaceholder": "Please enter your message",
+  "submit": "Submit",
+  "required": "This field is required",
+  "emailInvalid": "Please enter a valid email address",
+  "alert": {
+    "checkInformation": "Check Information",
+    "checkInformationDescription": "Please double-check your information to ensure we can contact you promptly.",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "submitSuccess": "Submission successful",
+    "submitError": "Submission failed",
+    "okGotIt": "Got it"
+  }
+}

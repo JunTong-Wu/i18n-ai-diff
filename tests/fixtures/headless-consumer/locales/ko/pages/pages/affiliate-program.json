@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "홈페이지",
+    "current": "제휴 파트너 되기"
+  },
+  "title": "파트너십 가입하기",
+  "banner": {
+    "title": "DWARFLAB 제품을 추천하고 커미션을 획득하세요",
+    "steps": {
+      "join": {
+        "title": "가입",
+        "description": "무료 ShareASale 또는 Affiliatly 계정을 제휴 파트너로 등록하거나, 이미 계정이 있다면 DWARFLAB ID를 추가하세요."
+      },
+      "share": {
+        "title": "공유",
+        "description": "전용 크리에이터 링크를 사용하여 DWARFLAB 제품을 온라인에서 귀하의 청중과 공유하고 홍보하세요."
+      },
+      "earn": {
+        "title": "벌다",
+        "description": "적격 주문에서 5%의 수수료를 받으세요. 저희 브랜드 인지도와 제품 품질이 귀하의 수익을 극대화하는 데 도움을 드립니다."
+      }
+    }
+  },
+  "join": {
+    "title": "지금 가입하고 5% 수수료를 받으세요",
+    "description": "다음 플랫폼 중 하나를 선택하여 수익 창출을 시작하세요.",
+    "platforms": {
+      "affiliatly": {
+        "button": "Affiliatly에 가입하기"
+      },
+      "awin": {
+        "button": "Awin 가입"
+      }
+    },
+    "or": "또는"
+  }
+}

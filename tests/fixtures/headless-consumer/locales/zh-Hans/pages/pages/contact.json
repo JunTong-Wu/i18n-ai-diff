@@ -1,0 +1,101 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "current": "联系我们"
+  },
+  "title": "联系我们",
+  "intro": {
+    "title": "联系我们",
+    "description": "如果您有任何问题，我们建议您首先查看我们的 <link1>常见问题解答</link1> 和 <link2>帮助中心</link2>。如果您找不到答案，请通过以下方式联系我们。"
+  },
+  "methods": {
+    "address": "地址：武汉东湖新技术开发区关东街道老武黄公路 206 号慧谷时空1栋21层01室\n电话：027-65527110",
+    "grid": {
+      "wecom": {
+        "label": "企业微信",
+        "value_global": "扫码添加企业微信",
+        "action": "查看二维码"
+      },
+      "weChatServiceAccount": {
+        "label": "微信服务号",
+        "value_global": "扫码获取最新讯息",
+        "action": "查看二维码"
+      },
+      "saleCooperate": {
+        "label": "销售与市场合作",
+        "value_global": "hello@dwarflab.com",
+        "action": "发送邮件"
+      },
+      "douyin": {
+        "label": "关注抖音",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "去关注"
+      },
+      "weChatChannels": {
+        "label": "关注视频号",
+        "value_global": "@DWARFLAB",
+        "action": "前往微信视频号，搜索并关注"
+      },
+      "xiaoHongshu": {
+        "label": "关注小红书",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "去关注"
+      },
+      "bilibili": {
+        "label": "关注bilibili",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "去关注"
+      },
+      "email": {
+        "label": "邮箱",
+        "value_global": "support@dwarflab.com",
+        "value_JP": "hello.jp@dwarflab.com",
+        "action": "发送邮件"
+      },
+      "videoCall": {
+        "label": "预约视频通话",
+        "value_global": "预约专家",
+        "valueTranslate": "预约专家",
+        "action": "预约"
+      },
+      "facebookGroup": {
+        "label": "Facebook 用户群组",
+        "value_global": "@DWARFLAB Official Community",
+        "value_JP": "@DWARFLAB 公式コミュニティ",
+        "action": "加入 Facebook 群组"
+      },
+      "facebook": {
+        "label": "在 Facebook 上关注我们",
+        "value_global": "@DWARFLAB",
+        "value_JP": "@DWARFLAB.jp",
+        "action": "前往 Facebook"
+      },
+      "instagram": {
+        "label": "在 Instagram 上关注我们",
+        "value_global": "@DWARFLAB",
+        "action": "前往 Instagram"
+      },
+      "tiktok": {
+        "label": "在 TikTok 上关注我们",
+        "value_global": "@dwarf_lab",
+        "action": "前往 TikTok"
+      },
+      "youtube": {
+        "label": "在 Youtube 上关注我们",
+        "value_global": "@dwarflabofficial",
+        "value_JP": "@DWARFLABJapan",
+        "action": "前往 Youtube"
+      },
+      "x": {
+        "label": "在 X（旧Twitter）上关注我们",
+        "value_global": "@DwarflabJapan",
+        "value_JP": "@DwarflabJapan",
+        "action": "前往 X（旧Twitter）"
+      }
+    }
+  },
+  "form": {
+    "title": "还有问题吗？给我们留言！",
+    "description": "您也可以直接通过 <link>Messenger</link> 联系我们，或通过提交表单给我们留言。"
+  }
+}

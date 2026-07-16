@@ -1,0 +1,13 @@
+{
+  "yourCartIsEmpty": "장바구니가 비어 있습니다",
+  "addSomeProductsToGetStarted": "쇼핑을 시작하려면 상품을 추가하세요",
+  "continueShopping": "제품 목록 보기",
+  "serverError": "서버 오류",
+  "productUnavailableTitle": "상품을 구매할 수 없습니다",
+  "productUnavailableDescription": "현재 해당 상품은 고객님의 지역에서 재고가 없습니다.",
+  "failedToLoadProductInformation": "제품 정보를 불러올 수 없습니다.\n클라이언트가 Shopify 프록시 서버에 연결할 수 없습니다.\n나중에 다시 시도해 주세요.",
+  "retry": "다시 시도",
+  "failedToLoadCMSData": "데이터 로드 실패,\n클라이언트가 CMS 서버에 연결할 수 없습니다.\n나중에 다시 시도해 주세요.",
+  "trackingServiceUnavailable": "네트워크 이상",
+  "failedToLoadTrackingService": "현재 네트워크 연결이 불안정하여\n물류 추적 서비스에 연결할 수 없습니다.\n네트워크를 확인한 후 다시 시도하거나 나중에 다시 시도해 주세요."
+}

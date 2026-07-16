@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "ホームページ",
+    "current": "よくある質問"
+  },
+  "title": "よくある質問",
+  "searchPlaceholder": "検索に関する問題",
+  "faqGroups": {
+    "ordersAndShipping": "注文 & 発送",
+    "returnsWarrantyAndCustoms": "返品、保証、通関",
+    "gettingStarted": "使い始める",
+    "appAndConnection": "アプリと接続",
+    "shootingAndFeatures": "撮影 & 機能",
+    "accessoriesAndFileTransfer": "アクセサリー & ファイル転送"
+  },
+  "contact": {
+    "title": "まだ質問がありますか？メッセージをお寄せください！",
+    "nameLabel": "お名前",
+    "namePlaceholder": "お名前を入力してください",
+    "emailLabel": "あなたのメールアドレス",
+    "emailPlaceholder": "メールアドレスを入力してください",
+    "subjectLabel": "テーマを選択",
+    "subjectPlaceholder": "販売前相談",
+    "messageLabel": "メッセージ",
+    "messagePlaceholder": "メッセージを入力してください",
+    "submit": "送信"
+  },
+  "emptyMessage": "一致するFAQが見つかりませんでした"
+}

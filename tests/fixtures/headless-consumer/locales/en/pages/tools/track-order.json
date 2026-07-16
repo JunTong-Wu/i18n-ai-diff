@@ -1,0 +1,33 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Track Order"
+  },
+  "title": "Track Order",
+  "form": {
+    "title": "Track Your Order",
+    "description": "Regarding the order number format, only fill in the 4 or 5 characters of the order number, xxxx or xxxxx.",
+    "order_number": "Order Number",
+    "email_or_phone_number": "Email or Phone Number",
+    "tracking_number": "Tracking Number",
+    "track": "Track",
+    "or": "or",
+    "enterPlaceholder": "Please enter",
+    "required": "This field is required"
+  },
+  "loading": {
+    "importing": "Loading content for you...",
+    "initializing": "Preparing...",
+    "loadingConfig": "Fetching necessary information...",
+    "loadingTracking": "Loading page...",
+    "patching": "Adjusting display effect...",
+    "retrying": "Connection is somewhat unstable, retrying..."
+  },
+  "faq": {
+    "title": "FAQs",
+    "q1": "Why can't I find the tracking number after entering the order number and email?",
+    "a1": "Your order has not yet shipped. It may be on its way to the logistics provider or undergoing customs clearance. The tracking number has not been generated; please wait a moment to obtain it.",
+    "q2": "Why is there no status for my logistics tracking number?",
+    "a2": "Once your order is shipped from our warehouse, a tracking number will be generated, so it typically takes about one to two days for the tracking number to update to an online status."
+  }
+}

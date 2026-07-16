@@ -1,0 +1,18 @@
+{
+  "breadcrumb": {
+    "home": "Página inicial",
+    "current": "Encontrar um revendedor autorizado"
+  },
+  "title": "Encontrar um revendedor autorizado",
+  "searchPlaceholder": "Pesquisar revendedor por nome, país ou endereço",
+  "checkWebsite": "Visite o site oficial",
+  "continents": {
+    "142": "Ásia",
+    "150": "Europa",
+    "002": "África",
+    "009": "Oceania",
+    "010": "Antártida",
+    "019": "América"
+  },
+  "emptyMessage": "Nenhum revendedor encontrado"
+}

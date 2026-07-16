@@ -1,0 +1,37 @@
+{
+  "breadcrumb": {
+    "home": "ホーム",
+    "current": "アライアンスパートナーになる"
+  },
+  "title": "アライアンスパートナーになる",
+  "banner": {
+    "title": "DWARFLAB製品を推薦して、コミッションを獲得",
+    "steps": {
+      "join": {
+        "title": "参加",
+        "description": "無料のShareASaleまたはAffiliatlyアカウントをアフィリエイトパートナーとして登録するか、すでにアカウントをお持ちの場合は、DWARFLAB IDを追加してください。"
+      },
+      "share": {
+        "title": "共有",
+        "description": "専用のクリエイターリンクを使用して、オンラインでDWARFLAB製品を視聴者と共有し、プロモーションしてください。"
+      },
+      "earn": {
+        "title": "稼ぐ",
+        "description": "対象となる注文から5%の手数料を得ることができます。当社のブランド認知度と製品品質が、あなたの収益を最大化するお手伝いをします。"
+      }
+    }
+  },
+  "join": {
+    "title": "今すぐ参加して、5%のコミッションを獲得",
+    "description": "以下のいずれかのプラットフォームを選択して収益を得始めましょう。",
+    "platforms": {
+      "affiliatly": {
+        "button": "Affiliatlyに参加"
+      },
+      "awin": {
+        "button": "Awinに参加"
+      }
+    },
+    "or": "または"
+  }
+}

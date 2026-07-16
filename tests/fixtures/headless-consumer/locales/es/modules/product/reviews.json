@@ -1,0 +1,13 @@
+{
+  "loading": {
+    "importing": "Preparando para cargar comentarios de usuarios...",
+    "loadingScript": "Cargando el componente de comentarios...",
+    "renderingWidget": "Renderizando comentarios de usuarios...",
+    "retrying": "La conexión es un poco inestable, reintentando..."
+  },
+  "failed": {
+    "title": "Los comentarios de los usuarios no se pueden cargar temporalmente",
+    "description": "Conexión con el servicio de comentarios fallida. Intente de nuevo más tarde.",
+    "retryButton": "Recargar"
+  }
+}

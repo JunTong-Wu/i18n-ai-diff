@@ -1,0 +1,133 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Lock onto the flying bird, track it steadily",
+    "buttons": {
+      "buyNow": "Buy Now",
+      "watchVideo": "Watch video"
+    }
+  },
+  "portable": {
+    "label": "Dictionary size, light as 1.35kg",
+    "title": "Travel light, shoot anytime",
+    "description": "DWARF 3 is your perfect travel companion, ready to embark on a journey with you at any time.\nWith a body weight of approximately 1.35 kg, it can be easily taken along for travel, camping, or weekend trips."
+  },
+  "dualCamera": {
+    "label": "Smart Bird Watching",
+    "title": "Telephoto + wide-angle, dual-camera system",
+    "description": "Quick Positioning · Continuous Tracking · Capturing the Wonderful Moments of Birds in Flight",
+    "subLabel": "Quickly find the target",
+    "subTitle": "Dual-camera collaborative shooting",
+    "subDescription": "The dual-camera system is designed with lenses that work in tandem; the wide-angle lens offers a broader field of view, making it easier to quickly spot targets.\nOnce a target is selected, the telephoto lens precisely focuses on the bird, clearly capturing every key moment.",
+    "telephoto": {
+      "title": "Telephoto"
+    },
+    "wideAngle": {
+      "title": "Wide-angle"
+    }
+  },
+  "afc": {
+    "label": "Clear even in motion",
+    "title": "AF-C continuous autofocus",
+    "description": "In AF-C continuous autofocus mode, DWARF 3 can continuously identify and track moving subjects within the frame, automatically adjusting focus when the target moves, changes direction, or alters distance. Whether it's birds in flight or sudden takeoffs and fast, fleeting moments, the image remains sharply focused."
+  },
+  "freeSelect": {
+    "label": "Select the target, track precisely",
+    "title": "Supports free selection",
+    "description": "In Free shooting mode, tap to track and frame the subject, and the device will continuously track the target, keeping the shot centered around it."
+  },
+  "autoTracking": {
+    "label": "Select target, track precisely",
+    "title": "Auto-follow mode",
+    "description": "After enabling the automatic tracking mode, when birds enter the frame, the device will automatically recognize and start tracking and shooting. No waiting or constant monitoring is required; even if you temporarily leave, the device will automatically begin recording when the target appears. This mode is also suitable for other dynamic targets, meeting automatic recording needs for various natural or everyday scenarios beyond birdwatching."
+  },
+  "hdQuality": {
+    "label": "Feathers are lifelike",
+    "title": "High-definition picture quality",
+    "description": "DWARF 3 brings you a comprehensive upgrade in optics, sensors, and processors, ensuring clear, vibrant, and vivid visuals.",
+    "cards": {
+      "sensor": {
+        "label": "Sony IMX678 · STARVIS 2 Sensor",
+        "title": "More delicate picture gradation",
+        "description": "Equipped with the high-performance STARVIS 2 sensor, the DWARF 3 features a single pixel size increased by approximately 90%, reaching 2μm, which effectively reduces noise interference while supporting longer exposure times. Even in complex lighting environments, the image remains pure and detailed."
+      },
+      "filter": {
+        "label": "Built-in VIS visible light filter",
+        "title": "Restore true colors",
+        "description": "The VIS filter covers the visible light spectrum from 430–650nm, effectively blocking infrared light interference to ensure true, natural, and vibrant colors in the image, making the DWARF 3 an ideal choice for everyday photography and birdwatching documentation."
+      },
+      "aperture": {
+        "label": "35mm telephoto aperture",
+        "title": "737mm equivalent focal length",
+        "description": "With the telephoto lens and 35mm aperture working in tandem, the DWARF 3 still clearly captures the subject in long-distance shots, creating a natural and soft background blur effect that makes the wings stand out more, adding depth and spatial dimension to the image."
+      },
+      "lens": {
+        "label": "Innovative Lens Combination",
+        "title": "Outstanding optical performance",
+        "description": "The lens of DWARF 3 is composed of multiple ED (Extra-low Dispersion) lenses, reducing chromatic aberration and enhancing image sharpness. Every detail of the bird can be clearly displayed, as if within reach."
+      }
+    }
+  },
+  "video": {
+    "label": "Supports up to 60 frames per second",
+    "title": "Smooth Dynamic Video",
+    "description": "In addition to bird watching and photography, with the support of automatic tracking capability, it is also suitable for high-definition video recording in various dynamic scenes, supporting up to 4K resolution and smooth frame performance at 60 frames per second. Whether it's a fleeting moment of motion, natural scenery, or exciting snippets from daily life, you can capture them all with ease."
+  },
+  "appFeatures": {
+    "mainTitle": "Smoother experience, easier shooting",
+    "mainDescription": "NFC quick connection, multilingual support, continuous background shooting, IP54 protection—making outdoor activities more relaxed and shooting more seamless.",
+    "nfc": {
+      "label": "Connect with one touch, start shooting instantly",
+      "title": "NFC one-touch connection",
+      "description": "Place your phone near the light ring area to quickly connect to DWARF 3 and start shooting immediately."
+    },
+    "multiLanguage": {
+      "title": "Multilingual App",
+      "description": "Covering global users, now supporting 10 languages including Chinese, English, Japanese, Spanish, German, and more."
+    },
+    "background": {
+      "title": "Offline automatic operation",
+      "description": "Even if the app is minimized, sent to the background, or the connection is interrupted, DWARF 3 will continue running, allowing you to return and check the progress at any time."
+    },
+    "ip54": {
+      "title": "IP54 protection",
+      "description": "Dustproof and dew-resistant, providing extra protection for observation and photography, making outdoor use more reassuring."
+    }
+  },
+  "moreFun": {
+    "label": "More Fun",
+    "title": "Astronomy & Panoramic Photography",
+    "description": "From astrophotography and ultra-clear panoramas to bird watching and tracking, one device makes observation and recording simpler.",
+    "astronomy": {
+      "title": "Astronomy",
+      "description": "One-click automated shooting makes exploring the universe easier than ever.\nCapture images of galaxies, nebulae, star clusters, and more in just minutes.",
+      "button": "Learn more"
+    },
+    "panorama": {
+      "title": "Billion-Pixel Panorama",
+      "description": "Algorithmic intelligent stitching ensures natural scenes without any glitches.\nWith an ultra-wide field of view and massive detail, zoom in however you like and it stays clear.",
+      "button": "Learn more"
+    }
+  },
+  "packageSection": {
+    "title": "Packaging List",
+    "mainBody": {
+      "title": "DWARF 3 Smart Telescope"
+    },
+    "bag": {
+      "title": "Portable Storage Bag"
+    },
+    "filters": {
+      "title": "Magnetic Solar Filter"
+    },
+    "filtersPouch": {
+      "title": "Filter Storage Bag"
+    },
+    "cable": {
+      "title": "USB-C Data Cable"
+    },
+    "wipeCloth": {
+      "title": "Lens cleaning cloth"
+    }
+  }
+}

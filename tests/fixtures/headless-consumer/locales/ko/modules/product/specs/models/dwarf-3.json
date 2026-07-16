@@ -1,0 +1,17 @@
+{
+  "weight": "1350g",
+  "aperture": "35 mm(망원)\n3.4 mm(광각)",
+  "sensor": "SONY IMX678 1/1.8'（망원）\nSONY IMX307 1/2.8'（광각）",
+  "focalLength": "150 mm(망원)\n6.7 mm(광각)",
+  "rotationRange": "렌즈: 240°\n베이스: 340°",
+  "maxResolution": "3840 × 2160(망원)\n1920 × 1080(광각)",
+  "builtInFilter": "VIS, 듀오 밴드, Astro(망원)\nAstro(광각)",
+  "shootingMode": "사진, 비디오, 천문, 연속 촬영, 타임랩스\n(망원 & 광각)",
+  "equivalentFocalLength": "737 mm(망원)\n45 mm(광각)",
+  "storage": "128GB",
+  "battery": "내장\n10000 mAh\n외부 USB 충전 지원",
+  "npu": "5TOPS",
+  "maxExposureTime": "60초(망원)\n90초(광각)\n모두 EQ 모드에서",
+  "moreFunctions": "NFC 터치 연결\n천문 후처리/예약 촬영/천문 콜라주",
+  "size": "222 × 142 × 65mm"
+}

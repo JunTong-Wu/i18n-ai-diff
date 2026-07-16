@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "pretitle": "Mini Hydraulic Tripod Head",
+    "presubtitle": "Lightweight and portable, stable support",
+    "buyNow": "Buy Now",
+    "title": "Hydraulic Tripod",
+    "subtitle": "Hydraulic Damping Gimbal | Stable Support | Lightweight and Portable | More Flexible Angles"
+  },
+  "bestCompanion": {
+    "subtitle": "From balcony to wilderness, set up in one go, ready to shoot anytime",
+    "title": "DWARF's Best Shooting Partner",
+    "description": "Provides stable support and smooth pitch/pan adjustments, making long-duration shooting, time-lapse, and observation more reassuring."
+  },
+  "equatorialMode": {
+    "subtitle": "Two modes, switch at will",
+    "title": "Supports equatorial mount mode",
+    "description": "Freely switch between equatorial mount mode and altazimuth mount mode. Equatorial mount mode is used for more stable long-term tracking, making shooting more relaxed; altazimuth mount mode is suitable for quick pointing and daily browsing, lift to see and adjust at any time.",
+    "tab1": "Equatorial Mount Mode",
+    "tab2": "Alt-Az Mode"
+  },
+  "portable": {
+    "subtitle": "Five-section leg tube, compact size",
+    "title": "Super easy to carry",
+    "description": "Made of aluminum alloy, it folds down to 25 cm in length. Weighing as little as 790 grams, it's easy to carry. City stargazing, travel camping, chasing the sun or the moon—no longer a 'hassle'."
+  },
+  "stable": {
+    "subtitle": "Stable support for cleaner images",
+    "title": "Super Stable Shooting",
+    "description": "Solid tripod legs and stable support. Supports 360° panning and -80°/+90° tilt for easy perspective switching; securely holds the DWARF, minimizing the impact of subtle vibrations on the image."
+  },
+  "hydraulicHead": {
+    "subtitle": "Smooth rotation, pushes into place with ease",
+    "title": "Hydraulic head, smooth and controllable",
+    "description": "Built-in hydraulic damping system ensures every adjustment is precise and smooth. No sudden jolts, no awkward pauses—confident control, precise framing."
+  },
+  "flexibility": {
+    "subtitle": "Composition without constraints",
+    "title": "More flexible angles",
+    "description": "The handle adjusts up and down, and the tripod supports multi-angle folding legs, allowing you to choose high or low positions as you wish, with no more restricted perspectives.\nFrom looking up to capture stars to low-angle landscape shots, and even side compositions, you can always find the ideal angle."
+  },
+  "tripodSpecs": {
+    "title": "Tripod",
+    "subtitle": "Part Introduction",
+    "specs": {
+      "weight": "Total weight",
+      "weightValue": "775 grams",
+      "connector": "Connector",
+      "connectorValue": "1/4\" 3/8\"",
+      "maxLoad": "Maximum Capacity",
+      "maxLoadValue": "3.0 kilograms",
+      "maxHeight": "Maximum Height",
+      "maxHeightValue": "530 millimeters",
+      "foldedHeight": "Folding Height",
+      "foldedHeightValue": "180 millimeters",
+      "tubeDiameter": "Pipe diameter",
+      "tubeDiameterValue": "9.7/12.6/15.5/18.2/21 mm",
+      "sections": "Number of segments",
+      "sectionsValue": "5",
+      "material": "Material",
+      "materialValue": "Aluminum alloy",
+      "color": "Color",
+      "colorValue": "Black"
+    }
+  },
+  "headSpecs": {
+    "title": "Hydraulic Pan-Tilt Head",
+    "subtitle": "Part Introduction",
+    "specs": {
+      "weight": "Total weight",
+      "weightValue": "300g",
+      "panRange": "Horizontal range",
+      "panRangeValue": "360°",
+      "tiltRange": "Tilt Range",
+      "tiltRangeValue": "+90°/-75°",
+      "height": "Altitude",
+      "heightValue": "71 millimeters",
+      "baseDiameter": "Base diameter",
+      "baseDiameterValue": "40 millimeters",
+      "loadCapacity": "Load Capacity",
+      "loadCapacityValue": "3.0 kilograms",
+      "material": "Material",
+      "materialValue": "Aluminum alloy",
+      "quickRelease": "Quick Release Plate",
+      "quickReleaseValue": "1/4 inch camera screw"
+    }
+  }
+}

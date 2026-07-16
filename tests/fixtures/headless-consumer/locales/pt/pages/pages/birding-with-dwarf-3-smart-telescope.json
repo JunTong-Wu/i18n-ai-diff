@@ -1,0 +1,133 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "Bloqueie o pássaro voador, siga-o com estabilidade",
+    "buttons": {
+      "buyNow": "Comprar agora",
+      "watchVideo": "Assistir vídeo"
+    }
+  },
+  "portable": {
+    "label": "Tamanho do dicionário, leve com apenas 1,35 kg",
+    "title": "Parta leve, pronto para filmar a qualquer momento",
+    "description": "O DWARF 3 é o seu companheiro de viagem perfeito, pronto para partir a qualquer momento.\nCom um peso corporal de aproximadamente 1,35 kg, é fácil de levar em viagens, acampamentos e passeios de fim de semana."
+  },
+  "dualCamera": {
+    "label": "Observação Inteligente de Aves",
+    "title": "Teleobjetiva + grande angular, sistema de câmera dupla",
+    "description": "Localização Rápida · Rastreamento Contínuo · Capturando Momentos Incríveis de Pássaros em Voo",
+    "subLabel": "Encontrar rapidamente o alvo",
+    "subTitle": "Fotografia com dupla câmera sincronizada",
+    "subDescription": "Sistema de câmera dupla projetado, com lentes trabalhando em conjunto. A lente grande angular oferece um campo de visão mais amplo, facilitando a rápida identificação de alvos.\nApós selecionar o alvo, a lente teleobjetiva foca com precisão no pássaro, apresentando com clareza cada momento crucial.",
+    "telephoto": {
+      "title": "Teleobjetiva"
+    },
+    "wideAngle": {
+      "title": "Grande angular"
+    }
+  },
+  "afc": {
+    "label": "Em movimento, ainda nítido",
+    "title": "AF-C foco automático contínuo",
+    "description": "No modo de foco automático contínuo AF-C, o DWARF 3 pode identificar e seguir continuamente o objeto em movimento no quadro, ajustando automaticamente o foco quando o alvo se move, muda de direção ou altera a distância. Seja para pássaros em voo ou momentos de decolagem súbita e passagem rápida, a imagem mantém-se sempre nítida e focada."
+  },
+  "freeSelect": {
+    "label": "Selecionar alvo, rastrear com precisão",
+    "title": "Suporte à seleção livre",
+    "description": "No modo de captura Livre, clique para rastrear e selecionar o objeto. O dispositivo continuará rastreando o alvo, mantendo o quadro centrado nele."
+  },
+  "autoTracking": {
+    "label": "Selecionar alvo, rastrear com precisão",
+    "title": "Modo de acompanhamento automático",
+    "description": "Ao ativar o modo de acompanhamento automático, quando uma ave entra no quadro, o dispositivo a identifica automaticamente e inicia a gravação de rastreamento. Não é necessário esperar ou ficar vigiando; mesmo que você se afaste temporariamente, o dispositivo começará a gravar automaticamente quando o alvo aparecer. Este modo também é aplicável a outros alvos em movimento, permitindo atender a diversas necessidades de registro automático em cenários naturais ou do cotidiano, além da observação de aves."
+  },
+  "hdQuality": {
+    "label": "As penas são vívidas",
+    "title": "Qualidade de imagem em alta definição",
+    "description": "O DWARF 3 traz uma atualização completa de óptica, sensores e processadores, garantindo imagens nítidas, vibrantes e vivas.",
+    "cards": {
+      "sensor": {
+        "label": "Sensor Sony IMX678 · STARVIS 2",
+        "title": "Níveis de imagem mais refinados",
+        "description": "Equipado com o sensor STARVIS 2 de alto desempenho, o DWARF 3 tem um tamanho de pixel individual aumentado em cerca de 90%, atingindo 2μm, o que suporta tempos de exposição mais longos enquanto reduz efetivamente a interferência de ruído. Mesmo em ambientes com iluminação complexa, a imagem permanece pura e detalhada."
+      },
+      "filter": {
+        "label": "Filtro VIS de luz visível embutido",
+        "title": "Restaurar cores reais",
+        "description": "O filtro VIS cobre a faixa de luz visível de 430–650 nm, bloqueando efetivamente a interferência da luz infravermelha, garantindo cores de imagem verdadeiras, naturais e vibrantes, tornando o DWARF 3 uma escolha ideal para filmagens cotidianas e registros de observação de pássaros."
+      },
+      "aperture": {
+        "label": "Abertura de 35mm de telefoto",
+        "title": "737 mm de distância focal equivalente",
+        "description": "A lente telefoto em combinação com uma abertura de 35mm permite que o DWARF 3 apresente o assunto com clareza mesmo em fotos de longa distância, criando um efeito de desfoque de fundo natural e suave, destacando as asas e conferindo mais profundidade e sensação de espaço à imagem."
+      },
+      "lens": {
+        "label": "Combinação de lentes inovadora",
+        "title": "Desempenho óptico excecional",
+        "description": "A lente DWARF 3 é composta por múltiplas lentes ED (Extra-low Dispersion) que reduzem a aberração cromática e aumentam a nitidez da imagem. Cada detalhe das aves é apresentado com clareza, como se estivesse ao alcance das mãos."
+      }
+    }
+  },
+  "video": {
+    "label": "Suporta até 60 quadros por segundo",
+    "title": "Vídeo dinâmico fluido",
+    "description": "Além da observação e fotografia de pássaros, com o suporte da capacidade de rastreamento automático, também é adequado para gravação de vídeo em alta definição em várias cenas dinâmicas, suportando uma performance de imagem fluida de até 4K de resolução e 60 quadros por segundo. Momentos esportivos, paisagens naturais ou cenas emocionantes do cotidiano podem ser capturados com facilidade."
+  },
+  "appFeatures": {
+    "mainTitle": "Experiência mais suave, captura mais fácil",
+    "mainDescription": "NFC para conexão rápida, suporte multilíngue, captura contínua em segundo plano, proteção IP54 — para mais tranquilidade ao ar livre e filmagens mais fluidas.",
+    "nfc": {
+      "label": "Conecte e dispare instantaneamente",
+      "title": "Conexão por toque NFC",
+      "description": "Aproxime o telefone da área do anel de luz para conectar-se rapidamente ao DWARF 3 e começar a filmar imediatamente."
+    },
+    "multiLanguage": {
+      "title": "Aplicativo multilíngue",
+      "description": "Cobrindo usuários em todo o mundo, agora suporta 10 idiomas, incluindo chinês, inglês, japonês, espanhol, alemão, entre outros."
+    },
+    "background": {
+      "title": "Execução automática offline",
+      "description": "Mesmo quando o aplicativo é enviado para segundo plano, minimizado ou a conexão é interrompida, o DWARF 3 continua em execução, permitindo que você retorne a qualquer momento para verificar o progresso."
+    },
+    "ip54": {
+      "title": "Proteção IP54",
+      "description": "À prova de poeira e orvalho, uso ao ar livre mais tranquilo, oferecendo proteção adicional para observação e fotografia."
+    }
+  },
+  "moreFun": {
+    "label": "Mais diversão",
+    "title": "Fotografia astronômica e panorâmica",
+    "description": "Da astrofotografia, panoramas ultra HD até a observação de pássaros e seguimento, um único dispositivo torna a observação e o registro mais simples.",
+    "astronomy": {
+      "title": "Astronomia",
+      "description": "Automação de captura com um clique, tornando a exploração do universo mais simples do que nunca.\nEm poucos minutos, é possível capturar imagens de galáxias, nebulosas, aglomerados estelares e mais.",
+      "button": "Saiba mais"
+    },
+    "panorama": {
+      "title": "Panorama de bilhões de pixels",
+      "description": "Algoritmo de montagem inteligente, a imagem é natural sem falhas.\nCampo de visão super amplo + detalhes abundantes, amplie como quiser com nitidez.",
+      "button": "Saiba mais"
+    }
+  },
+  "packageSection": {
+    "title": "Lista de embalagem",
+    "mainBody": {
+      "title": "DWARF 3 Telescópio Inteligente"
+    },
+    "bag": {
+      "title": "Bolsa de armazenamento portátil"
+    },
+    "filters": {
+      "title": "Filtro solar magnético"
+    },
+    "filtersPouch": {
+      "title": "Bolsa de armazenamento de filtros"
+    },
+    "cable": {
+      "title": "Cabo de dados USB-C"
+    },
+    "wipeCloth": {
+      "title": "Pano para limpar lentes"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "title": "规格参数",
+  "subtitle": "哪款望远镜适合你？",
+  "priceFormat": "{price} 起",
+  "parameters": {
+    "weight": "重量",
+    "aperture": "光圈直径",
+    "sensor": "图像传感器",
+    "focalLength": "焦距",
+    "rotationRange": "旋转范围",
+    "maxResolution": "最大分辨率",
+    "builtInFilter": "内置滤镜",
+    "shootingMode": "拍摄模式",
+    "equivalentFocalLength": "等效焦距",
+    "storage": "存储",
+    "battery": "电池",
+    "npu": "NPU",
+    "maxExposureTime": "最大曝光时间",
+    "moreFunctions": "更多功能",
+    "size": "尺寸"
+  },
+  "actions": {
+    "buyNow": "立即购买",
+    "learnMore": "了解更多"
+  },
+  "units": {
+    "gram": "g",
+    "millimeter": "mm"
+  },
+  "productDataNotFound": "未找到产品数据",
+  "positionTags": {
+    "dwarfMini": {
+      "beginnerFriendly": "新手友好",
+      "mostPortable": "最便携",
+      "easySetup": "易上手"
+    },
+    "dwarf3": {
+      "strongerImaging": "成像更强",
+      "bestForDeepSky": "更适合深空",
+      "advancedChoice": "进阶之选"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "breadcrumb": {
+    "home": "Accueil",
+    "products": "Produits",
+    "all": "Tous"
+  },
+  "pageTitle": {
+    "products": "Produits",
+    "allProducts": "Tous les produits",
+    "collectionFallback": "Catégories de produits"
+  },
+  "collectionTitle": {
+    "accessories": "Accessoires",
+    "smart-telescope": "Télescope intelligent"
+  },
+  "card": {
+    "empty": "Aucun produit disponible à la vente",
+    "status": {
+      "soldOut": "Épuisé"
+    },
+    "rating": {
+      "noReviews": "Aucun avis",
+      "reviewsWord": "avis",
+      "jumpToReviewsAriaLabel": "Aller aux avis du produit"
+    }
+  }
+}

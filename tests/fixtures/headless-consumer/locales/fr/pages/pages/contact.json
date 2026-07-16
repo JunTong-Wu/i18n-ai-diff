@@ -1,0 +1,101 @@
+{
+  "breadcrumb": {
+    "home": "Accueil",
+    "current": "Contactez-nous"
+  },
+  "title": "Contactez-nous",
+  "intro": {
+    "title": "Contactez-nous",
+    "description": "Si vous avez des questions, nous vous recommandons de consulter d'abord notre <link1>FAQ</link1> et notre <link2>centre d'aide</link2>. Si vous ne trouvez pas de réponse, veuillez nous contacter via les moyens suivants."
+  },
+  "methods": {
+    "address": "Adresse : Chambre 01, 21e étage, Bâtiment 1, HuiGu ShiKong, No. 206, Lao Wu Huang Gong Lu, Rue Guandong, Zone de développement des nouvelles technologies de l'Est du lac de Wuhan\nTéléphone : 027-65527110",
+    "grid": {
+      "wecom": {
+        "label": "WeChat Entreprise",
+        "value_global": "扫码添加企业微信",
+        "action": "Voir le code QR"
+      },
+      "weChatServiceAccount": {
+        "label": "Compte de service WeChat",
+        "value_global": "扫码获取最新讯息",
+        "action": "Voir le code QR"
+      },
+      "saleCooperate": {
+        "label": "Coopération commerciale et marketing",
+        "value_global": "hello@dwarflab.com",
+        "action": "Envoyer un e-mail"
+      },
+      "douyin": {
+        "label": "Suivez-nous sur TikTok",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "Suivre"
+      },
+      "weChatChannels": {
+        "label": "Suivez la chaîne vidéo",
+        "value_global": "@DWARFLAB",
+        "action": "Allez sur les vidéos WeChat, recherchez et suivez"
+      },
+      "xiaoHongshu": {
+        "label": "Suivez Xiaohongshu",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "Suivre"
+      },
+      "bilibili": {
+        "label": "Suivez bilibili",
+        "value_global": "@DWARFLAB 智能望远镜",
+        "action": "Suivre"
+      },
+      "email": {
+        "label": "Boîte aux lettres",
+        "value_global": "support@dwarflab.com",
+        "value_JP": "hello.jp@dwarflab.com",
+        "action": "Envoyer un e-mail"
+      },
+      "videoCall": {
+        "label": "Programmer un appel vidéo",
+        "value_global": "预约专家",
+        "valueTranslate": "Réserver un expert",
+        "action": "Réservation"
+      },
+      "facebookGroup": {
+        "label": "Groupe d'utilisateurs Facebook",
+        "value_global": "@DWARFLAB Official Community",
+        "value_JP": "@DWARFLAB 公式コミュニティ",
+        "action": "Rejoindre un groupe Facebook"
+      },
+      "facebook": {
+        "label": "Suivez-nous sur Facebook",
+        "value_global": "@DWARFLAB",
+        "value_JP": "@DWARFLAB.jp",
+        "action": "Aller sur Facebook"
+      },
+      "instagram": {
+        "label": "Suivez-nous sur Instagram",
+        "value_global": "@DWARFLAB",
+        "action": "Aller sur Instagram"
+      },
+      "tiktok": {
+        "label": "Suivez-nous sur TikTok",
+        "value_global": "@dwarf_lab",
+        "action": "Aller sur TikTok"
+      },
+      "youtube": {
+        "label": "Suivez-nous sur Youtube",
+        "value_global": "@dwarflabofficial",
+        "value_JP": "@DWARFLABJapan",
+        "action": "Aller sur YouTube"
+      },
+      "x": {
+        "label": "Suivez-nous sur X (anciennement Twitter)",
+        "value_global": "@DwarflabJapan",
+        "value_JP": "@DwarflabJapan",
+        "action": "Aller sur X (anciennement Twitter)"
+      }
+    }
+  },
+  "form": {
+    "title": "D'autres questions ? Laissez-nous un message !",
+    "description": "Vous pouvez également nous contacter directement via <link>Messenger</link> ou nous laisser un message en soumettant le formulaire."
+  }
+}

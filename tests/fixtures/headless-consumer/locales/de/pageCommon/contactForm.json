@@ -1,0 +1,31 @@
+{
+  "headerText": "Sie haben eine neue Nachricht über das Kontaktformular des Online-Shops erhalten.",
+  "countryLabel": "Ländercode",
+  "nameLabel": "Ihr Name",
+  "namePlaceholder": "Bitte geben Sie Ihren Namen ein",
+  "emailLabel": "Ihre E-Mail-Adresse",
+  "emailPlaceholder": "Bitte geben Sie Ihre E-Mail-Adresse ein",
+  "subjectLabel": "Thema auswählen",
+  "subjectPlaceholder": "Bitte wählen Sie ein Thema",
+  "subjectOptions": {
+    "preSaleInquiry": "Verkaufsberatung",
+    "orderStatus": "Bestellstatus",
+    "appFirmwareIssue": "App/Firmware-Problem",
+    "accessoriesIssue": "Zubehörprobleme",
+    "businessCooperation": "Geschäftskooperation"
+  },
+  "messageLabel": "Nachricht",
+  "messagePlaceholder": "Bitte geben Sie Ihre Nachricht ein",
+  "submit": "Absenden",
+  "required": "Dieses Feld ist ein Pflichtfeld",
+  "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+  "alert": {
+    "checkInformation": "Informationen prüfen",
+    "checkInformationDescription": "Bitte prüfen Sie Ihre Angaben erneut, um sicherzustellen, dass wir Sie rechtzeitig erreichen können.",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "submitSuccess": "Erfolgreich übermittelt",
+    "submitError": "Übermittlung fehlgeschlagen",
+    "okGotIt": "Verstanden"
+  }
+}

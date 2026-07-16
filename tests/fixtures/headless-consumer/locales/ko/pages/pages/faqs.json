@@ -1,0 +1,29 @@
+{
+  "breadcrumb": {
+    "home": "홈페이지",
+    "current": "자주 묻는 질문"
+  },
+  "title": "자주 묻는 질문",
+  "searchPlaceholder": "검색 문제",
+  "faqGroups": {
+    "ordersAndShipping": "주문 및 배송",
+    "returnsWarrantyAndCustoms": "반품, 보증 및 통관",
+    "gettingStarted": "시작하기",
+    "appAndConnection": "앱 및 연결",
+    "shootingAndFeatures": "촬영 & 기능",
+    "accessoriesAndFileTransfer": "액세서리 및 파일 전송"
+  },
+  "contact": {
+    "title": "더 궁금한 점이 있나요? DWARFLAB에 메시지를 남겨주세요!",
+    "nameLabel": "귀하의 성함",
+    "namePlaceholder": "이름을 입력해 주세요",
+    "emailLabel": "귀하의 이메일",
+    "emailPlaceholder": "이메일 주소를 입력해 주세요",
+    "subjectLabel": "주제 선택",
+    "subjectPlaceholder": "판매 전 상담",
+    "messageLabel": "문의하기",
+    "messagePlaceholder": "메시지를 입력해 주세요",
+    "submit": "제출"
+  },
+  "emptyMessage": "일치하는 FAQ를 찾을 수 없습니다"
+}

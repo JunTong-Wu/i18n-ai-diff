@@ -1,0 +1,27 @@
+{
+  "breadcrumb": {
+    "home": "首页",
+    "products": "产品",
+    "all": "全部"
+  },
+  "pageTitle": {
+    "products": "产品",
+    "allProducts": "全部产品",
+    "collectionFallback": "产品分类"
+  },
+  "collectionTitle": {
+    "accessories": "配件",
+    "smart-telescope": "智能望远镜"
+  },
+  "card": {
+    "empty": "暂无可售商品",
+    "status": {
+      "soldOut": "售罄"
+    },
+    "rating": {
+      "noReviews": "暂无评价",
+      "reviewsWord": "条评价",
+      "jumpToReviewsAriaLabel": "跳转到商品评价"
+    }
+  }
+}

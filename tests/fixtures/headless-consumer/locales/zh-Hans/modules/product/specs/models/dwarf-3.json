@@ -1,0 +1,17 @@
+{
+  "weight": "1350 g",
+  "aperture": "35 mm（长焦）\n3.4 mm（广角）",
+  "sensor": "SONY IMX678 1/1.8'（长焦）\nSONY IMX307 1/2.8'（广角）",
+  "focalLength": "150 mm（长焦）\n6.7 mm（广角）",
+  "rotationRange": "镜头：240°\n底座：340°",
+  "maxResolution": "3840 × 2160（长焦）\n1920 × 1080（广角）",
+  "builtInFilter": "VIS、Duo-Band、Astro（长焦）\nAstro（广角）",
+  "shootingMode": "照片、视频、天文、连拍、延时摄影\n(长焦 & 广角）",
+  "equivalentFocalLength": "737 mm（长焦）\n45 mm（广角）",
+  "storage": "128 GB",
+  "battery": "内置\n10000 mAh\n支持外部 USB 充电",
+  "npu": "5 TOPS",
+  "maxExposureTime": "60s（长焦）\n90s（广角）\n均在 EQ 模式下",
+  "moreFunctions": "NFC 一触即连\n天文后期/预约拍摄/天文拼图",
+  "size": "222 × 142 × 65 mm"
+}

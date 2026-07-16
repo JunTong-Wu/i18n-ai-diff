@@ -1,0 +1,47 @@
+{
+  "shoppingCart": "Carrinho de compras",
+  "items": "produtos",
+  "product": "Produto",
+  "price": "Preço",
+  "quantity": "Quantidade",
+  "total": "Preço Total",
+  "subtotal": "Subtotal",
+  "discount": "Desconto",
+  "checkout": "Finalizar",
+  "findingShippingProtection": "Estamos verificando uma proteção de envio adequada para o seu pedido. Aguarde um momento.",
+  "xcottonConflict": {
+    "title": "Falha ao atualizar a proteção de envio",
+    "description": "A proteção de envio pode não estar sincronizada com o carrinho. Atualize a página para confirmar o total do carrinho.",
+    "refreshCart": "Atualizar carrinho"
+  },
+  "preparingCheckout": "Preparando o pagamento seguro...",
+  "checkoutTakingLonger": "Isso está demorando mais do que o esperado",
+  "checkoutTakingLongerDescription": "Ainda estamos preparando seu pagamento seguro. Você pode continuar aguardando ou voltar ao produto.",
+  "checkoutFailed": "Não foi possível abrir o pagamento",
+  "checkoutFailedDescription": "Verifique sua conexão e tente novamente. Nenhuma cobrança foi realizada.",
+  "returnToProduct": "Voltar ao produto",
+  "discountCodeInvalid": "Código de desconto inválido",
+  "alert": {
+    "confirmRemove": "Confirmar exclusão",
+    "confirmRemoveText": "Confirmar a exclusão deste produto?",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
+  },
+  "notification": {
+    "error": {
+      "title": "Falha na atualização do carrinho",
+      "description": "A rede está um pouco instável, o carrinho foi restaurado para a quantidade e valor anteriores. Por favor, tente novamente mais tarde."
+    }
+  },
+  "promotions": {
+    "freeGiftBadge": "Brinde grátis",
+    "firstNightKit": {
+      "cart": {
+        "progressTitle": "Oferta de conjunto: desbloqueie {giftItems}",
+        "claimedTitle": "Você ganhou {giftItems}",
+        "progressDescription": "Adicione {missingItems} ao carrinho com {ownedItems} para desbloquear {giftItems} como brinde grátis.",
+        "claimedDescription": "Seu brinde está no carrinho: {giftItems}. O desconto final será aplicado na finalização da compra."
+      }
+    }
+  }
+}

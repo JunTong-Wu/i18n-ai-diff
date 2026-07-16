@@ -1,0 +1,245 @@
+{
+  "hero": {
+    "title": "DWARF 3",
+    "subtitle": "小在体积，大在惊喜。",
+    "buttons": {
+      "buyNow": "立即购买",
+      "watchVideo": "观看视频"
+    }
+  },
+  "slogan": {
+    "line1": "轻盈",
+    "line2": "却更强大"
+  },
+  "featureGrid": {
+    "title": "凝聚专业\n尽情探索",
+    "cards": {
+      "portable": "轻松携带",
+      "portableValue": "1.3kg",
+      "oneClickPost": "一键天文后期",
+      "tripleFilters": "内置三种滤镜",
+      "dualLens": "复消色差双摄镜头组",
+      "longExposure": "60s 长曝光",
+      "sensor": "传感器",
+      "sensorValue": "SONY IMX678",
+      "dailyRecommend": "星图每日推荐",
+      "autoGoTo": "自动寻星",
+      "moreShootingModes": "更多拍摄模式，任你选择",
+      "panorama": "全景摄影",
+      "autoTracking": "自动跟拍"
+    }
+  },
+  "deepSpace": {
+    "title": "看见深空",
+    "subtitle": "把遥远，拍得清晰可见"
+  },
+  "lightweightBody": {
+    "title": "轻量机身",
+    "subtitle": "字典大小，轻至 1.35kg",
+    "description1": "DWARF 3 是你的<light>旅行绝佳伴侣，</light>陪你随时启程。",
+    "description2": "<light>约 1.35 kg 的机身重量，</light>旅行、露营、周末出行都能轻松带上。"
+  },
+  "easyStart": {
+    "title": "轻松上手",
+    "subtitle": "智能操控，App 一键开拍。",
+    "nfc": {
+      "title": "高效配对 一触即连",
+      "description1": "DWARF 3 <light>支持 NFC 快速连接，只需轻轻一触，即可高效配对，</light>进入拍摄流程。",
+      "description2": "减少连接时间，把注意力留给画面。"
+    },
+    "starChart": {
+      "title": "星图找星 一键开拍",
+      "description1": "在星图中选定目标，DWARF 3 自动定位并跟踪。",
+      "description2": "<light>从「想拍什么」到「正在拍」，只需一步。</light>"
+    }
+  },
+  "hardware": {
+    "title": "出众成像\n源自硬核实力",
+    "dualLens": {
+      "title": "6片复消色差双摄镜头组",
+      "subtitle": "广角 × 长焦 双镜头协作，兼顾星空与风景。",
+      "telephoto": {
+        "title": "1/1.8 英寸 长焦镜头",
+        "pixels": "830 万像素",
+        "focalLength": "737 mm 等效焦距"
+      },
+      "wideAngle": {
+        "title": "1/2.8 英寸 广角镜头",
+        "pixels": "200 万像素",
+        "focalLength": "45 mm 等效焦距"
+      }
+    },
+    "sensor": {
+      "title": "索尼 IMX678 Starvis 2 传感器",
+      "subtitle": "高灵敏度 + 低噪点，让暗弱星云也更有层次。",
+      "specs": {
+        "qe": "83%量子效率",
+        "qeDesc": "捕捉更多微弱光线",
+        "bitDepth": "12 bit 输出",
+        "bitDepthDesc": "层次更细腻，过渡更自然",
+        "readNoise": "0.6 e-读出噪声",
+        "readNoiseDesc": "暗部更纯净，细节更稳",
+        "fullWell": "11,270 e- 满阱容量",
+        "fullWellDesc": "亮部更从容，不易溢出"
+      }
+    },
+    "filters": {
+      "title": "内置三种滤镜",
+      "subtitle": "可切换 VIS / Astro / Dual-Band 三种模式，适配多种光线环境。不同滤镜，看见不同的夜空。",
+      "specs": {
+        "standard": "标准滤镜",
+        "standardDesc": "覆盖 430-650nm 可见光范围，适合日间与常规拍摄。",
+        "astro": "天文滤镜",
+        "astroDesc": "扩展至 440-690nm 红外范围，适合深空与低照度环境。",
+        "dualBand": "双窄带滤镜",
+        "dualBandDesc": "双波段滤镜 OIII（500.7nm） + Hα（656.3nm） 设计，可显著降低城市光污染影响，提升发射星云的对比度与细节表现，使画面更纯净。"
+      }
+    },
+    "formats": {
+      "title": "多种格式，为后期而生",
+      "subtitle": "从分享直出，到专业修图，一机全能。",
+      "description": "提供 JPG、PNG、FITS、TIFF 多种照片格式输出，为后期处理与成片选择提供更多空间与可能。"
+    }
+  },
+  "creativeCenter": {
+    "sectionLabel": "重塑玩法",
+    "title": "创作中心",
+    "subtitle": "内置天文后期与堆栈能力，让天文拍摄更简单、更高效",
+    "astroPost": {
+      "label": "天文后期",
+      "title": "一键优化\n深空更清晰",
+      "tabs": {
+        "oneClick": "一键优化",
+        "denoise": "降噪",
+        "starCorrection": "星点校正",
+        "starRemoval": "星点去除",
+        "watermark": "添加水印"
+      },
+      "description": {
+        "oneClick": "不懂后期，也能把照片调到「好看又靠谱」",
+        "denoise": "降噪不伤细节，干净但不「糊」",
+        "starCorrection": "修正星点形态，还原自然星空",
+        "starRemoval": "分离星点，突出星云结构，为进阶创作预留空间",
+        "watermark": "一键标注关键信息，分享更专业、作品更有归属感"
+      }
+    },
+    "megaStack": {
+      "label": "多夜叠图",
+      "title": "跨时段堆栈\n轻松合成",
+      "subtitle": "支持多次拍摄结果无缝堆栈，提升清晰度、降低噪点，让成片更纯净、更高分辨率",
+      "before": "60 秒曝光，\n200 张叠加，原始直出",
+      "after": "500 张叠加，\n经 Stellar Studio 处理"
+    }
+  },
+  "proPerformance": {
+    "title": "专业表现，\n远超期待。",
+    "wideView": {
+      "sectionTitle": "宽广视角\n要深度也要广度",
+      "title": "3° 视场角",
+      "description": "单视野可轻松覆盖大多数深空天体的全貌，呈现完整且细腻的图像细节。"
+    },
+    "mosaic": {
+      "title": "马赛克，面积大涨",
+      "description": "天文马赛克还能让视野进一步提升，通过 2×2 的拼接模式，将单幅画面的拍摄面积扩展至原来的 4 倍。旋转缩放，随心构图。把星云的全貌拍得更完整。"
+    }
+  },
+  "advancedFeatures": {
+    "title": "进阶功能",
+    "subtitle": "专属优势功能，高端玩家必入",
+    "exposure": {
+      "title": "曝光长至 60 s",
+      "description": "支持最长 60 s 的曝光时间，大幅提升弱光环境下的细节还原能力和图像质量，让深空目标的层次更加丰富、细节更加清晰。"
+    },
+    "equatorial": {
+      "title": "赤道仪模式",
+      "description": "突破传统经纬仪设备限制，实现更精准的天体跟踪。同时消除图像场旋，最大程度保留星体完整性。"
+    },
+    "curves": {
+      "title": "搭载曲线调色",
+      "description": "内置曲线调色功能，支持RGB通道精细调整，重新分配颜色平衡，精准还原天体的真实色彩表现。"
+    },
+    "scheduled": {
+      "title": "预约拍摄",
+      "description": "提前设置目标拍摄计划，到点后 DWARF 3 将自动开始拍摄。\n不必守候整夜，也不怕错过窗口期。"
+    },
+    "battery": {
+      "title": "电池续航",
+      "description": "搭配高性能电池，无惧严寒与酷暑，保证一整晚的持续稳定运行。",
+      "note": "*室温条件下实测天文拍摄平均续航时长可达5.5小时，适应-20℃～45℃运行环境温度。"
+    }
+  },
+  "moreSubjects": {
+    "title": "更多拍摄题材",
+    "subtitle": "星空之外，也有世界",
+    "slides": {
+      "0": {
+        "title": "银河",
+        "description": "DWARF 指向天空即可定位银河，一键拍摄，\n自动地景分离与叠加，轻松出片。"
+      },
+      "1": {
+        "title": "星轨",
+        "description": "星轨模式，自动地景分离与叠加。\n一次拍摄，即得星轨照片与视频。 "
+      },
+      "2": {
+        "title": "太阳",
+        "description": "一键锁定太阳，稳定跟踪，\n太阳黑子清晰可见。"
+      },
+      "3": {
+        "title": "月亮",
+        "description": "稳稳跟拍月亮，\n把每一次月相变化都记录下来。"
+      }
+    }
+  },
+  "appFeatures": {
+    "mainTitle": "体验更顺，拍摄更轻松",
+    "mainDescription": "多语言支持、后台持续拍摄、IP54 防护——让户外更从容，拍摄更连贯。",
+    "multiLanguage": {
+      "title": "多语言 App",
+      "description": "覆盖全球用户，现已支持中文、英语、日语、西班牙语、德语等 10 种语言。"
+    },
+    "background": {
+      "title": "离线自动运行",
+      "description": "即使 App 退到后台、最小化或连接中断，DWARF 3 仍会持续运行，随时可返回查看进度。"
+    },
+    "ip54": {
+      "title": "IP54 防护",
+      "description": "防尘防露，户外使用更安心，为观测与拍摄提供额外保护。"
+    }
+  },
+  "moreFun": {
+    "sectionLabel": "更多乐趣",
+    "title": "观鸟 & 全景摄影",
+    "subtitle": "从观鸟跟拍到超清全景，一台设备，把观察与记录变得更简单",
+    "birding": {
+      "title": "自动锁定目标，持续跟拍",
+      "description": "识别目标后，DWARF 3 自动锁定并持续追踪。\n就算突然起飞，双摄系统也能快速重定位，稳稳跟上。",
+      "button": "了解更多"
+    },
+    "panorama": {
+      "title": "千亿像素全景",
+      "description": "算法智能拼接，画面自然不穿帮。\n超大视野 + 海量细节，想怎么放大都清晰。",
+      "button": "了解更多"
+    }
+  },
+  "packageSection": {
+    "title": "包装内容",
+    "mainBody": {
+      "title": "DWARF 3 智能望远镜"
+    },
+    "bag": {
+      "title": "收纳包"
+    },
+    "filters": {
+      "title": "磁吸一体式太阳滤镜"
+    },
+    "filtersPouch": {
+      "title": "滤镜保护袋"
+    },
+    "cable": {
+      "title": "Type-C 数据线"
+    },
+    "wipeCloth": {
+      "title": "镜头擦拭布"
+    }
+  }
+}
