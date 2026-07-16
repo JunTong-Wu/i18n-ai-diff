@@ -78,18 +78,20 @@ program
   .description('Open the local project panel')
   .option('-c, --config <path>', 'Config file path')
   .option('-p, --port <port>', 'Local port', parsePort, 4178)
+  .option('--edit', 'Enable local locale-file editing')
   .option('--no-open', 'Do not open the browser automatically')
-  .action(async (options: { config?: string; port: number; open: boolean }) => {
+  .action(async (options: { config?: string; port: number; open: boolean; edit?: boolean }) => {
     try {
       printBanner(packageJson.version);
       const session = await createProjectSession({ configPath: options.config });
       const panel = await startPanelServer(session, {
         port: options.port,
         open: options.open,
+        editable: options.edit === true,
         packageVersion: packageJson.version,
       });
       success('Panel ready', panel.url);
-      info('Local-only server', 'Press Ctrl+C to stop');
+      info(options.edit ? 'Local editor enabled' : 'Local-only server', 'Press Ctrl+C to stop');
 
       let closing = false;
       const shutdown = async () => {

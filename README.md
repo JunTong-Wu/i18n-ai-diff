@@ -203,11 +203,22 @@ Open the project dashboard after creating the configuration:
 npx i18n-ai-diff panel
 ```
 
-The panel runs only on `127.0.0.1` and opens in your default browser. Its first phase is deliberately read-only: it visualizes single-master or multi-master routes, scans source/target differences, and reports cache and snapshot state without calling the LLM or writing translation files.
+The panel runs only on `127.0.0.1` and opens in your default browser. The project overview stays read-only: it visualizes single-master or multi-master routes, scans source/target differences, and reports cache and snapshot state without calling the LLM or writing translation files.
+
+The **Copy editor** aligns every existing string key across the configured languages. The panel remains read-only by default; restart it with explicit edit permission when you want to save reviewed copy:
+
+```bash
+npx i18n-ai-diff panel --edit
+```
+
+Choose a logical JSON file, edit existing cells or fill missing languages, then use **Save N changes**. Each row uses a JSON Pointer internally, so nested keys and literal key names containing `.`, `/`, or `~` are preserved. Arrays, objects, numbers, booleans, and `null` stay visible only through their surrounding file and are never replaced by table edits.
+
+Saving is deliberately bounded: it accepts only configured languages and existing logical JSON files, checks every file revision before writing, uses same-directory atomic replacements, and never invokes machine translation. Manual target-language edits update that target's source snapshot as reviewed; master-language edits leave untouched targets pending. Translation cache entries are not changed.
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # Choose a local port
 npx i18n-ai-diff panel --no-open     # Start without opening the browser
+npx i18n-ai-diff panel --edit        # Enable explicit copy-editor saves
 ```
 
 ## Step 3: Run the first translation

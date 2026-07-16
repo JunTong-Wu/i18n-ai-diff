@@ -9,19 +9,23 @@ interface SourceSnapshot {
   [fileAndLang: string]: Record<string, string>;
 }
 
-const SNAPSHOT_VERSION = 3;
+export const SNAPSHOT_VERSION = 3;
 let snapshot: SourceSnapshot = {};
 let snapshotOwners: Record<string, string> = {};
 let legacyBootstrap = false;
 let snapshotPath = '';
 let snapshotDirty = false;
 
-function md5(text: string): string {
+export function sourceTextHash(text: string): string {
   return crypto.createHash('md5').update(text).digest('hex');
 }
 
+export function snapshotPathForCache(cachePath: string): string {
+  return cachePath.replace(/\.json$/, '') + '.snapshot.json';
+}
+
 export async function loadSnapshot(cachePath: string): Promise<void> {
-  snapshotPath = cachePath.replace(/\.json$/, '') + '.snapshot.json';
+  snapshotPath = snapshotPathForCache(cachePath);
   snapshotDirty = false;
   try {
     const data = await fs.readFile(snapshotPath, 'utf-8');
@@ -88,7 +92,7 @@ export function updateSnapshot(
 ): void {
   const k = snapshotKey(filePath, sourceLang, targetLang);
   if (!snapshot[k]) snapshot[k] = {};
-  snapshot[k][key] = md5(sourceText);
+  snapshot[k][key] = sourceTextHash(sourceText);
   snapshotDirty = true;
 }
 
@@ -158,7 +162,7 @@ export function analyzeDiff(
 
     if (hasSnapshot) {
       const prevHash = getSnapshotHash(filePath, targetLang, key, sourceLang);
-      const currHash = md5(baseFlattened[key]);
+      const currHash = sourceTextHash(baseFlattened[key]);
       const owner = snapshotOwners[ownerKey(filePath, targetLang)];
 
       if (owner && owner !== sourceLang) {

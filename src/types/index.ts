@@ -314,6 +314,72 @@ export interface ProjectScan {
   };
 }
 
+export interface EditorRouteColumn {
+  sourceLang: string;
+  languages: string[];
+}
+
+export interface EditorManifestFile {
+  relativePath: string;
+  presentLanguages: string[];
+  missingLanguages: string[];
+  invalidLanguages: string[];
+  keyCount: number;
+  pendingKeys: number;
+}
+
+export interface EditorManifest {
+  editable: boolean;
+  writeToken?: string;
+  routes: EditorRouteColumn[];
+  languages: string[];
+  files: EditorManifestFile[];
+}
+
+export type EditorCellKind = 'string' | 'missing' | 'unsupported';
+
+export interface EditorCell {
+  kind: EditorCellKind;
+  value?: string;
+  pending: boolean;
+  skipped: boolean;
+}
+
+export interface EditorRow {
+  id: string;
+  pointer: string;
+  segments: string[];
+  displayPath: string;
+  cells: Record<string, EditorCell>;
+}
+
+export interface EditorFile {
+  relativePath: string;
+  revisions: Record<string, string | null>;
+  snapshotRevision: string | null;
+  rows: EditorRow[];
+}
+
+export interface EditorPatch {
+  lang: string;
+  pointer: string;
+  value: string;
+}
+
+export interface EditorSaveRequest {
+  relativePath: string;
+  revisions: Record<string, string | null>;
+  snapshotRevision: string | null;
+  changes: EditorPatch[];
+}
+
+export interface EditorSaveResult {
+  savedLanguages: string[];
+  snapshotUpdated: boolean;
+  file: EditorFile;
+  project: ProjectScan;
+}
+
 /**
  * 文件变更类型
  */

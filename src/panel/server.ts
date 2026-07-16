@@ -1,9 +1,17 @@
 import { spawn } from 'child_process';
+import crypto from 'crypto';
 import fs from 'fs/promises';
 import http, { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { ProjectScan } from '../types/index.js';
+import {
+  EditorFile,
+  EditorManifest,
+  EditorSaveRequest,
+  EditorSaveResult,
+  ProjectScan,
+} from '../types/index.js';
+import { EditorServiceError } from '../core/editor-service.js';
 import { warn } from '../utils/logger.js';
 
 const LOOPBACK_HOST = '127.0.0.1';
@@ -13,6 +21,7 @@ export interface PanelServerOptions {
   open?: boolean;
   packageVersion: string;
   clientRoot?: string;
+  editable?: boolean;
 }
 
 export interface RunningPanelServer {
@@ -23,6 +32,9 @@ export interface RunningPanelServer {
 
 interface PanelSession {
   scan(): Promise<ProjectScan>;
+  getEditorManifest?(editable: boolean, writeToken?: string): Promise<EditorManifest>;
+  getEditorFile?(relativePath: string): Promise<EditorFile>;
+  saveEditorFile?(request: EditorSaveRequest): Promise<EditorSaveResult>;
 }
 
 export async function startPanelServer(
@@ -31,6 +43,8 @@ export async function startPanelServer(
 ): Promise<RunningPanelServer> {
   const clientRoot = options.clientRoot
     || fileURLToPath(new URL('./client/', import.meta.url));
+  const editable = options.editable === true;
+  const writeToken = editable ? crypto.randomBytes(32).toString('base64url') : undefined;
   let serverUrl = '';
   const server = http.createServer(async (request, response) => {
     applySecurityHeaders(response);
@@ -48,7 +62,7 @@ export async function startPanelServer(
     try {
       if (request.method === 'GET' && requestUrl.pathname === '/api/health') {
         sendJson(response, 200, {
-          data: { status: 'ok', version: options.packageVersion, localOnly: true },
+          data: { status: 'ok', version: options.packageVersion, localOnly: true, editable },
         });
         return;
       }
@@ -59,8 +73,62 @@ export async function startPanelServer(
       ) {
         const scan = await session.scan();
         sendJson(response, 200, {
-          data: { ...scan, version: options.packageVersion, localOnly: true },
+          data: {
+            ...scan,
+            version: options.packageVersion,
+            localOnly: true,
+            capabilities: { contentEditing: editable },
+          },
         });
+        return;
+      }
+
+      if (request.method === 'GET' && requestUrl.pathname === '/api/editor/manifest') {
+        if (!session.getEditorManifest) {
+          sendJson(response, 501, { error: { code: 'EDITOR_UNAVAILABLE', message: 'Editor API is unavailable' } });
+          return;
+        }
+        sendJson(response, 200, {
+          data: await session.getEditorManifest(editable, writeToken),
+        });
+        return;
+      }
+
+      if (request.method === 'GET' && requestUrl.pathname === '/api/editor/file') {
+        if (!session.getEditorFile) {
+          sendJson(response, 501, { error: { code: 'EDITOR_UNAVAILABLE', message: 'Editor API is unavailable' } });
+          return;
+        }
+        const relativePath = requestUrl.searchParams.get('path');
+        if (!relativePath) {
+          sendJson(response, 400, { error: { code: 'INVALID_PATH', message: 'File path is required' } });
+          return;
+        }
+        sendJson(response, 200, { data: await session.getEditorFile(relativePath) });
+        return;
+      }
+
+      if (request.method === 'PUT' && requestUrl.pathname === '/api/editor/file') {
+        if (!editable) {
+          sendJson(response, 403, {
+            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to write locale files' },
+          });
+          return;
+        }
+        if (!session.saveEditorFile) {
+          sendJson(response, 501, { error: { code: 'EDITOR_UNAVAILABLE', message: 'Editor API is unavailable' } });
+          return;
+        }
+        if (!writeToken || request.headers['x-i18n-panel-token'] !== writeToken) {
+          sendJson(response, 403, { error: { code: 'INVALID_WRITE_TOKEN', message: 'Invalid editor write token' } });
+          return;
+        }
+        if (!request.headers['content-type']?.toLowerCase().startsWith('application/json')) {
+          sendJson(response, 415, { error: { code: 'INVALID_CONTENT_TYPE', message: 'Expected application/json' } });
+          return;
+        }
+        const body = await readJsonBody(request, 5 * 1024 * 1024) as EditorSaveRequest;
+        sendJson(response, 200, { data: await session.saveEditorFile(body) });
         return;
       }
 
@@ -76,6 +144,12 @@ export async function startPanelServer(
 
       await serveStatic(clientRoot, requestUrl.pathname, request, response);
     } catch (error) {
+      if (error instanceof EditorServiceError) {
+        sendJson(response, error.status, {
+          error: { code: error.code, message: error.message, details: error.details },
+        });
+        return;
+      }
       sendJson(response, 500, {
         error: { message: (error as Error).message || 'Unexpected panel error' },
       });
@@ -107,6 +181,24 @@ export async function startPanelServer(
   };
 }
 
+async function readJsonBody(request: IncomingMessage, maxBytes: number): Promise<unknown> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of request) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += buffer.length;
+    if (size > maxBytes) {
+      throw new EditorServiceError('Request body is too large', 'REQUEST_TOO_LARGE', 413);
+    }
+    chunks.push(buffer);
+  }
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  } catch {
+    throw new EditorServiceError('Request body must be valid JSON', 'INVALID_JSON_BODY');
+  }
+}
+
 function isAllowedHost(host: string | undefined): boolean {
   if (!host) return false;
   return /^(127\.0\.0\.1|localhost)(:\d+)?$/i.test(host);
@@ -115,7 +207,7 @@ function isAllowedHost(host: string | undefined): boolean {
 function isAllowedOrigin(request: IncomingMessage, serverUrl: string): boolean {
   if (request.method === 'GET' || request.method === 'HEAD') return true;
   const origin = request.headers.origin;
-  return !origin || origin === serverUrl || origin === serverUrl.replace('127.0.0.1', 'localhost');
+  return origin === serverUrl || origin === serverUrl.replace('127.0.0.1', 'localhost');
 }
 
 function applySecurityHeaders(response: ServerResponse): void {

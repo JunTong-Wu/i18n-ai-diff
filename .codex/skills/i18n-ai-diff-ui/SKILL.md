@@ -20,17 +20,18 @@ Read [references/style-guide.md](references/style-guide.md) completely before ch
 5. Reserve semantic colors for state. Use decorative colors only on small icons, target dots, and the route wave.
 6. Use the existing icon library for UI icons. The shared route connector is the sole custom SVG exception: preserve `panel/src/assets/route-wave.svg` as the approved product signature instead of substituting a generic wave or arrow icon. Do not add other handcrafted SVG or CSS illustrations.
 7. Preserve loading, error, pending, success, disabled, hover, focus, and reduced-motion states.
-8. Verify at 1440 × 1024 and at a narrow 390 px viewport. Check keyboard focus, text wrapping, overflow, and the scan action.
+8. Verify at 1440 × 1024 and at a narrow 390 px viewport. Check keyboard focus, text wrapping, overflow, the scan action, and copy-editor save states.
 
 ## Non-negotiable rules
 
-- Keep one primary action per view: `Scan project`.
+- Keep one primary action per view: `Scan project` on the overview and `Save changes` in the copy editor.
+- Use the compact fixed topbar shell for product identity, local-session context, and the small set of top-level destinations. Do not reintroduce a desktop sidebar.
 - Use large neutral surfaces; do not introduce large colored panels, route-specific fills, glassmorphism, or decorative gradients.
 - Separate content with space and surface contrast before adding rules or borders.
 - Keep the main text nearly black and secondary text clearly legible; avoid gray-on-gray composition.
 - Keep the colorful wave, icons, and language dots small. They decorate or communicate state; they do not encode route identity.
 - Keep the route connector faithful to the approved SVG: one solid blue origin dot, a thin low-amplitude cobalt-to-violet curve, and a rounded violet arrow. Do not add a halo or substitute a large sine wave. Reuse one asset across every route.
-- Keep the panel local-first and read-only during scanning. Do not imply that a scan writes translations.
+- Keep the panel local-first and read-only during scanning. Do not imply that a scan writes translations. Copy editing must remain explicitly gated by `panel --edit` and an explicit save.
 - Do not remove project details or pending-change visibility when adapting the reference for real data.
 
 ## Completion gate

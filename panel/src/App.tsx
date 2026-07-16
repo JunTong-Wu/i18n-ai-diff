@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   ArrowsClockwise,
   CheckCircle,
@@ -12,6 +12,7 @@ import {
   ShareNetwork,
   Sparkle,
   SquaresFour,
+  Table,
   WarningCircle,
 } from '@phosphor-icons/react';
 import { loadProject } from './api';
@@ -25,6 +26,7 @@ import type {
 } from '../../src/types/index';
 
 const decorativeDots = ['cobalt', 'violet', 'teal', 'amber', 'coral'] as const;
+const EditorPage = lazy(() => import('./editor/EditorPage'));
 
 export function App() {
   const [project, setProject] = useState<PanelProject | null>(null);
@@ -53,19 +55,24 @@ export function App() {
   }, [requestProject]);
 
   const pendingFiles = project?.totals.pendingFiles ?? 0;
+  const activeView = window.location.pathname === '/editor' ? 'editor' : 'overview';
 
   return (
     <>
-      <a className="skip-link" href="#main">Skip to project overview</a>
-      <div className="app-shell">
-        <Sidebar project={project} />
+      <a className="skip-link" href="#main">Skip to {activeView === 'editor' ? 'copy editor' : 'project overview'}</a>
+      <div className={activeView === 'editor' ? 'app-shell is-editor-shell' : 'app-shell'}>
+        <Topbar project={project} activeView={activeView} />
 
-        <main className="workspace" id="main">
+        {activeView === 'editor' ? (
+          <Suspense fallback={<main className="workspace" id="main"><LoadingState /></main>}>
+            <EditorPage project={project} onProjectChange={setProject} />
+          </Suspense>
+        ) : <main className="workspace" id="main">
           <header className="workspace-header">
             <div className="workspace-title">
               <h1>Translation workspace</h1>
               <p>Inspect every master, target, and pending change before translation touches a file.</p>
-              <p>This phase is read-only by design.</p>
+              <p>The overview stays read-only; file edits live in the copy editor.</p>
             </div>
             <button
               className="scan-button"
@@ -121,7 +128,7 @@ export function App() {
               <ProjectDetails project={project} />
             </div>
           )}
-        </main>
+        </main>}
       </div>
 
       <div className="sr-status" role="status" aria-live="polite">
@@ -135,34 +142,44 @@ export function App() {
   );
 }
 
-function Sidebar({ project }: { project: PanelProject | null }) {
+function Topbar({
+  project,
+  activeView,
+}: {
+  project: PanelProject | null;
+  activeView: 'overview' | 'editor';
+}) {
   const projectName = project ? projectDirectoryName(project.projectRoot) : 'Reading local project…';
 
   return (
-    <aside className="sidebar" aria-label="Project navigation">
-      <div className="brand-block" aria-label="i18n-ai-diff">
+    <header className="topbar">
+      <a className="topbar-brand" href="/" aria-label="i18n-ai-diff project overview">
         <span className="brand-mark">i18n</span>
         <div>
           <strong>i18n diff</strong>
           <span>v{project?.version ?? '1.2.0'}</span>
         </div>
-      </div>
+      </a>
 
-      <nav aria-label="Panel sections">
-        <a className="nav-item is-active" href="#main" aria-current="page">
+      <nav className="topbar-nav" aria-label="Panel sections">
+        <a className={activeView === 'overview' ? 'nav-item is-active' : 'nav-item'} href="/" aria-current={activeView === 'overview' ? 'page' : undefined}>
           <SquaresFour size={24} weight="fill" aria-hidden="true" />
           <span>Project overview</span>
         </a>
+        <a className={activeView === 'editor' ? 'nav-item is-active' : 'nav-item'} href="/editor" aria-current={activeView === 'editor' ? 'page' : undefined}>
+          <Table size={24} weight="fill" aria-hidden="true" />
+          <span>Copy editor</span>
+        </a>
       </nav>
 
-      <div className="local-session">
-        <div className="session-label">
-          <span className="status-dot" aria-hidden="true" />
-          <strong>Local session</strong>
-        </div>
-        <span title={project?.projectRoot}>{projectName}</span>
+      <div className="topbar-session" title={project?.projectRoot}>
+        <span className="status-dot" aria-hidden="true" />
+        <span>
+          <small>{project?.capabilities.contentEditing ? 'Local editing' : 'Local session'}</small>
+          <strong>{projectName}</strong>
+        </span>
       </div>
-    </aside>
+    </header>
   );
 }
 

@@ -20,6 +20,16 @@ export type {
   TranslationFilePlan,
   TranslationRoutePlan,
   TranslationTargetPlan,
+  EditorRouteColumn,
+  EditorManifestFile,
+  EditorManifest,
+  EditorCellKind,
+  EditorCell,
+  EditorRow,
+  EditorFile,
+  EditorPatch,
+  EditorSaveRequest,
+  EditorSaveResult,
 } from './types/index.js';
 
 export { loadConfig, defineConfig } from './core/config-loader.js';

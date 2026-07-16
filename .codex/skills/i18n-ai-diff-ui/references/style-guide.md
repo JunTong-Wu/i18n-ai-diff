@@ -6,7 +6,7 @@ Create a bright, high-contrast ambient workspace that makes multi-master transla
 
 ## Visual source
 
-Use `../assets/panel-visual-target.png` as the approved desktop reference and `../assets/route-wave-reference.png` as the precise route-connector reference. Adapt the layout to real and variable data rather than reproducing accidental fixed counts from the mock.
+Use `../assets/panel-visual-target.png` as the approved surface and component reference and `../assets/route-wave-reference.png` as the precise route-connector reference. The current shell deliberately replaces the reference sidebar with a compact fixed topbar so editing views can use the full viewport width. Adapt the layout to real and variable data rather than reproducing accidental fixed counts from the mock.
 
 ## Tokens
 
@@ -53,8 +53,9 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 
 ## Desktop layout
 
-- Keep the app full-height with a 280–310 px sidebar and a flexible main workspace.
-- Keep the sidebar quiet. The selected navigation item uses a pale blue tint and brand-blue icon/text.
+- Keep the app full-height with a compact fixed topbar and a full-width main workspace.
+- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The selected navigation item uses a pale blue tint and brand-blue icon/text.
+- Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority.
 - Place the title and read-only explanation at the top left. Keep `Scan project` at the top right.
 - Put the healthy state before the metrics so the scan result is understood before details.
 - Use one wide metric band rather than separate floating metric cards.
@@ -78,6 +79,9 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 ## States and interaction
 
 - Scan button: brand blue, clear hover, pressed, disabled/loading, and visible keyboard focus.
+- Copy editor: keep `Save changes` as its only primary action. Draft, pending, missing, skipped, conflict, and read-only states use small semantic markers on neutral table surfaces.
+- Keep the Key path column frozen and route groups neutral. Master languages may use a quiet header tint, but language count and route count must stay data-driven.
+- File writes are never automatic: editing is gated by `panel --edit`, changes remain a per-file browser draft, and conflicts must be resolved before saving.
 - Success: green icon and text; keep the surrounding surface neutral or barely tinted.
 - Pending: amber label/icon; never recolor the whole route.
 - Error: red message with a retry action; keep it concise and actionable.
@@ -87,7 +91,7 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 
 ## Responsive behavior
 
-- At tablet widths, collapse the sidebar into a compact top identity/navigation row or a narrow rail without losing the local-session indicator.
+- At tablet widths, let the topbar wrap into a compact identity/session row plus navigation row without losing the local-session indicator.
 - At 390 px, stack the header action, metrics, route source, connector, targets, route metrics, and project record.
 - Keep primary tap targets at least 44 px.
 - Prevent horizontal page scrolling. Permit horizontal scrolling only inside a pending-change table if no clearer mobile representation is practical.

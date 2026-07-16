@@ -213,6 +213,7 @@ async function verifyPanel(binPath) {
     const health = await fetch(`${panelUrl}/api/health`).then(response => response.json());
     assert.equal(health.data.status, 'ok');
     assert.equal(health.data.localOnly, true);
+    assert.equal(health.data.editable, false);
 
     const project = await fetch(`${panelUrl}/api/project`).then(response => response.json());
     assert.equal(project.data.mode, 'multi-master');
@@ -220,12 +221,123 @@ async function verifyPanel(binPath) {
     assert.equal(project.data.totals.fileTasks, 259);
     assert.equal(project.data.totals.pendingFiles, 0);
 
+    const editorManifest = await fetch(`${panelUrl}/api/editor/manifest`).then(response => response.json());
+    assert.equal(editorManifest.data.editable, false);
+    assert.equal(editorManifest.data.writeToken, undefined);
+    assert.equal(editorManifest.data.languages.length, 9);
+    assert.equal(editorManifest.data.files.length, 37);
+    assert.equal(editorManifest.data.routes.length, 2);
+    const firstEditorFile = editorManifest.data.files[0];
+    const editorFile = await fetch(
+      `${panelUrl}/api/editor/file?${new URLSearchParams({ path: firstEditorFile.relativePath })}`,
+    ).then(response => response.json());
+    assert.ok(editorFile.data.rows.length > 0);
+    assert.equal(Object.keys(editorFile.data.revisions).length, 9);
+
+    const forbiddenEditorWrite = await fetch(`${panelUrl}/api/editor/file`, {
+      method: 'PUT',
+      headers: { origin: panelUrl, 'content-type': 'application/json' },
+      body: '{}',
+    });
+    assert.equal(forbiddenEditorWrite.status, 403);
+
     const refresh = await fetch(`${panelUrl}/api/scan`, {
       method: 'POST',
       headers: { origin: panelUrl },
     });
     assert.equal(refresh.status, 200);
   } finally {
+    if (child.exitCode === null) {
+      const exited = new Promise(resolve => child.once('exit', resolve));
+      child.kill('SIGTERM');
+      await exited;
+    }
+  }
+}
+
+async function verifyEditablePanel(binPath) {
+  const child = spawn(binPath, ['panel', '--edit', '--no-open', '--port', '0'], {
+    cwd: workspaceRoot,
+    env: { ...process.env, NO_COLOR: '1' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let output = '';
+  const snapshotPath = path.join(workspaceRoot, '.i18n-translate-cache.snapshot.json');
+  const cachePath = path.join(workspaceRoot, '.i18n-translate-cache.json');
+  let targetPath;
+  let originalTarget;
+  let originalSnapshot;
+  try {
+    const panelUrl = await new Promise((resolve, reject) => {
+      let settled = false;
+      const timeout = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        reject(new Error(`Timed out waiting for the editable installed panel.\n${output}`));
+      }, 15_000);
+      const inspect = chunk => {
+        output += chunk.toString();
+        const match = output.match(/http:\/\/127\.0\.0\.1:\d+/);
+        if (!match || settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        resolve(match[0]);
+      };
+      child.stdout.on('data', inspect);
+      child.stderr.on('data', inspect);
+      child.once('exit', code => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        reject(new Error(`Editable installed panel exited before startup (${code}).\n${output}`));
+      });
+      child.once('error', reject);
+    });
+
+    const manifest = await fetch(`${panelUrl}/api/editor/manifest`).then(response => response.json());
+    assert.equal(manifest.data.editable, true);
+    assert.ok(manifest.data.writeToken);
+    const relativePath = manifest.data.files[0].relativePath;
+    const file = await fetch(
+      `${panelUrl}/api/editor/file?${new URLSearchParams({ path: relativePath })}`,
+    ).then(response => response.json());
+    const targetLang = manifest.data.routes[0].languages[1];
+    const row = file.data.rows.find(candidate => candidate.cells[targetLang]?.kind === 'string');
+    assert.ok(row, `Expected ${relativePath} to contain an editable ${targetLang} string`);
+
+    targetPath = path.join(workspaceRoot, 'locales', targetLang, ...relativePath.split('/'));
+    [originalTarget, originalSnapshot] = await Promise.all([
+      fs.readFile(targetPath),
+      fs.readFile(snapshotPath),
+    ]);
+    const originalCache = await fs.readFile(cachePath);
+    const originalValue = row.cells[targetLang].value;
+    const saved = await fetch(`${panelUrl}/api/editor/file`, {
+      method: 'PUT',
+      headers: {
+        origin: panelUrl,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({
+        relativePath,
+        revisions: file.data.revisions,
+        snapshotRevision: file.data.snapshotRevision,
+        changes: [{ lang: targetLang, pointer: row.pointer, value: `${originalValue} [editor-smoke]` }],
+      }),
+    });
+    const savedBody = await saved.json();
+    assert.equal(saved.status, 200, JSON.stringify(savedBody));
+    assert.ok(savedBody.data.savedLanguages.includes(targetLang));
+    assert.notDeepEqual(await fs.readFile(targetPath), originalTarget);
+    assert.deepEqual(await fs.readFile(cachePath), originalCache, 'Manual editing changed the translation cache');
+  } finally {
+    if (targetPath && originalTarget && originalSnapshot) {
+      await Promise.all([
+        fs.writeFile(targetPath, originalTarget),
+        fs.writeFile(snapshotPath, originalSnapshot),
+      ]);
+    }
     if (child.exitCode === null) {
       const exited = new Promise(resolve => child.once('exit', resolve));
       child.kill('SIGTERM');
@@ -278,6 +390,7 @@ async function verifyWorkspace() {
   }
 
   await verifyPanel(binPath);
+  await verifyEditablePanel(binPath);
 
   const afterFiles = await collectFiles(localesDir);
   const afterCache = await readJson(cachePath);

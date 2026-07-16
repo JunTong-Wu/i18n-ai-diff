@@ -62,7 +62,7 @@ describe('panel server', () => {
 
     const health = await fetch(`${server.url}/api/health`).then(response => response.json());
     expect(health).toEqual({
-      data: { status: 'ok', version: '1.2.0-test', localOnly: true },
+      data: { status: 'ok', version: '1.2.0-test', localOnly: true, editable: false },
     });
 
     const project = await fetch(`${server.url}/api/project`).then(response => response.json());
@@ -70,6 +70,7 @@ describe('panel server', () => {
       mode: 'multi-master',
       version: '1.2.0-test',
       localOnly: true,
+      capabilities: { contentEditing: false },
       totals: { languages: 9, fileTasks: 259, pendingFiles: 0 },
     });
 
@@ -85,5 +86,126 @@ describe('panel server', () => {
       headers: { origin: 'https://example.com' },
     });
     expect(forbidden.status).toBe(403);
+
+    const readonlyWrite = await fetch(`${server.url}/api/editor/file`, {
+      method: 'PUT',
+      headers: { origin: server.url, 'content-type': 'application/json' },
+      body: '{}',
+    });
+    expect(readonlyWrite.status).toBe(403);
+  });
+
+  it('requires edit mode, same-origin JSON, and the session write token', async () => {
+    const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-edit-'));
+    tempDirs.push(clientRoot);
+    await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
+    const scan = createScan();
+    let saves = 0;
+    const file = {
+      relativePath: 'common.json',
+      revisions: { en: 'a', de: 'b' },
+      snapshotRevision: null,
+      rows: [],
+    };
+    const server = await startPanelServer({
+      scan: async () => scan,
+      getEditorManifest: async (editable, writeToken) => ({
+        editable,
+        writeToken,
+        routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
+        languages: ['en', 'de'],
+        files: [],
+      }),
+      getEditorFile: async () => file,
+      saveEditorFile: async () => {
+        saves += 1;
+        return { savedLanguages: ['de'], snapshotUpdated: true, file, project: scan };
+      },
+    }, {
+      port: 0,
+      open: false,
+      editable: true,
+      packageVersion: '1.2.0-test',
+      clientRoot,
+    });
+    servers.push(server);
+
+    const manifest = await fetch(`${server.url}/api/editor/manifest`).then(response => response.json());
+    expect(manifest.data.editable).toBe(true);
+    expect(manifest.data.writeToken).toEqual(expect.any(String));
+
+    const request = {
+      method: 'PUT',
+      headers: { origin: server.url, 'content-type': 'application/json' },
+      body: JSON.stringify({ relativePath: 'common.json', revisions: {}, snapshotRevision: null, changes: [] }),
+    } as const;
+    expect((await fetch(`${server.url}/api/editor/file`, request)).status).toBe(403);
+    expect((await fetch(`${server.url}/api/editor/file`, {
+      ...request,
+      headers: {
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+    })).status).toBe(403);
+    expect((await fetch(`${server.url}/api/editor/file`, {
+      ...request,
+      headers: {
+        ...request.headers,
+        origin: 'https://example.com',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+    })).status).toBe(403);
+    expect((await fetch(`${server.url}/api/editor/file`, {
+      ...request,
+      headers: {
+        origin: server.url,
+        'content-type': 'text/plain',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+    })).status).toBe(415);
+    expect((await fetch(`${server.url}/api/editor/file`, {
+      ...request,
+      headers: {
+        origin: server.url,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({ content: 'x'.repeat(5 * 1024 * 1024) }),
+    })).status).toBe(413);
+
+    const saved = await fetch(`${server.url}/api/editor/file`, {
+      ...request,
+      headers: {
+        ...request.headers,
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+    });
+    expect(saved.status).toBe(200);
+    expect(saves).toBe(1);
   });
 });
+
+function createScan(): ProjectScan {
+  return {
+    projectRoot: '/tmp/project',
+    configPath: '/tmp/project/i18n-translate.config.ts',
+    mode: 'single-master',
+    localesDir: '/tmp/project/locales',
+    model: 'test-model',
+    scannedAt: '2026-07-16T00:00:00.000Z',
+    routes: [],
+    changes: [],
+    cache: { path: '/tmp/project/cache.json', exists: true, version: '2.0.0', entries: 0 },
+    snapshot: { path: '/tmp/project/cache.snapshot.json', exists: false, version: null },
+    totals: {
+      routes: 1,
+      languages: 2,
+      sourceFiles: 1,
+      sourceKeys: 1,
+      fileTasks: 1,
+      pendingFiles: 0,
+      pendingKeys: 0,
+      removedKeys: 0,
+    },
+  };
+}
