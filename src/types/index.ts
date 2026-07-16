@@ -242,6 +242,78 @@ export interface LanguageFileInfo {
   content: NestedJSON;
 }
 
+export interface TranslationFilePlan {
+  relativePath: string;
+  sourceLang: string;
+  targetLang: string;
+  targetExists: boolean;
+  needsWrite: boolean;
+  counts: {
+    source: number;
+    added: number;
+    modified: number;
+    removed: number;
+    skipped: number;
+    unchanged: number;
+  };
+  keys: {
+    added: string[];
+    modified: string[];
+    removed: string[];
+  };
+}
+
+export interface TranslationTargetPlan {
+  targetLang: string;
+  fileTasks: number;
+  existingFiles: number;
+  pendingFiles: number;
+  pendingKeys: number;
+  removedKeys: number;
+}
+
+export interface TranslationRoutePlan {
+  sourceLang: string;
+  targetLangs: string[];
+  sourceFiles: number;
+  sourceKeys: number;
+  fileTasks: number;
+  pendingFiles: number;
+  pendingKeys: number;
+  removedKeys: number;
+  targets: TranslationTargetPlan[];
+}
+
+export interface ProjectStateFile {
+  path: string;
+  exists: boolean;
+  version: string | number | null;
+  entries?: number;
+}
+
+export interface ProjectScan {
+  projectRoot: string;
+  configPath: string;
+  mode: 'single-master' | 'multi-master';
+  localesDir: string;
+  model: string;
+  scannedAt: string;
+  routes: TranslationRoutePlan[];
+  changes: TranslationFilePlan[];
+  cache: ProjectStateFile;
+  snapshot: ProjectStateFile;
+  totals: {
+    routes: number;
+    languages: number;
+    sourceFiles: number;
+    sourceKeys: number;
+    fileTasks: number;
+    pendingFiles: number;
+    pendingKeys: number;
+    removedKeys: number;
+  };
+}
+
 /**
  * 文件变更类型
  */

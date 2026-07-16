@@ -1,0 +1,26 @@
+<svg width="200" height="32" viewBox="0 0 200 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="route-wave-gradient" x1="8" y1="16" x2="192" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F62E9" />
+      <stop offset="0.46" stop-color="#1467F3" />
+      <stop offset="1" stop-color="#7C3AED" />
+    </linearGradient>
+  </defs>
+
+  <circle cx="8" cy="16" r="7" fill="#0F62E9" />
+
+  <path
+    d="M22 16C49 13 55 25 84 25C110 25 116 16 143 16H192"
+    stroke="url(#route-wave-gradient)"
+    stroke-width="2.25"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M185 9L192 16L185 23"
+    stroke="url(#route-wave-gradient)"
+    stroke-width="2.25"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

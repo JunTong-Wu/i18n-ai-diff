@@ -15,7 +15,9 @@
     "i18n-ai-diff": "dist/bin/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:core && npm run build:panel",
+    "build:core": "tsc",
+    "build:panel": "tsc -p tsconfig.panel.json && vite build --config vite.panel.config.ts",
     "dev": "tsx src/bin/cli.ts",
     "watch": "tsc --watch",
     "test": "vitest",
@@ -24,6 +26,7 @@
     "test:consumer": "node scripts/consumer-workspace.mjs verify",
     "test:release": "npm test -- --run && npm run test:package && npm run test:install && npm run test:consumer",
     "consumer:prepare": "node scripts/consumer-workspace.mjs prepare",
+    "panel": "npm run build && node dist/bin/cli.js panel",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build"
   },
@@ -61,25 +64,32 @@
     "node": ">=18.19.0"
   },
   "dependencies": {
-    "commander": "^12.0.0",
-    "chokidar": "^3.6.0",
-    "cosmiconfig": "^9.0.0",
-    "openai": "^4.28.0",
     "chalk": "^5.3.0",
-    "ora": "^8.0.1",
+    "chokidar": "^3.6.0",
     "cli-progress": "^3.12.0",
+    "commander": "^12.0.0",
+    "cosmiconfig": "^9.0.0",
     "minimatch": "^9.0.3",
+    "openai": "^4.28.0",
+    "ora": "^8.0.1",
     "p-limit": "^5.0.0",
     "tsx": "^4.23.1"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
+    "@phosphor-icons/react": "^2.1.10",
     "@types/cli-progress": "^3.11.5",
-    "typescript": "^5.3.3",
-    "vitest": "^4.1.10",
-    "eslint": "^8.56.0",
+    "@types/node": "^20.11.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
-    "@typescript-eslint/parser": "^8.64.0"
+    "@typescript-eslint/parser": "^8.64.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^8.56.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "typescript": "^5.3.3",
+    "vite": "^6.4.3",
+    "vitest": "^4.1.10"
   },
   "files": [
     "dist/**/*",

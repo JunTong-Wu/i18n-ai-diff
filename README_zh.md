@@ -195,6 +195,21 @@ export default defineConfig({
 
 `skipKeys` 支持 glob 形式的点路径。例如 `footer.**` 会让 `footer` 下的全部字符串保持母版原文。
 
+## 使用本地面板检查项目
+
+完成配置后，可以打开项目面板：
+
+```bash
+npx i18n-ai-diff panel
+```
+
+面板只监听 `127.0.0.1`，并默认使用系统浏览器打开。第一阶段刻意保持只读：它可以展示单母版或多母版路由、扫描源文件与目标文件差异，并查看缓存和快照状态，但不会调用 LLM，也不会写入翻译文件。
+
+```bash
+npx i18n-ai-diff panel --port 4180   # 指定本地端口
+npx i18n-ai-diff panel --no-open     # 启动但不自动打开浏览器
+```
+
 ## 第三步：执行第一次翻译
 
 配置完成后，在项目根目录运行：

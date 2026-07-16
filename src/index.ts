@@ -15,8 +15,14 @@ export type {
   TranslationRoute,
   FlattenedJSON,
   NestedJSON,
+  ProjectScan,
+  ProjectStateFile,
+  TranslationFilePlan,
+  TranslationRoutePlan,
+  TranslationTargetPlan,
 } from './types/index.js';
 
 export { loadConfig, defineConfig } from './core/config-loader.js';
+export { ProjectSession, createProjectSession } from './core/project-session.js';
 export { Translator, createTranslator } from './core/translator.js';
 export { FileWatcher, createFileWatcher } from './core/file-watcher.js';

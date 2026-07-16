@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import http from 'node:http';
@@ -113,6 +113,7 @@ async function prepareWorkspace() {
       type: 'module',
       scripts: {
         translate: 'i18n-ai-diff',
+        panel: 'i18n-ai-diff panel',
       },
     }, null, 2) + '\n',
     'utf8',
@@ -165,6 +166,74 @@ async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
 }
 
+async function verifyPanel(binPath) {
+  const child = spawn(binPath, ['panel', '--no-open', '--port', '0'], {
+    cwd: workspaceRoot,
+    env: { ...process.env, NO_COLOR: '1' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let output = '';
+  try {
+    const panelUrl = await new Promise((resolve, reject) => {
+      let settled = false;
+      const timeout = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        reject(new Error(`Timed out waiting for the installed panel to start.\n${output}`));
+      }, 15_000);
+      const inspect = chunk => {
+        output += chunk.toString();
+        const match = output.match(/http:\/\/127\.0\.0\.1:\d+/);
+        if (!match || settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        resolve(match[0]);
+      };
+      child.stdout.on('data', inspect);
+      child.stderr.on('data', inspect);
+      child.once('exit', code => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        reject(new Error(`Installed panel exited before startup (${code}).\n${output}`));
+      });
+      child.once('error', error => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        reject(error);
+      });
+    });
+
+    const page = await fetch(panelUrl);
+    assert.equal(page.status, 200);
+    assert.match(await page.text(), /i18n \/ diff — Local panel/);
+    assert.match(page.headers.get('content-security-policy') || '', /default-src 'self'/);
+
+    const health = await fetch(`${panelUrl}/api/health`).then(response => response.json());
+    assert.equal(health.data.status, 'ok');
+    assert.equal(health.data.localOnly, true);
+
+    const project = await fetch(`${panelUrl}/api/project`).then(response => response.json());
+    assert.equal(project.data.mode, 'multi-master');
+    assert.equal(project.data.totals.languages, 9);
+    assert.equal(project.data.totals.fileTasks, 259);
+    assert.equal(project.data.totals.pendingFiles, 0);
+
+    const refresh = await fetch(`${panelUrl}/api/scan`, {
+      method: 'POST',
+      headers: { origin: panelUrl },
+    });
+    assert.equal(refresh.status, 200);
+  } finally {
+    if (child.exitCode === null) {
+      const exited = new Promise(resolve => child.once('exit', resolve));
+      child.kill('SIGTERM');
+      await exited;
+    }
+  }
+}
+
 async function verifyWorkspace() {
   const { binPath } = await prepareWorkspace();
   const manifest = await readJson(path.join(fixtureRoot, 'fixture-manifest.json'));
@@ -208,6 +277,8 @@ async function verifyWorkspace() {
     await new Promise(resolve => llmTrap.close(resolve));
   }
 
+  await verifyPanel(binPath);
+
   const afterFiles = await collectFiles(localesDir);
   const afterCache = await readJson(cachePath);
   const afterSnapshot = await readJson(snapshotPath);
@@ -227,7 +298,8 @@ async function verifyWorkspace() {
 
   console.log(
     `Real consumer verification passed: ${manifest.languages.length} languages, ` +
-    `${beforeFiles.length} JSON files, 259 translation file tasks, 0 content changes, 0 LLM calls.`,
+    `${beforeFiles.length} JSON files, 259 translation file tasks, packaged panel ready, ` +
+    '0 content changes, 0 LLM calls.',
   );
   console.log(`Workspace kept for manual acceptance: ${workspaceRoot}`);
 }

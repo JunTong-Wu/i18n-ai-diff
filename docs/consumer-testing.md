@@ -8,6 +8,7 @@ The real-consumer harness verifies the package across the same boundary as an np
 4. Install the tarball into that project.
 5. Copy a pinned nine-language fixture captured from `headless-global-site`.
 6. Run the installed binary, not `src/bin/cli.ts` or the repository's `dist` path.
+7. Start the installed local panel and verify its HTML, security headers, health endpoint, and project scan.
 
 ## Automated acceptance
 
@@ -31,6 +32,7 @@ This test asserts that a normal incremental run:
 - does not add, remove, or alter any reviewed locale JSON file;
 - does not change the cache or source snapshot;
 - does not create a failure log.
+- serves the packaged Web panel on `127.0.0.1` with all 259 tasks visible.
 
 The generated workspace is deliberately kept at the printed operating-system temporary path for inspection. It is physically outside the package repository, preventing Node.js from resolving undeclared dependencies from the repository's `node_modules`.
 
@@ -42,11 +44,12 @@ Prepare a fresh workspace without running translation:
 npm run consumer:prepare
 cd "$(node -p 'require("node:os").tmpdir()')/i18n-ai-diff-consumer"
 npm run translate
+npm run panel
 ```
 
 The workspace always installs the local tarball. It never imports the package through a symlink, so missing publish files, broken exports, and dependency mistakes remain visible.
 
-When the local Web panel is available, its manual acceptance command will run from this same directory. This ensures the browser exercises the packaged panel and the realistic nine-language project rather than development source files.
+The panel command runs from this same directory. This ensures the browser exercises the packaged panel and the realistic nine-language project rather than development source files.
 
 Set `I18N_CONSUMER_DIR` to place the generated project at a stable custom location:
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "i18n-ai-diff UI"
+  short_description: "Apply the project panel UI system consistently"
+  default_prompt: "Use $i18n-ai-diff-ui to design or review the local translation panel."

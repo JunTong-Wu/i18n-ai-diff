@@ -22,6 +22,7 @@ function md5(text: string): string {
 
 export async function loadSnapshot(cachePath: string): Promise<void> {
   snapshotPath = cachePath.replace(/\.json$/, '') + '.snapshot.json';
+  snapshotDirty = false;
   try {
     const data = await fs.readFile(snapshotPath, 'utf-8');
     const parsed = JSON.parse(data) as {

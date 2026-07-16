@@ -195,6 +195,21 @@ export default defineConfig({
 
 `skipKeys` accepts glob-style dotted paths. For example, `footer.**` keeps every string below `footer` equal to its master text.
 
+## Inspect with the local panel
+
+Open the project dashboard after creating the configuration:
+
+```bash
+npx i18n-ai-diff panel
+```
+
+The panel runs only on `127.0.0.1` and opens in your default browser. Its first phase is deliberately read-only: it visualizes single-master or multi-master routes, scans source/target differences, and reports cache and snapshot state without calling the LLM or writing translation files.
+
+```bash
+npx i18n-ai-diff panel --port 4180   # Choose a local port
+npx i18n-ai-diff panel --no-open     # Start without opening the browser
+```
+
 ## Step 3: Run the first translation
 
 After creating the configuration, run this from the project root:

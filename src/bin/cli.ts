@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { loadConfig } from '../core/config-loader.js';
 import { createTranslator } from '../core/translator.js';
 import { createFileWatcher } from '../core/file-watcher.js';
+import { createProjectSession } from '../core/project-session.js';
 import { selectTargetLanguages } from '../core/route-selector.js';
+import { startPanelServer } from '../panel/server.js';
 import { setVerbose, printBanner, printConfigInfo, printStats, info, success, error as logError, warn } from '../utils/logger.js';
 import fs from 'fs/promises';
 
@@ -28,7 +29,8 @@ program
       if (options.verbose) setVerbose(true);
       printBanner(packageJson.version);
 
-      const config = await loadConfig(options.config);
+      const session = await createProjectSession({ configPath: options.config });
+      const config = session.config;
       if (options.langs?.length) {
         selectTargetLanguages(config, options.langs);
       }
@@ -71,4 +73,45 @@ program
     }
   });
 
-program.parse();
+program
+  .command('panel')
+  .description('Open the local project panel')
+  .option('-c, --config <path>', 'Config file path')
+  .option('-p, --port <port>', 'Local port', parsePort, 4178)
+  .option('--no-open', 'Do not open the browser automatically')
+  .action(async (options: { config?: string; port: number; open: boolean }) => {
+    try {
+      printBanner(packageJson.version);
+      const session = await createProjectSession({ configPath: options.config });
+      const panel = await startPanelServer(session, {
+        port: options.port,
+        open: options.open,
+        packageVersion: packageJson.version,
+      });
+      success('Panel ready', panel.url);
+      info('Local-only server', 'Press Ctrl+C to stop');
+
+      let closing = false;
+      const shutdown = async () => {
+        if (closing) return;
+        closing = true;
+        await panel.close();
+        process.exit(0);
+      };
+      process.once('SIGINT', shutdown);
+      process.once('SIGTERM', shutdown);
+    } catch (err) {
+      logError((err as Error).message);
+      process.exit(1);
+    }
+  });
+
+await program.parseAsync();
+
+function parsePort(value: string): number {
+  const port = Number(value);
+  if (!Number.isInteger(port) || port < 0 || port > 65535) {
+    throw new Error(`Invalid port: ${value}`);
+  }
+  return port;
+}

@@ -19,6 +19,11 @@ import { tsImport } from 'tsx/esm/api';
 
 const moduleName = 'i18n-translate';
 
+export interface LoadedConfig {
+  config: ResolvedTranslateConfig;
+  filepath: string;
+}
+
 /**
  * 默认配置
  */
@@ -76,14 +81,26 @@ async function loadTypeScriptConfig(configPath: string): Promise<TranslateConfig
  * @returns 合并后的配置对象
  */
 export async function loadConfig(configPath?: string): Promise<ResolvedTranslateConfig> {
+  return (await loadConfigWithMetadata(configPath)).config;
+}
+
+/**
+ * 加载配置并返回配置文件来源。供需要展示项目元数据的调用方使用。
+ */
+export async function loadConfigWithMetadata(
+  configPath?: string,
+  cwd: string = process.cwd(),
+): Promise<LoadedConfig> {
   let userConfig: Partial<TranslateConfig> = {};
+  let filepath = '';
 
   if (configPath) {
     // 如果指定了配置文件路径
-    const resolvedPath = path.resolve(configPath);
+    const resolvedPath = path.resolve(cwd, configPath);
     if (!fs.existsSync(resolvedPath)) {
       throw new Error(`Config file not found: ${configPath}`);
     }
+    filepath = resolvedPath;
 
     // 根据文件扩展名选择加载方式
     if (resolvedPath.endsWith('.ts')) {
@@ -120,7 +137,7 @@ export async function loadConfig(configPath?: string): Promise<ResolvedTranslate
       },
     });
 
-    const result = await explorer.search();
+    const result = await explorer.search(cwd);
     if (!result) {
       throw new Error(
         'Config file not found. Create i18n-translate.config.ts or configure in package.json.'
@@ -128,16 +145,17 @@ export async function loadConfig(configPath?: string): Promise<ResolvedTranslate
     }
 
     userConfig = result.config as Partial<TranslateConfig>;
+    filepath = result.filepath;
     info(`Loaded config: ${result.filepath}`);
   }
 
   // 验证并合并配置
-  const mergedConfig = mergeConfig(userConfig);
+  const mergedConfig = mergeConfig(userConfig, cwd);
 
   // 验证配置有效性
   validateConfig(mergedConfig);
 
-  return mergedConfig;
+  return { config: mergedConfig, filepath };
 }
 
 /**
@@ -145,7 +163,7 @@ export async function loadConfig(configPath?: string): Promise<ResolvedTranslate
  * @param userConfig 用户配置
  * @returns 合并后的完整配置
  */
-function mergeConfig(userConfig: Partial<TranslateConfig>): ResolvedTranslateConfig {
+function mergeConfig(userConfig: Partial<TranslateConfig>, cwd: string): ResolvedTranslateConfig {
   const routes = normalizeRoutes(userConfig);
   const merged: ResolvedTranslateConfig = {
     ...defaultConfig,
@@ -167,12 +185,12 @@ function mergeConfig(userConfig: Partial<TranslateConfig>): ResolvedTranslateCon
 
   // 处理 localesDir 路径
   if (merged.localesDir) {
-    merged.localesDir = path.resolve(merged.localesDir);
+    merged.localesDir = path.resolve(cwd, merged.localesDir);
   }
 
   // 处理 cachePath 路径
   if (merged.cachePath) {
-    merged.cachePath = path.resolve(merged.cachePath);
+    merged.cachePath = path.resolve(cwd, merged.cachePath);
   }
 
   return merged;
