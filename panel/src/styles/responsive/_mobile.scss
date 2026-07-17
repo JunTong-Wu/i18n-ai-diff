@@ -1,0 +1,103 @@
+@media (max-width: 430px) {
+  .topbar-brand > div > span {
+    display: none;
+  }
+
+  .topbar-brand strong {
+    font-size: 1rem;
+  }
+
+  .brand-mark {
+    width: 2.15rem;
+    height: 1.5rem;
+  }
+
+  .topbar-session {
+    max-width: 6.5rem;
+  }
+
+  .topbar-session small,
+  .topbar-session-label > span {
+    display: none;
+  }
+
+  .topbar-nav .nav-item {
+    font-size: var(--text-sm);
+  }
+
+  .topbar-nav .nav-item span {
+    display: none;
+  }
+
+  .workspace-title h1 {
+    font-size: 1.85rem;
+  }
+
+  .route-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .route-metric {
+    align-items: center;
+  }
+
+  .target-pill {
+    min-width: 4.8rem;
+  }
+
+  .editor-page-content {
+    gap: var(--space-3);
+    padding-inline: 0.85rem;
+  }
+
+  .editor-header {
+    padding-inline: 1rem;
+  }
+
+  .editor-toolbar {
+    padding: 0.65rem;
+  }
+
+  .editor-filter-bar {
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+  }
+
+  .editor-filter-bar > * {
+    flex: 0 0 auto;
+  }
+
+  .editor-row-count {
+    margin-left: var(--space-2);
+  }
+
+  .editor-table-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .editor-state-legend {
+    gap: var(--space-2);
+  }
+
+  .editor-modal-layer {
+    align-items: end;
+    padding: 0;
+  }
+
+  .editor-modal {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .modal-actions,
+  .conflict-values {
+    grid-template-columns: 1fr;
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions > button {
+    width: 100%;
+  }
+}

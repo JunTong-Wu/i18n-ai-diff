@@ -1,0 +1,134 @@
+.editor-table-panel {
+  height: clamp(34rem, 60vh, 50rem);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.editor-table-meta {
+  min-width: 0;
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.7rem 1rem;
+  background: var(--surface-quiet);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.editor-state-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.editor-state-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.legend-dot {
+  width: 0.52rem;
+  height: 0.52rem;
+  border-radius: 50%;
+}
+
+.legend-dot.is-changed { background: var(--decor-cobalt); }
+.legend-dot.is-pending { background: var(--decor-amber); }
+.legend-dot.is-missing { background: #A7B0BD; }
+.legend-dot.is-skipped { background: var(--decor-violet); }
+
+.translation-grid {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.translation-grid > .vtable {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  text-align: left;
+  -webkit-font-smoothing: auto;
+}
+
+/*
+ * VTable normally injects these structural rules at runtime. The panel's CSP
+ * intentionally blocks injected styles, so keep the required table geometry
+ * in the bundled stylesheet instead. Without it, the hidden focus input takes
+ * up one row and shifts the canvas away from the editor overlay.
+ */
+.translation-grid > .vtable .input-container {
+  position: absolute;
+  top: 0;
+}
+
+.translation-grid > .vtable > canvas {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.translation-grid > .vtable .table-focus-control {
+  position: relative !important;
+  width: 1px;
+  height: 1px;
+  max-width: 500px;
+  max-height: 500px;
+  margin: 0;
+  padding: 0;
+  float: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.translation-grid textarea {
+  padding: 0.7rem !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+  box-shadow: 0 8px 20px rgba(43, 61, 92, 0.14);
+}
+
+.editor-table-loading,
+.editor-table-empty {
+  min-height: 20rem;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  color: var(--muted);
+  text-align: center;
+}
+
+.editor-table-loading {
+  align-content: start;
+}
+
+.editor-table-loading > * {
+  width: 100%;
+}
+
+.editor-table-empty strong {
+  color: var(--ink);
+  font-size: var(--text-lg);
+}
+
+.editor-table-empty span {
+  max-width: 26rem;
+  font-size: var(--text-sm);
+}
+
+.drawer-scrim {
+  display: none;
+}

@@ -1,0 +1,146 @@
+.app-shell.is-editor-shell {
+  height: 100vh;
+  min-height: 100vh;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.app-shell.is-editor-shell .editor-workspace {
+  --editor-operation-height: 3.55rem;
+
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: var(--editor-operation-height) minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: 0;
+  background: var(--canvas);
+}
+
+.editor-operation-bar {
+  min-width: 0;
+  min-height: var(--editor-operation-height);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.45rem 0.65rem;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.editor-operation-left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.editor-operation-left::-webkit-scrollbar {
+  display: none;
+}
+
+.editor-current-file {
+  min-width: 0;
+  max-width: min(34rem, 42vw);
+  flex: 1 1 auto;
+  display: grid;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(246, 248, 252, 0.8);
+}
+
+.editor-current-file span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.editor-current-file strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-command-button {
+  min-height: 2.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.8rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.editor-command-button:hover {
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+
+.editor-command-button.is-active,
+.editor-command-button.is-active:hover {
+  background: var(--action-secondary-bg);
+  color: var(--ink);
+}
+
+.editor-operation-bar .editor-history {
+  padding-inline: 0.2rem;
+}
+
+.editor-operation-bar .editor-history button {
+  min-width: 2.45rem;
+  min-height: 2.45rem;
+}
+
+.editor-operation-bar .editor-save-button {
+  min-width: 10.8rem;
+  min-height: 2.55rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-sm);
+}
+
+.editor-operation-bar .editor-save-button:disabled {
+  cursor: not-allowed;
+}
+
+.editor-table-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  padding: 0.55rem;
+}
+
+.editor-table-stage .editor-table-panel {
+  height: auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  border-radius: var(--radius-md);
+}
+
+.editor-floating-alerts {
+  position: absolute;
+  z-index: 35;
+  top: 1rem;
+  left: 50%;
+  width: min(58rem, calc(100% - 2rem));
+  display: grid;
+  gap: var(--space-2);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.editor-floating-alerts > * {
+  box-shadow: 0 12px 34px rgba(43, 61, 92, 0.11);
+  pointer-events: auto;
+}

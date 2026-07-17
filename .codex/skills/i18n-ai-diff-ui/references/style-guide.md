@@ -2,11 +2,11 @@
 
 ## Design thesis
 
-Create a bright, high-contrast ambient workspace that makes multi-master translation routing immediately understandable. Large white surfaces and generous spacing carry the hierarchy. Color appears only in the primary action, state feedback, icons, target dots, and the shared route wave.
+Create a bright, high-contrast ambient workspace that makes multi-master translation routing immediately understandable. Large white and quiet-gray surfaces with generous spacing carry the hierarchy. Color appears only in state feedback, small decorative icons, target dots, and the shared route wave. Primary actions and global selected navigation use a black-and-white treatment; secondary controls use neutral selected fills.
 
 ## Visual source
 
-Use `../assets/panel-visual-target.png` as the approved surface and component reference and `../assets/route-wave-reference.png` as the precise route-connector reference. The current shell deliberately replaces the reference sidebar with a compact fixed topbar so editing views can use the full viewport width. Adapt the layout to real and variable data rather than reproducing accidental fixed counts from the mock.
+Use `../assets/route-wave-reference.png` as the precise route-connector reference. Use `../assets/panel-visual-target.png` only as a historical atmosphere reference for generous spacing, rounded surfaces, and small color accents. The current style guide supersedes older mock details: no desktop sidebar, no floating topbar card, no blue primary button, no surface borders, and no hover treatment on display-only cards.
 
 ## Tokens
 
@@ -17,8 +17,9 @@ Use `../assets/panel-visual-target.png` as the approved surface and component re
 - Quiet surface: `#F8FAFD` only when white-on-white needs separation.
 - Primary ink: `#101828`.
 - Secondary ink: `#5D6979`.
-- Hairline: `#E4E9F1`; use sparingly.
-- Brand/action blue: `#0F62E9`; hover `#0B4FC3`.
+- Brand/action black: `#101828`; hover `#000000`.
+- Neutral selected/control hover fill: `#EEF1F5`.
+- Disabled action fill: `#F1F4F8`; disabled action text: `#7A8493`.
 - Success: `#168A59`.
 - Warning: `#D97706`.
 - Danger: `#D92D20`.
@@ -28,7 +29,7 @@ Use `../assets/panel-visual-target.png` as the approved surface and component re
 - Decorative coral: `#F04438`.
 - Decorative amber: `#F59E0B`.
 
-Do not fill large route or record surfaces with decorative colors. Do not color metric numbers. Use the same decorative icon semantics in every route: source files cobalt, keys violet, tasks coral.
+Do not use blue as the product brand/action color. Do not fill large route or record surfaces with decorative colors. Do not color metric numbers. Use the same decorative icon semantics in every route: source files cobalt, keys violet, tasks coral.
 
 ### Typography
 
@@ -48,14 +49,14 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 - Button radius: 14–18 px.
 - Pill radius: 12–999 px depending on height.
 - Use 4/8-based spacing. Desktop section gaps should usually be 28–40 px.
-- Prefer no shadow. If separation needs depth, use one subtle shadow below the whole workspace or a major floating surface.
-- Borders are hairlines, never the primary hierarchy mechanism.
+- Prefer no shadow. If separation needs depth, use one subtle shadow below a major floating surface such as a modal or drawer only.
+- Do not use borders as surface separators. Cards, buttons, alerts, badges, drawers, topbars, and panels should be distinguished by solid fills, spacing, typography, and state color blocks. Data-table grid or active-edit affordances are the only acceptable structural exception when required for legibility.
 
 ## Desktop layout
 
-- Keep the app full-height with a compact fixed topbar and a full-width main workspace.
-- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The selected navigation item uses a pale blue tint and brand-blue icon/text.
-- Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority.
+- Keep the app full-height with a compact fixed, edge-attached topbar and a full-width main workspace.
+- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
+- Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority. Do not style the topbar as a floating rounded card.
 - Place the title and read-only explanation at the top left. Keep `Scan project` at the top right.
 - Put the healthy state before the metrics so the scan result is understood before details.
 - Use one wide metric band rather than separate floating metric cards.
@@ -68,6 +69,7 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 - Use the same surface, type, connector, icons, and spacing for every master route.
 - Do not assign route-specific colors.
 - Lay a route out as source, shared wave, and targets on wide screens. Reflow them vertically on narrow screens.
+- In constrained bento widths, protect the route wave from overlap by wrapping target content below the source/wave row before the language list collides with the SVG.
 - Render targets with `display: flex; flex-wrap: wrap` or an equivalent auto-flow layout.
 - Keep target pills content-sized with a practical minimum width. Do not calculate columns from target count.
 - Allow long locale codes to remain readable without truncating the language identity.
@@ -78,7 +80,7 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 
 ## States and interaction
 
-- Scan button: brand blue, clear hover, pressed, disabled/loading, and visible keyboard focus.
+- Scan button: black fill when enabled; disabled/loading actions use the neutral disabled fill. Keep clear hover, pressed, no drop shadow, and visible keyboard focus.
 - Copy editor: keep `Save changes` as its only primary action. Draft, pending, missing, skipped, conflict, and read-only states use small semantic markers on neutral table surfaces.
 - Keep the Key path column frozen and route groups neutral. Master languages may use a quiet header tint, but language count and route count must stay data-driven.
 - File writes are never automatic: editing is gated by `panel --edit`, changes remain a per-file browser draft, and conflicts must be resolved before saving.
@@ -86,8 +88,8 @@ Do not fill large route or record surfaces with decorative colors. Do not color 
 - Pending: amber label/icon; never recolor the whole route.
 - Error: red message with a retry action; keep it concise and actionable.
 - Loading: neutral skeletons with reduced-motion fallback.
-- Hover: small elevation or border/ink change only. Do not make cards jump noticeably.
-- Focus: visible 3 px blue outline with sufficient offset.
+- Hover: use fill or ink changes only on actual controls such as buttons, links, tabs, search controls, and editable file rows. Display-only route cards, record cards, metrics, badges, target pills, status summaries, and notification surfaces do not change on hover.
+- Focus: visible 3 px black outline with sufficient offset.
 
 ## Responsive behavior
 

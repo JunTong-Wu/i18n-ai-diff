@@ -11,13 +11,12 @@ import {
   Key,
   ShareNetwork,
   Sparkle,
-  SquaresFour,
-  Table,
   WarningCircle,
 } from '@phosphor-icons/react';
 import { loadProject } from './api';
 import routeWaveUrl from './assets/route-wave.svg';
-import { projectDirectoryName, projectRelativePath } from './path-display';
+import { PanelLayout } from './layout/PanelLayout';
+import { projectRelativePath } from './path-display';
 import type { PanelProject } from './types';
 import type {
   TranslationFilePlan,
@@ -28,11 +27,19 @@ import type {
 const decorativeDots = ['cobalt', 'violet', 'teal', 'amber', 'coral'] as const;
 const EditorPage = lazy(() => import('./editor/EditorPage'));
 
+function currentBrowserLocation() {
+  return {
+    pathname: window.location.pathname,
+    search: window.location.search,
+  };
+}
+
 export function App() {
   const [project, setProject] = useState<PanelProject | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [location, setLocation] = useState(currentBrowserLocation);
 
   const requestProject = useCallback(async (refresh: boolean, signal?: AbortSignal) => {
     refresh ? setRefreshing(true) : setLoading(true);
@@ -54,54 +61,79 @@ export function App() {
     return () => controller.abort();
   }, [requestProject]);
 
+  useEffect(() => {
+    const handlePopState = () => setLocation(currentBrowserLocation());
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = useCallback((href: string) => {
+    const destination = new URL(href, window.location.origin);
+    const current = new URL(window.location.href);
+    const nextPath = `${destination.pathname}${destination.search}`;
+    const currentPath = `${current.pathname}${current.search}`;
+    if (destination.origin !== current.origin || nextPath === currentPath) return;
+    window.history.pushState(null, '', nextPath);
+    setLocation({
+      pathname: destination.pathname,
+      search: destination.search,
+    });
+  }, []);
+
   const pendingFiles = project?.totals.pendingFiles ?? 0;
-  const activeView = window.location.pathname === '/editor' ? 'editor' : 'overview';
+  const activeView = location.pathname === '/editor' ? 'editor' : 'overview';
+
+  if (activeView === 'editor') {
+    return (
+      <Suspense fallback={(
+        <PanelLayout
+          activeView="editor"
+          onNavigate={navigate}
+          project={project}
+          skipLabel="copy editor"
+          shellClassName="is-editor-shell"
+          workspaceClassName="editor-workspace"
+        >
+          <LoadingState />
+        </PanelLayout>
+      )}
+      >
+        <EditorPage project={project} onNavigate={navigate} onProjectChange={setProject} />
+      </Suspense>
+    );
+  }
 
   return (
-    <>
-      <a className="skip-link" href="#main">Skip to {activeView === 'editor' ? 'copy editor' : 'project overview'}</a>
-      <div className={activeView === 'editor' ? 'app-shell is-editor-shell' : 'app-shell'}>
-        <Topbar project={project} activeView={activeView} />
-
-        {activeView === 'editor' ? (
-          <Suspense fallback={<main className="workspace" id="main"><LoadingState /></main>}>
-            <EditorPage project={project} onProjectChange={setProject} />
-          </Suspense>
-        ) : <main className="workspace" id="main">
-          <header className="workspace-header">
-            <div className="workspace-title">
-              <h1>Translation workspace</h1>
-              <p>Inspect every master, target, and pending change before translation touches a file.</p>
-              <p>The overview stays read-only; file edits live in the copy editor.</p>
-            </div>
-            <button
-              className="scan-button"
-              type="button"
-              disabled={loading || refreshing}
-              onClick={() => void requestProject(true)}
-            >
-              <ArrowsClockwise className={refreshing ? 'is-spinning' : undefined} size={23} weight="bold" aria-hidden="true" />
-              <span>{refreshing ? 'Scanning project…' : 'Scan project'}</span>
-            </button>
-          </header>
-
+    <PanelLayout
+      activeView="overview"
+      onNavigate={navigate}
+      project={project}
+      skipLabel="project overview"
+      liveStatus={refreshing
+        ? 'Scanning translation project'
+        : project
+          ? `Scan complete. ${pendingFiles} pending files.`
+          : ''}
+    >
           {loading && !project && <LoadingState />}
           {error && !project && (
             <ErrorState message={error} onRetry={() => void requestProject(false)} />
           )}
 
           {project && (
-            <div className="workspace-content">
-              {error && <InlineError message={error} />}
-              <ProjectHealth project={project} />
+            <div className="workspace-content overview-bento">
+              <OverviewHero
+                project={project}
+                loading={loading}
+                refreshing={refreshing}
+                onScan={() => void requestProject(true)}
+              />
               <Metrics project={project} />
+              {error && <InlineError message={error} />}
 
-              <section className="routes-section" aria-labelledby="routes-title">
+              <section className="routes-section bento-card" aria-labelledby="routes-title">
                 <div className="section-heading">
-                  <div>
-                    <p className="section-kicker">Project topology</p>
-                    <h2 id="routes-title">Translation routes</h2>
-                  </div>
+                  <h2 id="routes-title">Master routes</h2>
                   <span>{project.routes.length} master route{project.routes.length === 1 ? '' : 's'}</span>
                 </div>
 
@@ -126,60 +158,49 @@ export function App() {
               )}
 
               <ProjectDetails project={project} />
+              <OperationalState project={project} />
             </div>
           )}
-        </main>}
-      </div>
-
-      <div className="sr-status" role="status" aria-live="polite">
-        {refreshing
-          ? 'Scanning translation project'
-          : project
-            ? `Scan complete. ${pendingFiles} pending files.`
-            : ''}
-      </div>
-    </>
+    </PanelLayout>
   );
 }
 
-function Topbar({
+function OverviewHero({
   project,
-  activeView,
+  loading,
+  refreshing,
+  onScan,
 }: {
-  project: PanelProject | null;
-  activeView: 'overview' | 'editor';
+  project: PanelProject;
+  loading: boolean;
+  refreshing: boolean;
+  onScan(): void;
 }) {
-  const projectName = project ? projectDirectoryName(project.projectRoot) : 'Reading local project…';
-
   return (
-    <header className="topbar">
-      <a className="topbar-brand" href="/" aria-label="i18n-ai-diff project overview">
-        <span className="brand-mark">i18n</span>
-        <div>
-          <strong>i18n diff</strong>
-          <span>v{project?.version ?? '1.2.0'}</span>
-        </div>
-      </a>
-
-      <nav className="topbar-nav" aria-label="Panel sections">
-        <a className={activeView === 'overview' ? 'nav-item is-active' : 'nav-item'} href="/" aria-current={activeView === 'overview' ? 'page' : undefined}>
-          <SquaresFour size={24} weight="fill" aria-hidden="true" />
-          <span>Project overview</span>
-        </a>
-        <a className={activeView === 'editor' ? 'nav-item is-active' : 'nav-item'} href="/editor" aria-current={activeView === 'editor' ? 'page' : undefined}>
-          <Table size={24} weight="fill" aria-hidden="true" />
-          <span>Copy editor</span>
-        </a>
-      </nav>
-
-      <div className="topbar-session" title={project?.projectRoot}>
-        <span className="status-dot" aria-hidden="true" />
-        <span>
-          <small>{project?.capabilities.contentEditing ? 'Local editing' : 'Local session'}</small>
-          <strong>{projectName}</strong>
-        </span>
+    <section className="overview-hero-card bento-card" aria-labelledby="overview-title">
+      <div className="overview-hero-copy">
+        <h1 id="overview-title">Translation workspace</h1>
+        <p>Inspect every master, target, and pending change before translation touches a file.</p>
+        <p>The overview stays read-only; file edits live in the copy editor.</p>
+        <ProjectHealth project={project} />
       </div>
-    </header>
+
+      <div className="overview-hero-action">
+        <button
+          className="scan-button"
+          type="button"
+          disabled={loading || refreshing}
+          onClick={onScan}
+        >
+          <ArrowsClockwise className={refreshing ? 'is-spinning' : undefined} size={23} weight="bold" aria-hidden="true" />
+          <span>{refreshing ? 'Scanning project…' : 'Scan project'}</span>
+        </button>
+        <div className="last-scan">
+          <span>Last scanned</span>
+          <time dateTime={project.scannedAt}>{formatScanClock(project.scannedAt)}</time>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -216,12 +237,15 @@ function Metrics({ project }: { project: PanelProject }) {
 
   return (
     <section className="metrics-band" aria-label="Project metrics">
-      {metrics.map(metric => (
-        <div className="metric" key={metric.label}>
-          <strong>{formatNumber(metric.value)}</strong>
-          <span>{metric.label}</span>
-        </div>
-      ))}
+      <h2>Project metrics</h2>
+      <div className="metrics-grid">
+        {metrics.map(metric => (
+          <div className="metric" key={metric.label}>
+            <strong>{formatNumber(metric.value)}</strong>
+            <span>{metric.label}</span>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -272,6 +296,9 @@ function TargetPill({ target, index }: { target: TranslationTargetPlan; index: n
     >
       <span className={`target-dot is-${dot}`} aria-hidden="true" />
       <strong>{target.targetLang}</strong>
+      <span className={isPending ? 'target-sync-label is-pending' : 'target-sync-label'}>
+        {isPending ? 'Pending' : 'In sync'}
+      </span>
       {isPending && <span className="target-pending-count">{target.pendingFiles}</span>}
       <span className="sr-only">{isPending ? 'Pending changes' : 'In sync'}</span>
     </li>
@@ -379,8 +406,8 @@ function ProjectDetails({ project }: { project: PanelProject }) {
   return (
     <section className="project-record" aria-labelledby="record-title">
       <div className="record-title">
-        <p className="section-kicker">Project record</p>
-        <h2 id="record-title">Local source of truth</h2>
+        <h2 id="record-title">Project record</h2>
+        <span className="record-version">v{project.version}</span>
       </div>
       <dl className="record-grid">
         {fields.map(field => (
@@ -395,6 +422,46 @@ function ProjectDetails({ project }: { project: PanelProject }) {
           </div>
         ))}
       </dl>
+    </section>
+  );
+}
+
+function OperationalState({ project }: { project: PanelProject }) {
+  const isClear = project.totals.pendingFiles === 0;
+  return (
+    <section className="operational-state bento-card" aria-labelledby="operational-title">
+      <div className={isClear ? 'operational-summary' : 'operational-summary is-pending'}>
+        {isClear
+          ? <CheckCircle size={30} weight="fill" aria-hidden="true" />
+          : <WarningCircle size={30} weight="fill" aria-hidden="true" />}
+        <div>
+          <h2 id="operational-title">Operational state</h2>
+          <strong>{isClear ? 'Reviewed translations are intact.' : 'Source changes need translation.'}</strong>
+          <span>
+            {isClear
+              ? 'No source change requires a target file write.'
+              : `${formatNumber(project.totals.pendingFiles)} pending files need review.`}
+          </span>
+        </div>
+      </div>
+
+      <div className="scan-history" aria-label="Scan history">
+        <h3>Scan history</h3>
+        <dl>
+          <div>
+            <dt>Last scan</dt>
+            <dd>{formatScanClock(project.scannedAt)}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd><span className={isClear ? 'status-dot is-inline' : 'status-dot is-inline is-warning'} aria-hidden="true" />{isClear ? 'Success' : 'Pending'}</dd>
+          </div>
+          <div>
+            <dt>Files scanned</dt>
+            <dd>{formatNumber(project.totals.fileTasks)}</dd>
+          </div>
+        </dl>
+      </div>
     </section>
   );
 }
@@ -442,4 +509,12 @@ function formatScanTime(value: string): string {
     minute: '2-digit',
     second: '2-digit',
   }).format(new Date(value))}`;
+}
+
+function formatScanClock(value: string): string {
+  return new Intl.DateTimeFormat('en', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date(value));
 }

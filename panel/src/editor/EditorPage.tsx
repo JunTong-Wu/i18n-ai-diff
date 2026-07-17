@@ -12,7 +12,6 @@ import {
   MagnifyingGlass,
   SidebarSimple,
   SlidersHorizontal,
-  SquaresFour,
   WarningCircle,
   X,
 } from '@phosphor-icons/react';
@@ -29,6 +28,7 @@ import type {
   PanelEditorManifest,
   PanelProject,
 } from '../types';
+import { PanelLayout } from '../layout/PanelLayout';
 import { TranslationGrid, type GridValueChange } from './TranslationGrid';
 import {
   applyHistoryTransaction,
@@ -45,10 +45,11 @@ import {
 
 interface EditorPageProps {
   project: PanelProject | null;
+  onNavigate(href: string): void;
   onProjectChange(project: PanelProject): void;
 }
 
-export default function EditorPage({ project, onProjectChange }: EditorPageProps) {
+export default function EditorPage({ project, onNavigate, onProjectChange }: EditorPageProps) {
   const initialPath = new URLSearchParams(window.location.search).get('file') || '';
   const [manifest, setManifest] = useState<PanelEditorManifest | null>(null);
   const [file, setFile] = useState<PanelEditorFile | null>(null);
@@ -345,65 +346,73 @@ export default function EditorPage({ project, onProjectChange }: EditorPageProps
     setStatus('Conflicts resolved in the draft. Review the table and save again.');
   };
 
-  return (
-    <main className="workspace editor-workspace" id="main">
-      <header className="editor-command-bar" aria-label="Copy editor controls">
-        <div className="editor-command-left">
-          <a className="editor-brand-link" href="/" aria-label="Open project overview">
-            <span className="brand-mark">i18n</span>
-            <span>
-              <strong>Copy editor</strong>
-              <small>v{project?.version ?? '1.2.0'}</small>
-            </span>
-          </a>
-          <div className="editor-current-file">
-            <span>Locale file</span>
-            <strong title={selectedPath}>{selectedPath || 'No JSON files found'}</strong>
-          </div>
-        </div>
+  const currentFileSummary = (
+    <div className="editor-current-file">
+      <span>Locale file</span>
+      <strong title={selectedPath}>{selectedPath || 'No JSON files found'}</strong>
+    </div>
+  );
 
-        <div className="editor-command-actions">
-          <a className="editor-command-button" href="/" aria-label="Open project overview">
-            <SquaresFour size={20} weight="fill" aria-hidden="true" />
-            <span>Overview</span>
-          </a>
-          <button
-            className={activeDrawer === 'files' ? 'editor-command-button is-active' : 'editor-command-button'}
-            type="button"
-            aria-expanded={activeDrawer === 'files'}
-            onClick={() => setActiveDrawer(current => (current === 'files' ? null : 'files'))}
-          >
-            <SidebarSimple size={20} aria-hidden="true" />
-            <span>Files</span>
-          </button>
-          <button
-            className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
-            type="button"
-            aria-expanded={activeDrawer === 'tools'}
-            onClick={() => setActiveDrawer(current => (current === 'tools' ? null : 'tools'))}
-          >
-            <SlidersHorizontal size={20} aria-hidden="true" />
-            <span>Tools</span>
-          </button>
-          <div className="editor-history" aria-label="Draft history">
-            <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
-              <ArrowUUpLeft size={20} aria-hidden="true" />
-            </button>
-            <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
-              <ArrowUUpRight size={20} aria-hidden="true" />
-            </button>
-          </div>
-        <button
-          className="scan-button editor-save-button"
-          type="button"
-          disabled={!editable || drafts.size === 0 || saving || !file}
-          onClick={() => void save()}
-        >
-          <FloppyDisk size={22} weight="bold" aria-hidden="true" />
-          <span>{saving ? 'Saving safely…' : `Save ${drafts.size} change${drafts.size === 1 ? '' : 's'}`}</span>
+  const editorControls = (
+    <div className="editor-operation-left">
+      <button
+        className={activeDrawer === 'files' ? 'editor-command-button is-active' : 'editor-command-button'}
+        type="button"
+        aria-label="Open locale files"
+        aria-expanded={activeDrawer === 'files'}
+        onClick={() => setActiveDrawer(current => (current === 'files' ? null : 'files'))}
+      >
+        <SidebarSimple size={20} aria-hidden="true" />
+        <span>Files</span>
+      </button>
+      <button
+        className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
+        type="button"
+        aria-label="Open editor tools"
+        aria-expanded={activeDrawer === 'tools'}
+        onClick={() => setActiveDrawer(current => (current === 'tools' ? null : 'tools'))}
+      >
+        <SlidersHorizontal size={20} aria-hidden="true" />
+        <span>Tools</span>
+      </button>
+      <div className="editor-history" aria-label="Draft history">
+        <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
+          <ArrowUUpLeft size={20} aria-hidden="true" />
         </button>
-        </div>
-      </header>
+        <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
+          <ArrowUUpRight size={20} aria-hidden="true" />
+        </button>
+      </div>
+      {currentFileSummary}
+    </div>
+  );
+
+  const saveButton = (
+    <button
+      className="scan-button editor-save-button"
+      type="button"
+      disabled={!editable || drafts.size === 0 || saving || !file}
+      onClick={() => void save()}
+    >
+      <FloppyDisk size={22} weight="bold" aria-hidden="true" />
+      <span>{saving ? 'Saving safely…' : `Save ${drafts.size} change${drafts.size === 1 ? '' : 's'}`}</span>
+    </button>
+  );
+
+  return (
+    <PanelLayout
+      activeView="editor"
+      onNavigate={onNavigate}
+      project={project}
+      skipLabel="copy editor"
+      shellClassName="is-editor-shell"
+      workspaceClassName="editor-workspace"
+      liveStatus={status}
+    >
+      <section className="editor-operation-bar" aria-label="Copy editor controls">
+        {editorControls}
+        {saveButton}
+      </section>
 
       <div className="editor-table-stage">
         <div className="editor-floating-alerts">
@@ -635,8 +644,7 @@ export default function EditorPage({ project, onProjectChange }: EditorPageProps
         </div>
       )}
 
-      <div className="sr-status" role="status" aria-live="polite">{status}</div>
-    </main>
+    </PanelLayout>
   );
 }
 
