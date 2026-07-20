@@ -16,7 +16,7 @@ const defaultWorkspaceRoot = path.join(os.tmpdir(), 'i18n-ai-diff-consumer');
 const workspaceRoot = process.env.I18N_CONSUMER_DIR
   ? path.resolve(process.env.I18N_CONSUMER_DIR)
   : defaultWorkspaceRoot;
-const artifactsRoot = path.join(tempRoot, 'consumer-artifacts');
+const artifactsRoot = path.join(os.tmpdir(), 'i18n-ai-diff-consumer-artifacts');
 const workspaceMarker = path.join(workspaceRoot, '.i18n-ai-diff-consumer-workspace');
 const mode = process.argv[2] || 'prepare';
 

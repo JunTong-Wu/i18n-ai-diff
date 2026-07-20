@@ -7,7 +7,7 @@ const projectRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const fixtureRoot = path.join(projectRoot, 'tests/fixtures/headless-consumer');
 const panelProjectRoot = process.env.PANEL_DEV_PROJECT_DIR
   ? path.resolve(process.env.PANEL_DEV_PROJECT_DIR)
-  : path.join(projectRoot, '.temp/panel-dev-consumer');
+  : path.join(projectRoot, '.panel-dev-consumer');
 const panelDevHost = process.env.PANEL_DEV_HOST || '0.0.0.0';
 const panelDevPort = process.env.PANEL_DEV_PORT || '4187';
 const panelApiPort = process.env.PANEL_API_PORT || '4188';
@@ -47,20 +47,34 @@ process.once('SIGTERM', () => shutdown('SIGTERM'));
 
 async function preparePanelProject() {
   if (process.env.PANEL_DEV_PROJECT_DIR) return;
-  await fs.rm(panelProjectRoot, { recursive: true, force: true });
   await fs.mkdir(panelProjectRoot, { recursive: true });
-  await fs.cp(path.join(fixtureRoot, 'locales'), path.join(panelProjectRoot, 'locales'), {
-    recursive: true,
-  });
-  await fs.copyFile(
-    path.join(fixtureRoot, 'state/cache.json'),
-    path.join(panelProjectRoot, '.i18n-translate-cache.json'),
-  );
-  await fs.copyFile(
-    path.join(fixtureRoot, 'state/snapshot.json'),
-    path.join(panelProjectRoot, '.i18n-translate-cache.snapshot.json'),
-  );
-  await fs.writeFile(path.join(panelProjectRoot, 'i18n-translate.config.mjs'), devConfig(), 'utf8');
+
+  const localesPath = path.join(panelProjectRoot, 'locales');
+  const cachePath = path.join(panelProjectRoot, '.i18n-translate-cache.json');
+  const snapshotPath = path.join(panelProjectRoot, '.i18n-translate-cache.snapshot.json');
+  const configPath = path.join(panelProjectRoot, 'i18n-translate.config.mjs');
+
+  if (!await pathExists(localesPath)) {
+    await fs.cp(path.join(fixtureRoot, 'locales'), localesPath, { recursive: true });
+  }
+  if (!await pathExists(cachePath)) {
+    await fs.copyFile(path.join(fixtureRoot, 'state/cache.json'), cachePath);
+  }
+  if (!await pathExists(snapshotPath)) {
+    await fs.copyFile(path.join(fixtureRoot, 'state/snapshot.json'), snapshotPath);
+  }
+  if (!await pathExists(configPath)) {
+    await fs.writeFile(configPath, devConfig(), 'utf8');
+  }
+}
+
+async function pathExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function start(name, command, args, cwd) {
