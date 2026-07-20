@@ -16,12 +16,8 @@ import { batchTasksByTokenLimit } from '../llm/prompt-builder.js';
 import { CacheManager, createCacheManager } from '../utils/cache-manager.js';
 import {
   analyzeDiff,
-  loadSnapshot,
-  saveSnapshot,
-  updateSnapshot,
-  removeSnapshotKeys,
-  removeSnapshotFile,
-  setSnapshotOwner,
+  createSnapshotStore,
+  SnapshotStore,
 } from './diff-analyzer.js';
 import { flatten, unflatten } from '../utils/json-utils.js';
 import chalk from 'chalk';
@@ -40,6 +36,7 @@ export class Translator {
   private llmClient: LLMClient;
   private cacheManager: CacheManager;
   private failureLogger: FailureLogger;
+  private snapshotStore: SnapshotStore;
   private limit: ReturnType<typeof pLimit>;
   private force: boolean = false;
 
@@ -50,6 +47,7 @@ export class Translator {
       this.llmClient.setCustomPrompt(this.config.prompt);
     }
     this.cacheManager = createCacheManager(this.config.cachePath || '.i18n-translate-cache.json');
+    this.snapshotStore = createSnapshotStore(this.config.cachePath || '.i18n-translate-cache.json');
     this.failureLogger = createFailureLogger('.i18n-translate-failures.json');
     this.limit = pLimit(this.config.concurrency || 5);
   }
@@ -75,7 +73,7 @@ export class Translator {
    */
   async initialize(): Promise<void> {
     await this.cacheManager.load();
-    await loadSnapshot(this.config.cachePath || '.i18n-translate-cache.json');
+    await this.snapshotStore.load();
   }
 
   /**
@@ -149,7 +147,7 @@ export class Translator {
     }
 
     await this.cacheManager.save();
-    await saveSnapshot();
+    await this.snapshotStore.save();
 
     await this.flushFailures();
 
@@ -210,6 +208,7 @@ export class Translator {
         relativePath,
         targetLang,
         resolvedSourceLang,
+        this.snapshotStore,
       );
 
       result.added = diff.added.length;
@@ -223,10 +222,10 @@ export class Translator {
       );
 
       for (const key of diff.unchanged) {
-        updateSnapshot(relativePath, targetLang, key, baseFlattened[key], resolvedSourceLang);
+        this.snapshotStore.update(relativePath, targetLang, key, baseFlattened[key], resolvedSourceLang);
       }
       if (diff.removed.length > 0) {
-        removeSnapshotKeys(relativePath, targetLang, diff.removed, resolvedSourceLang);
+        this.snapshotStore.removeKeys(relativePath, targetLang, diff.removed, resolvedSourceLang);
       }
 
       if (diff.added.length === 0 && diff.modified.length === 0) {
@@ -235,7 +234,7 @@ export class Translator {
           await fs.mkdir(path.dirname(targetFilePath), { recursive: true });
           await fs.writeFile(targetFilePath, JSON.stringify(mergedContent, null, 2), 'utf-8');
         }
-        setSnapshotOwner(relativePath, targetLang, resolvedSourceLang);
+        this.snapshotStore.setOwner(relativePath, targetLang, resolvedSourceLang);
         result.success = true;
         return result;
       }
@@ -256,11 +255,11 @@ export class Translator {
       for (const key of translations.keys()) {
         const task = tasks.find(t => t.key === key);
         if (task) {
-          updateSnapshot(relativePath, targetLang, key, task.sourceText, resolvedSourceLang);
+          this.snapshotStore.update(relativePath, targetLang, key, task.sourceText, resolvedSourceLang);
         }
       }
       if (translations.size === tasks.length) {
-        setSnapshotOwner(relativePath, targetLang, resolvedSourceLang);
+        this.snapshotStore.setOwner(relativePath, targetLang, resolvedSourceLang);
       }
 
       const mergedContent = this.mergeTranslations(
@@ -406,17 +405,17 @@ export class Translator {
     const files: Array<{ relativePath: string; sourceLang: string; targetLang: string }> = [];
 
     for (const route of this.config.routes) {
-      const baseDir = path.join(this.config.localesDir, route.baseLang);
+      const baseDir = path.join(this.config.localesDir, route.sourceLang);
       try {
         const jsonFiles = await this.scanJsonFiles(baseDir);
 
         for (const relativePath of jsonFiles) {
           for (const targetLang of route.targetLangs) {
-            files.push({ relativePath, sourceLang: route.baseLang, targetLang });
+            files.push({ relativePath, sourceLang: route.sourceLang, targetLang });
           }
         }
       } catch (error) {
-        throw new Error(`Failed to scan master directory ${route.baseLang}: ${(error as Error).message}`);
+        throw new Error(`Failed to scan master directory ${route.sourceLang}: ${(error as Error).message}`);
       }
     }
 
@@ -452,7 +451,7 @@ export class Translator {
   private async pruneCache(): Promise<number> {
     const activeKeys = new Set<string>();
     for (const route of this.config.routes) {
-      const baseDir = path.join(this.config.localesDir, route.baseLang);
+      const baseDir = path.join(this.config.localesDir, route.sourceLang);
       const jsonFiles = await this.scanJsonFiles(baseDir);
 
       for (const relativePath of jsonFiles) {
@@ -463,7 +462,7 @@ export class Translator {
           const flattened = flatten(content);
           for (const value of Object.values(flattened)) {
             for (const lang of route.targetLangs) {
-              activeKeys.add(this.cacheManager.generateKey(value, lang, route.baseLang));
+              activeKeys.add(this.cacheManager.generateKey(value, lang, route.sourceLang));
             }
           }
         } catch {
@@ -489,7 +488,7 @@ export class Translator {
 
   async saveCache(): Promise<void> {
     await this.cacheManager.save();
-    await saveSnapshot();
+    await this.snapshotStore.save();
     await this.flushFailures();
   }
 
@@ -507,7 +506,7 @@ export class Translator {
   async removeTargetFile(relativePath: string, targetLang: string): Promise<void> {
     const targetFilePath = path.join(this.config.localesDir, targetLang, relativePath);
     await fs.rm(targetFilePath, { force: true });
-    removeSnapshotFile(relativePath, targetLang);
+    this.snapshotStore.removeFile(relativePath, targetLang);
   }
 
   private resolveSourceLang(targetLang: string): string {
@@ -515,7 +514,7 @@ export class Translator {
     if (!route) {
       throw new Error(`No master route configured for target language: ${targetLang}`);
     }
-    return route.baseLang;
+    return route.sourceLang;
   }
 }
 
@@ -530,13 +529,19 @@ export function createTranslator(config: TranslateConfig): Translator {
 
 function resolveRuntimeConfig(config: TranslateConfig): ResolvedTranslateConfig {
   const routes = config.routes?.length
-    ? config.routes.map(route => ({ ...route, targetLangs: [...route.targetLangs] }))
-    : [{ baseLang: config.baseLang, targetLangs: [...config.targetLangs] }];
+    ? config.routes.map(route => {
+        const rawRoute = route as typeof route & { sourceLang?: string; baseLang?: string };
+        return {
+          sourceLang: rawRoute.sourceLang || rawRoute.baseLang!,
+          targetLangs: [...route.targetLangs],
+        };
+      })
+    : [{ sourceLang: config.baseLang, targetLangs: [...config.targetLangs] }];
 
   return {
     ...config,
     routes,
-    baseLang: routes[0].baseLang,
+    baseLang: routes[0].sourceLang,
     targetLangs: routes.flatMap(route => route.targetLangs),
   };
 }

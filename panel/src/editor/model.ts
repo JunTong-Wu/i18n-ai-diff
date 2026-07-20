@@ -1,5 +1,10 @@
-import type { EditorCell, EditorFile, EditorPatch, EditorRow } from '../../../src/types/index';
-import type { PanelEditorManifest } from '../types';
+import type {
+  PanelEditorCell,
+  PanelEditorFile,
+  PanelEditorManifest,
+  PanelEditorPatch,
+  PanelEditorRow,
+} from '../types';
 
 export type DraftMap = Map<string, string>;
 
@@ -38,14 +43,14 @@ export function parseDraftIdentity(identity: string): { lang: string; pointer: s
 }
 
 export function draftForValue(
-  cell: EditorCell,
+  cell: PanelEditorCell,
   value: string,
 ): string | undefined {
   return cell.kind === 'string' && cell.value === value ? undefined : value;
 }
 
 export function effectiveCellValue(
-  row: EditorRow,
+  row: PanelEditorRow,
   lang: string,
   drafts: DraftMap,
 ): string {
@@ -54,7 +59,7 @@ export function effectiveCellValue(
   return row.cells[lang]?.kind === 'string' ? row.cells[lang].value || '' : '';
 }
 
-export function createEditorPatches(drafts: DraftMap): EditorPatch[] {
+export function createEditorPatches(drafts: DraftMap): PanelEditorPatch[] {
   return [...drafts.entries()].map(([identity, value]) => {
     const { lang, pointer } = parseDraftIdentity(identity);
     return { lang, pointer, value };
@@ -76,8 +81,8 @@ export function applyHistoryTransaction(
 }
 
 export function rebaseDrafts(
-  previous: EditorFile,
-  latest: EditorFile,
+  previous: PanelEditorFile,
+  latest: PanelEditorFile,
   drafts: DraftMap,
 ): RebaseResult {
   const previousRows = new Map(previous.rows.map(row => [row.pointer, row]));
@@ -141,10 +146,10 @@ export function groupManifestFiles(manifest: PanelEditorManifest): Array<{
   return [...groups.entries()].map(([directory, files]) => ({ directory, files }));
 }
 
-function sameCell(left: EditorCell | undefined, right: EditorCell | undefined): boolean {
+function sameCell(left: PanelEditorCell | undefined, right: PanelEditorCell | undefined): boolean {
   return left?.kind === right?.kind && cellString(left) === cellString(right);
 }
 
-function cellString(cell: EditorCell | undefined): string | undefined {
+function cellString(cell: PanelEditorCell | undefined): string | undefined {
   return cell?.kind === 'string' ? cell.value || '' : undefined;
 }

@@ -1,50 +1,200 @@
-.change-table-wrap {
-  overflow-x: auto;
-  border: 0;
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+.change-plan {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(17rem, 0.75fr) minmax(0, 1.35fr);
+  gap: var(--space-4);
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.change-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+.change-plan-summary {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-quiet);
+
+  @media (max-width: 900px) {
+    grid-column: 1;
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.change-table th,
-.change-table td {
-  padding: 0.9rem 1rem;
+.change-plan-icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--warning);
+}
+
+.change-plan-summary strong {
+  display: block;
+  color: var(--ink);
+  font-size: var(--text-md);
+  font-weight: 720;
+  letter-spacing: -0.025em;
+}
+
+.change-plan-summary > div > span {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
   font-size: var(--text-sm);
+  line-height: 1.45;
 }
 
-.change-table th {
+.change-plan-totals {
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+
+  @media (max-width: 900px) {
+    grid-column: 1;
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.change-plan-totals > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.22rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-quiet);
+}
+
+.change-plan-totals dt,
+.change-plan-totals dd,
+.change-file-counts dt,
+.change-file-counts dd {
+  margin: 0;
+}
+
+.change-plan-totals dt {
   color: var(--muted);
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 650;
 }
 
-.change-table tbody tr:last-child td {
-  border-bottom: 0;
+.change-plan-totals dd {
+  color: var(--ink);
+  font-size: var(--text-lg);
+  font-weight: 760;
+  letter-spacing: -0.04em;
 }
 
-.change-table code,
-.route-code {
+.change-plan-list {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (max-width: 900px) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+.change-plan-list li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-quiet);
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+.change-file-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.route-code,
+.change-file-copy code {
   font-family: "SFMono-Regular", Consolas, monospace;
   font-size: var(--text-xs);
 }
 
-.change-table code {
+.route-code {
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.change-file-copy code {
   display: block;
-  max-width: 28rem;
+  min-width: 0;
   overflow: hidden;
+  color: var(--ink);
+  font-weight: 680;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.table-note {
+.change-file-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(2.7rem, auto));
+  gap: var(--space-2);
   margin: 0;
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface-quiet);
+
+  @media (max-width: 520px) {
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.change-file-counts > div {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.change-file-counts dt {
   color: var(--muted);
   font-size: var(--text-xs);
+  font-weight: 720;
+}
+
+.change-file-counts dd {
+  color: var(--ink);
+  font-size: var(--text-xs);
+  font-weight: 760;
+}
+
+.change-plan-note {
+  grid-column: 1;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+
+  @media (max-width: 900px) {
+    grid-column: 1;
+  }
 }

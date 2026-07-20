@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { ListTable, type ColumnsDefine, type ListTableConstructorOptions, type TYPES } from '@visactor/vtable';
 import { TextAreaEditor } from '@visactor/vtable-editors';
-import type { EditorRow } from '../../../src/types/index';
-import type { PanelEditorManifest } from '../types';
+import type { PanelEditorManifest, PanelEditorRow } from '../types';
 import { draftIdentity, effectiveCellValue, type DraftMap } from './model';
 
 const textAreaEditor = new TextAreaEditor();
 
 export interface GridValueChange {
-  recordIndex?: number | number[];
-  field?: string | number | string[];
+  pointer: string;
+  lang: string;
   changedValue: string | number;
 }
 
@@ -31,7 +30,7 @@ export function TranslationGrid({
   editable,
   onChangeValues,
 }: {
-  rows: EditorRow[];
+  rows: PanelEditorRow[];
   manifest: PanelEditorManifest;
   drafts: DraftMap;
   editable: boolean;
@@ -124,14 +123,17 @@ export function TranslationGrid({
           const state = record?.__states[lang];
           const isMissing = state?.kind === 'missing' && !state.changed;
           const isUnsupported = state?.kind === 'unsupported';
+          const isSkipped = state?.skipped && !state.changed;
           return {
             bgColor: state?.changed
               ? '#EDF4FF'
               : isUnsupported
                 ? '#F3F5F8'
-                : state?.pending
-                  ? '#FFFAF0'
-                  : '#FFFFFF',
+                : isSkipped
+                  ? '#F5F1FF'
+                  : state?.pending
+                    ? '#FFFAF0'
+                    : '#FFFFFF',
             color: isUnsupported || isMissing ? '#7B8797' : '#101828',
             fontSize: 13,
             fontStyle: isMissing || isUnsupported ? 'italic' : 'normal',
@@ -218,7 +220,21 @@ export function TranslationGrid({
     const table = new ListTable(containerRef.current, option);
     tableRef.current = table;
     const handleChange = (event: TYPES.TableEventHandlersEventArgumentMap['change_cell_values']) => {
-      onChangeRef.current(event.values as GridValueChange[]);
+      const changes = (event.values as Array<{
+        recordIndex?: number | number[];
+        field?: string | number | string[];
+        changedValue: string | number;
+      }>).flatMap(value => {
+        if (typeof value.recordIndex !== 'number' || typeof value.field !== 'string') return [];
+        const record = recordsRef.current[value.recordIndex];
+        if (!record || !manifest.languages.includes(value.field)) return [];
+        return [{
+          pointer: record.pointer,
+          lang: value.field,
+          changedValue: value.changedValue,
+        }];
+      });
+      if (changes.length > 0) onChangeRef.current(changes);
     };
     let selectedCell: { col: number; row: number } | null = null;
     const handleSelectedCell = (event: TYPES.TableEventHandlersEventArgumentMap['selected_cell']) => {

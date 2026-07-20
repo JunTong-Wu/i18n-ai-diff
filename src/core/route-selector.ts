@@ -10,8 +10,8 @@ export function selectTargetLanguages(config: ResolvedTranslateConfig, languages
   const requestedLangs = [...new Set(languages)];
   if (config.routes.length === 1) {
     const route = config.routes[0];
-    if (requestedLangs.includes(route.baseLang)) {
-      throw new Error(`Target languages must not contain the master language: ${route.baseLang}`);
+    if (requestedLangs.includes(route.sourceLang)) {
+      throw new Error(`Target languages must not contain the master language: ${route.sourceLang}`);
     }
     route.targetLangs = requestedLangs as typeof route.targetLangs;
   } else {

@@ -41,16 +41,28 @@ import { IETFBCP47Type } from './IETFBCP47.js';
  */
 export interface TranslationRoute {
   /** 母版语言 */
-  baseLang: IETFBCP47Type;
+  sourceLang: IETFBCP47Type;
   /** 由该母版生成的目标语言 */
   targetLangs: IETFBCP47Type[];
 }
+
+/**
+ * 旧版多母版 route 字段。仅用于读取兼容；运行时会归一化为 TranslationRoute.sourceLang。
+ */
+export interface LegacyTranslationRoute {
+  /** @deprecated 多母版 routes 请使用 sourceLang */
+  baseLang: IETFBCP47Type;
+  targetLangs: IETFBCP47Type[];
+  sourceLang?: never;
+}
+
+export type UserTranslationRoute = TranslationRoute | LegacyTranslationRoute;
 
 export interface TranslateConfig {
   /**
    * 翻译路由。通过 loadConfig 加载时始终存在；程序化 API 仍允许省略并使用单母版字段。
    */
-  routes?: TranslationRoute[];
+  routes?: UserTranslationRoute[];
   /** 单母版兼容字段；多母版配置加载后为第一条路由的源语言 */
   baseLang: IETFBCP47Type;
   /** 单母版兼容字段；多母版配置加载后为所有路由的目标语言 */
@@ -85,7 +97,7 @@ interface UserConfigBase {
 export type UserConfig = UserConfigBase & (
   | {
       /** 多母版模式 */
-      routes: TranslationRoute[];
+      routes: UserTranslationRoute[];
       baseLang?: never;
       targetLangs?: never;
     }
@@ -331,6 +343,7 @@ export interface EditorManifestFile {
 export interface EditorManifest {
   editable: boolean;
   writeToken?: string;
+  projectRoot?: string;
   routes: EditorRouteColumn[];
   languages: string[];
   files: EditorManifestFile[];

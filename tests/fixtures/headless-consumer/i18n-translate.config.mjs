@@ -3,11 +3,11 @@ import { defineConfig } from 'i18n-ai-diff';
 export default defineConfig({
   routes: [
     {
-      baseLang: 'zh-Hans',
+      sourceLang: 'zh-Hans',
       targetLangs: ['ja', 'ko'],
     },
     {
-      baseLang: 'en',
+      sourceLang: 'en',
       targetLangs: ['de', 'es', 'fr', 'it', 'pt'],
     },
   ],

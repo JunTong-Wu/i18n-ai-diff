@@ -12,11 +12,8 @@
 @use "editor/table";
 @use "editor/modal";
 @use "animations";
-@use "responsive/wide";
-@use "responsive/tablet";
-@use "responsive/mobile";
 @use "overview/bento";
 @use "editor/fullscreen/shell" as editor-fullscreen-shell;
 @use "editor/fullscreen/drawers" as editor-fullscreen-drawers;
-@use "editor/fullscreen/responsive" as editor-fullscreen-responsive;
+@use "tailwind-apply";
 @use "motion";

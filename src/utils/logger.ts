@@ -49,14 +49,14 @@ export function printBanner(version: string): void {
 }
 
 export function printConfigInfo(config: {
-  routes: Array<{ baseLang: string; targetLangs: readonly string[] }>;
+  routes: Array<{ sourceLang: string; targetLangs: readonly string[] }>;
   localesDir: string;
   model: string;
 }): void {
   info('Config loaded');
   console.log(chalk.gray('  ├── Mode:      ') + chalk.white(config.routes.length > 1 ? 'Multi-master' : 'Single-master'));
   for (const route of config.routes) {
-    console.log(chalk.gray('  ├── Route:     ') + chalk.white(`${route.baseLang} → ${route.targetLangs.join(', ')}`));
+    console.log(chalk.gray('  ├── Route:     ') + chalk.white(`${route.sourceLang} → ${route.targetLangs.join(', ')}`));
   }
   console.log(chalk.gray('  ├── Directory: ') + chalk.white(config.localesDir));
   console.log(chalk.gray('  └── Model:     ') + chalk.white(config.model));

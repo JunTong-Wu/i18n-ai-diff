@@ -117,11 +117,11 @@ import { defineConfig } from 'i18n-ai-diff';
 export default defineConfig({
   routes: [
     {
-      baseLang: 'zh-CN',
+      sourceLang: 'zh-CN',
       targetLangs: ['ja', 'ko'],
     },
     {
-      baseLang: 'en',
+      sourceLang: 'en',
       targetLangs: ['de', 'it', 'fr', 'es'],
     },
   ],
@@ -153,10 +153,11 @@ src/i18n/messages/
 - 每个母版语言只能配置一条路由
 - 每个目标语言只能属于一个母版路由
 - 同一种语言不能同时作为母版语言和目标语言，以免 Watch 模式产生链式回写
-- 多母版模式不能与顶层 `baseLang + targetLangs` 混用
+- 多母版 `routes` 使用 `sourceLang + targetLangs`，不能与顶层 `baseLang + targetLangs` 混用
 - 将目标语言改分配给其他母版时，会保留已有译文并建立新的增量基线
 
 无论使用哪种模式，内部都会统一转换为 `sourceLang → targetLang` 翻译任务，缓存和快照也使用同一套隔离规则。
+旧版多母版 route 中的 `baseLang` 字段仍可被读取，用于兼容已有项目；新配置建议使用 `sourceLang`。
 
 ## 常用配置
 
@@ -165,8 +166,8 @@ src/i18n/messages/
 ```typescript
 export default defineConfig({
   routes: [
-    { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-    { baseLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
+    { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+    { sourceLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
   ],
   localesDir: './src/i18n/messages',
 

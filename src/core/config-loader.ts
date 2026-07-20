@@ -11,6 +11,7 @@ import {
   LLMConfig,
   WatchConfig,
   TranslationRoute,
+  UserTranslationRoute,
 } from '../types/index.js';
 import { info } from '../utils/logger.js';
 import path from 'path';
@@ -171,7 +172,7 @@ function mergeConfig(userConfig: Partial<TranslateConfig>, cwd: string): Resolve
     routes,
     // 保留单母版字段，避免破坏已有的程序化调用方。多母版模式下取第一条路由
     // 作为 baseLang，并把所有目标语言展开到 targetLangs。
-    baseLang: routes[0]?.baseLang || userConfig.baseLang || defaultConfig.baseLang!,
+    baseLang: routes[0]?.sourceLang || userConfig.baseLang || defaultConfig.baseLang!,
     targetLangs: routes.flatMap(route => route.targetLangs),
     llm: {
       ...defaultLLMConfig,
@@ -204,17 +205,26 @@ function normalizeRoutes(userConfig: Partial<TranslateConfig>): TranslationRoute
     if (userConfig.baseLang !== undefined || userConfig.targetLangs !== undefined) {
       throw new Error('Config must use either multi-master routes or single-master baseLang + targetLangs, not both');
     }
-    return userConfig.routes.map(route => ({
-      baseLang: route.baseLang,
-      targetLangs: [...route.targetLangs],
-    }));
+    return userConfig.routes.map(normalizeRoute);
   }
 
   const baseLang = userConfig.baseLang || defaultConfig.baseLang;
   const targetLangs = userConfig.targetLangs || defaultConfig.targetLangs || [];
 
   if (!baseLang) return [];
-  return [{ baseLang, targetLangs: [...targetLangs] }];
+  return [{ sourceLang: baseLang, targetLangs: [...targetLangs] }];
+}
+
+function normalizeRoute(route: UserTranslationRoute): TranslationRoute {
+  const rawRoute = route as UserTranslationRoute & { sourceLang?: string; baseLang?: string };
+  if (rawRoute.sourceLang && rawRoute.baseLang && rawRoute.sourceLang !== rawRoute.baseLang) {
+    throw new Error('routes entries cannot define both sourceLang and baseLang with different values');
+  }
+  const sourceLang = rawRoute.sourceLang || rawRoute.baseLang;
+  return {
+    sourceLang: sourceLang!,
+    targetLangs: [...route.targetLangs],
+  };
 }
 
 /**
@@ -238,23 +248,23 @@ function validateConfig(config: ResolvedTranslateConfig): void {
   }
 
   const targetOwners = new Map<string, string>();
-  const baseLangs = new Set(config.routes.map(route => route.baseLang));
+  const sourceLangs = new Set(config.routes.map(route => route.sourceLang));
   const seenSources = new Set<string>();
   for (const [index, route] of config.routes.entries()) {
     const label = `routes[${index}]`;
-    if (!route.baseLang) {
-      errors.push(`${label}.baseLang is required`);
-    } else if (seenSources.has(route.baseLang)) {
-      errors.push(`master language ${route.baseLang} must be configured in a single route`);
+    if (!route.sourceLang) {
+      errors.push(`${label}.sourceLang is required`);
+    } else if (seenSources.has(route.sourceLang)) {
+      errors.push(`master language ${route.sourceLang} must be configured in a single route`);
     } else {
-      seenSources.add(route.baseLang);
+      seenSources.add(route.sourceLang);
     }
     if (!route.targetLangs || route.targetLangs.length === 0) {
       errors.push(`${label}.targetLangs must have at least one language`);
       continue;
     }
-    if (route.targetLangs.includes(route.baseLang)) {
-      errors.push(`${label}.targetLangs must not contain its baseLang (${route.baseLang})`);
+    if (route.targetLangs.includes(route.sourceLang)) {
+      errors.push(`${label}.targetLangs must not contain its sourceLang (${route.sourceLang})`);
     }
 
     const duplicatesInRoute = route.targetLangs.filter((lang, i) => route.targetLangs.indexOf(lang) !== i);
@@ -265,11 +275,11 @@ function validateConfig(config: ResolvedTranslateConfig): void {
     for (const targetLang of route.targetLangs) {
       const owner = targetOwners.get(targetLang);
       if (owner) {
-        errors.push(`target language ${targetLang} is assigned to multiple masters: ${owner}, ${route.baseLang}`);
+        errors.push(`target language ${targetLang} is assigned to multiple masters: ${owner}, ${route.sourceLang}`);
       } else {
-        targetOwners.set(targetLang, route.baseLang);
+        targetOwners.set(targetLang, route.sourceLang);
       }
-      if (baseLangs.has(targetLang)) {
+      if (sourceLangs.has(targetLang)) {
         errors.push(`language ${targetLang} cannot be both a master and a target language`);
       }
     }

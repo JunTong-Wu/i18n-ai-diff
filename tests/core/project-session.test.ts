@@ -42,8 +42,8 @@ describe('ProjectSession', () => {
     const configPath = path.join(root, 'i18n-translate.config.json');
     await fs.writeFile(configPath, JSON.stringify({
       routes: [
-        { baseLang: 'zh-Hans', targetLangs: ['ja'] },
-        { baseLang: 'en', targetLangs: ['de'] },
+        { sourceLang: 'zh-Hans', targetLangs: ['ja'] },
+        { sourceLang: 'en', targetLangs: ['de'] },
       ],
       localesDir: './locales',
       cachePath: './cache.json',

@@ -117,11 +117,11 @@ import { defineConfig } from 'i18n-ai-diff';
 export default defineConfig({
   routes: [
     {
-      baseLang: 'zh-CN',
+      sourceLang: 'zh-CN',
       targetLangs: ['ja', 'ko'],
     },
     {
-      baseLang: 'en',
+      sourceLang: 'en',
       targetLangs: ['de', 'it', 'fr', 'es'],
     },
   ],
@@ -153,10 +153,11 @@ Multi-master rules:
 - Each master language is configured in exactly one route
 - Each target language belongs to exactly one master route
 - A language cannot be both a master and a target, preventing chained writes in Watch mode
-- Multi-master `routes` cannot be mixed with top-level `baseLang + targetLangs`
+- Multi-master `routes` use `sourceLang + targetLangs` and cannot be mixed with top-level `baseLang + targetLangs`
 - Reassigning a target to another master preserves its existing translations and establishes a new incremental baseline
 
 Both modes are normalized to the same internal `sourceLang → targetLang` tasks, cache keys, and snapshot rules.
+Legacy multi-master route entries using `baseLang` are still accepted for existing projects, but new configurations should use `sourceLang`.
 
 ## Common configuration
 
@@ -165,8 +166,8 @@ A more complete configuration:
 ```typescript
 export default defineConfig({
   routes: [
-    { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-    { baseLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
+    { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+    { sourceLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
   ],
   localesDir: './src/i18n/messages',
 

@@ -65,20 +65,22 @@ describe('panel server', () => {
       data: { status: 'ok', version: '1.2.0-test', localOnly: true, editable: false },
     });
 
-    const project = await fetch(`${server.url}/api/project`).then(response => response.json());
-    expect(project.data).toMatchObject({
-      mode: 'multi-master',
+    const expectedProject = {
+      ...scan,
       version: '1.2.0-test',
       localOnly: true,
       capabilities: { contentEditing: false },
-      totals: { languages: 9, fileTasks: 259, pendingFiles: 0 },
-    });
+    };
+
+    const project = await fetch(`${server.url}/api/project`).then(response => response.json());
+    expect(project).toEqual({ data: expectedProject });
 
     const refreshed = await fetch(`${server.url}/api/scan`, {
       method: 'POST',
       headers: { origin: server.url },
     });
     expect(refreshed.status).toBe(200);
+    expect(await refreshed.json()).toEqual({ data: expectedProject });
     expect(scans).toBe(2);
 
     const forbidden = await fetch(`${server.url}/api/scan`, {
@@ -181,6 +183,19 @@ describe('panel server', () => {
       },
     });
     expect(saved.status).toBe(200);
+    expect(await saved.json()).toEqual({
+      data: {
+        savedLanguages: ['de'],
+        snapshotUpdated: true,
+        file,
+        project: {
+          ...scan,
+          version: '1.2.0-test',
+          localOnly: true,
+          capabilities: { contentEditing: true },
+        },
+      },
+    });
     expect(saves).toBe(1);
   });
 });

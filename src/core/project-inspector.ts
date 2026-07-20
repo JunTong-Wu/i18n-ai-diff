@@ -10,18 +10,19 @@ import {
   TranslationTargetPlan,
 } from '../types/index.js';
 import { flatten } from '../utils/json-utils.js';
-import { analyzeDiff } from './diff-analyzer.js';
+import { analyzeDiff, SnapshotStore } from './diff-analyzer.js';
 
 export async function scanProject(
   config: ResolvedTranslateConfig,
   projectRoot: string,
   configPath: string,
+  snapshotStore?: SnapshotStore,
 ): Promise<ProjectScan> {
   const routes: TranslationRoutePlan[] = [];
   const changes: TranslationFilePlan[] = [];
 
   for (const route of config.routes) {
-    const sourceDir = path.join(config.localesDir, route.baseLang);
+    const sourceDir = path.join(config.localesDir, route.sourceLang);
     const sourceFiles = await scanJsonFiles(sourceDir);
     const targetMap = new Map<string, TranslationTargetPlan>();
     for (const targetLang of route.targetLangs) {
@@ -55,7 +56,8 @@ export async function scanProject(
           config.skipKeys,
           relativePath,
           targetLang,
-          route.baseLang,
+          route.sourceLang,
+          snapshotStore,
         );
         const skippedNeedsSync = diff.skipped.some(
           key => targetFlattened[key] !== sourceFlattened[key],
@@ -71,7 +73,7 @@ export async function scanProject(
         if (needsWrite) {
           const filePlan: TranslationFilePlan = {
             relativePath,
-            sourceLang: route.baseLang,
+            sourceLang: route.sourceLang,
             targetLang,
             targetExists: target.exists,
             needsWrite,
@@ -101,7 +103,7 @@ export async function scanProject(
     }
 
     routes.push({
-      sourceLang: route.baseLang,
+      sourceLang: route.sourceLang,
       targetLangs: [...route.targetLangs],
       sourceFiles: sourceFiles.length,
       sourceKeys,
@@ -115,7 +117,7 @@ export async function scanProject(
 
   const cachePath = config.cachePath || path.join(projectRoot, '.i18n-translate-cache.json');
   const snapshotPath = cachePath.replace(/\.json$/, '') + '.snapshot.json';
-  const languages = new Set(config.routes.flatMap(route => [route.baseLang, ...route.targetLangs]));
+  const languages = new Set(config.routes.flatMap(route => [route.sourceLang, ...route.targetLangs]));
 
   return {
     projectRoot,

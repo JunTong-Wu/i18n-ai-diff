@@ -40,11 +40,29 @@ describe('multi-master config', () => {
     }));
 
     expect(config.routes).toEqual([
-      { baseLang: 'en', targetLangs: ['de', 'fr'] },
+      { sourceLang: 'en', targetLangs: ['de', 'fr'] },
     ]);
   });
 
-  it('loads multi-master routes and preserves compatibility fields', async () => {
+  it('loads sourceLang multi-master routes and preserves compatibility fields', async () => {
+    const config = await loadConfig(await writeConfig({
+      ...common,
+      routes: [
+        { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+        { sourceLang: 'en', targetLangs: ['de', 'fr'] },
+      ],
+    }));
+
+    expect(config.routes).toHaveLength(2);
+    expect(config.routes).toEqual([
+      { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+      { sourceLang: 'en', targetLangs: ['de', 'fr'] },
+    ]);
+    expect(config.baseLang).toBe('zh-CN');
+    expect(config.targetLangs).toEqual(['ja', 'ko', 'de', 'fr']);
+  });
+
+  it('accepts legacy baseLang route fields and normalizes them to sourceLang', async () => {
     const config = await loadConfig(await writeConfig({
       ...common,
       routes: [
@@ -53,15 +71,16 @@ describe('multi-master config', () => {
       ],
     }));
 
-    expect(config.routes).toHaveLength(2);
-    expect(config.baseLang).toBe('zh-CN');
-    expect(config.targetLangs).toEqual(['ja', 'ko', 'de', 'fr']);
+    expect(config.routes).toEqual([
+      { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+      { sourceLang: 'en', targetLangs: ['de', 'fr'] },
+    ]);
   });
 
   it('loads TypeScript config through the packaged CLI loader', async () => {
     const configPath = await writeTypeScriptConfig(`
-      type Route = { baseLang: string; targetLangs: string[] };
-      const routes: Route[] = [{ baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] }];
+      type Route = { sourceLang: string; targetLangs: string[] };
+      const routes: Route[] = [{ sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] }];
       export default {
         routes,
         localesDir: './locales',
@@ -71,7 +90,7 @@ describe('multi-master config', () => {
 
     const config = await loadConfig(configPath);
     expect(config.routes).toEqual([
-      { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+      { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
     ]);
   });
 
@@ -80,7 +99,7 @@ describe('multi-master config', () => {
       ...common,
       baseLang: 'en',
       targetLangs: ['de'],
-      routes: [{ baseLang: 'zh-CN', targetLangs: ['ja'] }],
+      routes: [{ sourceLang: 'zh-CN', targetLangs: ['ja'] }],
     });
 
     await expect(loadConfig(configPath)).rejects.toThrow('either multi-master routes or single-master');
@@ -90,34 +109,34 @@ describe('multi-master config', () => {
     {
       name: 'a target belongs to multiple masters',
       routes: [
-        { baseLang: 'zh-CN', targetLangs: ['ja'] },
-        { baseLang: 'en', targetLangs: ['ja'] },
+        { sourceLang: 'zh-CN', targetLangs: ['ja'] },
+        { sourceLang: 'en', targetLangs: ['ja'] },
       ],
       message: 'assigned to multiple masters',
     },
     {
       name: 'a master is split across multiple routes',
       routes: [
-        { baseLang: 'en', targetLangs: ['de'] },
-        { baseLang: 'en', targetLangs: ['fr'] },
+        { sourceLang: 'en', targetLangs: ['de'] },
+        { sourceLang: 'en', targetLangs: ['fr'] },
       ],
       message: 'must be configured in a single route',
     },
     {
       name: 'a route targets its own master',
-      routes: [{ baseLang: 'en', targetLangs: ['en'] }],
-      message: 'must not contain its baseLang',
+      routes: [{ sourceLang: 'en', targetLangs: ['en'] }],
+      message: 'must not contain its sourceLang',
     },
     {
       name: 'a route repeats a target',
-      routes: [{ baseLang: 'en', targetLangs: ['de', 'de'] }],
+      routes: [{ sourceLang: 'en', targetLangs: ['de', 'de'] }],
       message: 'contains duplicate language',
     },
     {
       name: 'a language is both a master and a target',
       routes: [
-        { baseLang: 'en', targetLangs: ['zh-CN'] },
-        { baseLang: 'zh-CN', targetLangs: ['ja'] },
+        { sourceLang: 'en', targetLangs: ['zh-CN'] },
+        { sourceLang: 'zh-CN', targetLangs: ['ja'] },
       ],
       message: 'cannot be both a master and a target',
     },

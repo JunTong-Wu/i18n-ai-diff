@@ -57,12 +57,13 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Keep the app full-height with a compact fixed, edge-attached topbar and a full-width main workspace.
 - Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
 - Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority. Do not style the topbar as a floating rounded card.
+- On the overview, use a 12-column bento grid on PC widths. Primary workspace cards use 8 columns and right-rail cards use 4 columns. Do not use full-width business cards on PC; pending, operational, project record, metrics, and scan-history surfaces must align to either the 8-column main rail or the 4-column side rail.
 - Place the title and read-only explanation at the top left. Keep `Scan project` at the top right.
 - Put the healthy state before the metrics so the scan result is understood before details.
-- Use one wide metric band rather than separate floating metric cards.
-- Stack route groups. Use one neutral route surface per master route.
-- Keep secondary project record details in one broad neutral surface after route content.
-- When pending files exist, place the change plan after the routes and before the project record. Do not hide it to preserve the mock's zero state.
+- Put project metrics in the 4-column right rail beside the hero. Keep metrics as one grouped card, not separate floating metric cards.
+- Stack route groups in the 8-column main rail. Use one neutral route surface per master route.
+- Keep project record and operational state in the 4-column right rail so the side edge stays aligned.
+- When pending files exist, place the change plan after the routes in the 8-column main rail. Do not hide it to preserve the mock's zero state, and do not render it as a full-width table.
 
 ## Routes and dynamic languages
 
@@ -98,6 +99,24 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Keep primary tap targets at least 44 px.
 - Prevent horizontal page scrolling. Permit horizontal scrolling only inside a pending-change table if no clearer mobile representation is practical.
 - Preserve route and state hierarchy when text wraps or locale codes are long.
+
+## SCSS authoring model
+
+- Follow the local style pattern used by the companion `headless-global-site`: keep global entry files as declarative `@use` manifests, and keep component/page rules in their owning partials.
+- Write responsive overrides directly below the selector they modify, using nested `@media` or `@container` blocks. Avoid detached `responsive/` partials and page-bottom breakpoint dumps for component-specific styling.
+- Put local breakpoint constants or maps at the top of the owning SCSS file only when that file actually needs them. Prefer existing CSS variables from `_tokens.scss` for shared colors, radii, spacing, and motion.
+- Keep selector ownership obvious: shell layout in `_shell.scss`, overview bento concerns in `overview/_bento.scss`, route display in `overview/_routes.scss`, editor table rules in `editor/_table.scss`, and fullscreen editor controls in `editor/fullscreen/*`.
+- Global media queries are acceptable only for truly global concerns such as reduced motion, reset behavior, or browser capability fixes.
+
+## Tailwind V3 authoring and priority rules
+
+- Use Tailwind V3 as the low-level utility layer, following `headless-global-site`: import `panel/src/styles/tailwind.css` before `panel/src/styles/index.scss`, then let semantic SCSS partials define the product UI.
+- Keep Tailwind preflight disabled. The panel reset belongs to `_base.scss`; this protects VTable internals and prevents Tailwind from silently changing the approved visual system.
+- Prefer semantic class names in React for business UI. Use Tailwind utilities directly in JSX only for small one-off layout helpers that do not compete with an owning SCSS selector.
+- Prefer `@apply` for reusable primitives that are shared across pages, such as screen-reader utilities or tiny motion helpers. Put those in `_tailwind-apply.scss`, not inside unrelated component partials.
+- If a utility and a semantic selector would set the same property, the semantic SCSS wins by import order. Move intentional overrides into the owning SCSS partial instead of relying on JSX class order.
+- Do not use Tailwind `!` important modifiers for product UI. Reserve `!important` only for unavoidable third-party generated DOM overrides, and keep those overrides in the owning vendor/table partial.
+- Continue writing responsive rules next to their selectors in SCSS. Tailwind responsive utilities are acceptable for isolated JSX helpers, but page/component responsive behavior should remain in the owning SCSS file.
 
 ## Accessibility and content
 

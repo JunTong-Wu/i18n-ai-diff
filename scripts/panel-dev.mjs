@@ -109,11 +109,11 @@ function devConfig() {
   return `export default {
   routes: [
     {
-      baseLang: 'zh-Hans',
+      sourceLang: 'zh-Hans',
       targetLangs: ['ja', 'ko'],
     },
     {
-      baseLang: 'en',
+      sourceLang: 'en',
       targetLangs: ['de', 'es', 'fr', 'it', 'pt'],
     },
   ],

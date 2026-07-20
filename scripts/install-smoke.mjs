@@ -55,8 +55,8 @@ try {
     import { defineConfig } from 'i18n-ai-diff';
     export default defineConfig({
       routes: [
-        { baseLang: 'zh-CN', targetLangs: ['ja'] },
-        { baseLang: 'en', targetLangs: ['fr'] },
+        { sourceLang: 'zh-CN', targetLangs: ['ja'] },
+        { sourceLang: 'en', targetLangs: ['fr'] },
       ],
       localesDir: './locales',
       cachePath: './cache.json',

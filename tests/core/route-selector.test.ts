@@ -5,7 +5,7 @@ import type { ResolvedTranslateConfig } from '../../src/types/index.js';
 function createConfig(routes: ResolvedTranslateConfig['routes']): ResolvedTranslateConfig {
   return {
     routes: routes.map(route => ({ ...route, targetLangs: [...route.targetLangs] })),
-    baseLang: routes[0].baseLang,
+    baseLang: routes[0].sourceLang,
     targetLangs: routes.flatMap(route => route.targetLangs),
     localesDir: '/tmp/locales',
     skipKeys: [],
@@ -16,23 +16,23 @@ function createConfig(routes: ResolvedTranslateConfig['routes']): ResolvedTransl
 describe('CLI target-language selection', () => {
   it('preserves master routes while filtering multi-master targets', () => {
     const config = createConfig([
-      { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-      { baseLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
+      { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+      { sourceLang: 'en', targetLangs: ['de', 'it', 'fr', 'es'] },
     ]);
 
     selectTargetLanguages(config, ['fr', 'ja', 'ko', 'ja']);
 
     expect(config.routes).toEqual([
-      { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-      { baseLang: 'en', targetLangs: ['fr'] },
+      { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+      { sourceLang: 'en', targetLangs: ['fr'] },
     ]);
     expect(config.targetLangs).toEqual(['ja', 'ko', 'fr']);
   });
 
   it('rejects unconfigured targets in multi-master mode', () => {
     const config = createConfig([
-      { baseLang: 'zh-CN', targetLangs: ['ja'] },
-      { baseLang: 'en', targetLangs: ['fr'] },
+      { sourceLang: 'zh-CN', targetLangs: ['ja'] },
+      { sourceLang: 'en', targetLangs: ['fr'] },
     ]);
 
     expect(() => selectTargetLanguages(config, ['ja', 'pt'])).toThrow(
@@ -41,7 +41,7 @@ describe('CLI target-language selection', () => {
   });
 
   it('allows temporary target overrides in single-master mode', () => {
-    const config = createConfig([{ baseLang: 'en', targetLangs: ['de'] }]);
+    const config = createConfig([{ sourceLang: 'en', targetLangs: ['de'] }]);
 
     selectTargetLanguages(config, ['fr', 'ja', 'fr']);
 
@@ -50,7 +50,7 @@ describe('CLI target-language selection', () => {
   });
 
   it('rejects selecting the master as a target', () => {
-    const config = createConfig([{ baseLang: 'en', targetLangs: ['de'] }]);
+    const config = createConfig([{ sourceLang: 'en', targetLangs: ['de'] }]);
     expect(() => selectTargetLanguages(config, ['en'])).toThrow(
       'Target languages must not contain the master language: en'
     );

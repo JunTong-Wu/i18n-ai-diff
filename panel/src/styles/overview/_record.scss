@@ -31,6 +31,14 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.35rem 1.8rem;
   margin: 0;
+
+  @media (max-width: 1220px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .record-item {
@@ -43,6 +51,10 @@
 
 .record-item.is-wide {
   grid-column: span 2;
+
+  @media (max-width: 760px) {
+    grid-column: auto;
+  }
 }
 
 .record-item > div {

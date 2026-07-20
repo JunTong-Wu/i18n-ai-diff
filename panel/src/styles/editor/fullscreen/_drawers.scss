@@ -8,6 +8,13 @@
   visibility: hidden;
   box-shadow: 0 24px 60px rgba(16, 24, 40, 0.16);
   transition: transform var(--dur-2) var(--ease-out), visibility var(--dur-2) ease;
+
+  @media (max-width: 980px) {
+    top: 0.45rem;
+    bottom: 0.45rem;
+    width: min(25rem, calc(100% - 0.9rem));
+    max-width: calc(100vw - 0.9rem);
+  }
 }
 
 .editor-drawer.is-open {
@@ -23,6 +30,10 @@
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   transform: translateX(calc(-100% - 1rem));
+
+  @media (max-width: 980px) {
+    left: 0.45rem;
+  }
 }
 
 .editor-file-panel.editor-drawer.is-open {
@@ -40,6 +51,10 @@
   border-radius: var(--radius-lg);
   background: var(--surface);
   transform: translateX(calc(-100% - 1rem));
+
+  @media (max-width: 980px) {
+    left: 0.45rem;
+  }
 }
 
 .editor-controls-drawer.is-open {
@@ -129,4 +144,8 @@
   border: 0;
   background: rgba(16, 24, 40, 0.16);
   cursor: default;
+
+  @media (max-width: 980px) {
+    inset: 0;
+  }
 }

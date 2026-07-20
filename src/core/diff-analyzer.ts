@@ -9,12 +9,162 @@ interface SourceSnapshot {
   [fileAndLang: string]: Record<string, string>;
 }
 
+interface SnapshotDocument {
+  version?: number;
+  entries?: SourceSnapshot;
+  owners?: Record<string, string>;
+}
+
 export const SNAPSHOT_VERSION = 3;
-let snapshot: SourceSnapshot = {};
-let snapshotOwners: Record<string, string> = {};
-let legacyBootstrap = false;
-let snapshotPath = '';
-let snapshotDirty = false;
+
+export class SnapshotStore {
+  private entries: SourceSnapshot = {};
+  private owners: Record<string, string> = {};
+  private legacyBootstrap = false;
+  private snapshotPath = '';
+  private dirty = false;
+
+  constructor(cachePath?: string) {
+    if (cachePath) {
+      this.snapshotPath = snapshotPathForCache(cachePath);
+    }
+  }
+
+  static fromDocument(
+    document: SnapshotDocument,
+    options: { snapshotPath?: string; legacyBootstrap?: boolean; dirty?: boolean } = {},
+  ): SnapshotStore {
+    const store = new SnapshotStore();
+    store.replaceDocument(document, options);
+    return store;
+  }
+
+  async load(cachePath?: string): Promise<void> {
+    if (cachePath) {
+      this.snapshotPath = snapshotPathForCache(cachePath);
+    }
+    this.dirty = false;
+    if (!this.snapshotPath) {
+      this.entries = {};
+      this.owners = {};
+      this.legacyBootstrap = false;
+      return;
+    }
+
+    try {
+      const data = await fs.readFile(this.snapshotPath, 'utf-8');
+      const parsed = JSON.parse(data) as SnapshotDocument;
+      this.replaceDocument(parsed, {
+        snapshotPath: this.snapshotPath,
+        legacyBootstrap: parsed.version !== SNAPSHOT_VERSION,
+        dirty: false,
+      });
+    } catch {
+      this.entries = {};
+      this.owners = {};
+      this.legacyBootstrap = false;
+    }
+  }
+
+  async save(): Promise<void> {
+    if (!this.dirty || !this.snapshotPath) return;
+    const dir = path.dirname(this.snapshotPath);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      this.snapshotPath,
+      JSON.stringify({ version: SNAPSHOT_VERSION, entries: this.entries, owners: this.owners }, null, 2),
+      'utf-8',
+    );
+    this.dirty = false;
+    this.legacyBootstrap = false;
+  }
+
+  setOwner(filePath: string, targetLang: string, sourceLang: string): void {
+    this.owners[ownerKey(filePath, targetLang)] = sourceLang;
+    const currentKey = snapshotKey(filePath, sourceLang, targetLang);
+    const suffix = snapshotSuffix(filePath, targetLang);
+    for (const key of Object.keys(this.entries)) {
+      if (key !== currentKey && key.endsWith(suffix)) {
+        delete this.entries[key];
+      }
+    }
+    this.dirty = true;
+  }
+
+  update(
+    filePath: string,
+    targetLang: string,
+    key: string,
+    sourceText: string,
+    sourceLang: string = '',
+  ): void {
+    const k = snapshotKey(filePath, sourceLang, targetLang);
+    if (!this.entries[k]) this.entries[k] = {};
+    this.entries[k][key] = sourceTextHash(sourceText);
+    this.dirty = true;
+  }
+
+  getHash(filePath: string, targetLang: string, key: string, sourceLang: string = ''): string | undefined {
+    return this.entries[snapshotKey(filePath, sourceLang, targetLang)]?.[key];
+  }
+
+  owner(filePath: string, targetLang: string): string | undefined {
+    return this.owners[ownerKey(filePath, targetLang)];
+  }
+
+  isLegacyBootstrap(): boolean {
+    return this.legacyBootstrap;
+  }
+
+  removeKeys(
+    filePath: string,
+    targetLang: string,
+    keys: string[],
+    sourceLang: string = '',
+  ): void {
+    const k = snapshotKey(filePath, sourceLang, targetLang);
+    if (!this.entries[k]) return;
+    for (const key of keys) {
+      delete this.entries[k][key];
+    }
+    this.dirty = true;
+  }
+
+  removeFile(filePath: string, targetLang: string): void {
+    const suffix = snapshotSuffix(filePath, targetLang);
+    for (const key of Object.keys(this.entries)) {
+      if (key.endsWith(suffix)) delete this.entries[key];
+    }
+    delete this.owners[ownerKey(filePath, targetLang)];
+    this.dirty = true;
+  }
+
+  replaceDocument(
+    document: SnapshotDocument,
+    options: { snapshotPath?: string; legacyBootstrap?: boolean; dirty?: boolean } = {},
+  ): void {
+    if (options.snapshotPath !== undefined) {
+      this.snapshotPath = options.snapshotPath;
+    }
+    const isCurrentVersion = document.version === SNAPSHOT_VERSION;
+    this.entries = isCurrentVersion && document.entries ? cloneSnapshotEntries(document.entries) : {};
+    this.owners = isCurrentVersion && document.owners ? { ...document.owners } : {};
+    this.legacyBootstrap = options.legacyBootstrap ?? !isCurrentVersion;
+    this.dirty = options.dirty ?? false;
+  }
+}
+
+function cloneSnapshotEntries(entries: SourceSnapshot): SourceSnapshot {
+  return Object.fromEntries(
+    Object.entries(entries).map(([entryKey, hashes]) => [entryKey, { ...hashes }]),
+  );
+}
+
+export function createSnapshotStore(cachePath?: string): SnapshotStore {
+  return new SnapshotStore(cachePath);
+}
+
+const defaultSnapshotStore = new SnapshotStore();
 
 export function sourceTextHash(text: string): string {
   return crypto.createHash('md5').update(text).digest('hex');
@@ -25,38 +175,11 @@ export function snapshotPathForCache(cachePath: string): string {
 }
 
 export async function loadSnapshot(cachePath: string): Promise<void> {
-  snapshotPath = snapshotPathForCache(cachePath);
-  snapshotDirty = false;
-  try {
-    const data = await fs.readFile(snapshotPath, 'utf-8');
-    const parsed = JSON.parse(data) as {
-      version?: number;
-      entries?: SourceSnapshot;
-      owners?: Record<string, string>;
-    };
-    snapshot = parsed.version === SNAPSHOT_VERSION && parsed.entries ? parsed.entries : {};
-    snapshotOwners = parsed.version === SNAPSHOT_VERSION && parsed.owners ? parsed.owners : {};
-    // 旧版快照没有版本字段。迁移首跑时将现有目标译文视为已核对资产，
-    // 只建立新的 sourceLang 基线，不因配置改为多母版而触发重翻。
-    legacyBootstrap = parsed.version !== SNAPSHOT_VERSION;
-  } catch {
-    snapshot = {};
-    snapshotOwners = {};
-    legacyBootstrap = false;
-  }
+  await defaultSnapshotStore.load(cachePath);
 }
 
 export async function saveSnapshot(): Promise<void> {
-  if (!snapshotDirty || !snapshotPath) return;
-  const dir = path.dirname(snapshotPath);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(
-    snapshotPath,
-    JSON.stringify({ version: SNAPSHOT_VERSION, entries: snapshot, owners: snapshotOwners }, null, 2),
-    'utf-8',
-  );
-  snapshotDirty = false;
-  legacyBootstrap = false;
+  await defaultSnapshotStore.save();
 }
 
 function snapshotKey(filePath: string, sourceLang: string, targetLang: string): string {
@@ -72,15 +195,7 @@ function ownerKey(filePath: string, targetLang: string): string {
 }
 
 export function setSnapshotOwner(filePath: string, targetLang: string, sourceLang: string): void {
-  snapshotOwners[ownerKey(filePath, targetLang)] = sourceLang;
-  const currentKey = snapshotKey(filePath, sourceLang, targetLang);
-  const suffix = snapshotSuffix(filePath, targetLang);
-  for (const key of Object.keys(snapshot)) {
-    if (key !== currentKey && key.endsWith(suffix)) {
-      delete snapshot[key];
-    }
-  }
-  snapshotDirty = true;
+  defaultSnapshotStore.setOwner(filePath, targetLang, sourceLang);
 }
 
 export function updateSnapshot(
@@ -90,14 +205,7 @@ export function updateSnapshot(
   sourceText: string,
   sourceLang: string = '',
 ): void {
-  const k = snapshotKey(filePath, sourceLang, targetLang);
-  if (!snapshot[k]) snapshot[k] = {};
-  snapshot[k][key] = sourceTextHash(sourceText);
-  snapshotDirty = true;
-}
-
-function getSnapshotHash(filePath: string, targetLang: string, key: string, sourceLang: string = ''): string | undefined {
-  return snapshot[snapshotKey(filePath, sourceLang, targetLang)]?.[key];
+  defaultSnapshotStore.update(filePath, targetLang, key, sourceText, sourceLang);
 }
 
 export function removeSnapshotKeys(
@@ -106,21 +214,11 @@ export function removeSnapshotKeys(
   keys: string[],
   sourceLang: string = '',
 ): void {
-  const k = snapshotKey(filePath, sourceLang, targetLang);
-  if (!snapshot[k]) return;
-  for (const key of keys) {
-    delete snapshot[k][key];
-  }
-  snapshotDirty = true;
+  defaultSnapshotStore.removeKeys(filePath, targetLang, keys, sourceLang);
 }
 
 export function removeSnapshotFile(filePath: string, targetLang: string): void {
-  const suffix = snapshotSuffix(filePath, targetLang);
-  for (const key of Object.keys(snapshot)) {
-    if (key.endsWith(suffix)) delete snapshot[key];
-  }
-  delete snapshotOwners[ownerKey(filePath, targetLang)];
-  snapshotDirty = true;
+  defaultSnapshotStore.removeFile(filePath, targetLang);
 }
 
 export function analyzeDiff(
@@ -130,6 +228,7 @@ export function analyzeDiff(
   filePath?: string,
   targetLang?: string,
   sourceLang: string = '',
+  snapshotStore: SnapshotStore = defaultSnapshotStore,
 ): DiffResult {
   const baseFlattened = flatten(baseContent);
   const targetFlattened = targetContent ? flatten(targetContent) : {};
@@ -161,14 +260,14 @@ export function analyzeDiff(
     const stillSourceText = targetFlattened[key] === baseFlattened[key];
 
     if (hasSnapshot) {
-      const prevHash = getSnapshotHash(filePath, targetLang, key, sourceLang);
+      const prevHash = snapshotStore.getHash(filePath, targetLang, key, sourceLang);
       const currHash = sourceTextHash(baseFlattened[key]);
-      const owner = snapshotOwners[ownerKey(filePath, targetLang)];
+      const owner = snapshotStore.owner(filePath, targetLang);
 
       if (owner && owner !== sourceLang) {
         // 更换母版只改变后续增量基线，已有目标译文保持不变。
         unchanged.push(key);
-      } else if (legacyBootstrap && !prevHash) {
+      } else if (snapshotStore.isLegacyBootstrap() && !prevHash) {
         // 旧版项目迁移时保留已经核对过的目标译文。
         unchanged.push(key);
       } else if (!prevHash) {

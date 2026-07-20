@@ -7,7 +7,7 @@ import {
   ResolvedTranslateConfig,
 } from '../types/index.js';
 import { loadConfigWithMetadata } from './config-loader.js';
-import { loadSnapshot } from './diff-analyzer.js';
+import { createSnapshotStore, SnapshotStore } from './diff-analyzer.js';
 import { TranslationEditorService } from './editor-service.js';
 import { scanProject } from './project-inspector.js';
 
@@ -21,6 +21,7 @@ export class ProjectSession {
   readonly configPath: string;
   readonly projectRoot: string;
   private readonly editor: TranslationEditorService;
+  private readonly snapshotStore: SnapshotStore;
   private activeScan?: Promise<ProjectScan>;
   private serial: Promise<void> = Promise.resolve();
 
@@ -32,6 +33,7 @@ export class ProjectSession {
     this.config = config;
     this.configPath = configPath;
     this.projectRoot = projectRoot;
+    this.snapshotStore = createSnapshotStore(config.cachePath || '.i18n-translate-cache.json');
     this.editor = new TranslationEditorService(config, projectRoot);
   }
 
@@ -44,8 +46,8 @@ export class ProjectSession {
   async scan(): Promise<ProjectScan> {
     if (this.activeScan) return this.activeScan;
     this.activeScan = this.runExclusive(async () => {
-      await loadSnapshot(this.config.cachePath || '.i18n-translate-cache.json');
-      return scanProject(this.config, this.projectRoot, this.configPath);
+      await this.snapshotStore.load();
+      return scanProject(this.config, this.projectRoot, this.configPath, this.snapshotStore);
     });
 
     try {
@@ -57,24 +59,21 @@ export class ProjectSession {
 
   async getEditorManifest(editable: boolean, writeToken?: string): Promise<EditorManifest> {
     return this.runExclusive(async () => {
-      await loadSnapshot(this.config.cachePath || '.i18n-translate-cache.json');
       return this.editor.getManifest(editable, writeToken);
     });
   }
 
   async getEditorFile(relativePath: string): Promise<EditorFile> {
     return this.runExclusive(async () => {
-      await loadSnapshot(this.config.cachePath || '.i18n-translate-cache.json');
       return this.editor.getFile(relativePath);
     });
   }
 
   async saveEditorFile(request: EditorSaveRequest): Promise<EditorSaveResult> {
     return this.runExclusive(async () => {
-      await loadSnapshot(this.config.cachePath || '.i18n-translate-cache.json');
       const result = await this.editor.saveFile(request);
-      await loadSnapshot(this.config.cachePath || '.i18n-translate-cache.json');
-      const project = await scanProject(this.config, this.projectRoot, this.configPath);
+      await this.snapshotStore.load();
+      const project = await scanProject(this.config, this.projectRoot, this.configPath, this.snapshotStore);
       return { ...result, project };
     });
   }

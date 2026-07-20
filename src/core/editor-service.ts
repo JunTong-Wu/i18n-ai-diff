@@ -15,6 +15,7 @@ import { isKeySkipped } from '../utils/path-matcher.js';
 import {
   analyzeDiff,
   SNAPSHOT_VERSION,
+  SnapshotStore,
   snapshotPathForCache,
   sourceTextHash,
 } from './diff-analyzer.js';
@@ -91,7 +92,7 @@ export class TranslationEditorService {
     private readonly config: ResolvedTranslateConfig,
     private readonly projectRoot: string,
   ) {
-    this.languages = [...new Set(config.routes.flatMap(route => [route.baseLang, ...route.targetLangs]))];
+    this.languages = [...new Set(config.routes.flatMap(route => [route.sourceLang, ...route.targetLangs]))];
     this.languageSet = new Set(this.languages);
     const cachePath = config.cachePath || path.join(projectRoot, '.i18n-translate-cache.json');
     this.snapshotPath = snapshotPathForCache(cachePath);
@@ -108,6 +109,7 @@ export class TranslationEditorService {
     }
 
     const files: EditorManifestFile[] = [];
+    const snapshot = await this.readSnapshotRecord();
     for (const relativePath of [...fileLanguages.keys()].sort((left, right) => left.localeCompare(right))) {
       const records = new Map<string, LocaleRecord | null>();
       const invalidLanguages: string[] = [];
@@ -125,7 +127,7 @@ export class TranslationEditorService {
       }
 
       const orderedPaths = this.collectOrderedPaths(records);
-      const pending = this.calculatePending(relativePath, records);
+      const pending = this.calculatePending(relativePath, records, snapshot);
       files.push({
         relativePath,
         presentLanguages: this.languages.filter(lang => fileLanguages.get(relativePath)?.has(lang)),
@@ -139,9 +141,10 @@ export class TranslationEditorService {
     return {
       editable,
       ...(editable && writeToken ? { writeToken } : {}),
+      projectRoot: this.projectRoot,
       routes: this.config.routes.map(route => ({
-        sourceLang: route.baseLang,
-        languages: [route.baseLang, ...route.targetLangs],
+        sourceLang: route.sourceLang,
+        languages: [route.sourceLang, ...route.targetLangs],
       })),
       languages: [...this.languages],
       files,
@@ -274,7 +277,7 @@ export class TranslationEditorService {
     records: Map<string, LocaleRecord | null>,
     snapshot: SnapshotRecord,
   ): EditorFile {
-    const pending = this.calculatePending(relativePath, records);
+    const pending = this.calculatePending(relativePath, records, snapshot);
     const rows: EditorRow[] = this.collectOrderedPaths(records).map(segments => {
       const pointer = encodeJsonPointer(segments);
       const dottedPath = segments.join('.');
@@ -324,18 +327,26 @@ export class TranslationEditorService {
       }
     };
 
-    for (const route of this.config.routes) addRecord(records.get(route.baseLang));
+    for (const route of this.config.routes) addRecord(records.get(route.sourceLang));
     for (const route of this.config.routes) {
       for (const targetLang of route.targetLangs) addRecord(records.get(targetLang));
     }
     return paths;
   }
 
-  private calculatePending(relativePath: string, records: Map<string, LocaleRecord | null>): PendingMap {
+  private calculatePending(
+    relativePath: string,
+    records: Map<string, LocaleRecord | null>,
+    snapshot: SnapshotRecord,
+  ): PendingMap {
     const pending: PendingMap = {};
     const nativeRelativePath = toNativeRelativePath(relativePath);
+    const snapshotStore = SnapshotStore.fromDocument(snapshot.document, {
+      snapshotPath: snapshot.filePath,
+      legacyBootstrap: snapshot.needsBootstrap,
+    });
     for (const route of this.config.routes) {
-      const source = records.get(route.baseLang);
+      const source = records.get(route.sourceLang);
       if (!source) continue;
       for (const targetLang of route.targetLangs) {
         const target = records.get(targetLang);
@@ -345,7 +356,8 @@ export class TranslationEditorService {
           this.config.skipKeys,
           nativeRelativePath,
           targetLang,
-          route.baseLang,
+          route.sourceLang,
+          snapshotStore,
         );
         pending[targetLang] = new Set([...diff.added, ...diff.modified]);
       }
@@ -469,10 +481,10 @@ export class TranslationEditorService {
   private async bootstrapSnapshot(): Promise<SnapshotDocument> {
     const document = emptySnapshot();
     for (const route of this.config.routes) {
-      for (const relativePath of await this.scanLanguageFiles(route.baseLang)) {
+      for (const relativePath of await this.scanLanguageFiles(route.sourceLang)) {
         let source: LocaleRecord | null;
         try {
-          source = await this.readLocaleRecord(route.baseLang, relativePath);
+          source = await this.readLocaleRecord(route.sourceLang, relativePath);
         } catch {
           continue;
         }
@@ -485,7 +497,7 @@ export class TranslationEditorService {
             continue;
           }
           if (!target) continue;
-          this.establishBaseline(document, relativePath, route.baseLang, targetLang, source.data, target.data, true);
+          this.establishBaseline(document, relativePath, route.sourceLang, targetLang, source.data, target.data, true);
         }
       }
     }
@@ -500,7 +512,7 @@ export class TranslationEditorService {
     let changed = false;
 
     for (const route of this.config.routes) {
-      const source = records.get(route.baseLang);
+      const source = records.get(route.sourceLang);
       if (!source) continue;
       for (const targetLang of route.targetLangs) {
         const target = records.get(targetLang);
@@ -508,7 +520,7 @@ export class TranslationEditorService {
         changed = this.establishBaseline(
           document,
           relativePath,
-          route.baseLang,
+          route.sourceLang,
           targetLang,
           source.data,
           target.data,
@@ -569,14 +581,14 @@ export class TranslationEditorService {
     for (const change of changes) {
       const route = this.config.routes.find(candidate => candidate.targetLangs.some(lang => lang === change.lang));
       if (!route) continue;
-      const source = records.get(route.baseLang);
+      const source = records.get(route.sourceLang);
       if (!source) continue;
       const segments = decodeJsonPointer(change.pointer);
       const sourceValue = getPathValue(source.data, segments);
       if (!sourceValue.exists || typeof sourceValue.value !== 'string') continue;
 
       const ownerKey = `${change.lang}:${nativeRelativePath}`;
-      const entryKey = `${route.baseLang}:${change.lang}:${nativeRelativePath}`;
+      const entryKey = `${route.sourceLang}:${change.lang}:${nativeRelativePath}`;
       const suffix = `:${change.lang}:${nativeRelativePath}`;
       for (const key of Object.keys(document.entries)) {
         if (key !== entryKey && key.endsWith(suffix)) {
@@ -584,7 +596,7 @@ export class TranslationEditorService {
           changed = true;
         }
       }
-      document.owners[ownerKey] = route.baseLang;
+      document.owners[ownerKey] = route.sourceLang;
       const entries = document.entries[entryKey] || (document.entries[entryKey] = {});
       entries[segments.join('.')] = sourceTextHash(sourceValue.value);
       changed = true;

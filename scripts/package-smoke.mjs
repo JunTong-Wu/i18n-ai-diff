@@ -33,10 +33,10 @@ try {
 
   const configPath = path.join(tempDir, 'i18n-translate.config.ts');
   await fs.writeFile(configPath, `
-    type Route = { baseLang: string; targetLangs: string[] };
+    type Route = { sourceLang: string; targetLangs: string[] };
     const routes: Route[] = [
-      { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-      { baseLang: 'en', targetLangs: ['de', 'fr', 'it', 'es'] },
+      { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+      { sourceLang: 'en', targetLangs: ['de', 'fr', 'it', 'es'] },
     ];
     export default {
       routes,

@@ -1,22 +1,14 @@
 import {
   ArrowUUpLeft,
   ArrowUUpRight,
-  CaretDown,
-  CheckCircle,
   FileText,
   FloppyDisk,
-  Folder,
-  Funnel,
-  List,
   Lock,
-  MagnifyingGlass,
   SidebarSimple,
   SlidersHorizontal,
   WarningCircle,
-  X,
 } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { EditorRow } from '../../../src/types/index';
 import {
   loadEditorFile,
   loadEditorManifest,
@@ -29,7 +21,10 @@ import type {
   PanelProject,
 } from '../types';
 import { PanelLayout } from '../layout/PanelLayout';
+import { ConflictModal } from './ConflictModal';
+import { FileDrawer } from './FileDrawer';
 import { TranslationGrid, type GridValueChange } from './TranslationGrid';
+import { ToolsDrawer } from './ToolsDrawer';
 import {
   applyHistoryTransaction,
   createEditorPatches,
@@ -42,6 +37,12 @@ import {
   type DraftHistoryTransaction,
   type DraftMap,
 } from './model';
+import {
+  readInitialEditorPath,
+  readRememberedEditorPath,
+  rememberEditorPath,
+  resolveEditorPath,
+} from './file-memory';
 
 interface EditorPageProps {
   project: PanelProject | null;
@@ -49,8 +50,12 @@ interface EditorPageProps {
   onProjectChange(project: PanelProject): void;
 }
 
+type PendingNavigation =
+  | { kind: 'file'; relativePath: string }
+  | { kind: 'panel'; href: string };
+
 export default function EditorPage({ project, onNavigate, onProjectChange }: EditorPageProps) {
-  const initialPath = new URLSearchParams(window.location.search).get('file') || '';
+  const initialPath = readInitialEditorPath(window.location.search);
   const [manifest, setManifest] = useState<PanelEditorManifest | null>(null);
   const [file, setFile] = useState<PanelEditorFile | null>(null);
   const [selectedPath, setSelectedPath] = useState(initialPath);
@@ -68,21 +73,27 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [drafts, setDrafts] = useState<DraftMap>(new Map());
   const [undoStack, setUndoStack] = useState<DraftHistoryTransaction[]>([]);
   const [redoStack, setRedoStack] = useState<DraftHistoryTransaction[]>([]);
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const [conflicts, setConflicts] = useState<DraftConflict[] | null>(null);
   const draftsRef = useRef(drafts);
-  const visibleRowsRef = useRef<EditorRow[]>([]);
   draftsRef.current = drafts;
 
   const refreshManifest = useCallback(async (signal?: AbortSignal) => {
     const nextManifest = await loadEditorManifest(signal);
     setManifest(nextManifest);
     setSelectedPath(current => {
-      if (current && nextManifest.files.some(candidate => candidate.relativePath === current)) return current;
-      return nextManifest.files[0]?.relativePath || '';
+      const rememberedPath = readRememberedEditorPath(
+        window.localStorage,
+        nextManifest.projectRoot || project?.projectRoot,
+      );
+      return resolveEditorPath(
+        nextManifest.files.map(candidate => candidate.relativePath),
+        current,
+        rememberedPath,
+      );
     });
     return nextManifest;
-  }, []);
+  }, [project?.projectRoot]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -114,6 +125,11 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         setUndoStack([]);
         setRedoStack([]);
         setConflicts(null);
+        rememberEditorPath(
+          window.localStorage,
+          selectedPath,
+          manifest?.projectRoot || project?.projectRoot,
+        );
         const url = new URL(window.location.href);
         url.pathname = '/editor';
         url.searchParams.set('file', selectedPath);
@@ -170,7 +186,31 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       );
     });
   }, [drafts, file, manifest, rowSearch, showChanged, showMissing, showPending]);
-  visibleRowsRef.current = visibleRows;
+
+  const rowsByPointer = useMemo(() => new Map(
+    (file?.rows || []).map(row => [row.pointer, row]),
+  ), [file]);
+
+  const cellStateCounts = useMemo(() => {
+    const counts = {
+      changed: 0,
+      pending: 0,
+      missing: 0,
+      skipped: 0,
+    };
+    if (!file || !manifest) return counts;
+    for (const row of file.rows) {
+      for (const lang of manifest.languages) {
+        const cell = row.cells[lang];
+        const changed = drafts.has(draftIdentity(lang, row.pointer));
+        if (changed) counts.changed += 1;
+        else if (cell?.pending) counts.pending += 1;
+        if ((cell?.kind || 'missing') === 'missing' && !changed) counts.missing += 1;
+        if (cell?.skipped) counts.skipped += 1;
+      }
+    }
+    return counts;
+  }, [drafts, file, manifest]);
 
   const selectedMeta = manifest?.files.find(candidate => candidate.relativePath === selectedPath);
   const editable = manifest?.editable === true;
@@ -180,12 +220,11 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     const next = new Map(draftsRef.current);
     const transaction: DraftHistoryTransaction = [];
     for (const value of values) {
-      if (typeof value.recordIndex !== 'number' || typeof value.field !== 'string') continue;
-      if (!manifest.languages.includes(value.field)) continue;
-      const row = visibleRowsRef.current[value.recordIndex];
-      const cell = row?.cells[value.field];
+      if (!manifest.languages.includes(value.lang)) continue;
+      const row = rowsByPointer.get(value.pointer);
+      const cell = row?.cells[value.lang];
       if (!row || !cell || cell.kind === 'unsupported') continue;
-      const identity = draftIdentity(value.field, row.pointer);
+      const identity = draftIdentity(value.lang, row.pointer);
       const before = next.get(identity);
       const after = draftForValue(cell, String(value.changedValue));
       if (before === after) continue;
@@ -199,7 +238,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setUndoStack(current => [...current, transaction]);
     setRedoStack([]);
     setStatus(`${next.size} unsaved change${next.size === 1 ? '' : 's'}.`);
-  }, [file, manifest]);
+  }, [file, manifest, rowsByPointer]);
 
   const undo = useCallback(() => {
     const transaction = undoStack[undoStack.length - 1];
@@ -263,12 +302,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       draftsRef.current = empty;
       setUndoStack([]);
       setRedoStack([]);
-      onProjectChange({
-        ...result.project,
-        version: project?.version || '1.2.0',
-        localOnly: true,
-        capabilities: { contentEditing: true },
-      });
+      onProjectChange(result.project);
       await refreshManifest();
       setStatus(`Saved ${result.savedLanguages.length} language file${result.savedLanguages.length === 1 ? '' : 's'} safely.`);
       return true;
@@ -299,18 +333,39 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     } finally {
       setSaving(false);
     }
-  }, [file, manifest, onProjectChange, project?.version, refreshManifest]);
+  }, [file, manifest, onProjectChange, refreshManifest]);
 
-  const requestFile = (relativePath: string) => {
-    if (relativePath === selectedPath) {
+  const performNavigation = useCallback((destination: PendingNavigation) => {
+    if (destination.kind === 'file') {
+      setSelectedPath(destination.relativePath);
       setActiveDrawer(null);
       return;
     }
-    if (draftsRef.current.size > 0) setPendingNavigation(relativePath);
-    else {
-      setSelectedPath(relativePath);
+
+    setActiveDrawer(null);
+    onNavigate(destination.href);
+  }, [onNavigate]);
+
+  const requestGuardedNavigation = useCallback((destination: PendingNavigation) => {
+    if (destination.kind === 'file' && destination.relativePath === selectedPath) {
       setActiveDrawer(null);
+      return;
     }
+
+    if (draftsRef.current.size > 0) {
+      setPendingNavigation(destination);
+      return;
+    }
+
+    performNavigation(destination);
+  }, [performNavigation, selectedPath]);
+
+  const guardedNavigate = useCallback((href: string) => {
+    requestGuardedNavigation({ kind: 'panel', href });
+  }, [requestGuardedNavigation]);
+
+  const requestFile = (relativePath: string) => {
+    requestGuardedNavigation({ kind: 'file', relativePath });
   };
 
   const discardAndNavigate = () => {
@@ -318,9 +373,12 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     const empty = new Map<string, string>();
     setDrafts(empty);
     draftsRef.current = empty;
+    setUndoStack([]);
+    setRedoStack([]);
+    setConflicts(null);
+    const destination = pendingNavigation;
     setPendingNavigation(null);
-    setSelectedPath(pendingNavigation);
-    setActiveDrawer(null);
+    performNavigation(destination);
   };
 
   const saveAndNavigate = async () => {
@@ -328,8 +386,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     const destination = pendingNavigation;
     if (await save()) {
       setPendingNavigation(null);
-      setSelectedPath(destination);
-      setActiveDrawer(null);
+      performNavigation(destination);
     }
   };
 
@@ -345,6 +402,12 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setConflicts(null);
     setStatus('Conflicts resolved in the draft. Review the table and save again.');
   };
+
+  const resolveConflict = useCallback((identity: string, resolution: 'disk' | 'draft') => {
+    setConflicts(current => current?.map(item => (
+      item.identity === identity ? { ...item, resolution } : item
+    )) || null);
+  }, []);
 
   const currentFileSummary = (
     <div className="editor-current-file">
@@ -399,10 +462,22 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     </button>
   );
 
+  const cellStateSummary = (
+    <section className="editor-cell-state-summary" aria-label="Cell states">
+      <strong>Cell states</strong>
+      <div className="editor-state-legend">
+        <span><i className="legend-dot is-changed" />Changed <b>{cellStateCounts.changed}</b></span>
+        <span><i className="legend-dot is-pending" />Pending <b>{cellStateCounts.pending}</b></span>
+        <span><i className="legend-dot is-missing" />Missing <b>{cellStateCounts.missing}</b></span>
+        <span><i className="legend-dot is-skipped" />Skipped <b>{cellStateCounts.skipped}</b></span>
+      </div>
+    </section>
+  );
+
   return (
     <PanelLayout
       activeView="editor"
-      onNavigate={onNavigate}
+      onNavigate={guardedNavigate}
       project={project}
       skipLabel="copy editor"
       shellClassName="is-editor-shell"
@@ -411,7 +486,10 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     >
       <section className="editor-operation-bar" aria-label="Copy editor controls">
         {editorControls}
-        {saveButton}
+        <div className="editor-operation-right">
+          {cellStateSummary}
+          {saveButton}
+        </div>
       </section>
 
       <div className="editor-table-stage">
@@ -458,123 +536,37 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         </section>
       </div>
 
-      <aside className={activeDrawer === 'files' ? 'editor-drawer editor-file-panel is-open' : 'editor-drawer editor-file-panel'} aria-label="Locale files">
-            <div className="file-panel-header">
-              <div>
-                <p className="section-kicker">Project files</p>
-                <strong>{manifest?.files.length || 0} JSON files</strong>
-              </div>
-              <button className="file-panel-close" type="button" onClick={() => setActiveDrawer(null)} aria-label="Close file browser">
-                <X size={20} aria-hidden="true" />
-              </button>
-            </div>
-            <label className="file-search">
-              <MagnifyingGlass size={17} aria-hidden="true" />
-              <span className="sr-only">Search locale files</span>
-              <input value={fileSearch} onChange={event => setFileSearch(event.target.value)} placeholder="Find a JSON file…" />
-            </label>
-            <div className="file-tree">
-              {fileGroups.map(group => (
-                <details key={group.directory} open>
-                  <summary>
-                    <Folder size={17} weight="fill" aria-hidden="true" />
-                    <span title={group.directory}>{group.directory}</span>
-                    <small>{group.files.length}</small>
-                    <CaretDown className="folder-caret" size={14} aria-hidden="true" />
-                  </summary>
-                  <div className="file-group-list">
-                    {group.files.map(candidate => (
-                      <button
-                        className={candidate.relativePath === selectedPath ? 'file-row is-active' : 'file-row'}
-                        type="button"
-                        key={candidate.relativePath}
-                        onClick={() => requestFile(candidate.relativePath)}
-                        title={candidate.relativePath}
-                      >
-                        <FileText size={17} aria-hidden="true" />
-                        <span>{fileName(candidate.relativePath)}</span>
-                        {candidate.invalidLanguages.length > 0
-                          ? <WarningCircle className="file-state is-error" size={16} weight="fill" aria-label="Invalid JSON" />
-                          : candidate.pendingKeys > 0
-                            ? <span className="file-count is-pending" title={`${candidate.pendingKeys} pending cells`}>{candidate.pendingKeys}</span>
-                            : candidate.missingLanguages.length > 0
-                              ? <span className="file-count" title={`${candidate.missingLanguages.length} missing language files`}>{candidate.missingLanguages.length}</span>
-                              : <CheckCircle className="file-state is-clear" size={16} weight="fill" aria-label="Complete" />}
-                      </button>
-                    ))}
-                  </div>
-                </details>
-              ))}
-              {!manifestLoading && fileGroups.length === 0 && (
-                <div className="file-tree-empty"><List size={22} aria-hidden="true" />No matching JSON files</div>
-              )}
-            </div>
-      </aside>
+      <FileDrawer
+        fileGroups={fileGroups}
+        fileSearch={fileSearch}
+        isOpen={activeDrawer === 'files'}
+        manifest={manifest}
+        manifestLoading={manifestLoading}
+        selectedPath={selectedPath}
+        onClose={() => setActiveDrawer(null)}
+        onFileSearchChange={setFileSearch}
+        onRequestFile={requestFile}
+      />
 
-      <aside className={activeDrawer === 'tools' ? 'editor-drawer editor-controls-drawer is-open' : 'editor-drawer editor-controls-drawer'} aria-label="Editor tools">
-        <div className="file-panel-header">
-          <div>
-            <p className="section-kicker">View controls</p>
-            <strong>Search, filters, and states</strong>
-          </div>
-          <button className="file-panel-close" type="button" onClick={() => setActiveDrawer(null)} aria-label="Close editor tools">
-            <X size={20} aria-hidden="true" />
-          </button>
-        </div>
-
-        <label className="editor-search">
-          <MagnifyingGlass size={18} aria-hidden="true" />
-          <span className="sr-only">Search keys and copy</span>
-          <input value={rowSearch} onChange={event => setRowSearch(event.target.value)} placeholder="Search keys or copy…" />
-        </label>
-
-        <div className="editor-filter-bar">
-          <span><Funnel size={17} aria-hidden="true" /> Show rows</span>
-          <FilterButton active={showMissing} onClick={() => setShowMissing(value => !value)}>Missing</FilterButton>
-          <FilterButton active={showPending} onClick={() => setShowPending(value => !value)}>Pending</FilterButton>
-          <FilterButton active={showChanged} onClick={() => setShowChanged(value => !value)}>Changed</FilterButton>
-          <span className="editor-row-count">{visibleRows.length} of {file?.rows.length || 0} keys</span>
-        </div>
-
-        <section className="editor-state-card" aria-label="Cell state legend">
-          <strong>Cell states</strong>
-          <div className="editor-state-legend">
-            <span><i className="legend-dot is-changed" />Changed</span>
-            <span><i className="legend-dot is-pending" />Pending</span>
-            <span><i className="legend-dot is-missing" />Missing</span>
-            <span><i className="legend-dot is-skipped" />Skipped key</span>
-          </div>
-        </section>
-
-        <section className="editor-state-card">
-          <strong>Current file</strong>
-          <dl className="editor-file-stats">
-            <div>
-              <dt>Visible keys</dt>
-              <dd>{visibleRows.length}/{file?.rows.length || 0}</dd>
-            </div>
-            <div>
-              <dt>Language files</dt>
-              <dd>{selectedMeta ? `${selectedMeta.presentLanguages.length}/${manifest?.languages.length || 0}` : '0/0'}</dd>
-            </div>
-            <div>
-              <dt>Draft changes</dt>
-              <dd>{drafts.size}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="editor-state-card">
-          <strong>Draft status</strong>
-          <p>{status || (drafts.size > 0 ? `${drafts.size} changes remain in this browser.` : 'Local files match the current editor draft.')}</p>
-        </section>
-
-        <section className="editor-state-card">
-          <strong>Editing</strong>
-          <p>{editable ? 'Local editing is enabled. Saves are explicit and revision-checked.' : 'Viewing in read-only mode. Restart with i18n-ai-diff panel --edit to save file changes.'}</p>
-          <small>Double-click or press Enter to edit. Shift+Enter adds a line.</small>
-        </section>
-      </aside>
+      <ToolsDrawer
+        draftCount={drafts.size}
+        editable={editable}
+        isOpen={activeDrawer === 'tools'}
+        languageCount={manifest?.languages.length || 0}
+        rowSearch={rowSearch}
+        selectedMeta={selectedMeta}
+        showChanged={showChanged}
+        showMissing={showMissing}
+        showPending={showPending}
+        status={status}
+        totalRowCount={file?.rows.length || 0}
+        visibleRowCount={visibleRows.length}
+        onClose={() => setActiveDrawer(null)}
+        onRowSearchChange={setRowSearch}
+        onToggleChanged={() => setShowChanged(value => !value)}
+        onToggleMissing={() => setShowMissing(value => !value)}
+        onTogglePending={() => setShowPending(value => !value)}
+      />
 
       {activeDrawer && <button className="drawer-scrim" type="button" onClick={() => setActiveDrawer(null)} aria-label="Close editor drawer" />}
 
@@ -584,80 +576,35 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             <WarningCircle size={28} weight="fill" aria-hidden="true" />
             <div>
               <p className="section-kicker">Unsaved local draft</p>
-              <h2 id="leave-title">Save before opening another file?</h2>
-              <p>{drafts.size} changes belong to <strong>{selectedPath}</strong>. They cannot follow you into another JSON file.</p>
+              <h2 id="leave-title">
+                {pendingNavigation.kind === 'file' ? 'Save before opening another file?' : 'Save before leaving the copy editor?'}
+              </h2>
+              <p>
+                {drafts.size} changes belong to <strong>{selectedPath}</strong>.{' '}
+                {pendingNavigation.kind === 'file'
+                  ? 'They cannot follow you into another JSON file.'
+                  : 'They stay in this browser draft until you save or discard them.'}
+              </p>
             </div>
             <div className="modal-actions">
               <button type="button" className="button-tertiary" onClick={() => setPendingNavigation(null)}>Stay here</button>
               <button type="button" className="button-secondary is-danger" onClick={discardAndNavigate}>Discard draft</button>
-              <button type="button" className="button-primary" disabled={saving} onClick={() => void saveAndNavigate()}>Save and continue</button>
-            </div>
-          </section>
-        </div>
-      )}
-
-      {conflicts && (
-        <div className="editor-modal-layer" role="presentation">
-          <section className="editor-modal conflict-modal" role="dialog" aria-modal="true" aria-labelledby="conflict-title">
-            <WarningCircle size={28} weight="fill" aria-hidden="true" />
-            <div>
-              <p className="section-kicker">External file change</p>
-              <h2 id="conflict-title">Resolve overlapping cells</h2>
-              <p>Unrelated disk changes are already preserved. Choose a value for each cell changed in both places.</p>
-            </div>
-            <div className="conflict-list">
-              {conflicts.map(conflict => (
-                <article className="conflict-item" key={conflict.identity}>
-                  <header><strong>{conflict.lang}</strong><code>{conflict.displayPath}</code></header>
-                  <div className="conflict-original">
-                    <span>Originally loaded</span>
-                    <small>{displayConflictValue(conflict.originalValue)}</small>
-                  </div>
-                  <div className="conflict-values">
-                    <button
-                      type="button"
-                      className={conflict.resolution === 'disk' ? 'conflict-choice is-selected' : 'conflict-choice'}
-                      onClick={() => setConflicts(current => current?.map(item => item.identity === conflict.identity ? { ...item, resolution: 'disk' } : item) || null)}
-                    >
-                      <span>Use disk</span>
-                      <small>{displayConflictValue(conflict.diskValue)}</small>
-                    </button>
-                    <button
-                      type="button"
-                      className={conflict.resolution === 'draft' ? 'conflict-choice is-selected' : 'conflict-choice'}
-                      disabled={!conflict.canKeepDraft}
-                      onClick={() => setConflicts(current => current?.map(item => item.identity === conflict.identity ? { ...item, resolution: 'draft' } : item) || null)}
-                    >
-                      <span>Keep my draft</span>
-                      <small>{conflict.canKeepDraft ? displayConflictValue(conflict.draftValue) : 'The key no longer exists in any language.'}</small>
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className="modal-actions">
-              <button type="button" className="button-primary" disabled={conflicts.some(conflict => !conflict.resolution)} onClick={applyConflictResolutions}>
-                Apply resolutions
+              <button type="button" className="button-primary" disabled={saving} onClick={() => void saveAndNavigate()}>
+                {pendingNavigation.kind === 'file' ? 'Save and continue' : 'Save and leave'}
               </button>
             </div>
           </section>
         </div>
       )}
 
+      {conflicts && (
+        <ConflictModal
+          conflicts={conflicts}
+          onApply={applyConflictResolutions}
+          onResolve={resolveConflict}
+        />
+      )}
+
     </PanelLayout>
   );
-}
-
-function FilterButton({ active, onClick, children }: { active: boolean; onClick(): void; children: string }) {
-  return <button type="button" className={active ? 'filter-chip is-active' : 'filter-chip'} aria-pressed={active} onClick={onClick}>{children}</button>;
-}
-
-function fileName(relativePath: string): string {
-  return relativePath.slice(relativePath.lastIndexOf('/') + 1);
-}
-
-function displayConflictValue(value: string | undefined): string {
-  if (value === undefined) return 'Missing';
-  if (value === '') return 'Empty string';
-  return value.length > 160 ? `${value.slice(0, 157)}…` : value;
 }

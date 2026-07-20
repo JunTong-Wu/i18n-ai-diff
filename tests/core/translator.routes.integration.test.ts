@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { sourceTextHash } from '../../src/core/diff-analyzer.js';
 import { Translator, createTranslator } from '../../src/core/translator.js';
 import { FailureLogger } from '../../src/utils/failure-logger.js';
 import type { TranslateConfig, TranslationResult, TranslationTask } from '../../src/types/index.js';
@@ -34,8 +35,8 @@ describe('multi-master translator', () => {
 
     const config: TranslateConfig = {
       routes: [
-        { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-        { baseLang: 'en', targetLangs: ['de', 'fr'] },
+        { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+        { sourceLang: 'en', targetLangs: ['de', 'fr'] },
       ],
       baseLang: 'zh-CN',
       targetLangs: ['ja', 'ko', 'de', 'fr'],
@@ -91,7 +92,7 @@ describe('multi-master translator', () => {
 
     const createWithFakeLLM = async (sourceLang: 'en' | 'zh-CN') => {
       const translator = new Translator({
-        routes: [{ baseLang: sourceLang, targetLangs: ['ja'] }],
+        routes: [{ sourceLang, targetLangs: ['ja'] }],
         baseLang: sourceLang,
         targetLangs: ['ja'],
         localesDir,
@@ -172,8 +173,8 @@ describe('multi-master translator', () => {
     await writeJson(path.join(localesDir, 'en/common.json'), { title: 'Open' });
     const translator = new Translator({
       routes: [
-        { baseLang: 'en', targetLangs: ['de'] },
-        { baseLang: 'zh-CN', targetLangs: ['ja'] },
+        { sourceLang: 'en', targetLangs: ['de'] },
+        { sourceLang: 'zh-CN', targetLangs: ['ja'] },
       ],
       baseLang: 'en',
       targetLangs: ['de', 'ja'],
@@ -202,7 +203,7 @@ describe('multi-master translator', () => {
     });
 
     const translator = new Translator({
-      routes: [{ baseLang: 'en', targetLangs: ['de'] }],
+      routes: [{ sourceLang: 'en', targetLangs: ['de'] }],
       baseLang: 'en',
       targetLangs: ['de'],
       localesDir,
@@ -270,5 +271,66 @@ describe('multi-master translator', () => {
     expect(stats.successFiles).toBe(0);
     expect(stats.failedFiles).toBe(1);
     expect(await readJson(path.join(localesDir, 'de/common.json'))).toEqual({ title: 'Open' });
+  });
+
+  it('keeps translator snapshot contexts isolated after another translator initializes', async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-translator-isolation-'));
+    const projectA = path.join(tempDir, 'project-a');
+    const projectB = path.join(tempDir, 'project-b');
+    const localesA = path.join(projectA, 'locales');
+    const localesB = path.join(projectB, 'locales');
+
+    await Promise.all([
+      writeJson(path.join(localesA, 'en/common.json'), { title: 'Open now' }),
+      writeJson(path.join(localesA, 'de/common.json'), { title: 'Öffnen' }),
+      writeJson(path.join(localesB, 'en/common.json'), { title: 'Open now' }),
+      writeJson(path.join(localesB, 'de/common.json'), { title: 'Öffnen' }),
+      writeJson(path.join(projectA, 'cache.snapshot.json'), {
+        version: 3,
+        entries: {
+          'en:de:common.json': { title: sourceTextHash('Open') },
+        },
+        owners: {
+          'de:common.json': 'en',
+        },
+      }),
+    ]);
+
+    const translatorA = new Translator({
+      baseLang: 'en',
+      targetLangs: ['de'],
+      localesDir: localesA,
+      skipKeys: [],
+      llm: { apiKey: 'test-key', model: 'test-model' },
+      cachePath: path.join(projectA, 'cache.json'),
+    });
+    const translatorB = new Translator({
+      baseLang: 'en',
+      targetLangs: ['de'],
+      localesDir: localesB,
+      skipKeys: [],
+      llm: { apiKey: 'test-key', model: 'test-model' },
+      cachePath: path.join(projectB, 'cache.json'),
+    });
+
+    await translatorA.initialize();
+    await translatorB.initialize();
+
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `fresh:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (translatorA as unknown as { llmClient: { translateBatch: typeof translateBatch } }).llmClient = { translateBatch };
+
+    await translatorA.translateAll();
+
+    expect(translateBatch).toHaveBeenCalledOnce();
+    expect(translateBatch.mock.calls.flatMap(call => call[0]).map(task => task.key)).toEqual(['title']);
+    expect(await readJson(path.join(localesA, 'de/common.json'))).toEqual({ title: 'fresh:Open now' });
+    expect(await readJson(path.join(localesB, 'de/common.json'))).toEqual({ title: 'Öffnen' });
   });
 });

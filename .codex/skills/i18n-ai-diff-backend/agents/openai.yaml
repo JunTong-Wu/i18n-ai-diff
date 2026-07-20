@@ -1,0 +1,4 @@
+interface:
+  display_name: "i18n AI Diff Backend"
+  short_description: "Core, API, cache, and snapshot constraints"
+  default_prompt: "Use $i18n-ai-diff-backend to modify i18n-ai-diff core or panel API behavior safely."

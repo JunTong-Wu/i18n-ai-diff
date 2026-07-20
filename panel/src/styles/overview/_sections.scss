@@ -10,6 +10,10 @@
   gap: var(--space-4);
   margin: 0 0 var(--space-4);
   padding: 0 var(--space-1);
+
+  @media (max-width: 760px) {
+    align-items: flex-start;
+  }
 }
 
 .section-kicker {

@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import {
   analyzeDiff,
+  createSnapshotStore,
   loadSnapshot,
   saveSnapshot,
   setSnapshotOwner,
@@ -59,5 +60,22 @@ describe('multi-master snapshots', () => {
     const migrated = JSON.parse(await fs.readFile(snapshotPath, 'utf-8'));
     expect(migrated.version).toBe(3);
     expect(migrated.owners['ja:common.json']).toBe('en');
+  });
+
+  it('keeps explicit snapshot stores isolated across sessions', async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-isolated-snapshot-'));
+    const storeA = createSnapshotStore(path.join(tempDir, 'project-a-cache.json'));
+    const storeB = createSnapshotStore(path.join(tempDir, 'project-b-cache.json'));
+    await Promise.all([storeA.load(), storeB.load()]);
+
+    storeA.update('common.json', 'de', 'title', 'Open', 'en');
+    storeA.setOwner('common.json', 'de', 'en');
+
+    const source = { title: 'Open now' };
+    const target = { title: 'Öffnen' };
+    expect(analyzeDiff(source, target, [], 'common.json', 'de', 'en', storeA).modified)
+      .toEqual(['title']);
+    expect(analyzeDiff(source, target, [], 'common.json', 'de', 'en', storeB).unchanged)
+      .toEqual(['title']);
   });
 });

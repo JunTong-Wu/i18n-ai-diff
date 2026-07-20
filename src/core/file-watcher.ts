@@ -22,8 +22,14 @@ export class FileWatcher {
 
   constructor(config: TranslateConfig, translator: Translator) {
     const routes = config.routes?.length
-      ? config.routes
-      : [{ baseLang: config.baseLang, targetLangs: config.targetLangs }];
+      ? config.routes.map(route => {
+          const rawRoute = route as typeof route & { sourceLang?: string; baseLang?: string };
+          return {
+            sourceLang: rawRoute.sourceLang || rawRoute.baseLang!,
+            targetLangs: [...route.targetLangs],
+          };
+        })
+      : [{ sourceLang: config.baseLang, targetLangs: config.targetLangs }];
     this.config = { ...config, routes };
     this.translator = translator;
   }
@@ -38,7 +44,7 @@ export class FileWatcher {
     }
 
     const watchConfig = this.config.watch || { enabled: false, debounceMs: 300 };
-    const sourceLangs = [...new Set(this.config.routes.map(route => route.baseLang))];
+    const sourceLangs = [...new Set(this.config.routes.map(route => route.sourceLang))];
     const sourceDirs = sourceLangs.map(lang => path.join(this.config.localesDir, lang));
 
     info(`Watching masters: ${sourceLangs.join(', ')}`);
@@ -142,7 +148,7 @@ export class FileWatcher {
           const sourceLangDir = path.join(this.config.localesDir, change.sourceLang);
           const relativePath = path.relative(sourceLangDir, filePath);
           const targetLangs = this.config.routes
-            .filter(route => route.baseLang === change.sourceLang)
+            .filter(route => route.sourceLang === change.sourceLang)
             .flatMap(route => route.targetLangs);
 
           for (const targetLang of targetLangs) {
@@ -193,7 +199,7 @@ export class FileWatcher {
   }
 
   private resolveSourceLang(filePath: string): string | undefined {
-    for (const sourceLang of new Set(this.config.routes.map(route => route.baseLang))) {
+    for (const sourceLang of new Set(this.config.routes.map(route => route.sourceLang))) {
       const sourceDir = path.join(this.config.localesDir, sourceLang);
       const relative = path.relative(sourceDir, filePath);
       if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {

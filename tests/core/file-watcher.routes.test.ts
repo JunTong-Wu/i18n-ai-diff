@@ -43,8 +43,8 @@ describe('multi-master file watcher', () => {
     const localesDir = path.resolve('/tmp/i18n-ai-diff-watcher/locales');
     const config: TranslateConfig = {
       routes: [
-        { baseLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
-        { baseLang: 'en', targetLangs: ['de', 'fr'] },
+        { sourceLang: 'zh-CN', targetLangs: ['ja', 'ko'] },
+        { sourceLang: 'en', targetLangs: ['de', 'fr'] },
       ],
       baseLang: 'zh-CN',
       targetLangs: ['ja', 'ko', 'de', 'fr'],

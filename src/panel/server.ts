@@ -13,6 +13,11 @@ import {
 } from '../types/index.js';
 import { EditorServiceError } from '../core/editor-service.js';
 import { warn } from '../utils/logger.js';
+import {
+  toPanelEditorSaveResult,
+  toPanelHealth,
+  toPanelProject,
+} from './contracts.js';
 
 const LOOPBACK_HOST = '127.0.0.1';
 
@@ -44,6 +49,10 @@ export async function startPanelServer(
   const clientRoot = options.clientRoot
     || fileURLToPath(new URL('./client/', import.meta.url));
   const editable = options.editable === true;
+  const contractContext = {
+    packageVersion: options.packageVersion,
+    editable,
+  };
   const writeToken = editable ? crypto.randomBytes(32).toString('base64url') : undefined;
   let serverUrl = '';
   const server = http.createServer(async (request, response) => {
@@ -62,7 +71,7 @@ export async function startPanelServer(
     try {
       if (request.method === 'GET' && requestUrl.pathname === '/api/health') {
         sendJson(response, 200, {
-          data: { status: 'ok', version: options.packageVersion, localOnly: true, editable },
+          data: toPanelHealth(contractContext),
         });
         return;
       }
@@ -73,12 +82,7 @@ export async function startPanelServer(
       ) {
         const scan = await session.scan();
         sendJson(response, 200, {
-          data: {
-            ...scan,
-            version: options.packageVersion,
-            localOnly: true,
-            capabilities: { contentEditing: editable },
-          },
+          data: toPanelProject(scan, contractContext),
         });
         return;
       }
@@ -128,7 +132,8 @@ export async function startPanelServer(
           return;
         }
         const body = await readJsonBody(request, 5 * 1024 * 1024) as EditorSaveRequest;
-        sendJson(response, 200, { data: await session.saveEditorFile(body) });
+        const result = await session.saveEditorFile(body);
+        sendJson(response, 200, { data: toPanelEditorSaveResult(result, contractContext) });
         return;
       }
 

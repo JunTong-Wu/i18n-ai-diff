@@ -13,6 +13,17 @@
   border: 0;
   border-radius: var(--radius-lg);
   background: var(--surface);
+
+  @media (max-width: 1220px) {
+    grid-template-columns: minmax(8rem, 0.65fr) minmax(11rem, 0.5fr) minmax(18rem, 1.65fr);
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    padding: 1.35rem;
+  }
 }
 
 .route-source {
@@ -51,18 +62,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 760px) {
+    width: min(12rem, 100%);
+    min-width: 0;
+    justify-content: flex-start;
+  }
 }
 
 .route-wave img {
   width: min(100%, 12.5rem);
   height: auto;
   display: block;
+
+  @media (max-width: 1220px) {
+    width: min(100%, 11rem);
+  }
 }
 
 .route-content {
   min-width: 0;
   display: grid;
   gap: var(--space-6);
+
+  @media (max-width: 760px) {
+    gap: var(--space-5);
+  }
 }
 
 .target-heading {
@@ -90,6 +115,10 @@
   border-radius: var(--radius-sm);
   background: var(--surface-quiet);
   color: var(--ink);
+
+  @media (max-width: 430px) {
+    min-width: 4.8rem;
+  }
 }
 
 .target-pill strong {
@@ -174,6 +203,16 @@
   flex-wrap: wrap;
   align-items: center;
   gap: clamp(1.25rem, 4vw, 4rem);
+
+  @media (max-width: 760px) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 430px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .route-metric {
@@ -181,6 +220,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+
+  @media (max-width: 760px) {
+    min-width: 0;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 430px) {
+    align-items: center;
+  }
 }
 
 .metric-icon,
