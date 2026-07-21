@@ -379,11 +379,20 @@ export interface EditorPatch {
   value: string;
 }
 
+export interface EditorAcceptedTranslation {
+  lang: string;
+  pointer: string;
+  sourceLang: string;
+  sourceText: string;
+  translatedText: string;
+}
+
 export interface EditorSaveRequest {
   relativePath: string;
   revisions: Record<string, string | null>;
   snapshotRevision: string | null;
   changes: EditorPatch[];
+  acceptedTranslations?: EditorAcceptedTranslation[];
 }
 
 export interface EditorSaveResult {
@@ -391,6 +400,52 @@ export interface EditorSaveResult {
   snapshotUpdated: boolean;
   file: EditorFile;
   project: ProjectScan;
+}
+
+export interface EditorTranslateCell {
+  lang: string;
+  pointer: string;
+}
+
+export interface EditorTranslateOptions {
+  includeSkipped?: boolean;
+  overwriteDrafts?: boolean;
+}
+
+export interface EditorTranslateRequest {
+  relativePath: string;
+  revisions: Record<string, string | null>;
+  snapshotRevision: string | null;
+  cells: EditorTranslateCell[];
+  drafts?: EditorPatch[];
+  options?: EditorTranslateOptions;
+}
+
+export type EditorTranslateResultStatus = 'translated' | 'skipped' | 'failed';
+
+export interface EditorTranslateResult {
+  lang: string;
+  pointer: string;
+  sourceLang?: string;
+  sourceText?: string;
+  translatedText?: string;
+  fromCache?: boolean;
+  status: EditorTranslateResultStatus;
+  reason?: string;
+  error?: string;
+}
+
+export type EditorTranslateJobStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+
+export interface EditorTranslateJob {
+  id: string;
+  status: EditorTranslateJobStatus;
+  createdAt: string;
+  updatedAt: string;
+  total: number;
+  completed: number;
+  results: EditorTranslateResult[];
+  error?: string;
 }
 
 /**

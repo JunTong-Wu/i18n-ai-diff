@@ -1,70 +1,49 @@
-import { Funnel, MagnifyingGlass, X } from '@phosphor-icons/react';
-import type { ReactNode } from 'react';
-import type { PanelEditorManifest } from '../types';
+import { X } from '@phosphor-icons/react';
+import type { PanelEditorManifest, PanelEditorTranslateJob } from '../types';
+import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
 
 interface ToolsDrawerProps {
+  aiDraftCount: number;
   draftCount: number;
   editable: boolean;
+  failedCount: number;
   isOpen: boolean;
+  job: PanelEditorTranslateJob | null;
   languageCount: number;
-  rowSearch: string;
   selectedMeta: PanelEditorManifest['files'][number] | undefined;
-  showChanged: boolean;
-  showMissing: boolean;
-  showPending: boolean;
   status: string;
   totalRowCount: number;
   visibleRowCount: number;
   onClose(): void;
-  onRowSearchChange(value: string): void;
-  onToggleChanged(): void;
-  onToggleMissing(): void;
-  onTogglePending(): void;
 }
 
 export function ToolsDrawer({
+  aiDraftCount,
   draftCount,
   editable,
+  failedCount,
   isOpen,
+  job,
   languageCount,
-  rowSearch,
   selectedMeta,
-  showChanged,
-  showMissing,
-  showPending,
   status,
   totalRowCount,
   visibleRowCount,
   onClose,
-  onRowSearchChange,
-  onToggleChanged,
-  onToggleMissing,
-  onTogglePending,
 }: ToolsDrawerProps) {
   return (
-    <aside className={isOpen ? 'editor-drawer editor-controls-drawer is-open' : 'editor-drawer editor-controls-drawer'} aria-label="Editor tools">
+    <Sheet open={isOpen} onOpenChange={open => { if (!open) onClose(); }}>
+      <SheetContent className="editor-controls-drawer" side="right">
       <div className="file-panel-header">
         <div>
-          <p className="section-kicker">View controls</p>
-          <strong>Search and filters</strong>
+          <p className="section-kicker">Local editor</p>
+          <SheetTitle asChild>
+            <strong>Details and safety</strong>
+          </SheetTitle>
         </div>
-        <button className="file-panel-close" type="button" onClick={onClose} aria-label="Close editor tools">
+        <button className="file-panel-close" type="button" onClick={onClose} aria-label="Close editor details">
           <X size={20} aria-hidden="true" />
         </button>
-      </div>
-
-      <label className="editor-search">
-        <MagnifyingGlass size={18} aria-hidden="true" />
-        <span className="sr-only">Search keys and copy</span>
-        <input value={rowSearch} onChange={event => onRowSearchChange(event.target.value)} placeholder="Search keys or copy…" />
-      </label>
-
-      <div className="editor-filter-bar">
-        <span><Funnel size={17} aria-hidden="true" /> Show rows</span>
-        <FilterButton active={showMissing} onClick={onToggleMissing}>Missing</FilterButton>
-        <FilterButton active={showPending} onClick={onTogglePending}>Pending</FilterButton>
-        <FilterButton active={showChanged} onClick={onToggleChanged}>Changed</FilterButton>
-        <span className="editor-row-count">{visibleRowCount} of {totalRowCount} keys</span>
       </div>
 
       <section className="editor-state-card">
@@ -79,8 +58,8 @@ export function ToolsDrawer({
             <dd>{selectedMeta ? `${selectedMeta.presentLanguages.length}/${languageCount}` : '0/0'}</dd>
           </div>
           <div>
-            <dt>Draft changes</dt>
-            <dd>{draftCount}</dd>
+            <dt>Missing files</dt>
+            <dd>{selectedMeta?.missingLanguages.length ?? 0}</dd>
           </div>
         </dl>
       </section>
@@ -88,17 +67,37 @@ export function ToolsDrawer({
       <section className="editor-state-card">
         <strong>Draft status</strong>
         <p>{status || (draftCount > 0 ? `${draftCount} changes remain in this browser.` : 'Local files match the current editor draft.')}</p>
+        <small>{aiDraftCount} AI draft{aiDraftCount === 1 ? '' : 's'} · {failedCount} failed translation{failedCount === 1 ? '' : 's'}</small>
       </section>
 
       <section className="editor-state-card">
-        <strong>Editing</strong>
-        <p>{editable ? 'Local editing is enabled. Saves are explicit and revision-checked.' : 'Viewing in read-only mode. Restart with i18n-ai-diff panel --edit to save file changes.'}</p>
+        <strong>Translation job</strong>
+        {job ? (
+          <dl className="editor-file-stats">
+            <div>
+              <dt>Status</dt>
+              <dd>{job.status}</dd>
+            </div>
+            <div>
+              <dt>Progress</dt>
+              <dd>{job.completed}/{job.total}</dd>
+            </div>
+            <div>
+              <dt>Cache hits</dt>
+              <dd>{job.results.filter(result => result.fromCache).length}</dd>
+            </div>
+          </dl>
+        ) : (
+          <p>No AI translation job has run in this file session.</p>
+        )}
+      </section>
+
+      <section className="editor-state-card">
+        <strong>Editing boundary</strong>
+        <p>{editable ? 'Local editing is enabled. AI translations become drafts first; only Save writes files, snapshots, and accepted cache entries.' : 'Viewing in read-only mode. Restart with i18n-ai-diff panel --edit to save file changes or run AI translation drafts.'}</p>
         <small>Double-click or press Enter to edit. Shift+Enter adds a line.</small>
       </section>
-    </aside>
+      </SheetContent>
+    </Sheet>
   );
-}
-
-function FilterButton({ active, onClick, children }: { active: boolean; onClick(): void; children: ReactNode }) {
-  return <button type="button" className={active ? 'filter-chip is-active' : 'filter-chip'} aria-pressed={active} onClick={onClick}>{children}</button>;
 }

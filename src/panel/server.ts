@@ -9,6 +9,9 @@ import {
   EditorManifest,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorTranslateJob,
+  EditorTranslateRequest,
+  EditorTranslateResult,
   ProjectScan,
 } from '../types/index.js';
 import { EditorServiceError } from '../core/editor-service.js';
@@ -40,6 +43,17 @@ interface PanelSession {
   getEditorManifest?(editable: boolean, writeToken?: string): Promise<EditorManifest>;
   getEditorFile?(relativePath: string): Promise<EditorFile>;
   saveEditorFile?(request: EditorSaveRequest): Promise<EditorSaveResult>;
+  translateEditorCells?(
+    request: EditorTranslateRequest,
+    hooks?: {
+      signal?: AbortSignal;
+      onProgress?: (results: EditorTranslateResult[]) => void;
+    },
+  ): Promise<EditorTranslateResult[]>;
+}
+
+interface ServerTranslateJob extends EditorTranslateJob {
+  controller: AbortController;
 }
 
 export async function startPanelServer(
@@ -54,7 +68,45 @@ export async function startPanelServer(
     editable,
   };
   const writeToken = editable ? crypto.randomBytes(32).toString('base64url') : undefined;
+  const translateJobs = new Map<string, ServerTranslateJob>();
   let serverUrl = '';
+  const runTranslateJob = async (job: ServerTranslateJob, body: EditorTranslateRequest) => {
+    if (!session.translateEditorCells) {
+      job.status = 'failed';
+      job.error = 'Editor translation API is unavailable';
+      job.updatedAt = new Date().toISOString();
+      return;
+    }
+    job.status = 'running';
+    job.updatedAt = new Date().toISOString();
+    try {
+      const finalResults = await session.translateEditorCells(body, {
+        signal: job.controller.signal,
+        onProgress: results => {
+          if (isTranslateJobCancelled(job)) return;
+          job.results.push(...results);
+          job.completed = job.results.length;
+          job.updatedAt = new Date().toISOString();
+        },
+      });
+      if (isTranslateJobCancelled(job) || job.controller.signal.aborted) return;
+      if (job.results.length < finalResults.length) {
+        job.results = finalResults;
+        job.completed = finalResults.length;
+      }
+      job.status = 'completed';
+      job.updatedAt = new Date().toISOString();
+    } catch (error) {
+      if (job.controller.signal.aborted) {
+        job.status = 'cancelled';
+      } else {
+        job.status = 'failed';
+        job.error = (error as Error).message;
+      }
+      job.updatedAt = new Date().toISOString();
+    }
+  };
+
   const server = http.createServer(async (request, response) => {
     applySecurityHeaders(response);
     if (!isAllowedHost(request.headers.host)) {
@@ -134,6 +186,71 @@ export async function startPanelServer(
         const body = await readJsonBody(request, 5 * 1024 * 1024) as EditorSaveRequest;
         const result = await session.saveEditorFile(body);
         sendJson(response, 200, { data: toPanelEditorSaveResult(result, contractContext) });
+        return;
+      }
+
+      if (request.method === 'POST' && requestUrl.pathname === '/api/editor/translate-jobs') {
+        if (!editable) {
+          sendJson(response, 403, {
+            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run AI translations' },
+          });
+          return;
+        }
+        if (!session.translateEditorCells) {
+          sendJson(response, 501, { error: { code: 'EDITOR_TRANSLATION_UNAVAILABLE', message: 'Editor translation API is unavailable' } });
+          return;
+        }
+        if (!writeToken || request.headers['x-i18n-panel-token'] !== writeToken) {
+          sendJson(response, 403, { error: { code: 'INVALID_WRITE_TOKEN', message: 'Invalid editor write token' } });
+          return;
+        }
+        if (!request.headers['content-type']?.toLowerCase().startsWith('application/json')) {
+          sendJson(response, 415, { error: { code: 'INVALID_CONTENT_TYPE', message: 'Expected application/json' } });
+          return;
+        }
+        const body = await readJsonBody(request, 5 * 1024 * 1024) as EditorTranslateRequest;
+        const now = new Date().toISOString();
+        const job: ServerTranslateJob = {
+          id: crypto.randomUUID(),
+          status: 'queued',
+          createdAt: now,
+          updatedAt: now,
+          total: Array.isArray(body.cells) ? body.cells.length : 0,
+          completed: 0,
+          results: [],
+          controller: new AbortController(),
+        };
+        translateJobs.set(job.id, job);
+        void runTranslateJob(job, body);
+        sendJson(response, 202, { data: publicTranslateJob(job) });
+        return;
+      }
+
+      const translateJobMatch = requestUrl.pathname.match(/^\/api\/editor\/translate-jobs\/([^/]+)$/u);
+      if (translateJobMatch && (request.method === 'GET' || request.method === 'DELETE')) {
+        const job = translateJobs.get(translateJobMatch[1]);
+        if (!job) {
+          sendJson(response, 404, { error: { code: 'TRANSLATE_JOB_NOT_FOUND', message: 'Translation job not found' } });
+          return;
+        }
+        if (request.method === 'DELETE') {
+          if (!editable) {
+            sendJson(response, 403, {
+              error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run AI translations' },
+            });
+            return;
+          }
+          if (!writeToken || request.headers['x-i18n-panel-token'] !== writeToken) {
+            sendJson(response, 403, { error: { code: 'INVALID_WRITE_TOKEN', message: 'Invalid editor write token' } });
+            return;
+          }
+          if (job.status === 'queued' || job.status === 'running') {
+            job.controller.abort();
+            job.status = 'cancelled';
+            job.updatedAt = new Date().toISOString();
+          }
+        }
+        sendJson(response, 200, { data: publicTranslateJob(job) });
         return;
       }
 
@@ -231,6 +348,23 @@ function sendJson(response: ServerResponse, status: number, body: unknown): void
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
   response.setHeader('Cache-Control', 'no-store');
   response.end(JSON.stringify(body));
+}
+
+function publicTranslateJob(job: ServerTranslateJob): EditorTranslateJob {
+  return {
+    id: job.id,
+    status: job.status,
+    createdAt: job.createdAt,
+    updatedAt: job.updatedAt,
+    total: job.total,
+    completed: job.completed,
+    results: job.results,
+    ...(job.error ? { error: job.error } : {}),
+  };
+}
+
+function isTranslateJobCancelled(job: ServerTranslateJob): boolean {
+  return job.status === 'cancelled';
 }
 
 async function serveStatic(

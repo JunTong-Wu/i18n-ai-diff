@@ -3,6 +3,8 @@ import {
   EditorManifest,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorTranslateRequest,
+  EditorTranslateResult,
   ProjectScan,
   ResolvedTranslateConfig,
 } from '../types/index.js';
@@ -75,6 +77,18 @@ export class ProjectSession {
       await this.snapshotStore.load();
       const project = await scanProject(this.config, this.projectRoot, this.configPath, this.snapshotStore);
       return { ...result, project };
+    });
+  }
+
+  async translateEditorCells(
+    request: EditorTranslateRequest,
+    hooks: {
+      signal?: AbortSignal;
+      onProgress?: (results: EditorTranslateResult[]) => void;
+    } = {},
+  ): Promise<EditorTranslateResult[]> {
+    return this.runExclusive(async () => {
+      return this.editor.translateCells(request, hooks);
     });
   }
 

@@ -1,29 +1,48 @@
 import {
   ArrowUUpLeft,
   ArrowUUpRight,
+  CaretDown,
   FileText,
   FloppyDisk,
+  Funnel,
   Lock,
-  SidebarSimple,
+  MagnifyingGlass,
   SlidersHorizontal,
+  Sparkle,
+  Translate,
   WarningCircle,
 } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  cancelEditorTranslateJob,
+  createEditorTranslateJob,
   loadEditorFile,
   loadEditorManifest,
+  loadEditorTranslateJob,
   PanelApiError,
   saveEditorFile,
 } from '../api';
 import type {
+  PanelEditorAcceptedTranslation,
   PanelEditorFile,
   PanelEditorManifest,
+  PanelEditorTranslateJob,
+  PanelEditorTranslateResult,
   PanelProject,
 } from '../types';
+import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '../components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
+import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
 import { PanelLayout } from '../layout/PanelLayout';
 import { ConflictModal } from './ConflictModal';
-import { FileDrawer } from './FileDrawer';
-import { TranslationGrid, type GridValueChange } from './TranslationGrid';
+import {
+  TranslationGrid,
+  type GridCellTranslationState,
+  type GridContextMenuRequest,
+  type GridSelectionCell,
+  type GridValueChange,
+} from './TranslationGrid';
 import { ToolsDrawer } from './ToolsDrawer';
 import {
   applyHistoryTransaction,
@@ -54,6 +73,23 @@ type PendingNavigation =
   | { kind: 'file'; relativePath: string }
   | { kind: 'panel'; href: string };
 
+interface TranslatePreviewState {
+  title: string;
+  cells: GridSelectionCell[];
+  includeSkipped: boolean;
+  overwriteDrafts: boolean;
+}
+
+interface TranslatePreview {
+  cells: GridSelectionCell[];
+  skipped: Array<GridSelectionCell & { reason: string }>;
+}
+
+type AiDraftMap = Map<string, PanelEditorAcceptedTranslation>;
+type FailedTranslationMap = Map<string, GridSelectionCell & { error: string }>;
+
+const POLL_INTERVAL_MS = 650;
+
 export default function EditorPage({ project, onNavigate, onProjectChange }: EditorPageProps) {
   const initialPath = readInitialEditorPath(window.location.search);
   const [manifest, setManifest] = useState<PanelEditorManifest | null>(null);
@@ -69,14 +105,28 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [showMissing, setShowMissing] = useState(false);
   const [showPending, setShowPending] = useState(false);
   const [showChanged, setShowChanged] = useState(false);
-  const [activeDrawer, setActiveDrawer] = useState<'files' | 'tools' | null>(null);
+  const [showSkipped, setShowSkipped] = useState(false);
+  const [activeDrawer, setActiveDrawer] = useState<'tools' | null>(null);
+  const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const [batchMenuOpen, setBatchMenuOpen] = useState(false);
   const [drafts, setDrafts] = useState<DraftMap>(new Map());
+  const [aiDrafts, setAiDrafts] = useState<AiDraftMap>(new Map());
+  const [failedTranslations, setFailedTranslations] = useState<FailedTranslationMap>(new Map());
+  const [translatingCells, setTranslatingCells] = useState<Set<string>>(new Set());
+  const [selectedCells, setSelectedCells] = useState<GridSelectionCell[]>([]);
+  const [translatePreview, setTranslatePreview] = useState<TranslatePreviewState | null>(null);
+  const [activeJob, setActiveJob] = useState<PanelEditorTranslateJob | null>(null);
+  const [contextMenu, setContextMenu] = useState<GridContextMenuRequest | null>(null);
   const [undoStack, setUndoStack] = useState<DraftHistoryTransaction[]>([]);
   const [redoStack, setRedoStack] = useState<DraftHistoryTransaction[]>([]);
   const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const [conflicts, setConflicts] = useState<DraftConflict[] | null>(null);
   const draftsRef = useRef(drafts);
+  const aiDraftsRef = useRef(aiDrafts);
   draftsRef.current = drafts;
+  aiDraftsRef.current = aiDrafts;
+  usePanelErrorToast(error, 'Editor error');
 
   const refreshManifest = useCallback(async (signal?: AbortSignal) => {
     const nextManifest = await loadEditorManifest(signal);
@@ -119,9 +169,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     void loadEditorFile(selectedPath, controller.signal)
       .then(nextFile => {
         setFile(nextFile);
-        const empty = new Map<string, string>();
-        setDrafts(empty);
-        draftsRef.current = empty;
+        const emptyDrafts = new Map<string, string>();
+        setDrafts(emptyDrafts);
+        draftsRef.current = emptyDrafts;
+        setAiDrafts(new Map());
+        aiDraftsRef.current = new Map();
+        setFailedTranslations(new Map());
+        setTranslatingCells(new Set());
+        setSelectedCells([]);
         setUndoStack([]);
         setRedoStack([]);
         setConflicts(null);
@@ -143,7 +198,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       })
       .finally(() => setFileLoading(false));
     return () => controller.abort();
-  }, [selectedPath]);
+  }, [manifest?.projectRoot, project?.projectRoot, selectedPath]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -152,6 +207,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  useEffect(() => {
+    const closeContextMenu = () => {
+      setContextMenu(null);
+    };
+    window.addEventListener('click', closeContextMenu);
+    return () => window.removeEventListener('click', closeContextMenu);
   }, []);
 
   const filteredFiles = useMemo(() => {
@@ -166,6 +229,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     ? groupManifestFiles({ ...manifest, files: filteredFiles })
     : [], [filteredFiles, manifest]);
 
+  const rowsByPointer = useMemo(() => new Map(
+    (file?.rows || []).map(row => [row.pointer, row]),
+  ), [file]);
+
+  const routeForTarget = useCallback((lang: string) => (
+    manifest?.routes.find(route => route.sourceLang !== lang && route.languages.includes(lang)) || null
+  ), [manifest]);
+
   const visibleRows = useMemo(() => {
     if (!file || !manifest) return [];
     const query = rowSearch.trim().toLocaleLowerCase();
@@ -176,20 +247,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       });
       const hasPending = manifest.languages.some(lang => row.cells[lang]?.pending);
       const hasChanged = manifest.languages.some(lang => drafts.has(draftIdentity(lang, row.pointer)));
+      const hasSkipped = manifest.languages.some(lang => row.cells[lang]?.skipped);
       if (showMissing && !hasMissing) return false;
       if (showPending && !hasPending) return false;
       if (showChanged && !hasChanged) return false;
+      if (showSkipped && !hasSkipped) return false;
       if (!query) return true;
       if (row.displayPath.toLocaleLowerCase().includes(query)) return true;
       return manifest.languages.some(
         lang => effectiveCellValue(row, lang, drafts).toLocaleLowerCase().includes(query),
       );
     });
-  }, [drafts, file, manifest, rowSearch, showChanged, showMissing, showPending]);
-
-  const rowsByPointer = useMemo(() => new Map(
-    (file?.rows || []).map(row => [row.pointer, row]),
-  ), [file]);
+  }, [drafts, file, manifest, rowSearch, showChanged, showMissing, showPending, showSkipped]);
 
   const cellStateCounts = useMemo(() => {
     const counts = {
@@ -197,27 +266,301 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       pending: 0,
       missing: 0,
       skipped: 0,
+      ai: 0,
+      failed: 0,
     };
     if (!file || !manifest) return counts;
     for (const row of file.rows) {
       for (const lang of manifest.languages) {
+        const identity = draftIdentity(lang, row.pointer);
         const cell = row.cells[lang];
-        const changed = drafts.has(draftIdentity(lang, row.pointer));
+        const changed = drafts.has(identity);
         if (changed) counts.changed += 1;
         else if (cell?.pending) counts.pending += 1;
         if ((cell?.kind || 'missing') === 'missing' && !changed) counts.missing += 1;
         if (cell?.skipped) counts.skipped += 1;
+        if (aiDrafts.get(identity)?.translatedText === drafts.get(identity)) counts.ai += 1;
+        if (failedTranslations.has(identity)) counts.failed += 1;
       }
     }
     return counts;
-  }, [drafts, file, manifest]);
+  }, [aiDrafts, drafts, failedTranslations, file, manifest]);
 
   const selectedMeta = manifest?.files.find(candidate => candidate.relativePath === selectedPath);
   const editable = manifest?.editable === true;
+  const jobRunning = activeJob?.status === 'queued' || activeJob?.status === 'running';
+  const activeFilterCount = [
+    showMissing,
+    showPending,
+    showChanged,
+    showSkipped,
+  ].filter(Boolean).length;
+
+  const translationStates = useMemo(() => {
+    const states = new Map<string, GridCellTranslationState>();
+    for (const identity of translatingCells) states.set(identity, activeJob?.status === 'queued' ? 'queued' : 'translating');
+    for (const identity of failedTranslations.keys()) states.set(identity, 'failed');
+    for (const [identity, translation] of aiDrafts) {
+      if (!states.has(identity) && drafts.get(identity) === translation.translatedText) states.set(identity, 'ai');
+    }
+    return states;
+  }, [activeJob?.status, aiDrafts, drafts, failedTranslations, translatingCells]);
+
+  const buildTranslatePreview = useCallback((
+    cells: GridSelectionCell[],
+    options: { includeSkipped: boolean; overwriteDrafts: boolean },
+  ): TranslatePreview => {
+    if (!file || !manifest) return { cells: [], skipped: [] };
+    const candidates = new Map<string, GridSelectionCell>();
+    const skipped: TranslatePreview['skipped'] = [];
+    for (const cell of cells) {
+      const identity = draftIdentity(cell.lang, cell.pointer);
+      if (candidates.has(identity)) continue;
+      const row = rowsByPointer.get(cell.pointer);
+      const route = routeForTarget(cell.lang);
+      if (!row) {
+        skipped.push({ ...cell, reason: 'Key is not in the current file' });
+        continue;
+      }
+      if (!route) {
+        skipped.push({ ...cell, reason: 'Master language cells cannot be translated' });
+        continue;
+      }
+      const targetCell = row.cells[cell.lang];
+      if (targetCell?.kind === 'unsupported') {
+        skipped.push({ ...cell, reason: 'Target cell is not a string value' });
+        continue;
+      }
+      if (targetCell?.skipped && !options.includeSkipped) {
+        skipped.push({ ...cell, reason: 'Skipped key' });
+        continue;
+      }
+      if (drafts.has(identity) && !options.overwriteDrafts) {
+        skipped.push({ ...cell, reason: 'Cell already has a local draft' });
+        continue;
+      }
+      const sourceIdentity = draftIdentity(route.sourceLang, cell.pointer);
+      const sourceCell = row.cells[route.sourceLang];
+      const hasSourceDraft = drafts.has(sourceIdentity);
+      const sourceText = effectiveCellValue(row, route.sourceLang, drafts);
+      if (!hasSourceDraft && sourceCell?.kind !== 'string') {
+        skipped.push({ ...cell, reason: 'Source cell is missing or not a string value' });
+        continue;
+      }
+      if (sourceText.length === 0) {
+        skipped.push({ ...cell, reason: 'Source cell is empty' });
+        continue;
+      }
+      candidates.set(identity, cell);
+    }
+    return { cells: [...candidates.values()], skipped };
+  }, [drafts, file, manifest, routeForTarget, rowsByPointer]);
+
+  const currentPreview = useMemo(() => (
+    translatePreview
+      ? buildTranslatePreview(translatePreview.cells, translatePreview)
+      : null
+  ), [buildTranslatePreview, translatePreview]);
+
+  const openTranslatePreview = useCallback((title: string, cells: GridSelectionCell[]) => {
+    if (!editable) {
+      setStatus('Restart with i18n-ai-diff panel --edit to run AI translations.');
+      return;
+    }
+    if (!file || !manifest) return;
+    if (cells.length === 0) {
+      setStatus('Select target-language cells before translating.');
+      return;
+    }
+    setTranslatePreview({
+      title,
+      cells,
+      includeSkipped: false,
+      overwriteDrafts: false,
+    });
+  }, [editable, file, manifest]);
+
+  const cellsForRowTargets = useCallback((pointer: string): GridSelectionCell[] => {
+    if (!manifest) return [];
+    return manifest.routes.flatMap(route => (
+      route.languages
+        .filter(lang => lang !== route.sourceLang)
+        .map(lang => ({ lang, pointer }))
+    ));
+  }, [manifest]);
+
+  const cellsForLanguagePending = useCallback((lang: string): GridSelectionCell[] => {
+    const rows = file?.rows || [];
+    return rows
+      .filter(row => row.cells[lang]?.pending)
+      .map(row => ({ lang, pointer: row.pointer }));
+  }, [file]);
+
+  const visiblePendingCells = useMemo(() => {
+    if (!manifest) return [];
+    return visibleRows.flatMap(row => manifest.routes.flatMap(route => (
+      route.languages
+        .filter(lang => lang !== route.sourceLang && row.cells[lang]?.pending)
+        .map(lang => ({ lang, pointer: row.pointer }))
+    )));
+  }, [manifest, visibleRows]);
+
+  const visibleMissingCells = useMemo(() => {
+    if (!manifest) return [];
+    return visibleRows.flatMap(row => manifest.routes.flatMap(route => (
+      route.languages
+        .filter(lang => lang !== route.sourceLang && row.cells[lang]?.kind === 'missing')
+        .map(lang => ({ lang, pointer: row.pointer }))
+    )));
+  }, [manifest, visibleRows]);
+
+  const currentFilePendingCells = useMemo(() => {
+    if (!file || !manifest) return [];
+    return file.rows.flatMap(row => manifest.routes.flatMap(route => (
+      route.languages
+        .filter(lang => lang !== route.sourceLang && row.cells[lang]?.pending)
+        .map(lang => ({ lang, pointer: row.pointer }))
+    )));
+  }, [file, manifest]);
+
+  const retryFailedCells = useMemo(() => [...failedTranslations.values()].map(({ error: _error, ...cell }) => cell), [failedTranslations]);
+
+  const applyTranslationResults = useCallback((results: PanelEditorTranslateResult[]) => {
+    if (!file || !manifest) return;
+    const nextDrafts = new Map(draftsRef.current);
+    const nextAiDrafts = new Map(aiDraftsRef.current);
+    const nextFailures = new Map<string, GridSelectionCell & { error: string }>();
+    const transaction: DraftHistoryTransaction = [];
+    let translated = 0;
+
+    for (const result of results) {
+      const identity = draftIdentity(result.lang, result.pointer);
+      if (result.status === 'failed') {
+        nextFailures.set(identity, {
+          lang: result.lang,
+          pointer: result.pointer,
+          error: result.error || 'Translation failed',
+        });
+        continue;
+      }
+      if (result.status !== 'translated' || result.translatedText === undefined || !result.sourceLang || result.sourceText === undefined) {
+        continue;
+      }
+      const row = rowsByPointer.get(result.pointer);
+      const cell = row?.cells[result.lang];
+      if (!row || !cell || cell.kind === 'unsupported') continue;
+      const before = nextDrafts.get(identity);
+      const after = draftForValue(cell, result.translatedText);
+      if (before === after) continue;
+      if (after === undefined) {
+        nextDrafts.delete(identity);
+        nextAiDrafts.delete(identity);
+      } else {
+        nextDrafts.set(identity, after);
+        nextAiDrafts.set(identity, {
+          lang: result.lang,
+          pointer: result.pointer,
+          sourceLang: result.sourceLang,
+          sourceText: result.sourceText,
+          translatedText: result.translatedText,
+        });
+      }
+      transaction.push({ identity, before, after });
+      translated += 1;
+    }
+
+    draftsRef.current = nextDrafts;
+    aiDraftsRef.current = nextAiDrafts;
+    setDrafts(nextDrafts);
+    setAiDrafts(nextAiDrafts);
+    setFailedTranslations(nextFailures);
+    setTranslatingCells(new Set());
+    if (transaction.length > 0) {
+      setUndoStack(current => [...current, transaction]);
+      setRedoStack([]);
+    }
+    const failed = nextFailures.size;
+    setStatus(
+      failed > 0
+        ? `Generated ${translated} AI draft${translated === 1 ? '' : 's'}; ${failed} cell${failed === 1 ? '' : 's'} failed.`
+        : `Generated ${translated} AI draft${translated === 1 ? '' : 's'}. Review and save explicitly.`,
+    );
+  }, [file, manifest, rowsByPointer]);
+
+  const pollTranslateJob = useCallback(async (createdJob: PanelEditorTranslateJob) => {
+    let current = createdJob;
+    setActiveJob(current);
+    try {
+      while (current.status === 'queued' || current.status === 'running') {
+        await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
+        current = await loadEditorTranslateJob(current.id);
+        setActiveJob(current);
+      }
+      if (current.status === 'completed' || current.status === 'cancelled') {
+        applyTranslationResults(current.results);
+      } else if (current.status === 'failed') {
+        setTranslatingCells(new Set());
+        setError(current.error || 'AI translation failed.');
+      }
+    } catch (requestError) {
+      setTranslatingCells(new Set());
+      setError((requestError as Error).message);
+    }
+  }, [applyTranslationResults]);
+
+  const confirmTranslation = useCallback(async () => {
+    if (!file || !manifest?.editable || !manifest.writeToken || !translatePreview || !currentPreview) return;
+    if (currentPreview.cells.length === 0) {
+      setStatus('No translatable target cells in this selection.');
+      return;
+    }
+    setTranslatePreview(null);
+    setContextMenu(null);
+    setBatchMenuOpen(false);
+    setFilePickerOpen(false);
+    setFilterPanelOpen(false);
+    setError(null);
+    setFailedTranslations(new Map());
+    const identities = new Set(currentPreview.cells.map(cell => draftIdentity(cell.lang, cell.pointer)));
+    setTranslatingCells(identities);
+    setStatus(`Starting AI translation for ${currentPreview.cells.length} cell${currentPreview.cells.length === 1 ? '' : 's'}…`);
+    try {
+      const job = await createEditorTranslateJob({
+        relativePath: file.relativePath,
+        revisions: file.revisions,
+        snapshotRevision: file.snapshotRevision,
+        cells: currentPreview.cells,
+        drafts: createEditorPatches(draftsRef.current),
+        options: {
+          includeSkipped: translatePreview.includeSkipped,
+          overwriteDrafts: translatePreview.overwriteDrafts,
+        },
+      }, manifest.writeToken);
+      void pollTranslateJob(job);
+    } catch (requestError) {
+      setTranslatingCells(new Set());
+      setError((requestError as Error).message);
+    }
+  }, [currentPreview, file, manifest, pollTranslateJob, translatePreview]);
+
+  const cancelTranslation = useCallback(async () => {
+    if (!activeJob || !manifest?.writeToken) return;
+    try {
+      const cancelled = await cancelEditorTranslateJob(activeJob.id, manifest.writeToken);
+      setActiveJob(cancelled);
+      applyTranslationResults(cancelled.results);
+      setStatus('Translation job cancelled. Completed AI drafts were kept.');
+    } catch (requestError) {
+      setError((requestError as Error).message);
+    } finally {
+      setTranslatingCells(new Set());
+    }
+  }, [activeJob, applyTranslationResults, manifest?.writeToken]);
 
   const handleGridChanges = useCallback((values: GridValueChange[]) => {
     if (!file || !manifest?.editable) return;
     const next = new Map(draftsRef.current);
+    const nextAiDrafts = new Map(aiDraftsRef.current);
     const transaction: DraftHistoryTransaction = [];
     for (const value of values) {
       if (!manifest.languages.includes(value.lang)) continue;
@@ -230,11 +573,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       if (before === after) continue;
       if (after === undefined) next.delete(identity);
       else next.set(identity, after);
+      nextAiDrafts.delete(identity);
+      for (const route of manifest.routes) {
+        if (route.sourceLang !== value.lang) continue;
+        for (const targetLang of route.languages.filter(lang => lang !== route.sourceLang)) {
+          nextAiDrafts.delete(draftIdentity(targetLang, row.pointer));
+        }
+      }
       transaction.push({ identity, before, after });
     }
     if (transaction.length === 0) return;
     draftsRef.current = next;
+    aiDraftsRef.current = nextAiDrafts;
     setDrafts(next);
+    setAiDrafts(nextAiDrafts);
     setUndoStack(current => [...current, transaction]);
     setRedoStack([]);
     setStatus(`${next.size} unsaved change${next.size === 1 ? '' : 's'}.`);
@@ -286,6 +638,9 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const save = useCallback(async (): Promise<boolean> => {
     if (!file || !manifest?.editable || !manifest.writeToken || draftsRef.current.size === 0) return true;
     const savingDrafts = new Map(draftsRef.current);
+    const acceptedTranslations = [...aiDraftsRef.current.entries()].flatMap(([identity, translation]) => (
+      savingDrafts.get(identity) === translation.translatedText ? [translation] : []
+    ));
     setSaving(true);
     setError(null);
     setStatus('Writing locale files…');
@@ -295,11 +650,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         revisions: file.revisions,
         snapshotRevision: file.snapshotRevision,
         changes: createEditorPatches(savingDrafts),
+        acceptedTranslations,
       }, manifest.writeToken);
       setFile(result.file);
       const empty = new Map<string, string>();
       setDrafts(empty);
       draftsRef.current = empty;
+      setAiDrafts(new Map());
+      aiDraftsRef.current = new Map();
+      setFailedTranslations(new Map());
       setUndoStack([]);
       setRedoStack([]);
       onProjectChange(result.project);
@@ -311,9 +670,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         try {
           const latest = await loadEditorFile(file.relativePath);
           const rebased = rebaseDrafts(file, latest, savingDrafts);
+          const nextAiDrafts = new Map<string, PanelEditorAcceptedTranslation>();
+          for (const [identity, translation] of aiDraftsRef.current) {
+            if (rebased.drafts.get(identity) === translation.translatedText) nextAiDrafts.set(identity, translation);
+          }
           setFile(latest);
           setDrafts(rebased.drafts);
           draftsRef.current = rebased.drafts;
+          setAiDrafts(nextAiDrafts);
+          aiDraftsRef.current = nextAiDrafts;
           setUndoStack([]);
           setRedoStack([]);
           if (rebased.conflicts.length > 0) {
@@ -339,20 +704,27 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     if (destination.kind === 'file') {
       setSelectedPath(destination.relativePath);
       setActiveDrawer(null);
+      setFilePickerOpen(false);
+      setFilterPanelOpen(false);
       return;
     }
 
     setActiveDrawer(null);
+    setFilePickerOpen(false);
+    setFilterPanelOpen(false);
     onNavigate(destination.href);
   }, [onNavigate]);
 
   const requestGuardedNavigation = useCallback((destination: PendingNavigation) => {
     if (destination.kind === 'file' && destination.relativePath === selectedPath) {
-      setActiveDrawer(null);
+      setFilePickerOpen(false);
+      setFilterPanelOpen(false);
       return;
     }
 
     if (draftsRef.current.size > 0) {
+      setFilePickerOpen(false);
+      setFilterPanelOpen(false);
       setPendingNavigation(destination);
       return;
     }
@@ -373,6 +745,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     const empty = new Map<string, string>();
     setDrafts(empty);
     draftsRef.current = empty;
+    setAiDrafts(new Map());
+    aiDraftsRef.current = new Map();
     setUndoStack([]);
     setRedoStack([]);
     setConflicts(null);
@@ -393,12 +767,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const applyConflictResolutions = () => {
     if (!conflicts || conflicts.some(conflict => !conflict.resolution)) return;
     const next = new Map(draftsRef.current);
+    const nextAiDrafts = new Map(aiDraftsRef.current);
     for (const conflict of conflicts) {
       if (conflict.resolution === 'draft') next.set(conflict.identity, conflict.draftValue);
-      else next.delete(conflict.identity);
+      else {
+        next.delete(conflict.identity);
+        nextAiDrafts.delete(conflict.identity);
+      }
     }
     setDrafts(next);
     draftsRef.current = next;
+    setAiDrafts(nextAiDrafts);
+    aiDraftsRef.current = nextAiDrafts;
     setConflicts(null);
     setStatus('Conflicts resolved in the draft. Review the table and save again.');
   };
@@ -409,52 +789,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     )) || null);
   }, []);
 
-  const currentFileSummary = (
-    <div className="editor-current-file">
-      <span>Locale file</span>
-      <strong title={selectedPath}>{selectedPath || 'No JSON files found'}</strong>
-    </div>
-  );
-
-  const editorControls = (
-    <div className="editor-operation-left">
-      <button
-        className={activeDrawer === 'files' ? 'editor-command-button is-active' : 'editor-command-button'}
-        type="button"
-        aria-label="Open locale files"
-        aria-expanded={activeDrawer === 'files'}
-        onClick={() => setActiveDrawer(current => (current === 'files' ? null : 'files'))}
-      >
-        <SidebarSimple size={20} aria-hidden="true" />
-        <span>Files</span>
-      </button>
-      <button
-        className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
-        type="button"
-        aria-label="Open editor tools"
-        aria-expanded={activeDrawer === 'tools'}
-        onClick={() => setActiveDrawer(current => (current === 'tools' ? null : 'tools'))}
-      >
-        <SlidersHorizontal size={20} aria-hidden="true" />
-        <span>Tools</span>
-      </button>
-      <div className="editor-history" aria-label="Draft history">
-        <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
-          <ArrowUUpLeft size={20} aria-hidden="true" />
-        </button>
-        <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
-          <ArrowUUpRight size={20} aria-hidden="true" />
-        </button>
-      </div>
-      {currentFileSummary}
-    </div>
+  const currentFileTriggerContent = (
+    <>
+      <FileText size={18} aria-hidden="true" />
+      <span>Explorer</span>
+    </>
   );
 
   const saveButton = (
     <button
       className="scan-button editor-save-button"
       type="button"
-      disabled={!editable || drafts.size === 0 || saving || !file}
+      disabled={!editable || drafts.size === 0 || saving || !file || jobRunning}
       onClick={() => void save()}
     >
       <FloppyDisk size={22} weight="bold" aria-hidden="true" />
@@ -463,15 +809,88 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   );
 
   const cellStateSummary = (
-    <section className="editor-cell-state-summary" aria-label="Cell states">
+    <div className="editor-cell-state-summary">
       <strong>Cell states</strong>
       <div className="editor-state-legend">
         <span><i className="legend-dot is-changed" />Changed <b>{cellStateCounts.changed}</b></span>
         <span><i className="legend-dot is-pending" />Pending <b>{cellStateCounts.pending}</b></span>
         <span><i className="legend-dot is-missing" />Missing <b>{cellStateCounts.missing}</b></span>
         <span><i className="legend-dot is-skipped" />Skipped <b>{cellStateCounts.skipped}</b></span>
+        <span><i className="legend-dot is-ai" />AI <b>{cellStateCounts.ai}</b></span>
+        {cellStateCounts.failed > 0 && <span><i className="legend-dot is-failed" />Failed <b>{cellStateCounts.failed}</b></span>}
       </div>
-    </section>
+    </div>
+  );
+
+  const currentFileSummary = (
+    <div className="editor-bottom-file" title={selectedPath || 'No JSON file selected'}>
+      <FileText size={16} aria-hidden="true" />
+      <span>{selectedPath || 'No JSON file selected'}</span>
+    </div>
+  );
+
+  const filterChips = (
+    <div className="editor-inline-filters" aria-label="Show rows">
+      <FilterButton active={showMissing} onClick={() => setShowMissing(value => !value)}>Missing</FilterButton>
+      <FilterButton active={showPending} onClick={() => setShowPending(value => !value)}>Pending</FilterButton>
+      <FilterButton active={showChanged} onClick={() => setShowChanged(value => !value)}>Changed</FilterButton>
+      <FilterButton active={showSkipped} onClick={() => setShowSkipped(value => !value)}>Skipped</FilterButton>
+    </div>
+  );
+
+  const filePickerPanel = (
+    <>
+      <div className="editor-toolbar-panel-header">
+        <span>
+          <small>Project files</small>
+          <SheetTitle asChild>
+            <strong>{manifest?.files.length || 0} JSON files</strong>
+          </SheetTitle>
+        </span>
+      </div>
+      <label className="editor-inline-search">
+        <MagnifyingGlass size={17} aria-hidden="true" />
+        <span className="sr-only">Search locale files</span>
+        <input value={fileSearch} onChange={event => setFileSearch(event.target.value)} placeholder="Find a JSON file…" />
+      </label>
+      <div className="editor-file-menu-list">
+        {fileGroups.length > 0 ? fileGroups.map(group => (
+          <section key={group.directory}>
+            <p>{group.directory}</p>
+            {group.files.map(candidate => (
+              <button
+                key={candidate.relativePath}
+                type="button"
+                className={candidate.relativePath === selectedPath ? 'is-active' : ''}
+                onClick={() => requestFile(candidate.relativePath)}
+              >
+                <FileText size={16} aria-hidden="true" />
+                <span title={candidate.relativePath}>
+                  {candidate.relativePath.slice(candidate.relativePath.lastIndexOf('/') + 1)}
+                </span>
+                {candidate.pendingKeys > 0 && <em>{candidate.pendingKeys}</em>}
+              </button>
+            ))}
+          </section>
+        )) : (
+          <p className="editor-toolbar-panel-empty">No JSON files match this search.</p>
+        )}
+      </div>
+    </>
+  );
+
+  const filterPanel = (
+    <>
+      <div className="editor-toolbar-panel-header">
+        <span>
+          <small>Show rows</small>
+          <strong>{activeFilterCount === 0 ? 'All states' : `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} active`}</strong>
+        </span>
+        <em>{visibleRows.length} / {file?.rows.length || 0} keys</em>
+      </div>
+      {filterChips}
+      <p>Combine filters to narrow the current file by cell state without changing any local draft.</p>
+    </>
   );
 
   return (
@@ -485,30 +904,148 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       liveStatus={status}
     >
       <section className="editor-operation-bar" aria-label="Copy editor controls">
-        {editorControls}
+        <div className="editor-operation-left">
+          <button
+            className={filePickerOpen ? 'editor-file-trigger is-active' : 'editor-file-trigger'}
+            type="button"
+            aria-label="Open locale files"
+            aria-expanded={filePickerOpen}
+            onClick={() => {
+              setFilePickerOpen(true);
+              setFilterPanelOpen(false);
+              setBatchMenuOpen(false);
+              setContextMenu(null);
+            }}
+          >
+            {currentFileTriggerContent}
+          </button>
+          <div className="editor-history" aria-label="Draft history">
+            <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
+              <ArrowUUpLeft size={20} aria-hidden="true" />
+              <span>Undo</span>
+            </button>
+            <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
+              <ArrowUUpRight size={20} aria-hidden="true" />
+              <span>Redo</span>
+            </button>
+          </div>
+          <button
+            className="editor-command-button editor-translate-button"
+            type="button"
+            disabled={!editable || selectedCells.length === 0 || jobRunning}
+            onClick={() => openTranslatePreview('Translate selected cells', selectedCells)}
+          >
+            <Translate size={20} aria-hidden="true" />
+            <span>Translate selected</span>
+            {selectedCells.length > 0 && <b>{selectedCells.length}</b>}
+          </button>
+          <Popover
+            open={batchMenuOpen}
+            onOpenChange={open => {
+              if (!editable || jobRunning) {
+                setBatchMenuOpen(false);
+                return;
+              }
+              setBatchMenuOpen(open);
+              if (open) {
+                setFilePickerOpen(false);
+                setFilterPanelOpen(false);
+                setContextMenu(null);
+              }
+            }}
+          >
+            <PopoverTrigger asChild>
+              <button
+                className={batchMenuOpen ? 'editor-command-button is-active' : 'editor-command-button'}
+                type="button"
+                disabled={!editable || jobRunning}
+              >
+                <Sparkle size={20} aria-hidden="true" />
+                <span>Batch</span>
+                <CaretDown size={16} aria-hidden="true" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="editor-toolbar-panel editor-batch-panel" aria-label="Batch translation actions">
+              <div className="editor-toolbar-panel-header">
+                <span>
+                  <small>AI batch</small>
+                  <strong>Translate current view</strong>
+                </span>
+              </div>
+              <div className="editor-batch-action-list">
+                <button type="button" onClick={() => openTranslatePreview('Translate visible pending cells', visiblePendingCells)}>Translate visible pending <b>{visiblePendingCells.length}</b></button>
+                <button type="button" onClick={() => openTranslatePreview('Translate visible missing cells', visibleMissingCells)}>Translate visible missing <b>{visibleMissingCells.length}</b></button>
+                <button type="button" onClick={() => openTranslatePreview('Translate current file pending cells', currentFilePendingCells)}>Translate current file pending <b>{currentFilePendingCells.length}</b></button>
+                <button type="button" disabled={retryFailedCells.length === 0} onClick={() => openTranslatePreview('Retry failed translations', retryFailedCells)}>Retry failed <b>{retryFailedCells.length}</b></button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div className="editor-operation-right">
-          {cellStateSummary}
+          {jobRunning && activeJob && (
+            <div className="editor-translation-progress" role="status">
+              Translating {activeJob.completed}/{activeJob.total}
+              <button type="button" onClick={() => void cancelTranslation()}>Cancel</button>
+            </div>
+          )}
+          <label className="editor-inline-search editor-copy-search">
+            <MagnifyingGlass size={17} aria-hidden="true" />
+            <span className="sr-only">Search keys and copy</span>
+            <input value={rowSearch} onChange={event => setRowSearch(event.target.value)} placeholder="Search keys or copy…" />
+          </label>
+          <Popover
+            open={filterPanelOpen}
+            onOpenChange={open => {
+              setFilterPanelOpen(open);
+              if (open) {
+                setFilePickerOpen(false);
+                setBatchMenuOpen(false);
+                setContextMenu(null);
+              }
+            }}
+          >
+            <PopoverTrigger asChild>
+              <button
+                className={filterPanelOpen ? 'editor-command-button editor-filter-trigger is-active' : 'editor-command-button editor-filter-trigger'}
+                type="button"
+                aria-label="Filter visible rows"
+              >
+                <Funnel size={20} aria-hidden="true" />
+                {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="editor-toolbar-panel editor-filter-panel" aria-label="Filter visible rows">
+              {filterPanel}
+            </PopoverContent>
+          </Popover>
+          <button
+            className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
+            type="button"
+            aria-label="Open editor details"
+            aria-expanded={activeDrawer === 'tools'}
+            onClick={() => {
+              setFilePickerOpen(false);
+              setFilterPanelOpen(false);
+              setActiveDrawer(current => (current === 'tools' ? null : 'tools'));
+            }}
+          >
+            <SlidersHorizontal size={20} aria-hidden="true" />
+          </button>
           {saveButton}
         </div>
       </section>
 
       <div className="editor-table-stage">
         <div className="editor-floating-alerts">
-        {!manifestLoading && manifest && !manifest.editable && (
-          <section className="editor-readonly-banner" aria-label="Read-only editor">
-            <Lock size={22} weight="fill" aria-hidden="true" />
-            <div>
-              <strong>Viewing local copy in read-only mode</strong>
-              <span>Restart with <code>i18n-ai-diff panel --edit</code> to enable explicit file saves.</span>
-            </div>
-          </section>
-        )}
-        {error && (
-          <div className="inline-error" role="alert">
-            <WarningCircle size={21} weight="fill" aria-hidden="true" />
-            <span><strong>Editor error.</strong> {error}</span>
-          </div>
-        )}
+          {!manifestLoading && manifest && !manifest.editable && (
+            <section className="editor-readonly-banner" aria-label="Read-only editor">
+              <Lock size={22} weight="fill" aria-hidden="true" />
+              <div>
+                <strong>Viewing local copy in read-only mode</strong>
+                <span>Restart with <code>i18n-ai-diff panel --edit</code> to enable local saves and AI translation drafts.</span>
+              </div>
+            </section>
+          )}
         </div>
 
         <section className="editor-table-panel" aria-label="Translation table">
@@ -524,7 +1061,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               manifest={manifest}
               drafts={drafts}
               editable={editable}
+              translationStates={translationStates}
               onChangeValues={handleGridChanges}
+              onSelectionChange={setSelectedCells}
+              onContextMenu={request => {
+                setContextMenu(request);
+                setBatchMenuOpen(false);
+                setFilePickerOpen(false);
+                setFilterPanelOpen(false);
+              }}
             />
           ) : (
             <div className="editor-table-empty">
@@ -536,39 +1081,113 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         </section>
       </div>
 
-      <FileDrawer
-        fileGroups={fileGroups}
-        fileSearch={fileSearch}
-        isOpen={activeDrawer === 'files'}
-        manifest={manifest}
-        manifestLoading={manifestLoading}
-        selectedPath={selectedPath}
-        onClose={() => setActiveDrawer(null)}
-        onFileSearchChange={setFileSearch}
-        onRequestFile={requestFile}
-      />
+      <section className="editor-cell-state-bar" aria-label="Editor status">
+        {currentFileSummary}
+        {cellStateSummary}
+      </section>
+
+      <Sheet
+        open={filePickerOpen}
+        onOpenChange={open => {
+          setFilePickerOpen(open);
+          if (open) {
+            setFilterPanelOpen(false);
+            setBatchMenuOpen(false);
+            setContextMenu(null);
+          }
+        }}
+      >
+        <SheetContent className="editor-file-drawer" side="left">
+          {filePickerPanel}
+        </SheetContent>
+      </Sheet>
 
       <ToolsDrawer
+        aiDraftCount={aiDrafts.size}
         draftCount={drafts.size}
         editable={editable}
+        failedCount={failedTranslations.size}
         isOpen={activeDrawer === 'tools'}
+        job={activeJob}
         languageCount={manifest?.languages.length || 0}
-        rowSearch={rowSearch}
         selectedMeta={selectedMeta}
-        showChanged={showChanged}
-        showMissing={showMissing}
-        showPending={showPending}
         status={status}
         totalRowCount={file?.rows.length || 0}
         visibleRowCount={visibleRows.length}
         onClose={() => setActiveDrawer(null)}
-        onRowSearchChange={setRowSearch}
-        onToggleChanged={() => setShowChanged(value => !value)}
-        onToggleMissing={() => setShowMissing(value => !value)}
-        onTogglePending={() => setShowPending(value => !value)}
       />
 
-      {activeDrawer && <button className="drawer-scrim" type="button" onClick={() => setActiveDrawer(null)} aria-label="Close editor drawer" />}
+      {contextMenu && (
+        <div
+          className="editor-context-menu"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onClick={event => event.stopPropagation()}
+          role="menu"
+        >
+          <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate this cell', [contextMenu.clickedCell])}>Translate this cell</button>
+          <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate selected cells', contextMenu.selectedCells)}>Translate selected cells <b>{contextMenu.selectedCells.length}</b></button>
+          <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate row targets', cellsForRowTargets(contextMenu.clickedCell.pointer))}>Translate row targets</button>
+          <button type="button" role="menuitem" onClick={() => openTranslatePreview(`Translate ${contextMenu.clickedCell.lang} pending`, cellsForLanguagePending(contextMenu.clickedCell.lang))}>Translate this language pending</button>
+        </div>
+      )}
+
+      <Dialog open={Boolean(translatePreview && currentPreview)} onOpenChange={open => { if (!open) setTranslatePreview(null); }}>
+        {translatePreview && currentPreview && (
+          <DialogContent className="editor-modal translate-confirm-modal" aria-describedby="translate-description">
+            <Translate size={28} weight="fill" aria-hidden="true" />
+            <div>
+              <p className="section-kicker">AI translation draft</p>
+              <DialogTitle asChild>
+                <h2>{translatePreview.title}</h2>
+              </DialogTitle>
+              <DialogDescription asChild>
+                <p id="translate-description">
+                  {currentPreview.cells.length} target cell{currentPreview.cells.length === 1 ? '' : 's'} will be translated into the current browser draft.
+                  {currentPreview.skipped.length > 0 && <> {currentPreview.skipped.length} cell{currentPreview.skipped.length === 1 ? '' : 's'} will be skipped.</>}
+                </p>
+              </DialogDescription>
+              <dl className="translate-confirm-stats">
+                <div><dt>Selected</dt><dd>{translatePreview.cells.length}</dd></div>
+                <div><dt>Ready</dt><dd>{currentPreview.cells.length}</dd></div>
+                <div><dt>Skipped</dt><dd>{currentPreview.skipped.length}</dd></div>
+                <div><dt>Cache</dt><dd>Checked on start</dd></div>
+              </dl>
+              <label className="translate-option">
+                <input
+                  type="checkbox"
+                  checked={translatePreview.includeSkipped}
+                  onChange={event => setTranslatePreview(current => current && { ...current, includeSkipped: event.target.checked })}
+                />
+                Include skipped keys
+              </label>
+              <label className="translate-option">
+                <input
+                  type="checkbox"
+                  checked={translatePreview.overwriteDrafts}
+                  onChange={event => setTranslatePreview(current => current && { ...current, overwriteDrafts: event.target.checked })}
+                />
+                Overwrite existing local drafts
+              </label>
+              {currentPreview.skipped.length > 0 && (
+                <div className="translate-skip-list">
+                  {currentPreview.skipped.slice(0, 5).map(item => (
+                    <span key={`${item.lang}:${item.pointer}`}>{item.lang} {item.pointer} · {item.reason}</span>
+                  ))}
+                  {currentPreview.skipped.length > 5 && <span>+ {currentPreview.skipped.length - 5} more skipped cells</span>}
+                </div>
+              )}
+            </div>
+            <div className="modal-actions">
+              <DialogClose asChild>
+                <button type="button" className="button-tertiary">Cancel</button>
+              </DialogClose>
+              <button type="button" className="button-primary" disabled={currentPreview.cells.length === 0 || jobRunning} onClick={() => void confirmTranslation()}>
+                Start translation
+              </button>
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
 
       {pendingNavigation && (
         <div className="editor-modal-layer" role="presentation">
@@ -604,7 +1223,10 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           onResolve={resolveConflict}
         />
       )}
-
     </PanelLayout>
   );
+}
+
+function FilterButton({ active, onClick, children }: { active: boolean; onClick(): void; children: string }) {
+  return <button type="button" className={active ? 'filter-chip is-active' : 'filter-chip'} aria-pressed={active} onClick={onClick}>{children}</button>;
 }

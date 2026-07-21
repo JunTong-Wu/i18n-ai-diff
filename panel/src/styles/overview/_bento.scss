@@ -28,14 +28,6 @@
   background: var(--surface);
 }
 
-.overview-bento .inline-error {
-  grid-column: span 8;
-
-  @media (max-width: 980px) {
-    grid-column: 1;
-  }
-}
-
 .overview-hero-card {
   grid-column: span 8;
   min-height: 18rem;

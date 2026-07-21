@@ -1,5 +1,4 @@
 import { spawn } from 'node:child_process';
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,7 +6,7 @@ const projectRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const fixtureRoot = path.join(projectRoot, 'tests/fixtures/headless-consumer');
 const panelProjectRoot = process.env.PANEL_DEV_PROJECT_DIR
   ? path.resolve(process.env.PANEL_DEV_PROJECT_DIR)
-  : path.join(projectRoot, '.panel-dev-consumer');
+  : fixtureRoot;
 const panelDevHost = process.env.PANEL_DEV_HOST || '0.0.0.0';
 const panelDevPort = process.env.PANEL_DEV_PORT || '4187';
 const panelApiPort = process.env.PANEL_API_PORT || '4188';
@@ -15,8 +14,6 @@ const panelApiOrigin = process.env.PANEL_API_ORIGIN || `http://127.0.0.1:${panel
 
 const children = new Set();
 let shuttingDown = false;
-
-await preparePanelProject();
 
 console.log(`Panel dev UI:     http://${panelDevHost === '0.0.0.0' ? '127.0.0.1' : panelDevHost}:${panelDevPort}`);
 console.log(`Panel API:        ${panelApiOrigin}`);
@@ -44,38 +41,6 @@ const vite = start('vite', bin('vite'), [
 
 process.once('SIGINT', () => shutdown('SIGINT'));
 process.once('SIGTERM', () => shutdown('SIGTERM'));
-
-async function preparePanelProject() {
-  if (process.env.PANEL_DEV_PROJECT_DIR) return;
-  await fs.mkdir(panelProjectRoot, { recursive: true });
-
-  const localesPath = path.join(panelProjectRoot, 'locales');
-  const cachePath = path.join(panelProjectRoot, '.i18n-translate-cache.json');
-  const snapshotPath = path.join(panelProjectRoot, '.i18n-translate-cache.snapshot.json');
-  const configPath = path.join(panelProjectRoot, 'i18n-translate.config.mjs');
-
-  if (!await pathExists(localesPath)) {
-    await fs.cp(path.join(fixtureRoot, 'locales'), localesPath, { recursive: true });
-  }
-  if (!await pathExists(cachePath)) {
-    await fs.copyFile(path.join(fixtureRoot, 'state/cache.json'), cachePath);
-  }
-  if (!await pathExists(snapshotPath)) {
-    await fs.copyFile(path.join(fixtureRoot, 'state/snapshot.json'), snapshotPath);
-  }
-  if (!await pathExists(configPath)) {
-    await fs.writeFile(configPath, devConfig(), 'utf8');
-  }
-}
-
-async function pathExists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function start(name, command, args, cwd) {
   const child = spawn(command, args, {
@@ -117,41 +82,4 @@ function shutdown(signal) {
 function bin(name) {
   const suffix = process.platform === 'win32' ? '.cmd' : '';
   return path.join(projectRoot, 'node_modules', '.bin', `${name}${suffix}`);
-}
-
-function devConfig() {
-  return `export default {
-  routes: [
-    {
-      sourceLang: 'zh-Hans',
-      targetLangs: ['ja', 'ko'],
-    },
-    {
-      sourceLang: 'en',
-      targetLangs: ['de', 'es', 'fr', 'it', 'pt'],
-    },
-  ],
-  localesDir: './locales',
-  skipKeys: ['methods.grid.*.value_global', 'methods.grid.*.value_JP'],
-  llm: {
-    apiKey: process.env.I18N_TEST_API_KEY || 'fixture-only-key',
-    model: process.env.I18N_TEST_MODEL || 'gpt-4o-mini',
-    baseURL: process.env.I18N_TEST_BASE_URL || 'http://127.0.0.1:9/v1',
-    maxTokens: 4096,
-    temperature: 0.3,
-    timeout: 500,
-    retries: 1,
-  },
-  prompt: \`
-"DWARF" and "DWARFLAB" are brand names and must NOT be translated.
-Product model names must stay consistent and not be paraphrased.
-The domain is astrophotography - use terminology and tone appropriate for that field.
-Keep translation quality natural and native-level; avoid literal machine translation.
-Do not mix languages in one string.
-\`,
-  concurrency: 5,
-  batchSize: 20,
-  cachePath: './.i18n-translate-cache.json',
-};
-`;
 }

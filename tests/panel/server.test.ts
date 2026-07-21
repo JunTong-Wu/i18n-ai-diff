@@ -69,7 +69,7 @@ describe('panel server', () => {
       ...scan,
       version: '1.2.0-test',
       localOnly: true,
-      capabilities: { contentEditing: false },
+      capabilities: { contentEditing: false, aiTranslation: false },
     };
 
     const project = await fetch(`${server.url}/api/project`).then(response => response.json());
@@ -192,11 +192,96 @@ describe('panel server', () => {
           ...scan,
           version: '1.2.0-test',
           localOnly: true,
-          capabilities: { contentEditing: true },
+          capabilities: { contentEditing: true, aiTranslation: true },
         },
       },
     });
     expect(saves).toBe(1);
+  });
+
+  it('runs editable editor translation jobs behind the write token', async () => {
+    const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-translate-'));
+    tempDirs.push(clientRoot);
+    await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
+    const scan = createScan();
+    const server = await startPanelServer({
+      scan: async () => scan,
+      getEditorManifest: async (editable, writeToken) => ({
+        editable,
+        writeToken,
+        routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
+        languages: ['en', 'de'],
+        files: [],
+      }),
+      translateEditorCells: async (_request, hooks) => {
+        hooks?.onProgress?.([{
+          lang: 'de',
+          pointer: '/title',
+          sourceLang: 'en',
+          sourceText: 'Hello',
+          translatedText: 'Hallo',
+          status: 'translated',
+          fromCache: false,
+        }]);
+        return [{
+          lang: 'de',
+          pointer: '/title',
+          sourceLang: 'en',
+          sourceText: 'Hello',
+          translatedText: 'Hallo',
+          status: 'translated',
+          fromCache: false,
+        }];
+      },
+    }, {
+      port: 0,
+      open: false,
+      editable: true,
+      packageVersion: '1.2.0-test',
+      clientRoot,
+    });
+    servers.push(server);
+
+    const manifest = await fetch(`${server.url}/api/editor/manifest`).then(response => response.json());
+    const forbidden = await fetch(`${server.url}/api/editor/translate-jobs`, {
+      method: 'POST',
+      headers: { origin: server.url, 'content-type': 'application/json' },
+      body: JSON.stringify({ relativePath: 'common.json', cells: [] }),
+    });
+    expect(forbidden.status).toBe(403);
+
+    const created = await fetch(`${server.url}/api/editor/translate-jobs`, {
+      method: 'POST',
+      headers: {
+        origin: server.url,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({
+        relativePath: 'common.json',
+        revisions: { en: 'a', de: 'b' },
+        snapshotRevision: null,
+        cells: [{ lang: 'de', pointer: '/title' }],
+      }),
+    });
+    expect(created.status).toBe(202);
+    const createdBody = await created.json();
+    expect(createdBody.data.status).toMatch(/queued|running|completed/u);
+
+    let job = createdBody.data;
+    for (let attempt = 0; attempt < 10 && job.status !== 'completed'; attempt += 1) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      job = await fetch(`${server.url}/api/editor/translate-jobs/${job.id}`).then(response => response.json()).then(body => body.data);
+    }
+    expect(job.status).toBe('completed');
+    expect(job.results).toEqual([
+      expect.objectContaining({
+        lang: 'de',
+        pointer: '/title',
+        translatedText: 'Hallo',
+        status: 'translated',
+      }),
+    ]);
   });
 });
 

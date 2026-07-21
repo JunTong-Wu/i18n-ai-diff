@@ -28,8 +28,16 @@ export type {
   EditorRow,
   EditorFile,
   EditorPatch,
+  EditorAcceptedTranslation,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorTranslateCell,
+  EditorTranslateOptions,
+  EditorTranslateRequest,
+  EditorTranslateResult,
+  EditorTranslateResultStatus,
+  EditorTranslateJobStatus,
+  EditorTranslateJob,
 } from './types/index.js';
 
 export { loadConfig, defineConfig } from './core/config-loader.js';

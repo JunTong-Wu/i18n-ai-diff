@@ -14,6 +14,7 @@ import {
   WarningCircle,
 } from '@phosphor-icons/react';
 import routeWaveUrl from '../assets/route-wave.svg';
+import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
 import { projectRelativePath } from '../path-display';
 import type {
   PanelProject,
@@ -40,6 +41,7 @@ export function OverviewPage({
   onScan,
 }: OverviewPageProps) {
   const pendingFiles = project.totals.pendingFiles;
+  usePanelErrorToast(error, 'Scan failed');
 
   return (
     <div className="workspace-content overview-bento">
@@ -50,7 +52,6 @@ export function OverviewPage({
         onScan={onScan}
       />
       <Metrics project={project} />
-      {error && <InlineError message={error} />}
 
       <section className="routes-section bento-card" aria-labelledby="routes-title">
         <div className="section-heading">
@@ -440,7 +441,7 @@ export function LoadingState() {
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry(): void }) {
   return (
-    <section className="error-state" role="alert">
+    <section className="error-state" role="status" aria-live="polite">
       <WarningCircle size={30} weight="fill" aria-hidden="true" />
       <div>
         <h2>The translation workspace could not be opened.</h2>
@@ -448,15 +449,6 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry(): v
       </div>
       <button type="button" onClick={onRetry}>Try again</button>
     </section>
-  );
-}
-
-function InlineError({ message }: { message: string }) {
-  return (
-    <div className="inline-error" role="alert">
-      <WarningCircle size={21} weight="fill" aria-hidden="true" />
-      <span><strong>Scan failed.</strong> {message}</span>
-    </div>
   );
 }
 

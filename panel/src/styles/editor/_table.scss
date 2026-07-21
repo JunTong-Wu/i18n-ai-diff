@@ -60,6 +60,12 @@
 .legend-dot.is-skipped {
   background: var(--decor-violet);
 }
+.legend-dot.is-ai {
+  background: var(--success);
+}
+.legend-dot.is-failed {
+  background: var(--danger);
+}
 
 .translation-grid {
   width: 100%;
@@ -148,17 +154,4 @@
 .editor-table-empty span {
   max-width: 26rem;
   font-size: var(--text-sm);
-}
-
-.drawer-scrim {
-  display: none;
-
-  @media (max-width: 760px) {
-    position: fixed;
-    z-index: 80;
-    inset: 0;
-    display: block;
-    border: 0;
-    background: rgba(16, 24, 40, 0.32);
-  }
 }

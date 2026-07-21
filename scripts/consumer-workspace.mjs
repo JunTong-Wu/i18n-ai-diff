@@ -35,17 +35,12 @@ async function copyFixture() {
   await fs.cp(path.join(fixtureRoot, 'locales'), path.join(workspaceRoot, 'locales'), {
     recursive: true,
   });
+  await fs.cp(path.join(fixtureRoot, 'state'), path.join(workspaceRoot, 'state'), {
+    recursive: true,
+  });
   await fs.copyFile(
     path.join(fixtureRoot, 'i18n-translate.config.mjs'),
     path.join(workspaceRoot, 'i18n-translate.config.mjs'),
-  );
-  await fs.copyFile(
-    path.join(fixtureRoot, 'state/cache.json'),
-    path.join(workspaceRoot, '.i18n-translate-cache.json'),
-  );
-  await fs.copyFile(
-    path.join(fixtureRoot, 'state/snapshot.json'),
-    path.join(workspaceRoot, '.i18n-translate-cache.snapshot.json'),
   );
 }
 
@@ -262,8 +257,8 @@ async function verifyEditablePanel(binPath) {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   let output = '';
-  const snapshotPath = path.join(workspaceRoot, '.i18n-translate-cache.snapshot.json');
-  const cachePath = path.join(workspaceRoot, '.i18n-translate-cache.json');
+  const cachePath = path.join(workspaceRoot, 'state/cache.json');
+  const snapshotPath = path.join(workspaceRoot, 'state/cache.snapshot.json');
   let targetPath;
   let originalTarget;
   let originalSnapshot;
@@ -350,8 +345,8 @@ async function verifyWorkspace() {
   const { binPath } = await prepareWorkspace();
   const manifest = await readJson(path.join(fixtureRoot, 'fixture-manifest.json'));
   const localesDir = path.join(workspaceRoot, 'locales');
-  const cachePath = path.join(workspaceRoot, '.i18n-translate-cache.json');
-  const snapshotPath = path.join(workspaceRoot, '.i18n-translate-cache.snapshot.json');
+  const cachePath = path.join(workspaceRoot, 'state/cache.json');
+  const snapshotPath = path.join(workspaceRoot, 'state/cache.snapshot.json');
 
   const beforeFiles = await collectFiles(localesDir);
   assert.equal(beforeFiles.length, manifest.jsonFiles);

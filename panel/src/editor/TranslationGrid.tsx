@@ -12,6 +12,20 @@ export interface GridValueChange {
   changedValue: string | number;
 }
 
+export interface GridSelectionCell {
+  pointer: string;
+  lang: string;
+}
+
+export type GridCellTranslationState = 'queued' | 'translating' | 'failed' | 'ai';
+
+export interface GridContextMenuRequest {
+  x: number;
+  y: number;
+  clickedCell: GridSelectionCell;
+  selectedCells: GridSelectionCell[];
+}
+
 interface GridRecord extends Record<string, unknown> {
   pointer: string;
   keyPath: string;
@@ -20,6 +34,7 @@ interface GridRecord extends Record<string, unknown> {
     changed: boolean;
     pending: boolean;
     skipped: boolean;
+    translationState?: GridCellTranslationState;
   }>;
 }
 
@@ -28,19 +43,29 @@ export function TranslationGrid({
   manifest,
   drafts,
   editable,
+  translationStates,
   onChangeValues,
+  onContextMenu,
+  onSelectionChange,
 }: {
   rows: PanelEditorRow[];
   manifest: PanelEditorManifest;
   drafts: DraftMap;
   editable: boolean;
+  translationStates?: Map<string, GridCellTranslationState>;
   onChangeValues(values: GridValueChange[]): void;
+  onContextMenu?(request: GridContextMenuRequest): void;
+  onSelectionChange?(cells: GridSelectionCell[]): void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<ListTable | null>(null);
   const recordsRef = useRef<GridRecord[]>([]);
   const onChangeRef = useRef(onChangeValues);
+  const onContextMenuRef = useRef(onContextMenu);
+  const onSelectionChangeRef = useRef(onSelectionChange);
   onChangeRef.current = onChangeValues;
+  onContextMenuRef.current = onContextMenu;
+  onSelectionChangeRef.current = onSelectionChange;
 
   const records = useMemo<GridRecord[]>(() => rows.map(row => {
     const record: GridRecord = {
@@ -57,10 +82,11 @@ export function TranslationGrid({
         changed,
         pending: cell?.pending || false,
         skipped: cell?.skipped || false,
+        translationState: translationStates?.get(draftIdentity(lang, row.pointer)),
       };
     }
     return record;
-  }), [drafts, manifest.languages, rows]);
+  }), [drafts, manifest.languages, rows, translationStates]);
   recordsRef.current = records;
 
   const columns = useMemo<ColumnsDefine>(() => {
@@ -124,8 +150,15 @@ export function TranslationGrid({
           const isMissing = state?.kind === 'missing' && !state.changed;
           const isUnsupported = state?.kind === 'unsupported';
           const isSkipped = state?.skipped && !state.changed;
+          const translationState = state?.translationState;
           return {
-            bgColor: state?.changed
+            bgColor: translationState === 'failed'
+              ? '#FEF3F2'
+              : translationState === 'translating' || translationState === 'queued'
+                ? '#F8FAFD'
+                : translationState === 'ai'
+                  ? '#ECFDF5'
+                  : state?.changed
               ? '#EDF4FF'
               : isUnsupported
                 ? '#F3F5F8'
@@ -142,8 +175,14 @@ export function TranslationGrid({
             autoWrapText: true,
             lineClamp: 3,
             cursor: editable && !isUnsupported ? 'text' : 'default',
-            marked: state?.changed
-              ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#1467F3' }
+            marked: translationState === 'failed'
+              ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#D92D20' }
+              : translationState === 'translating' || translationState === 'queued'
+                ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#7C3AED' }
+                : translationState === 'ai'
+                  ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#168A59' }
+                  : state?.changed
+                    ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#1467F3' }
               : state?.pending
                 ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#F59E0B' }
                 : false,
@@ -219,6 +258,32 @@ export function TranslationGrid({
     };
     const table = new ListTable(containerRef.current, option);
     tableRef.current = table;
+    const cellFromPosition = (col: number, row: number): GridSelectionCell | null => {
+      const record = table.getCellOriginRecord(col, row) as GridRecord | undefined;
+      if (!record) return null;
+      const info = table.getCellInfo(col, row);
+      const field = typeof info.field === 'string' ? info.field : undefined;
+      if (!field || !manifest.languages.includes(field)) return null;
+      return { pointer: record.pointer, lang: field };
+    };
+    const collectSelectedCells = (): GridSelectionCell[] => {
+      const ranges = table.getSelectedCellRanges();
+      const selected = new Map<string, GridSelectionCell>();
+      for (const range of ranges) {
+        const startCol = Math.min(range.start.col, range.end.col);
+        const endCol = Math.max(range.start.col, range.end.col);
+        const startRow = Math.min(range.start.row, range.end.row);
+        const endRow = Math.max(range.start.row, range.end.row);
+        for (let row = startRow; row <= endRow; row += 1) {
+          for (let col = startCol; col <= endCol; col += 1) {
+            const cell = cellFromPosition(col, row);
+            if (!cell) continue;
+            selected.set(draftIdentity(cell.lang, cell.pointer), cell);
+          }
+        }
+      }
+      return [...selected.values()];
+    };
     const handleChange = (event: TYPES.TableEventHandlersEventArgumentMap['change_cell_values']) => {
       const changes = (event.values as Array<{
         recordIndex?: number | number[];
@@ -239,6 +304,27 @@ export function TranslationGrid({
     let selectedCell: { col: number; row: number } | null = null;
     const handleSelectedCell = (event: TYPES.TableEventHandlersEventArgumentMap['selected_cell']) => {
       selectedCell = { col: event.col, row: event.row };
+      const cell = cellFromPosition(event.col, event.row);
+      if (cell) onSelectionChangeRef.current?.([cell]);
+    };
+    const handleSelectedChanged = () => {
+      onSelectionChangeRef.current?.(collectSelectedCells());
+    };
+    const handleContextMenu = (event: TYPES.TableEventHandlersEventArgumentMap['contextmenu_cell']) => {
+      const clickedCell = cellFromPosition(event.col, event.row);
+      if (!clickedCell) return;
+      event.event?.preventDefault();
+      const selectedCells = collectSelectedCells();
+      const clickedIdentity = draftIdentity(clickedCell.lang, clickedCell.pointer);
+      const menuCells = selectedCells.some(cell => draftIdentity(cell.lang, cell.pointer) === clickedIdentity)
+        ? selectedCells
+        : [clickedCell];
+      onContextMenuRef.current?.({
+        x: event.event instanceof MouseEvent ? event.event.clientX : 0,
+        y: event.event instanceof MouseEvent ? event.event.clientY : 0,
+        clickedCell,
+        selectedCells: menuCells,
+      });
     };
     const handleBeforeKeydown = (event: TYPES.TableEventHandlersEventArgumentMap['before_keydown']) => {
       if (!editable || (event.code !== 'F2' && event.keyCode !== 113) || !selectedCell) return;
@@ -248,15 +334,21 @@ export function TranslationGrid({
     };
     table.on('change_cell_values', handleChange as never);
     table.on('selected_cell', handleSelectedCell as never);
+    table.on('selected_changed', handleSelectedChanged as never);
+    table.on('drag_select_end', handleSelectedChanged as never);
+    table.on('contextmenu_cell', handleContextMenu as never);
     table.on('before_keydown', handleBeforeKeydown as never);
     return () => {
       table.off('change_cell_values', handleChange as never);
       table.off('selected_cell', handleSelectedCell as never);
+      table.off('selected_changed', handleSelectedChanged as never);
+      table.off('drag_select_end', handleSelectedChanged as never);
+      table.off('contextmenu_cell', handleContextMenu as never);
       table.off('before_keydown', handleBeforeKeydown as never);
       table.release();
       tableRef.current = null;
     };
-  }, [columns, editable]);
+  }, [columns, editable, manifest.languages]);
 
   useEffect(() => {
     tableRef.current?.setRecords(records);

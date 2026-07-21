@@ -60,6 +60,10 @@ Set `I18N_CONSUMER_DIR` to place the generated project at a stable custom locati
 I18N_CONSUMER_DIR=/tmp/i18n-consumer npm run consumer:prepare
 ```
 
-The fixture contains translation JSON, a version 2 empty cache, and a version 3 source snapshot. It contains no API key or application source code. Its provenance is recorded in `tests/fixtures/headless-consumer/fixture-manifest.json`.
+The fixture contains translation JSON, a version 2 empty cache at `state/cache.json`, and a version 3 source snapshot at `state/cache.snapshot.json`. It contains no API key or application source code. Its provenance is recorded in `tests/fixtures/headless-consumer/fixture-manifest.json`.
+
+## Panel development fixture
+
+`npm run panel:dev` uses `tests/fixtures/headless-consumer` directly as its default preview project. It does not create or copy a second local consumer workspace inside the repository. Manual saves from the development panel therefore write to the fixture's single `locales` directory.
 
 The fixture deliberately ignores normal `OPENAI_*` environment variables. Its default LLM endpoint is unreachable, and automated verification replaces it with a local request trap. This makes an unexpected translation attempt fail visibly without spending API credits or sending business text over the network.

@@ -32,5 +32,5 @@ Do not mix languages in one string.
 `,
   concurrency: 5,
   batchSize: 20,
-  cachePath: './.i18n-translate-cache.json',
+  cachePath: './state/cache.json',
 });

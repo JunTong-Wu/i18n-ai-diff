@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
@@ -10,6 +10,7 @@ import {
   commitEditorWrites,
   setStringAtPath,
 } from '../../src/core/editor-service.js';
+import type { TranslationResult, TranslationTask } from '../../src/types/index.js';
 
 const tempDirs: string[] = [];
 
@@ -122,6 +123,98 @@ describe('translation editor save semantics', () => {
     expect(JSON.parse(await fs.readFile(path.join(root, 'locales/fr/common.json'), 'utf8'))).toEqual({
       section: { title: 'Bonjour' },
     });
+  });
+
+  it('generates selected AI drafts from the current source draft and caches them only after save', async () => {
+    const { root, configPath } = await createProject();
+    const session = await createProjectSession({ cwd: root, configPath });
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `${task.sourceLang}->${task.targetLang}:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (session as unknown as { editor: { llmClient: { translateBatch: typeof translateBatch } } }).editor.llmClient = { translateBatch };
+
+    const file = await session.getEditorFile('common.json');
+    const beforeTarget = await fs.readFile(path.join(root, 'locales/de/common.json'), 'utf8');
+    const beforeCache = await fs.readFile(path.join(root, 'cache.json'), 'utf8');
+
+    const results = await session.translateEditorCells({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      cells: [{ lang: 'de', pointer: '/section/title' }],
+      drafts: [{ lang: 'en', pointer: '/section/title', value: 'Hello from draft' }],
+    });
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        lang: 'de',
+        pointer: '/section/title',
+        sourceLang: 'en',
+        sourceText: 'Hello from draft',
+        translatedText: 'en->de:Hello from draft',
+        status: 'translated',
+        fromCache: false,
+      }),
+    ]);
+    expect(await fs.readFile(path.join(root, 'locales/de/common.json'), 'utf8')).toBe(beforeTarget);
+    expect(await fs.readFile(path.join(root, 'cache.json'), 'utf8')).toBe(beforeCache);
+
+    await session.saveEditorFile({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [
+        { lang: 'en', pointer: '/section/title', value: 'Hello from draft' },
+        { lang: 'de', pointer: '/section/title', value: 'en->de:Hello from draft' },
+      ],
+      acceptedTranslations: [{
+        lang: 'de',
+        pointer: '/section/title',
+        sourceLang: 'en',
+        sourceText: 'Hello from draft',
+        translatedText: 'en->de:Hello from draft',
+      }],
+    });
+
+    const cache = JSON.parse(await fs.readFile(path.join(root, 'cache.json'), 'utf8'));
+    expect(Object.values(cache.entries)).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        sourceLang: 'en',
+        sourceText: 'Hello from draft',
+        targetLang: 'de',
+        translatedText: 'en->de:Hello from draft',
+      }),
+    ]));
+  });
+
+  it('does not cache accepted AI provenance after the target text is manually changed', async () => {
+    const { root, configPath } = await createProject();
+    const session = await createProjectSession({ cwd: root, configPath });
+    const file = await session.getEditorFile('common.json');
+
+    await session.saveEditorFile({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [{ lang: 'de', pointer: '/section/title', value: 'Manuell geändert' }],
+      acceptedTranslations: [{
+        lang: 'de',
+        pointer: '/section/title',
+        sourceLang: 'en',
+        sourceText: 'Hello',
+        translatedText: 'AI text that was edited',
+      }],
+    });
+
+    const cache = JSON.parse(await fs.readFile(path.join(root, 'cache.json'), 'utf8'));
+    expect(Object.values(cache.entries).some(entry => (
+      (entry as { translatedText?: string }).translatedText === 'AI text that was edited'
+    ))).toBe(false);
   });
 
   it('rejects stale revisions without overwriting the external edit', async () => {

@@ -5,13 +5,20 @@ import type {
   EditorManifestFile,
   EditorPatch,
   EditorRow,
+  EditorAcceptedTranslation,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorTranslateCell,
+  EditorTranslateJob,
+  EditorTranslateOptions,
+  EditorTranslateRequest,
+  EditorTranslateResult,
   ProjectScan,
 } from '../types/index.js';
 
 export interface PanelCapabilities {
   contentEditing: boolean;
+  aiTranslation: boolean;
 }
 
 export interface PanelProjectRuntimeFields {
@@ -39,10 +46,16 @@ export type PanelEditorCell = EditorCell;
 export type PanelEditorRow = EditorRow;
 export type PanelEditorFile = EditorFile;
 export type PanelEditorPatch = EditorPatch;
+export type PanelEditorAcceptedTranslation = EditorAcceptedTranslation;
 export type PanelEditorSaveRequest = EditorSaveRequest;
 export type PanelEditorSaveResult = Omit<EditorSaveResult, 'project'> & {
   project: PanelProject;
 };
+export type PanelEditorTranslateCell = EditorTranslateCell;
+export type PanelEditorTranslateOptions = EditorTranslateOptions;
+export type PanelEditorTranslateRequest = EditorTranslateRequest;
+export type PanelEditorTranslateResult = EditorTranslateResult;
+export type PanelEditorTranslateJob = EditorTranslateJob;
 
 export interface PanelContractContext {
   packageVersion: string;
@@ -57,7 +70,7 @@ export function toPanelProject(
     ...scan,
     version: context.packageVersion,
     localOnly: true,
-    capabilities: { contentEditing: context.editable },
+    capabilities: { contentEditing: context.editable, aiTranslation: context.editable },
   };
 }
 

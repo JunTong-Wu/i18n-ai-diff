@@ -2,15 +2,23 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import {
+  EditorAcceptedTranslation,
   EditorCell,
   EditorFile,
   EditorManifest,
   EditorManifestFile,
+  EditorPatch,
   EditorRow,
   EditorSaveRequest,
+  EditorTranslateRequest,
+  EditorTranslateResult,
   NestedJSON,
   ResolvedTranslateConfig,
+  TranslationTask,
 } from '../types/index.js';
+import { createLLMClient, LLMClient } from '../llm/client.js';
+import { batchTasksByTokenLimit } from '../llm/prompt-builder.js';
+import { createCacheManager } from '../utils/cache-manager.js';
 import { isKeySkipped } from '../utils/path-matcher.js';
 import {
   analyzeDiff,
@@ -19,8 +27,10 @@ import {
   snapshotPathForCache,
   sourceTextHash,
 } from './diff-analyzer.js';
+import pLimit from 'p-limit';
 
 const MAX_CHANGES = 10_000;
+const MAX_TRANSLATE_CELLS = 2_000;
 
 interface JsonFormat {
   bom: string;
@@ -57,6 +67,11 @@ interface PendingMap {
   [lang: string]: Set<string>;
 }
 
+interface EditorTranslateHooks {
+  signal?: AbortSignal;
+  onProgress?: (results: EditorTranslateResult[]) => void;
+}
+
 export interface PlannedEditorWrite {
   filePath: string;
   original: string | null;
@@ -87,6 +102,9 @@ export class TranslationEditorService {
   readonly languages: string[];
   private readonly languageSet: Set<string>;
   private readonly snapshotPath: string;
+  private readonly cachePath: string;
+  private readonly llmClient: LLMClient;
+  private readonly translateLimit: ReturnType<typeof pLimit>;
 
   constructor(
     private readonly config: ResolvedTranslateConfig,
@@ -95,7 +113,13 @@ export class TranslationEditorService {
     this.languages = [...new Set(config.routes.flatMap(route => [route.sourceLang, ...route.targetLangs]))];
     this.languageSet = new Set(this.languages);
     const cachePath = config.cachePath || path.join(projectRoot, '.i18n-translate-cache.json');
+    this.cachePath = cachePath;
     this.snapshotPath = snapshotPathForCache(cachePath);
+    this.llmClient = createLLMClient(this.config.llm);
+    if (this.config.prompt) {
+      this.llmClient.setCustomPrompt(this.config.prompt);
+    }
+    this.translateLimit = pLimit(this.config.concurrency || 5);
   }
 
   async getManifest(editable: boolean, writeToken?: string): Promise<EditorManifest> {
@@ -156,6 +180,153 @@ export class TranslationEditorService {
     await this.assertLogicalFileExists(normalized);
     const records = await this.readAllLanguageRecords(normalized);
     return this.buildEditorFile(normalized, records, await this.readSnapshotRecord());
+  }
+
+  async translateCells(
+    request: EditorTranslateRequest,
+    hooks: EditorTranslateHooks = {},
+  ): Promise<EditorTranslateResult[]> {
+    const relativePath = this.validateRelativePath(request.relativePath);
+    if (!Array.isArray(request.cells) || request.cells.length === 0) {
+      throw new EditorServiceError('At least one cell is required', 'EMPTY_TRANSLATE_SELECTION');
+    }
+    if (request.cells.length > MAX_TRANSLATE_CELLS) {
+      throw new EditorServiceError(`A translation job may contain at most ${MAX_TRANSLATE_CELLS} cells`, 'TOO_MANY_TRANSLATE_CELLS', 413);
+    }
+
+    await this.assertLogicalFileExists(relativePath);
+    const records = await this.readAllLanguageRecords(relativePath);
+    const snapshot = await this.readSnapshotRecord();
+    this.assertRevisions(request, records, snapshot);
+
+    const orderedPaths = this.collectOrderedPaths(records);
+    const allowedPointers = new Set(orderedPaths.map(encodeJsonPointer));
+    const drafts = this.normalizeDraftPatches(request.drafts || [], allowedPointers);
+    const includeSkipped = request.options?.includeSkipped === true;
+    const overwriteDrafts = request.options?.overwriteDrafts === true;
+    const cache = createCacheManager(this.cachePath);
+    await cache.load();
+
+    const results: EditorTranslateResult[] = [];
+    const publish = (result: EditorTranslateResult) => {
+      results.push(result);
+      hooks.onProgress?.([result]);
+    };
+    const taskGroups = new Map<string, TranslationTask[]>();
+    const seenCells = new Set<string>();
+
+    for (const cell of request.cells) {
+      if (hooks.signal?.aborted) break;
+      if (!cell || typeof cell.lang !== 'string' || typeof cell.pointer !== 'string') {
+        throw new EditorServiceError('Every translation cell must include lang and pointer', 'INVALID_TRANSLATE_CELL');
+      }
+      if (!this.languageSet.has(cell.lang)) {
+        throw new EditorServiceError(`Language is not configured: ${cell.lang}`, 'UNKNOWN_LANGUAGE');
+      }
+      const segments = decodeJsonPointer(cell.pointer);
+      if (!allowedPointers.has(cell.pointer)) {
+        throw new EditorServiceError(`Translating a new key is not supported: ${cell.pointer}`, 'NEW_KEY_NOT_ALLOWED');
+      }
+      const identity = draftIdentity(cell.lang, cell.pointer);
+      if (seenCells.has(identity)) continue;
+      seenCells.add(identity);
+
+      const route = this.config.routes.find(candidate => candidate.targetLangs.some(lang => lang === cell.lang));
+      if (!route) {
+        publish({ lang: cell.lang, pointer: cell.pointer, status: 'skipped', reason: 'Master language cells cannot be translated' });
+        continue;
+      }
+
+      const targetValue = getPathValue(records.get(cell.lang)?.data || {}, segments);
+      if (targetValue.exists && typeof targetValue.value !== 'string') {
+        publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, status: 'skipped', reason: 'Target cell is not a string value' });
+        continue;
+      }
+
+      const dottedPath = segments.join('.');
+      if (!includeSkipped && isKeySkipped(dottedPath, this.config.skipKeys)) {
+        publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, status: 'skipped', reason: 'Skipped key' });
+        continue;
+      }
+
+      if (!overwriteDrafts && drafts.has(identity)) {
+        publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, status: 'skipped', reason: 'Cell already has a local draft' });
+        continue;
+      }
+
+      const sourceIdentity = draftIdentity(route.sourceLang, cell.pointer);
+      const sourceDraft = drafts.get(sourceIdentity);
+      const sourceValue = sourceDraft !== undefined
+        ? { exists: true, value: sourceDraft }
+        : getPathValue(records.get(route.sourceLang)?.data || {}, segments);
+
+      if (!sourceValue.exists || typeof sourceValue.value !== 'string') {
+        publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, status: 'skipped', reason: 'Source cell is missing or not a string value' });
+        continue;
+      }
+      if (sourceValue.value.length === 0) {
+        publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, sourceText: sourceValue.value, status: 'skipped', reason: 'Source cell is empty' });
+        continue;
+      }
+
+      const cached = cache.get(sourceValue.value, cell.lang, route.sourceLang);
+      if (cached !== undefined) {
+        publish({
+          lang: cell.lang,
+          pointer: cell.pointer,
+          sourceLang: route.sourceLang,
+          sourceText: sourceValue.value,
+          translatedText: cached,
+          fromCache: true,
+          status: 'translated',
+        });
+        continue;
+      }
+
+      const groupKey = `${route.sourceLang}\0${cell.lang}`;
+      const group = taskGroups.get(groupKey) || [];
+      group.push({
+        key: cell.pointer,
+        sourceText: sourceValue.value,
+        sourceLang: route.sourceLang,
+        targetLang: cell.lang,
+        filePath: relativePath,
+      });
+      taskGroups.set(groupKey, group);
+    }
+
+    await Promise.all([...taskGroups.values()].flatMap(tasks => {
+      const batches = batchTasksByTokenLimit(tasks, this.config.batchSize || 20);
+      return batches.map(batch => this.translateLimit(async () => {
+        if (hooks.signal?.aborted) return;
+        const batchResults = await this.llmClient.translateBatch(batch);
+        if (hooks.signal?.aborted) return;
+        for (const translation of batchResults) {
+          const task = batch.find(candidate => candidate.key === translation.key);
+          if (!task) continue;
+          publish(translation.success
+            ? {
+                lang: task.targetLang,
+                pointer: task.key,
+                sourceLang: task.sourceLang,
+                sourceText: task.sourceText,
+                translatedText: translation.translatedText,
+                fromCache: false,
+                status: 'translated',
+              }
+            : {
+                lang: task.targetLang,
+                pointer: task.key,
+                sourceLang: task.sourceLang,
+                sourceText: task.sourceText,
+                status: 'failed',
+                error: translation.error || 'Translation failed',
+              });
+        }
+      }));
+    }));
+
+    return results;
   }
 
   async saveFile(request: EditorSaveRequest): Promise<EditorCoreSaveResult> {
@@ -234,6 +405,11 @@ export class TranslationEditorService {
     if (this.reviewEditedTargets(snapshot.document, relativePath, records, effectiveChanges)) {
       snapshotUpdated = true;
     }
+    const acceptedCacheItems = this.collectAcceptedTranslationCacheItems(
+      request.acceptedTranslations,
+      records,
+      effectiveChanges,
+    );
 
     const writes: PlannedEditorWrite[] = [];
     for (const lang of changedLanguages) {
@@ -255,6 +431,7 @@ export class TranslationEditorService {
     }
 
     await commitEditorWrites(writes);
+    await this.writeAcceptedTranslationsToCache(acceptedCacheItems);
     const refreshedRecords = await this.readAllLanguageRecords(relativePath);
     const refreshedSnapshot = await this.readSnapshotRecord();
     return {
@@ -366,7 +543,7 @@ export class TranslationEditorService {
   }
 
   private assertRevisions(
-    request: EditorSaveRequest,
+    request: Pick<EditorSaveRequest, 'revisions' | 'snapshotRevision'>,
     records: Map<string, LocaleRecord | null>,
     snapshot: SnapshotRecord,
   ): void {
@@ -382,6 +559,99 @@ export class TranslationEditorService {
         { mismatches },
       );
     }
+  }
+
+  private normalizeDraftPatches(
+    drafts: EditorPatch[],
+    allowedPointers: Set<string>,
+  ): Map<string, string> {
+    if (!Array.isArray(drafts)) {
+      throw new EditorServiceError('Drafts must be an array', 'INVALID_DRAFTS');
+    }
+    const normalized = new Map<string, string>();
+    for (const draft of drafts) {
+      if (!draft || typeof draft.lang !== 'string' || typeof draft.pointer !== 'string' || typeof draft.value !== 'string') {
+        throw new EditorServiceError('Every draft must include lang, pointer, and string value', 'INVALID_DRAFT');
+      }
+      if (!this.languageSet.has(draft.lang)) {
+        throw new EditorServiceError(`Language is not configured: ${draft.lang}`, 'UNKNOWN_LANGUAGE');
+      }
+      decodeJsonPointer(draft.pointer);
+      if (!allowedPointers.has(draft.pointer)) {
+        throw new EditorServiceError(`Drafting a new key is not supported: ${draft.pointer}`, 'NEW_KEY_NOT_ALLOWED');
+      }
+      normalized.set(draftIdentity(draft.lang, draft.pointer), draft.value);
+    }
+    return normalized;
+  }
+
+  private collectAcceptedTranslationCacheItems(
+    acceptedTranslations: EditorAcceptedTranslation[] | undefined,
+    records: Map<string, LocaleRecord | null>,
+    effectiveChanges: EditorSaveRequest['changes'],
+  ): EditorAcceptedTranslation[] {
+    if (acceptedTranslations === undefined) return [];
+    if (!Array.isArray(acceptedTranslations)) {
+      throw new EditorServiceError('Accepted translations must be an array', 'INVALID_ACCEPTED_TRANSLATIONS');
+    }
+    if (acceptedTranslations.length === 0) return [];
+    if (acceptedTranslations.length > MAX_CHANGES) {
+      throw new EditorServiceError(`A save may accept at most ${MAX_CHANGES} AI translations`, 'TOO_MANY_ACCEPTED_TRANSLATIONS', 413);
+    }
+
+    const changedValues = new Map(effectiveChanges.map(change => [
+      draftIdentity(change.lang, change.pointer),
+      change.value,
+    ]));
+    const cacheItems: EditorAcceptedTranslation[] = [];
+
+    for (const accepted of acceptedTranslations) {
+      if (
+        !accepted
+        || typeof accepted.lang !== 'string'
+        || typeof accepted.pointer !== 'string'
+        || typeof accepted.sourceLang !== 'string'
+        || typeof accepted.sourceText !== 'string'
+        || typeof accepted.translatedText !== 'string'
+      ) {
+        throw new EditorServiceError('Every accepted translation must include lang, pointer, sourceLang, sourceText, and translatedText', 'INVALID_ACCEPTED_TRANSLATION');
+      }
+      if (!this.languageSet.has(accepted.lang) || !this.languageSet.has(accepted.sourceLang)) {
+        throw new EditorServiceError('Accepted translation uses an unknown language', 'UNKNOWN_LANGUAGE');
+      }
+      const route = this.config.routes.find(candidate => (
+        candidate.sourceLang === accepted.sourceLang
+        && candidate.targetLangs.some(lang => lang === accepted.lang)
+      ));
+      if (!route) continue;
+      const segments = decodeJsonPointer(accepted.pointer);
+      const sourceValue = getPathValue(records.get(accepted.sourceLang)?.data || {}, segments);
+      const targetValue = getPathValue(records.get(accepted.lang)?.data || {}, segments);
+      if (!sourceValue.exists || sourceValue.value !== accepted.sourceText) continue;
+      if (!targetValue.exists || targetValue.value !== accepted.translatedText) continue;
+      if (changedValues.get(draftIdentity(accepted.lang, accepted.pointer)) !== accepted.translatedText) continue;
+      cacheItems.push(accepted);
+    }
+
+    return cacheItems;
+  }
+
+  private async writeAcceptedTranslationsToCache(
+    cacheItems: EditorAcceptedTranslation[],
+  ): Promise<void> {
+    if (cacheItems.length === 0) return;
+    const cache = createCacheManager(this.cachePath);
+    await cache.load();
+    for (const item of cacheItems) {
+      cache.set(
+        item.sourceText,
+        item.translatedText,
+        item.lang,
+        this.config.llm.model || 'unknown',
+        item.sourceLang,
+      );
+    }
+    await cache.save();
   }
 
   private async readLocaleRecord(lang: string, relativePath: string): Promise<LocaleRecord | null> {
@@ -774,6 +1044,10 @@ function getPathValue(root: NestedJSON, segments: string[]): { exists: boolean; 
     current = current[segment];
   }
   return { exists: true, value: current };
+}
+
+function draftIdentity(lang: string, pointer: string): string {
+  return `${lang}\0${pointer}`;
 }
 
 function isObjectRecord(value: unknown): value is NestedJSON {

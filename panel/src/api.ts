@@ -3,6 +3,8 @@ import type {
   PanelEditorManifest,
   PanelEditorSaveRequest,
   PanelEditorSaveResult,
+  PanelEditorTranslateJob,
+  PanelEditorTranslateRequest,
   PanelProject,
 } from './types';
 
@@ -60,6 +62,44 @@ export async function saveEditorFile(
       'X-I18n-Panel-Token': writeToken,
     },
     body: JSON.stringify(request),
+  }));
+}
+
+export async function createEditorTranslateJob(
+  request: PanelEditorTranslateRequest,
+  writeToken: string,
+): Promise<PanelEditorTranslateJob> {
+  return readResponse<PanelEditorTranslateJob>(await fetch('/api/editor/translate-jobs', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-I18n-Panel-Token': writeToken,
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function loadEditorTranslateJob(
+  jobId: string,
+  signal?: AbortSignal,
+): Promise<PanelEditorTranslateJob> {
+  return readResponse<PanelEditorTranslateJob>(await fetch(`/api/editor/translate-jobs/${encodeURIComponent(jobId)}`, {
+    headers: { Accept: 'application/json' },
+    signal,
+  }));
+}
+
+export async function cancelEditorTranslateJob(
+  jobId: string,
+  writeToken: string,
+): Promise<PanelEditorTranslateJob> {
+  return readResponse<PanelEditorTranslateJob>(await fetch(`/api/editor/translate-jobs/${encodeURIComponent(jobId)}`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      'X-I18n-Panel-Token': writeToken,
+    },
   }));
 }
 
