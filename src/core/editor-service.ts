@@ -222,8 +222,7 @@ export class TranslationEditorService {
       for (const segments of this.collectOrderedPaths(records)) {
         const pointer = encodeJsonPointer(segments);
         const displayPath = segments.join(' › ');
-        const dottedPath = segments.join('.');
-        const skipped = isKeySkipped(dottedPath, this.config.skipKeys);
+        const skipped = isKeySkipped(pointer, this.config.skipKeys);
 
         for (const lang of languages) {
           const routeOwnership = this.routeOwnershipForLanguage(lang);
@@ -236,7 +235,7 @@ export class TranslationEditorService {
                 ? 'string'
                 : 'unsupported',
             ...(typeof resolved.value === 'string' ? { value: resolved.value } : {}),
-            pending: pending[lang]?.has(dottedPath) || false,
+            pending: pending[lang]?.has(pointer) || false,
             skipped,
           };
           if (!searchCellMatchesStates(cell, routeOwnership.isMaster, states)) continue;
@@ -337,8 +336,8 @@ export class TranslationEditorService {
         continue;
       }
 
-      const dottedPath = segments.join('.');
-      if (isKeySkipped(dottedPath, this.config.skipKeys)) {
+      const pointer = encodeJsonPointer(segments);
+      if (isKeySkipped(pointer, this.config.skipKeys)) {
         publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, status: 'skipped', reason: 'Skipped key' });
         continue;
       }
@@ -365,7 +364,7 @@ export class TranslationEditorService {
       }
 
       const needsTranslation = !targetValue.exists
-        || pending[cell.lang]?.has(dottedPath)
+        || pending[cell.lang]?.has(cell.pointer)
         || hasSourceDraft;
       if (!forceRetranslate && !needsTranslation) {
         publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, sourceText: sourceValue.value, status: 'skipped', reason: 'Already reviewed; use Force retranslate to refresh' });
@@ -501,8 +500,7 @@ export class TranslationEditorService {
         continue;
       }
 
-      const dottedPath = segments.join('.');
-      if (isKeySkipped(dottedPath, this.config.skipKeys)) {
+      if (isKeySkipped(pointer, this.config.skipKeys)) {
         publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, status: 'skipped', reason: 'Skipped key' });
         continue;
       }
@@ -736,8 +734,7 @@ export class TranslationEditorService {
     const pending = this.calculatePending(relativePath, records, snapshot);
     const rows: EditorRow[] = this.collectOrderedPaths(records).map(segments => {
       const pointer = encodeJsonPointer(segments);
-      const dottedPath = segments.join('.');
-      const skipped = isKeySkipped(dottedPath, this.config.skipKeys);
+      const skipped = isKeySkipped(pointer, this.config.skipKeys);
       const cells: Record<string, EditorCell> = {};
       for (const lang of this.languages) {
         const record = records.get(lang);
@@ -749,7 +746,7 @@ export class TranslationEditorService {
               ? 'string'
               : 'unsupported',
           ...(typeof resolved.value === 'string' ? { value: resolved.value } : {}),
-          pending: pending[lang]?.has(dottedPath) || false,
+          pending: pending[lang]?.has(pointer) || false,
           skipped,
         };
       }
@@ -1115,10 +1112,10 @@ export class TranslationEditorService {
     for (const segments of collectStringLeafPaths(sourceData)) {
       const target = getPathValue(targetData, segments);
       if (!target.exists || typeof target.value !== 'string') continue;
-      const dottedPath = segments.join('.');
-      if (entries[dottedPath]) continue;
+      const pointer = encodeJsonPointer(segments);
+      if (entries[pointer]) continue;
       const sourceValue = getPathValue(sourceData, segments).value as string;
-      entries[dottedPath] = sourceTextHash(sourceValue);
+      entries[pointer] = sourceTextHash(sourceValue);
       changed = true;
     }
     return changed;
@@ -1152,13 +1149,14 @@ export class TranslationEditorService {
       }
       document.owners[ownerKey] = route.sourceLang;
       const entries = document.entries[entryKey] || (document.entries[entryKey] = {});
-      entries[segments.join('.')] = sourceTextHash(sourceValue.value);
+      entries[change.pointer] = sourceTextHash(sourceValue.value);
       changed = true;
     }
     return changed;
   }
 
   private async scanLanguageFiles(lang: string): Promise<string[]> {
+    await this.assertLocalesRootNotSymlink();
     const root = path.join(this.config.localesDir, lang);
     try {
       const stat = await fs.lstat(root);
@@ -1254,6 +1252,7 @@ export class TranslationEditorService {
 
   private async assertNoSymlinkPath(filePath: string): Promise<void> {
     const root = path.resolve(this.config.localesDir);
+    await this.assertLocalesRootNotSymlink();
     const relative = path.relative(root, filePath);
     let current = root;
     for (const segment of relative.split(path.sep)) {
@@ -1267,6 +1266,18 @@ export class TranslationEditorService {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
         throw error;
       }
+    }
+  }
+
+  private async assertLocalesRootNotSymlink(): Promise<void> {
+    try {
+      const stat = await fs.lstat(path.resolve(this.config.localesDir));
+      if (stat.isSymbolicLink()) {
+        throw new EditorServiceError('Symbolic-link locales directories cannot be read or written', 'SYMLINK_PATH', 403);
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
     }
   }
 

@@ -111,15 +111,15 @@ export type UserConfig = UserConfigBase & (
  * 差异分析结果
  */
 export interface DiffResult {
-  /** 新增的键路径 */
+  /** 新增的键路径（RFC 6901 JSON Pointer） */
   added: string[];
-  /** 值变更的键路径 */
+  /** 值变更的键路径（RFC 6901 JSON Pointer） */
   modified: string[];
-  /** 已删除的键路径 */
+  /** 已删除的键路径（RFC 6901 JSON Pointer） */
   removed: string[];
-  /** 被配置跳过的键 */
+  /** 被配置跳过的键（RFC 6901 JSON Pointer） */
   skipped: string[];
-  /** 保持不变的键 */
+  /** 保持不变的键（RFC 6901 JSON Pointer） */
   unchanged: string[];
 }
 
@@ -127,7 +127,7 @@ export interface DiffResult {
  * 翻译任务
  */
 export interface TranslationTask {
-  /** 键路径 */
+  /** 键路径（RFC 6901 JSON Pointer） */
   key: string;
   /** 母版源文本 */
   sourceText: string;
@@ -143,7 +143,7 @@ export interface TranslationTask {
  * 翻译结果
  */
 export interface TranslationResult {
-  /** 键路径 */
+  /** 键路径（RFC 6901 JSON Pointer） */
   key: string;
   /** 翻译后的文本 */
   translatedText: string;
@@ -356,7 +356,7 @@ export interface TranslationCache {
 
 /**
  * 扁平化的JSON对象
- * 键为点分隔的路径，如 "common.regionSelector.title"
+ * 键为 RFC 6901 JSON Pointer，如 "/common/regionSelector/title"
  */
 export type FlattenedJSON = Record<string, string>;
 

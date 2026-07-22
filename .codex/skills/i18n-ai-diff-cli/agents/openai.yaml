@@ -1,0 +1,4 @@
+interface:
+  display_name: "i18n AI Diff CLI"
+  short_description: "Protect CLI commands and release behavior"
+  default_prompt: "Use $i18n-ai-diff-cli to update an i18n-ai-diff CLI command while preserving public behavior."

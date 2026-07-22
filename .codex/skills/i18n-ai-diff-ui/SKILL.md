@@ -29,7 +29,7 @@ Read [references/style-guide.md](references/style-guide.md) completely before ch
 ## Non-negotiable rules
 
 - Keep one primary action per view: `Scan project` on the overview and `Save changes` in the table editor.
-- Use the compact fixed, edge-attached topbar shell for product identity, local-session context, and the small set of top-level destinations. Do not reintroduce a desktop sidebar, floating topbar card, or extra window margin.
+- Use the compact edge-attached topbar shell for product identity, local-session context, and the small set of top-level destinations. Its implementation may be sticky or fixed when layout requires it; do not hard-code the skill to one positioning mode. Do not reintroduce a desktop sidebar, floating topbar card, or extra window margin.
 - Use large neutral surfaces; do not introduce large colored panels, route-specific fills, glassmorphism, or decorative gradients.
 - Separate content with space and surface contrast; do not add surface borders. Data-table grid lines are the only structural exception when required for editing legibility.
 - Use black for primary actions and active top-level navigation. Use neutral gray fills for secondary active states. Do not bring back a blue brand button or pale-blue active menu treatment.

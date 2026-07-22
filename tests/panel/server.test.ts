@@ -478,6 +478,78 @@ describe('panel server', () => {
     ]);
   });
 
+  it('cancels editor translation jobs with token and origin but without a JSON body', async () => {
+    const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-cancel-'));
+    tempDirs.push(clientRoot);
+    await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
+    const scan = createScan();
+    let signalAborted = false;
+    const server = await startPanelServer({
+      scan: async () => scan,
+      getEditorManifest: async (editable, writeToken) => ({
+        editable,
+        writeToken,
+        routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
+        languages: ['en', 'de'],
+        files: [],
+      }),
+      translateEditorCells: async (_request, hooks) => {
+        await new Promise<void>(resolve => {
+          hooks.signal?.addEventListener('abort', () => {
+            signalAborted = true;
+            resolve();
+          }, { once: true });
+        });
+        return [];
+      },
+    }, {
+      port: 0,
+      open: false,
+      editable: true,
+      packageVersion: '1.2.0-test',
+      clientRoot,
+    });
+    servers.push(server);
+
+    const manifest = await fetch(`${server.url}/api/editor/manifest`).then(response => response.json());
+    const created = await fetch(`${server.url}/api/editor/translate-jobs`, {
+      method: 'POST',
+      headers: {
+        origin: server.url,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({
+        relativePath: 'common.json',
+        revisions: { en: 'a', de: 'b' },
+        snapshotRevision: null,
+        cells: [{ lang: 'de', pointer: '/title' }],
+      }),
+    });
+    const job = (await created.json()).data;
+
+    const forbidden = await fetch(`${server.url}/api/editor/translate-jobs/${job.id}`, {
+      method: 'DELETE',
+      headers: { origin: server.url },
+    });
+    expect(forbidden.status).toBe(403);
+
+    const cancelled = await fetch(`${server.url}/api/editor/translate-jobs/${job.id}`, {
+      method: 'DELETE',
+      headers: {
+        origin: server.url,
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+    });
+    expect(cancelled.status).toBe(200);
+    expect((await cancelled.json()).data.status).toBe('cancelled');
+    expect(signalAborted).toBe(true);
+
+    const reloaded = await fetch(`${server.url}/api/editor/translate-jobs/${job.id}`)
+      .then(response => response.json());
+    expect(reloaded.data.status).toBe('cancelled');
+  });
+
   it('runs editable CLI shortcut translation jobs behind the write token', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-shortcuts-'));
     tempDirs.push(clientRoot);

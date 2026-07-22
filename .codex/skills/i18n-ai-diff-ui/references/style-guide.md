@@ -56,10 +56,10 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 
 ## Desktop layout
 
-- Keep the app full-height with a compact fixed, edge-attached topbar and a full-width main workspace.
+- Keep the app full-height with a compact edge-attached topbar and a full-width main workspace. The topbar may be sticky or fixed depending on the page shell; the shared layout component decides, not page-local CSS.
 - Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The top-level destinations are Project overview, Table editor, CLI shortcut, and Settings. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
 - Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority. Do not style the topbar as a floating rounded card.
-- Use the shared layout slots consistently across views: fixed global topbar, optional operation bar below it, content workspace, and optional fixed bottom status bar. Keep the editor table from being covered by bottom status content.
+- Use the shared layout slots consistently across views: global topbar, optional operation bar below it, content workspace, and optional bottom status bar. Keep the editor table from being covered by bottom status content.
 - On feature bento pages such as CLI shortcut and Settings, card headers must use only the card icon plus one large title. Do not add eyebrow labels, small subtitles, or explanatory paragraphs inside the card header; move essential safety or state copy into the card body.
 - On the overview, use a 12-column bento grid on PC widths. Primary workspace cards use 8 columns and right-rail cards use 4 columns. Do not use full-width business cards on PC; pending, operational, project record, metrics, and scan-history surfaces must align to either the 8-column main rail or the 4-column side rail.
 - Place the title and read-only explanation at the top left. Keep `Scan project` at the top right.
@@ -109,8 +109,9 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 
 ## Editor controls, drawers, and modals
 
-- Use shadcn/Radix primitives already wrapped in `panel/src/components/ui/` for interactive overlays and form controls: `Popover`, `Sheet`, `Dialog`, `Checkbox`, `Select`, `Input`, `Textarea`, `Sonner`, and the shared business `Modal` components.
+- Use shadcn/Radix primitives already wrapped in `panel/src/components/ui/` for interactive overlays and form controls: `Popover`, `ContextMenu`, `Sheet`, `Dialog`, `Checkbox`, `Select`, `Input`, `Textarea`, `Sonner`, and the shared business `Modal` components.
 - All business modals must use `components/ui/modal.tsx` for the content shell, header, title/description block, close button, and actions. Feature-specific classes may define internal content layout only. Do not create one-off modal shells such as custom close buttons, header spacing, or independent overlay card styling.
+- VTable right-click actions must use the shared `ContextMenu` primitive/wrapper. Do not return to a page-local fixed-position custom menu with independent menu-item styling.
 - Modal size may vary by intent: confirmation modals stay compact, workspace search can use the large size. The visual language—radius, padding, close button, title weight, action row, surface colors, and overlay treatment—must remain shared.
 - Explorer and Details must both use full-height `Sheet` drawers with matching header structure and visible close buttons. Explorer opens from the left; Details opens from the right.
 - The Explorer drawer is a VSCode-like file navigator. Show file and directory status with compact right-side badges, not large colored rows. Badge fills use light state tints and same-hue darker text. Selected rows stay neutral; selected state must not force badge text to black.

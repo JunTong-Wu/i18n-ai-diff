@@ -127,7 +127,7 @@ export function WorkspaceSearchDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ModalContent className="workspace-search-dialog" size="xl" aria-describedby="workspace-search-description">
-        <ModalHeader>
+        <ModalHeader closeLabel={t('common.close')}>
           <ModalTitleBlock
             title={t('search.title')}
             descriptionId="workspace-search-description"

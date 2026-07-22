@@ -6,6 +6,8 @@
 
 项目既支持所有目标语言来自同一个母版的单母版模式，也支持日、韩文来自中文母版，德、意、法、西文来自英文母版这样的多母版模式。已有目标译文会被视为经过确认的资产；修改翻译路由不会自动重翻，只有母版文本后续发生变化或显式使用 `-f` 时才会刷新。
 
+![i18n AI Diff 表格编辑器预览](https://raw.githubusercontent.com/JunTong-Wu/i18n-ai-diff/master/docs/assets/table-editor-preview.png)
+
 ## 安装
 
 需要 Node.js 18.19 或更高版本。
@@ -198,8 +200,30 @@ export default defineConfig({
 });
 ```
 
-`skipKeys` 支持 glob 形式的点路径。例如 `footer.**` 会让 `footer` 下的全部字符串保持母版原文。
+`skipKeys` 支持 glob 形式的点路径，也支持 JSON Pointer 形式的路径。例如 `footer.**` 会让 `footer` 下的全部字符串保持母版原文；`/section/a.b` 可以精确匹配真实包含点号的 key。
 `watch` 只配置 CLI 监听循环的参数，不会自动启用监听模式。
+
+配置参考：
+
+| 字段 | 默认值 | 说明 |
+| --- | --- | --- |
+| `baseLang` + `targetLangs` | 无 | 单母版模式。所有目标语言都来自同一个母版时使用。 |
+| `routes` | 无 | 多母版模式。每条 route 为 `{ sourceLang, targetLangs }`，不要和顶层 `baseLang + targetLangs` 混用。 |
+| `localesDir` | 必填 | 语言目录，每种语言一个子目录。相对路径按配置文件所在目录解析。 |
+| `skipKeys` | `[]` | 点路径 glob 或 JSON Pointer。命中的 key 不会进入 AI 翻译。 |
+| `prompt` | `''` | 附加到翻译提示词中的项目说明。 |
+| `llm.apiKey` | 必填 | OpenAI 兼容服务的 API key，也可以通过 `OPENAI_API_KEY` 环境变量提供。 |
+| `llm.model` | `gpt-4o-mini` | 由你的 OpenAI 兼容服务支持的模型名。 |
+| `llm.baseURL` | OpenAI 默认地址 | 可选的 OpenAI Chat Completions 兼容服务地址。 |
+| `llm.maxTokens` | `4096` | 每个批次的最大响应 token 数。 |
+| `llm.temperature` | `0.3` | UI 文案通常建议使用较低温度。 |
+| `llm.timeout` | `60000` | 请求超时时间，单位毫秒。 |
+| `llm.retries` | `3` | 翻译请求失败后的重试次数。 |
+| `concurrency` | `3` | 并行处理文件数量。可视化 Settings 接受 `1`–`10`。 |
+| `batchSize` | `20` | 每个 LLM 批次发送的 key 数量。可视化 Settings 接受 `1`–`100`。 |
+| `watch.debounceMs` | `300` | 显式开启 `--watch` 后的文件变化防抖时间。 |
+| `watch.ignored` | `[]` | 仅在 `--watch` 模式下使用的 chokidar 忽略规则。 |
+| `cachePath` | `.i18n-translate-cache.json` | 翻译缓存路径；对应快照会保存为旁边的 `*.snapshot.json`。 |
 
 ## 使用本地面板检查项目
 
@@ -221,14 +245,17 @@ npx i18n-ai-diff panel --edit
 
 保存边界是显式且保守的：服务端只接受已配置语言与 manifest 中的逻辑 JSON 文件，写入前核对所有文件 revision，使用同目录临时文件原子替换，并且绝不会触发机器翻译。人工修改目标语言会把该目标对应的母版快照标记为已复核；修改母版不会同步更新其他目标，它们会进入 Pending。人工编辑不会写入或删除翻译缓存。
 
+使用 `panel --edit` 启动时，表格编辑器还可以把选中的目标单元格翻译进当前浏览器草稿。多母版项目中，也可以右键母版语言列表头，从另一个母版一次性翻译到当前母版。AI 结果仍然必须点击 **Save N changes** 后才会写入本地文件或缓存。
+
 **CLI shortcut** 页面用于处理跨文件操作，行为应当与命令行一致。只读模式下它可以生成可复制命令；使用 `--edit` 启动面板后，它可以直接执行项目级流程：增量翻译 Pending、按语言范围强制刷新、以及一次性的母版到母版翻译。与 Table editor 中先进入浏览器草稿的 AI 翻译不同，CLI shortcut 执行后会立即写入本地文件、缓存和快照。
 
 **Settings** 页面用于可视化编辑 `i18n-translate.config.mjs` 中的项目结构、语言路由、locale/cache 路径，以及 Prompt、skip keys、concurrency、batch size、CLI watch 防抖和忽略规则等 AI behavior 配置。它在只读模式下可查看，保存必须使用 `panel --edit`。Settings 保存时只会在导出的配置对象里 patch 受管字段，会保留自定义 imports、辅助函数、未修改字段外的注释，以及用户自有的 `llm` 运行时配置。保存配置不会触碰语言 JSON、缓存或快照。Panel style 中的面板语言等偏好属于个人浏览器偏好，保存在 localStorage，不会写入项目配置；保存项目配置后需要重启面板，新的路由、路径、Prompt、批处理或 watch 参数才会成为当前运行时配置。
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # 指定本地端口
+npx i18n-ai-diff panel --port 0      # 让系统自动分配可用的本地端口
 npx i18n-ai-diff panel --no-open     # 启动但不自动打开浏览器
-npx i18n-ai-diff panel --edit        # 显式启用表格编辑器保存
+npx i18n-ai-diff panel --edit        # 显式启用保存、Settings 写入和 CLI shortcut 执行
 ```
 
 ## 第三步：执行第一次翻译
@@ -305,6 +332,30 @@ npx i18n-ai-diff -f
 npx i18n-ai-diff -f -l fr ja ko
 ```
 
+当 `--force` 与 `--langs` 组合时，只会清理所选目标语言范围内的缓存；未选择语言的缓存会继续保留。
+
+## 一次性母版到母版翻译
+
+多母版项目有时需要从一个母版辅助生成另一个母版，但又不希望把这组关系加入常规翻译路由：
+
+```bash
+npx i18n-ai-diff translate-master --from zh-CN --to en
+```
+
+这个命令只允许在多母版模式下使用，且 `--from` 和 `--to` 都必须是已配置的 `sourceLang`。默认情况下，它只翻译缺失值或仍等于来源母版文本的值，会保留已经人工确认过的目标母版文案和目标独有 key。
+
+只有在明确要覆盖目标母版文案并忽略缓存时，才使用 `--force`：
+
+```bash
+npx i18n-ai-diff translate-master --from zh-CN --to en --force
+```
+
+也可以限制到指定逻辑 JSON 文件：
+
+```bash
+npx i18n-ai-diff translate-master --from zh-CN --to en --file common.json pages/home.json
+```
+
 ## 其他 CLI 选项
 
 ```bash
@@ -322,7 +373,7 @@ npx i18n-ai-diff -v                       # 查看版本
 - 已有目标译文默认视为经过确认的资产
 - 删除的 key 会从目标语言文件中移除
 - Watch 模式删除母版文件时，会删除该路由对应的目标文件
-- 每次完整运行后会清理已经不再使用的缓存条目
+- 普通增量运行不会清理旧缓存；只有明确执行强制刷新时，才会清理对应范围内的缓存
 
 ## 常见问题
 

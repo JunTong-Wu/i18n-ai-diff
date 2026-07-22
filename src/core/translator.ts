@@ -141,11 +141,6 @@ export class Translator {
       }
     }
 
-    const pruned = await this.pruneCache();
-    if (pruned > 0) {
-      info(`Pruned ${pruned} orphaned cache entries`);
-    }
-
     await this.cacheManager.save();
     await this.snapshotStore.save();
 
@@ -654,32 +649,6 @@ export class Translator {
     return files;
   }
 
-  private async pruneCache(): Promise<number> {
-    const activeKeys = new Set<string>();
-    for (const route of this.config.routes) {
-      const baseDir = path.join(this.config.localesDir, route.sourceLang);
-      const jsonFiles = await this.scanJsonFiles(baseDir);
-
-      for (const relativePath of jsonFiles) {
-        const filePath = path.join(baseDir, relativePath);
-        try {
-          const data = await fs.readFile(filePath, 'utf-8');
-          const content = JSON.parse(data) as NestedJSON;
-          const flattened = flatten(content);
-          for (const value of Object.values(flattened)) {
-            for (const lang of route.targetLangs) {
-              activeKeys.add(this.cacheManager.generateKey(value, lang, route.sourceLang));
-            }
-          }
-        } catch {
-          // skip unreadable files
-        }
-      }
-    }
-
-    return this.cacheManager.prune(activeKeys);
-  }
-
   getCacheStats(): ReturnType<CacheManager['getStats']> {
     return this.cacheManager.getStats();
   }
@@ -690,6 +659,12 @@ export class Translator {
   async clearCache(): Promise<void> {
     this.cacheManager.clear();
     await this.cacheManager.save();
+  }
+
+  async clearCacheScope(options: { targetLangs?: string[]; sourceLangs?: string[] }): Promise<number> {
+    const removed = this.cacheManager.clearScope(options);
+    await this.cacheManager.save();
+    return removed;
   }
 
   async saveCache(): Promise<void> {

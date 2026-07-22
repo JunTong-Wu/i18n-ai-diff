@@ -435,7 +435,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
       <Dialog open={confirmingSave} onOpenChange={open => { if (!open) setConfirmingSave(false); }}>
         {settings && draft && (
           <ModalContent className="settings-confirm-modal" size="lg" aria-describedby="settings-confirm-description">
-            <ModalHeader icon={<GearSix size={20} weight="bold" />}>
+            <ModalHeader icon={<GearSix size={20} weight="bold" />} closeLabel={t('common.close')}>
               <ModalTitleBlock
                 title={t('settings.confirmTitle')}
                 descriptionId="settings-confirm-description"

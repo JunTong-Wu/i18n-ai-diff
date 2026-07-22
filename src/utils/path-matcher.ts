@@ -4,6 +4,7 @@
  */
 
 import { minimatch } from 'minimatch';
+import { isJsonPointer, jsonPointerToDotPath } from './json-utils.js';
 
 /**
  * 检查键是否匹配跳过模式
@@ -22,8 +23,9 @@ export function isKeySkipped(key: string, patterns: string[]): boolean {
     return false;
   }
 
+  const candidateKeys = keyCandidates(key);
   for (const pattern of patterns) {
-    if (matchKeyPattern(key, pattern)) {
+    if (candidateKeys.some(candidate => matchKeyPattern(candidate, pattern))) {
       return true;
     }
   }
@@ -40,6 +42,10 @@ export function isKeySkipped(key: string, patterns: string[]): boolean {
  * @returns 是否匹配
  */
 function matchKeyPattern(key: string, pattern: string): boolean {
+  if (pattern.startsWith('/')) {
+    return minimatch(key, pattern, { dot: true });
+  }
+
   // 处理 ** 开头的模式（匹配任意深度）
   if (pattern.startsWith('**.')) {
     const suffix = pattern.slice(3);
@@ -82,3 +88,12 @@ function matchKeyPattern(key: string, pattern: string): boolean {
   return minimatch(key, pattern, { dot: true });
 }
 
+function keyCandidates(key: string): string[] {
+  if (!isJsonPointer(key)) return [key];
+  try {
+    const dotted = jsonPointerToDotPath(key);
+    return dotted === key ? [key] : [key, dotted];
+  } catch {
+    return [key];
+  }
+}

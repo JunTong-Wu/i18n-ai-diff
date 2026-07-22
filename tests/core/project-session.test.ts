@@ -82,7 +82,7 @@ describe('ProjectSession', () => {
         targetExists: true,
         needsWrite: true,
         counts: expect.objectContaining({ added: 1, modified: 0, removed: 1 }),
-        keys: { added: ['newKey'], modified: [], removed: ['obsolete'] },
+        keys: { added: ['/newKey'], modified: [], removed: ['/obsolete'] },
       }),
     ]);
     expect(result.cache).toMatchObject({ exists: true, version: '2.0.0', entries: 1 });

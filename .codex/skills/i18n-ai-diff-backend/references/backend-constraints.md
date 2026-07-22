@@ -27,7 +27,9 @@
 
 - Translation cache keys include `sourceLang + sourceText + targetLang`; same text translated from different masters must not collide.
 - Cache format version is v2. Snapshot format version is v3. Version mismatch resets the cache data structure but must not rewrite existing target files.
+- Normal incremental CLI runs must not prune otherwise valid old cache entries merely because their source text is no longer present. Cache mutation should come from explicit writes of successful translations, accepted AI drafts, cache version reset, or explicit force/refresh scope clearing.
 - Snapshots record source text hashes by file, target language, key, and source language owner. They detect when a target needs retranslation after its master text changes.
+- Diff, translation task, failure, and snapshot entry keys should use RFC 6901 JSON Pointer internally. When reading existing v3 snapshots, preserve backwards compatibility with older dotted entry keys so reviewed translations do not become pending after an upgrade.
 - Old projects and incomplete snapshots are bootstrapped conservatively: existing target translations are treated as reviewed assets until a source change happens after the baseline.
 - Changing master-route ownership does not directly rewrite target files. It changes future incremental baseline behavior.
 - Full refresh/retranslation is explicit CLI behavior, or explicit editor `forceRetranslate` behavior for selected cells. Config edits, model edits, prompt edits, panel scan, and panel overview reads must not trigger retranslation.
@@ -59,7 +61,7 @@
 - Translation requests include the logical file, revisions, snapshot revision, selected cells, optional current drafts, and options such as overwriting existing drafts or forcing retranslation.
 - Resolve each target cell through its route owner and `sourceLang`. Source values should come from the current draft when the source cell is edited in the same browser draft; otherwise use disk values.
 - By default, selected-cell translation must follow CLI incremental semantics: generate candidates only for missing target cells, pending target cells, or cells affected by a source-language draft in the current browser draft. Existing reviewed target cells are skipped unless `forceRetranslate` is enabled.
-- Skip master cells, unsupported cells, missing/non-string/empty source cells, unconfigured languages, changed drafts without overwrite permission, reviewed cells without `forceRetranslate`, and skipped keys. AI translation must always respect `skipKeys`; only direct manual table editing may override a skipped target value.
+- Skip master cells, unsupported cells, missing/non-string/empty source cells, unconfigured languages, changed drafts without overwrite permission, reviewed cells without `forceRetranslate`, and skipped keys. AI translation must always respect `skipKeys`; only direct manual table editing may override a skipped target value. `skipKeys` may match JSON Pointer patterns or legacy dotted glob patterns for compatibility.
 - Return per-cell results with `translated`, `skipped`, or `failed` status. Cache hits are candidate results and still become drafts client-side before any save. When `forceRetranslate` is enabled, bypass cache reads and request fresh LLM output for the eligible cells.
 - Cancelling a job stops pending/running work where possible. Completed results may remain in the browser draft; cancellation must not write files.
 - Master-to-master editor jobs are separate from normal selected-cell route translation. They resolve source text from another master language, target only the selected/current master language, skip `skipKeys`, skip existing master copy unless `overwriteExisting` is explicit, and still return draft candidates only.
@@ -98,7 +100,7 @@
   - `POST /api/translation-runs`
   - `PUT /api/settings/config`
 - Default panel startup is read-only. `i18n-ai-diff panel --edit` enables content editing for that process only.
-- Write requests and AI translation job creation/cancellation must satisfy every boundary:
+- Write requests and AI translation job creation must satisfy every boundary:
   - Server bound to loopback.
   - Host and Origin checks pass.
   - Current session write token is present.
@@ -108,6 +110,7 @@
   - Path is a manifest-known relative `.json` logical file.
   - Absolute paths, `..`, encoded traversal, NUL bytes, unconfigured languages, and symlink traversal are rejected.
   - Revisions for all language files and the snapshot match current disk state.
+- AI translation job cancellation (`DELETE /api/editor/translate-jobs/:id` and `DELETE /api/editor/master-translate-jobs/:id`) still requires edit mode, loopback Host/Origin checks, and the current session write token, but it is a bodyless request and does not require `Content-Type: application/json` or a JSON body.
 - CLI shortcut runs require the same edit mode, loopback Host/Origin checks, current session write token, JSON content type, and body-size limit. Normal and force shortcut modes only accept configured target languages in the panel; master-to-master shortcut mode only accepts configured source master languages.
 - Visual settings saves require the same edit mode, loopback Host/Origin checks, current session write token, JSON content type, body-size limit, and config-file revision check. Saving config may only patch managed fields inside a direct exported object/`defineConfig({ ... })` object. It must preserve custom imports, helper functions, comments outside changed managed properties, and un-managed expressions. It must not write locale JSON, cache, or snapshots, and the panel should require restart before new routes, paths, prompt, or watcher settings are treated as active. Settings may manage CLI watch debounce and ignored patterns, but must not expose or serialize `watch.enabled`; entering watch mode remains an explicit CLI `--watch` behavior.
 - Visual settings must not serialize secrets or rewrite the `llm` block. The settings page may display the currently resolved model runtime values, but provider-specific runtime expressions remain user-owned source code.

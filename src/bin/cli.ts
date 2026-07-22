@@ -46,8 +46,13 @@ program
       if (options.verbose) translator.setVerbose(true);
 
       if (options.force) {
-        warn('Force mode: retranslating all keys');
-        await translator.clearCache();
+        if (options.langs?.length) {
+          warn(`Force mode: retranslating selected target languages (${config.targetLangs.join(', ')})`);
+          await translator.clearCacheScope({ targetLangs: config.targetLangs });
+        } else {
+          warn('Force mode: retranslating all keys');
+          await translator.clearCache();
+        }
         translator.setForce(true);
       }
 
@@ -137,8 +142,10 @@ program
   .option('--no-open', 'Do not open the browser automatically')
   .action(async (options: { config?: string; port: number; open: boolean; edit?: boolean }) => {
     try {
+      const rootOptions = program.opts<{ config?: string }>();
+      const configPath = options.config || rootOptions.config;
       printBanner(packageJson.version);
-      const session = await createProjectSession({ configPath: options.config });
+      const session = await createProjectSession({ configPath });
       const panel = await startPanelServer(session, {
         port: options.port,
         open: options.open,

@@ -51,7 +51,11 @@ export async function runTranslationShortcut(
   await translator.initialize();
 
   if (normalized.mode === 'force') {
-    await translator.clearCache();
+    if (normalized.targetLangs?.length) {
+      await translator.clearCacheScope({ targetLangs: runConfig.targetLangs });
+    } else {
+      await translator.clearCache();
+    }
     translator.setForce(true);
   }
 

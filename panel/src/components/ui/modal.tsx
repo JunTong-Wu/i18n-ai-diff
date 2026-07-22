@@ -25,11 +25,13 @@ export function ModalHeader({
   className,
   showClose = true,
   icon,
+  closeLabel,
 }: {
   children: ReactNode;
   className?: string;
   showClose?: boolean;
   icon?: ReactNode;
+  closeLabel?: string;
 }) {
   return (
     <div className={cx('ui-modal-header', className)}>
@@ -37,7 +39,7 @@ export function ModalHeader({
         {icon && <span className="ui-modal-icon" aria-hidden="true">{icon}</span>}
         {children}
       </div>
-      {showClose && <ModalCloseButton />}
+      {showClose && <ModalCloseButton ariaLabel={closeLabel} />}
     </div>
   );
 }

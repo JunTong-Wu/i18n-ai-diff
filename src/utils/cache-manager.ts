@@ -204,6 +204,33 @@ export class CacheManager {
     info('Cache cleared');
   }
 
+  clearScope(options: { targetLangs?: string[]; sourceLangs?: string[] }): number {
+    const targetLangs = new Set(options.targetLangs || []);
+    const sourceLangs = new Set(options.sourceLangs || []);
+    if (targetLangs.size === 0 && sourceLangs.size === 0) {
+      const count = Object.keys(this.cache.entries).length;
+      this.clear();
+      return count;
+    }
+
+    let removedCount = 0;
+    for (const key in this.cache.entries) {
+      const entry = this.cache.entries[key];
+      const targetMatches = targetLangs.size === 0 || targetLangs.has(entry.targetLang);
+      const sourceMatches = sourceLangs.size === 0 || sourceLangs.has(entry.sourceLang || '');
+      if (targetMatches && sourceMatches) {
+        delete this.cache.entries[key];
+        removedCount++;
+      }
+    }
+
+    if (removedCount > 0) {
+      this.dirty = true;
+      info(`Cache cleared for ${removedCount} scoped entries`);
+    }
+    return removedCount;
+  }
+
   /**
    * 获取缓存统计
    */

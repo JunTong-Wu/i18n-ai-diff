@@ -37,6 +37,7 @@ import type {
 } from '../types';
 import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
 import { Checkbox } from '../components/ui/checkbox';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../components/ui/context-menu';
 import { Dialog } from '../components/ui/dialog';
 import { ModalActions, ModalContent, ModalHeader, ModalTitleBlock } from '../components/ui/modal';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
@@ -272,6 +273,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const selectedPathRef = useRef(selectedPath);
   const translatingCellsRef = useRef(translatingCells);
   const activeJobRef = useRef(activeJob);
+  const contextMenuTriggerRef = useRef<HTMLSpanElement | null>(null);
   const draftsRef = useRef(drafts);
   const aiDraftsRef = useRef(aiDrafts);
   selectedPathRef.current = selectedPath;
@@ -528,14 +530,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, []);
 
   useEffect(() => {
-    const closeContextMenu = () => {
-      setContextMenu(null);
-    };
-    window.addEventListener('click', closeContextMenu);
-    return () => window.removeEventListener('click', closeContextMenu);
-  }, []);
-
-  useEffect(() => {
     const openWorkspaceSearch = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey) || !event.shiftKey || event.key.toLocaleLowerCase() !== 'f') return;
       event.preventDefault();
@@ -602,6 +596,23 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setSelectedCells([]);
     setContextMenu(null);
   }, [hasVisibleRows]);
+
+  const openGridContextMenu = useCallback((request: GridContextMenuRequest) => {
+    setContextMenu(request);
+    setBatchMenuOpen(false);
+    setFilePickerOpen(false);
+    setFilterPanelOpen(false);
+    window.setTimeout(() => {
+      contextMenuTriggerRef.current?.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        clientX: request.x,
+        clientY: request.y,
+        button: 2,
+        buttons: 2,
+      }));
+    }, 0);
+  }, []);
 
   const cellStateCounts = useMemo(() => {
     const counts = {
@@ -1470,7 +1481,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     <>
       <div className="editor-toolbar-panel-header">
         <span>
-                <strong>{activeFilterCount === 0 ? t('editor.allStates') : t('editor.filtersActive', { count: activeFilterCount })}</strong>
+          <strong>{activeFilterCount === 0 ? t('editor.allStates') : t('editor.filtersActive', { count: activeFilterCount })}</strong>
         </span>
         <em>{t('editor.keysRatio', { visible: visibleRows.length, total: file?.rows.length || 0 })}</em>
       </div>
@@ -1670,22 +1681,47 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               <div className="skeleton skeleton-route" />
             </div>
           ) : file && manifest && hasVisibleRows ? (
-            <TranslationGrid
-              rows={visibleRows}
-              manifest={manifest}
-              drafts={drafts}
-              editable={editable}
-              focusCell={focusRequest?.relativePath === file.relativePath ? focusRequest : undefined}
-              translationStates={translationStates}
-              onChangeValues={handleGridChanges}
-              onSelectionChange={setSelectedCells}
-              onContextMenu={request => {
-                setContextMenu(request);
-                setBatchMenuOpen(false);
-                setFilePickerOpen(false);
-                setFilterPanelOpen(false);
-              }}
-            />
+            <ContextMenu onOpenChange={open => { if (!open) setContextMenu(null); }}>
+              <ContextMenuTrigger asChild>
+                <span ref={contextMenuTriggerRef} className="editor-context-menu-anchor" aria-hidden="true" />
+              </ContextMenuTrigger>
+              <div className="editor-grid-context-trigger">
+                <TranslationGrid
+                  rows={visibleRows}
+                  manifest={manifest}
+                  drafts={drafts}
+                  editable={editable}
+                  focusCell={focusRequest?.relativePath === file.relativePath ? focusRequest : undefined}
+                  translationStates={translationStates}
+                  onChangeValues={handleGridChanges}
+                  onSelectionChange={setSelectedCells}
+                  onContextMenu={openGridContextMenu}
+                />
+              </div>
+              <ContextMenuContent className="editor-context-menu" onCloseAutoFocus={event => event.preventDefault()}>
+                {contextMenu?.kind === 'cell' && (
+                  <ContextMenuItem onSelect={() => openTranslatePreview(t('editor.translateSelectedCells'), contextMenu.selectedCells)}>
+                    <span>{t('editor.translateSelectedCells')}</span>
+                    <b>{contextMenu.selectedCells.length}</b>
+                  </ContextMenuItem>
+                )}
+                {contextMenu?.kind === 'row' && (
+                  <ContextMenuItem onSelect={() => openTranslatePreview(t('editor.translateRowTargets'), cellsForRowTargets(contextMenu.pointer))}>
+                    <span>{t('editor.translateRowTargets')}</span>
+                  </ContextMenuItem>
+                )}
+                {contextMenu?.kind === 'language' && (
+                  <ContextMenuItem onSelect={() => openTranslatePreview(`${contextMenu.lang} · ${t('editor.translateColumnTargets')}`, cellsForLanguageTargets(contextMenu.lang))}>
+                    <span>{t('editor.translateColumnTargets')}</span>
+                  </ContextMenuItem>
+                )}
+                {contextMenu?.kind === 'master-language' && (
+                  <ContextMenuItem onSelect={() => openMasterTranslatePreview(contextMenu.lang)}>
+                    <span>{t('editor.translateFromOtherMaster')}</span>
+                  </ContextMenuItem>
+                )}
+              </ContextMenuContent>
+            </ContextMenu>
           ) : file && manifest ? (
             <div className="editor-table-empty is-filtered-empty">
               <MagnifyingGlass size={28} aria-hidden="true" />
@@ -1748,32 +1784,10 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         onOpenResult={openWorkspaceSearchResult}
       />
 
-      {contextMenu && (
-        <div
-          className="editor-context-menu"
-          style={{ left: contextMenu.x, top: contextMenu.y }}
-          onClick={event => event.stopPropagation()}
-          role="menu"
-        >
-          {contextMenu.kind === 'cell' && (
-            <button type="button" role="menuitem" onClick={() => openTranslatePreview(t('editor.translateSelectedCells'), contextMenu.selectedCells)}>{t('editor.translateSelectedCells')} <b>{contextMenu.selectedCells.length}</b></button>
-          )}
-          {contextMenu.kind === 'row' && (
-            <button type="button" role="menuitem" onClick={() => openTranslatePreview(t('editor.translateRowTargets'), cellsForRowTargets(contextMenu.pointer))}>{t('editor.translateRowTargets')}</button>
-          )}
-          {contextMenu.kind === 'language' && (
-            <button type="button" role="menuitem" onClick={() => openTranslatePreview(`${contextMenu.lang} · ${t('editor.translateColumnTargets')}`, cellsForLanguageTargets(contextMenu.lang))}>{t('editor.translateColumnTargets')}</button>
-          )}
-          {contextMenu.kind === 'master-language' && (
-            <button type="button" role="menuitem" onClick={() => openMasterTranslatePreview(contextMenu.lang)}>{t('editor.translateFromOtherMaster')}</button>
-          )}
-        </div>
-      )}
-
       <Dialog open={Boolean(translatePreview && currentPreview)} onOpenChange={open => { if (!open) setTranslatePreview(null); }}>
         {translatePreview && currentPreview && (
           <ModalContent className="translate-confirm-modal" size="lg" aria-describedby="translate-description">
-            <ModalHeader icon={<Translate size={20} weight="bold" />}>
+            <ModalHeader icon={<Translate size={20} weight="bold" />} closeLabel={t('common.close')}>
               <ModalTitleBlock
                 title={translatePreview.title}
                 descriptionId="translate-description"
@@ -1838,7 +1852,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <Dialog open={Boolean(masterTranslatePreview && currentMasterPreview)} onOpenChange={open => { if (!open) setMasterTranslatePreview(null); }}>
         {masterTranslatePreview && currentMasterPreview && (
           <ModalContent className="translate-confirm-modal" size="lg" aria-describedby="master-translate-description">
-            <ModalHeader icon={<Translate size={20} weight="bold" />}>
+            <ModalHeader icon={<Translate size={20} weight="bold" />} closeLabel={t('common.close')}>
               <ModalTitleBlock
                 title={t('editor.masterTranslateTitle', { lang: masterTranslatePreview.targetLang })}
                 descriptionId="master-translate-description"
@@ -1928,7 +1942,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <Dialog open={Boolean(pendingNavigation)} onOpenChange={open => { if (!open) setPendingNavigation(null); }}>
         {pendingNavigation && (
           <ModalContent className="leave-confirm-modal" aria-describedby="leave-description">
-            <ModalHeader icon={<WarningCircle size={20} weight="fill" />}>
+            <ModalHeader icon={<WarningCircle size={20} weight="fill" />} closeLabel={t('common.close')}>
               <ModalTitleBlock
                 title={pendingNavigation.kind === 'file' ? t('editor.saveBeforeFile') : t('editor.saveBeforeLeave')}
                 descriptionId="leave-description"

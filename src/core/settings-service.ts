@@ -198,15 +198,7 @@ export function normalizeSettingsDraft(config: SettingsConfigDraft): SettingsCon
   const skipKeys = uniqueStrings((config.skipKeys || []).map(value => cleanString(value, 'skipKeys')));
   const ignored = uniqueStrings((config.watch?.ignored || []).map(value => cleanString(value, 'watch.ignored')));
 
-  const llm = {
-    apiKeyEnv: 'OPENAI_API_KEY' as const,
-    baseURL: cleanOptionalString(config.llm?.baseURL, 'llm.baseURL'),
-    model: cleanString(config.llm?.model || 'gpt-4o-mini', 'llm.model'),
-    maxTokens: normalizeInteger(config.llm?.maxTokens, 'llm.maxTokens', 1, 128_000),
-    temperature: normalizeNumber(config.llm?.temperature, 'llm.temperature', 0, 2),
-    timeout: normalizeInteger(config.llm?.timeout, 'llm.timeout', 1_000, 600_000),
-    retries: normalizeInteger(config.llm?.retries, 'llm.retries', 0, 10),
-  };
+  const llm = normalizeDisplayLlm(config.llm);
 
   const concurrency = normalizeInteger(config.concurrency, 'concurrency', 1, 10);
   const batchSize = normalizeInteger(config.batchSize, 'batchSize', 1, 100);
@@ -217,16 +209,6 @@ export function normalizeSettingsDraft(config: SettingsConfigDraft): SettingsCon
 
   if (!localesDir) errors.push('localesDir is required');
   if (!cachePath) errors.push('cachePath is required');
-  if (!llm.model) errors.push('llm.model is required');
-  if (llm.baseURL) {
-    try {
-      // eslint-disable-next-line no-new
-      new URL(llm.baseURL);
-    } catch {
-      errors.push('llm.baseURL must be a valid URL when provided');
-    }
-  }
-
   if (errors.length > 0) {
     throw new SettingsConfigError('Config validation failed', 'CONFIG_VALIDATION_FAILED', 400, errors);
   }
@@ -720,6 +702,46 @@ function cleanString(value: unknown, field: string): string {
 function cleanOptionalString(value: unknown, field: string): string {
   if (value === undefined || value === null) return '';
   return cleanString(value, field);
+}
+
+function normalizeDisplayLlm(value: SettingsConfigDraft['llm'] | undefined): SettingsConfigDraft['llm'] {
+  return {
+    apiKeyEnv: 'OPENAI_API_KEY',
+    baseURL: safeOptionalString(value?.baseURL),
+    model: safeString(value?.model, 'gpt-4o-mini'),
+    maxTokens: safeInteger(value?.maxTokens, 4096, 1, 128_000),
+    temperature: safeNumber(value?.temperature, 0.3, 0, 2),
+    timeout: safeInteger(value?.timeout, 60_000, 1_000, 600_000),
+    retries: safeInteger(value?.retries, 3, 0, 10),
+  };
+}
+
+function safeString(value: unknown, fallback: string): string {
+  if (typeof value !== 'string' || value.includes('\0')) return fallback;
+  const cleaned = value.trim();
+  return cleaned || fallback;
+}
+
+function safeOptionalString(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'string' || value.includes('\0')) return '';
+  return value.trim();
+}
+
+function safeInteger(value: unknown, fallback: number, min: number, max: number): number {
+  try {
+    return normalizeInteger(value, 'llm.display', min, max);
+  } catch {
+    return fallback;
+  }
+}
+
+function safeNumber(value: unknown, fallback: number, min: number, max: number): number {
+  try {
+    return normalizeNumber(value, 'llm.display', min, max);
+  } catch {
+    return fallback;
+  }
 }
 
 function normalizeInteger(value: unknown, field: string, min: number, max: number): number {

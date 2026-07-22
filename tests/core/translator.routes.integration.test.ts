@@ -83,6 +83,57 @@ describe('multi-master translator', () => {
     expect(new Set(changedTasks.map(task => task.targetLang))).toEqual(new Set(['de', 'fr']));
   });
 
+  it('does not prune old cache entries during no-op incremental runs', async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-cache-noop-'));
+    const localesDir = path.join(tempDir, 'locales');
+    const cachePath = path.join(tempDir, 'cache.json');
+
+    await Promise.all([
+      writeJson(path.join(localesDir, 'en/common.json'), { title: 'Open' }),
+      writeJson(path.join(localesDir, 'de/common.json'), { title: 'Öffnen' }),
+      writeJson(cachePath, {
+        version: '2.0.0',
+        entries: {
+          staleButPreserved: {
+            sourceText: 'Open old',
+            sourceLang: 'en',
+            translatedText: 'Alt',
+            targetLang: 'de',
+            timestamp: 1,
+            model: 'test-model',
+          },
+        },
+      }),
+      writeJson(path.join(tempDir, 'cache.snapshot.json'), {
+        version: 3,
+        entries: {
+          'en:de:common.json': { '/title': sourceTextHash('Open') },
+        },
+        owners: {
+          'de:common.json': 'en',
+        },
+      }),
+    ]);
+
+    const translator = new Translator({
+      baseLang: 'en',
+      targetLangs: ['de'],
+      localesDir,
+      skipKeys: [],
+      llm: { apiKey: 'test-key', model: 'test-model' },
+      cachePath,
+    });
+    await translator.initialize();
+    const translateBatch = vi.fn(async (): Promise<TranslationResult[]> => []);
+    (translator as unknown as { llmClient: { translateBatch: typeof translateBatch } }).llmClient = { translateBatch };
+
+    const beforeCache = await readJson(cachePath);
+    await translator.translateAll();
+
+    expect(translateBatch).not.toHaveBeenCalled();
+    expect(await readJson(cachePath)).toEqual(beforeCache);
+  });
+
   it('runs one-time master-to-master translation without touching route snapshots or target-only keys', async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-master-to-master-'));
     const localesDir = path.join(tempDir, 'locales');
@@ -348,7 +399,7 @@ describe('multi-master translator', () => {
       writeJson(path.join(projectA, 'cache.snapshot.json'), {
         version: 3,
         entries: {
-          'en:de:common.json': { title: sourceTextHash('Open') },
+          'en:de:common.json': { '/title': sourceTextHash('Open') },
         },
         owners: {
           'de:common.json': 'en',
@@ -389,7 +440,7 @@ describe('multi-master translator', () => {
     await translatorA.translateAll();
 
     expect(translateBatch).toHaveBeenCalledOnce();
-    expect(translateBatch.mock.calls.flatMap(call => call[0]).map(task => task.key)).toEqual(['title']);
+    expect(translateBatch.mock.calls.flatMap(call => call[0]).map(task => task.key)).toEqual(['/title']);
     expect(await readJson(path.join(localesA, 'de/common.json'))).toEqual({ title: 'fresh:Open now' });
     expect(await readJson(path.join(localesB, 'de/common.json'))).toEqual({ title: 'Öffnen' });
   });

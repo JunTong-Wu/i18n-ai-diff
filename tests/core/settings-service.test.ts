@@ -81,6 +81,33 @@ describe('translation settings service', () => {
 
     expect(await fs.readFile(configPath, 'utf8')).toContain('./other');
   });
+
+  it('does not let display-only llm draft values block managed field saves', async () => {
+    const { projectRoot, configPath, config } = await createSettingsFixture();
+    const service = new TranslationSettingsService(config, configPath, projectRoot);
+    const loaded = await service.getConfig(true, 'token-1');
+
+    const saved = await service.saveConfig({
+      revision: loaded.revision,
+      config: {
+        ...loaded.config,
+        llm: {
+          ...loaded.config.llm,
+          model: '',
+          baseURL: 'not a url',
+          maxTokens: -1,
+        },
+        prompt: 'Updated managed prompt.',
+      },
+    });
+
+    const raw = await fs.readFile(configPath, 'utf8');
+    expect(saved.restartRequired).toBe(true);
+    expect(raw).toContain('Updated managed prompt.');
+    expect(raw).toContain("apiKey: 'test-secret'");
+    expect(raw).toContain("model: process.env.CUSTOM_TRANSLATION_MODEL || 'test-model'");
+    expect(raw).not.toContain('not a url');
+  });
 });
 
 async function createSettingsFixture(): Promise<{

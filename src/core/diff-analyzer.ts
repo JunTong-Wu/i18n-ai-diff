@@ -1,5 +1,5 @@
 import { DiffResult, NestedJSON } from '../types/index.js';
-import { flatten } from '../utils/json-utils.js';
+import { flatten, isJsonPointer, jsonPointerToDotPath } from '../utils/json-utils.js';
 import { isKeySkipped } from '../utils/path-matcher.js';
 import crypto from 'crypto';
 import fs from 'fs/promises';
@@ -80,6 +80,7 @@ export class SnapshotStore {
   }
 
   setOwner(filePath: string, targetLang: string, sourceLang: string): void {
+    if (this.owners[ownerKey(filePath, targetLang)] === sourceLang) return;
     this.owners[ownerKey(filePath, targetLang)] = sourceLang;
     const currentKey = snapshotKey(filePath, sourceLang, targetLang);
     const suffix = snapshotSuffix(filePath, targetLang);
@@ -99,13 +100,32 @@ export class SnapshotStore {
     sourceLang: string = '',
   ): void {
     const k = snapshotKey(filePath, sourceLang, targetLang);
+    const nextHash = sourceTextHash(sourceText);
+    const currentEntries = this.entries[k];
+    const directHash = currentEntries?.[key];
+    if (directHash === nextHash) return;
+    if (!directHash && isJsonPointer(key)) {
+      try {
+        if (currentEntries?.[jsonPointerToDotPath(key)] === nextHash) return;
+      } catch {
+        // Invalid pointer-like keys are ignored by callers that own validation.
+      }
+    }
     if (!this.entries[k]) this.entries[k] = {};
-    this.entries[k][key] = sourceTextHash(sourceText);
+    this.entries[k][key] = nextHash;
     this.dirty = true;
   }
 
   getHash(filePath: string, targetLang: string, key: string, sourceLang: string = ''): string | undefined {
-    return this.entries[snapshotKey(filePath, sourceLang, targetLang)]?.[key];
+    const entries = this.entries[snapshotKey(filePath, sourceLang, targetLang)];
+    if (!entries) return undefined;
+    const direct = entries[key];
+    if (direct || !isJsonPointer(key)) return direct;
+    try {
+      return entries[jsonPointerToDotPath(key)];
+    } catch {
+      return undefined;
+    }
   }
 
   owner(filePath: string, targetLang: string): string | undefined {
@@ -126,6 +146,13 @@ export class SnapshotStore {
     if (!this.entries[k]) return;
     for (const key of keys) {
       delete this.entries[k][key];
+      if (isJsonPointer(key)) {
+        try {
+          delete this.entries[k][jsonPointerToDotPath(key)];
+        } catch {
+          // Invalid pointer-like keys are ignored; normal validation happens before removeKeys.
+        }
+      }
     }
     this.dirty = true;
   }

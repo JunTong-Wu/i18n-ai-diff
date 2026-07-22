@@ -6,6 +6,8 @@
 
 It supports both single-master projects, where every target comes from one master, and multi-master projects such as Japanese and Korean from Chinese while German, Italian, French, and Spanish come from English. Existing target translations are treated as reviewed assets. Changing a route does not automatically retranslate them; they are refreshed only after a later master-text change or an explicit `-f` run.
 
+![i18n AI Diff table editor preview](https://raw.githubusercontent.com/JunTong-Wu/i18n-ai-diff/master/docs/assets/table-editor-preview.png)
+
 ## Install
 
 Requires Node.js 18.19 or newer.
@@ -198,8 +200,30 @@ export default defineConfig({
 });
 ```
 
-`skipKeys` accepts glob-style dotted paths. For example, `footer.**` keeps every string below `footer` equal to its master text.
+`skipKeys` accepts glob-style dotted paths and JSON Pointer patterns. For example, `footer.**` keeps every string below `footer` equal to its master text, while `/section/a.b` can target a literal key that contains a dot.
 `watch` only configures the CLI watch loop; it does not enable watch mode by itself.
+
+Configuration reference:
+
+| Field | Default | Notes |
+| --- | --- | --- |
+| `baseLang` + `targetLangs` | none | Single-master mode. Use when every target comes from one master. |
+| `routes` | none | Multi-master mode. Each route is `{ sourceLang, targetLangs }`; do not mix with top-level `baseLang + targetLangs`. |
+| `localesDir` | required | Directory containing one subdirectory per language. Relative paths are resolved from the config file. |
+| `skipKeys` | `[]` | Glob-style dotted paths or JSON Pointer patterns. Skipped keys are never sent to AI translation. |
+| `prompt` | `''` | Extra instruction appended to translation prompts. |
+| `llm.apiKey` | required | OpenAI-compatible API key. You can also provide it through `OPENAI_API_KEY`. |
+| `llm.model` | `gpt-4o-mini` | Any model supported by your OpenAI-compatible provider. |
+| `llm.baseURL` | OpenAI default | Optional OpenAI Chat Completions-compatible endpoint. |
+| `llm.maxTokens` | `4096` | Maximum model response tokens per batch. |
+| `llm.temperature` | `0.3` | Lower values are usually safer for UI copy. |
+| `llm.timeout` | `60000` | Request timeout in milliseconds. |
+| `llm.retries` | `3` | Retry count for failed translation requests. |
+| `concurrency` | `3` | Number of files processed in parallel. The visual settings editor accepts `1`–`10`. |
+| `batchSize` | `20` | Number of keys sent per LLM batch. The visual settings editor accepts `1`–`100`. |
+| `watch.debounceMs` | `300` | Debounce delay for explicit `--watch` mode. |
+| `watch.ignored` | `[]` | Chokidar ignore patterns used only after `--watch` is enabled. |
+| `cachePath` | `.i18n-translate-cache.json` | Translation cache path. The companion snapshot is stored next to it as `*.snapshot.json`. |
 
 ## Inspect with the local panel
 
@@ -229,6 +253,7 @@ The **Settings** page visualizes `i18n-translate.config.mjs` as editable project
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # Choose a local port
+npx i18n-ai-diff panel --port 0      # Ask the OS to choose an available loopback port
 npx i18n-ai-diff panel --no-open     # Start without opening the browser
 npx i18n-ai-diff panel --edit        # Enable explicit saves, settings writes, and CLI shortcut runs
 ```
@@ -307,6 +332,8 @@ Combine it with language selection to refresh only specific targets:
 npx i18n-ai-diff -f -l fr ja ko
 ```
 
+When `--force` is combined with `--langs`, only the selected target-language cache scope is cleared. Cache entries for unselected languages are preserved.
+
 ## One-time master-to-master translation
 
 Multi-master projects can occasionally need to bootstrap one master from another master, without making that pair part of the normal route graph:
@@ -346,7 +373,7 @@ npx i18n-ai-diff -v                       # Print the version
 - Existing target translations are treated as reviewed assets by default
 - Keys deleted from the master are removed from target files
 - In Watch mode, deleting a master file removes the corresponding target files for that route
-- Orphaned cache entries are pruned after each complete run
+- Normal incremental runs do not prune old cache entries; explicit force refresh clears only the requested cache scope
 
 ## Troubleshooting
 

@@ -255,7 +255,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       skipLabel={t('shortcuts.title')}
       shellClassName="is-shortcuts-shell"
       workspaceClassName="shortcuts-workspace"
-      liveStatus={activeJob ? `CLI shortcut ${activeJob.status}` : undefined}
+      liveStatus={activeJob ? t('shortcuts.liveStatus', { status: activeJob.status }) : undefined}
     >
       <div className="workspace-content shortcuts-bento">
         <section className="shortcuts-setup-card bento-card" aria-labelledby="shortcut-setup-title">
@@ -365,7 +365,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       <Dialog open={Boolean(confirmation)} onOpenChange={open => { if (!open) setConfirmation(null); }}>
         {confirmation && (
           <ModalContent className="shortcut-confirm-modal" size="lg" aria-describedby="shortcut-confirm-description">
-            <ModalHeader icon={<Translate size={20} weight="bold" />}>
+            <ModalHeader icon={<Translate size={20} weight="bold" />} closeLabel={t('common.close')}>
               <ModalTitleBlock
                 title={confirmation.title}
                 descriptionId="shortcut-confirm-description"

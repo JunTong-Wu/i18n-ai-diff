@@ -136,6 +136,56 @@ describe('translation editor global search', () => {
 });
 
 describe('translation editor save semantics', () => {
+  it('writes JSON Pointer rows without splitting literal dot, slash, or tilde keys', async () => {
+    const { root, configPath } = await createProject();
+    const session = await createProjectSession({ cwd: root, configPath });
+    const file = await session.getEditorFile('common.json');
+    expect(file.rows.some(row => row.pointer === '/section/a.b/x~1y/~0name')).toBe(true);
+
+    await session.saveEditorFile({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [{ lang: 'de', pointer: '/section/a.b/x~1y/~0name', value: 'Neu tief' }],
+    });
+
+    const de = JSON.parse(await fs.readFile(path.join(root, 'locales/de/common.json'), 'utf8'));
+    expect(de.section['a.b']['x/y']['~name']).toBe('Neu tief');
+    expect(de.section.a).toBeUndefined();
+    expect(de.section['a.b']['x~1y']).toBeUndefined();
+  });
+
+  it('distinguishes a literal dotted key from an equivalent nested path', async () => {
+    const { root, configPath } = await createProject();
+    await writeJson(root, 'locales/en/collision.json', {
+      'a.b': 'literal source',
+      a: { b: 'nested source' },
+    });
+    await writeJson(root, 'locales/de/collision.json', {
+      'a.b': 'literal target',
+      a: { b: 'nested target' },
+    });
+    await writeJson(root, 'locales/fr/collision.json', {
+      'a.b': 'literal target',
+      a: { b: 'nested target' },
+    });
+
+    const session = await createProjectSession({ cwd: root, configPath });
+    const file = await session.getEditorFile('collision.json');
+    expect(file.rows.map(row => row.pointer)).toEqual(['/a.b', '/a/b']);
+
+    await session.saveEditorFile({
+      relativePath: 'collision.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [{ lang: 'de', pointer: '/a.b', value: 'literal changed' }],
+    });
+
+    const de = JSON.parse(await fs.readFile(path.join(root, 'locales/de/collision.json'), 'utf8'));
+    expect(de['a.b']).toBe('literal changed');
+    expect(de.a.b).toBe('nested target');
+  });
+
   it('preserves formatting and non-string values while making source-only edits pending', async () => {
     const { root, configPath } = await createProject();
     const session = await createProjectSession({ cwd: root, configPath });
@@ -156,8 +206,8 @@ describe('translation editor save semantics', () => {
     expect(JSON.parse(raw).count).toBe(2);
     expect(result.project.totals.pendingKeys).toBe(2);
     expect(result.project.changes).toEqual(expect.arrayContaining([
-      expect.objectContaining({ targetLang: 'de', keys: expect.objectContaining({ modified: ['section.title'] }) }),
-      expect.objectContaining({ targetLang: 'fr', keys: expect.objectContaining({ modified: ['section.title'] }) }),
+      expect.objectContaining({ targetLang: 'de', keys: expect.objectContaining({ modified: ['/section/title'] }) }),
+      expect.objectContaining({ targetLang: 'fr', keys: expect.objectContaining({ modified: ['/section/title'] }) }),
     ]));
     expect(await fs.readFile(path.join(root, 'cache.json'), 'utf8')).toBe(beforeCache);
     expect(JSON.parse(await fs.readFile(path.join(root, 'cache.snapshot.json'), 'utf8')).version).toBe(3);
@@ -178,8 +228,8 @@ describe('translation editor save semantics', () => {
       ],
     });
 
-    expect(result.project.changes.some(change => change.targetLang === 'de' && change.keys.modified.includes('section.title'))).toBe(false);
-    expect(result.project.changes.some(change => change.targetLang === 'fr' && change.keys.modified.includes('section.title'))).toBe(true);
+    expect(result.project.changes.some(change => change.targetLang === 'de' && change.keys.modified.includes('/section/title'))).toBe(false);
+    expect(result.project.changes.some(change => change.targetLang === 'fr' && change.keys.modified.includes('/section/title'))).toBe(true);
     expect(JSON.parse(await fs.readFile(path.join(root, 'locales/de/common.json'), 'utf8')).section.title).toBe('Willkommen');
   });
 
@@ -439,7 +489,7 @@ describe('translation editor save semantics', () => {
       expect.objectContaining({
         sourceLang: 'en',
         targetLang: 'de',
-        keys: expect.objectContaining({ modified: ['section.title'] }),
+        keys: expect.objectContaining({ modified: ['/section/title'] }),
       }),
     ]));
     const cache = JSON.parse(await fs.readFile(path.join(root, 'cache.json'), 'utf8'));
@@ -556,6 +606,30 @@ describe('translation editor save semantics', () => {
     const linkedPath = path.join(root, 'locales/de/linked.json');
     await fs.symlink(path.join(root, 'locales/en/common.json'), linkedPath);
     await expect(session.getEditorFile('linked.json')).rejects.toMatchObject({ code: 'SYMLINK_PATH' });
+  });
+
+  it('rejects a localesDir root that is a symbolic link', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-editor-root-symlink-'));
+    tempDirs.push(root);
+    await Promise.all([
+      writeJson(root, 'real-locales/en/common.json', { title: 'Hello' }),
+      writeJson(root, 'real-locales/de/common.json', { title: 'Hallo' }),
+    ]);
+    await fs.symlink(path.join(root, 'real-locales'), path.join(root, 'locales'), 'dir');
+    const configPath = path.join(root, 'i18n-translate.config.json');
+    await writeJson(root, 'i18n-translate.config.json', {
+      baseLang: 'en',
+      targetLangs: ['de'],
+      localesDir: './locales',
+      cachePath: './cache.json',
+      llm: { apiKey: 'fixture-key', model: 'fixture-model' },
+    });
+
+    const session = await createProjectSession({ cwd: root, configPath });
+    await expect(session.getEditorManifest(true, 'token')).rejects.toMatchObject({
+      code: 'SYMLINK_PATH',
+      status: 403,
+    });
   });
 
   it('rolls back an earlier atomic replacement when a later replacement fails', async () => {
