@@ -57,6 +57,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Keep the app full-height with a compact fixed, edge-attached topbar and a full-width main workspace.
 - Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
 - Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority. Do not style the topbar as a floating rounded card.
+- Use the shared layout slots consistently across views: fixed global topbar, optional operation bar below it, content workspace, and optional fixed bottom status bar. Keep the editor table from being covered by bottom status content.
 - On the overview, use a 12-column bento grid on PC widths. Primary workspace cards use 8 columns and right-rail cards use 4 columns. Do not use full-width business cards on PC; pending, operational, project record, metrics, and scan-history surfaces must align to either the 8-column main rail or the 4-column side rail.
 - Place the title and read-only explanation at the top left. Keep `Scan project` at the top right.
 - Put the healthy state before the metrics so the scan result is understood before details.
@@ -82,7 +83,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 ## States and interaction
 
 - Scan button: black fill when enabled; disabled/loading actions use the neutral disabled fill. Keep clear hover, pressed, no drop shadow, and visible keyboard focus.
-- Copy editor: keep `Save changes` as its only primary action. Draft, pending, missing, skipped, conflict, and read-only states use small semantic markers on neutral table surfaces.
+- Copy editor: keep `Save changes` as its only primary action. Draft, pending, missing, skipped, conflict, AI draft, failed translation, and read-only states use small semantic markers on neutral table surfaces.
 - Keep the Key path column frozen and route groups neutral. Master languages may use a quiet header tint, but language count and route count must stay data-driven.
 - File writes are never automatic: editing is gated by `panel --edit`, changes remain a per-file browser draft, and conflicts must be resolved before saving.
 - Success: green icon and text; keep the surrounding surface neutral or barely tinted.
@@ -92,12 +93,35 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Hover: use fill or ink changes only on actual controls such as buttons, links, tabs, search controls, and editable file rows. Display-only route cards, record cards, metrics, badges, target pills, status summaries, and notification surfaces do not change on hover.
 - Focus: visible 3 px black outline with sufficient offset.
 
+## Copy editor table
+
+- Use VisActor VTable `ListTable` for the copy editor. Do not switch to a free spreadsheet/sheet interaction model unless the product direction explicitly changes.
+- Keep the table as the dominant editor surface. Put high-frequency controls in the operation bar or context menu, and low-frequency details in drawers.
+- Keep `Key path` frozen and language columns horizontally scrollable inside the table. Avoid page-level horizontal scrolling.
+- Preview and edit mode typography must match. Body cells use compact copy sizing, consistent line-height, consistent padding, and top vertical alignment. Do not let preview text vertically center while textarea editing aligns to the top.
+- Use auto-height for long copy rows without increasing every row. Maintain a minimum editing overlay height so one-line textarea editing has enough click/typing space.
+- Preserve multiline copy, template variables, and HTML fragments visually. Do not clamp edit mode; preview clamping is acceptable only when the table remains navigable and full content remains editable.
+- Surface table states with small fills/markers: Changed, Pending, Missing, Skipped, AI draft, Failed. Skipped cells must have a visible skipped background. Pending and AI states must remain distinguishable from ordinary Changed.
+- Keep the bottom status bar lightweight: show current logical file path on the left and cell-state counts on the right. Do not add a floating bottom panel that covers the final table row.
+
+## Editor controls, drawers, and modals
+
+- Use shadcn/Radix primitives already wrapped in `panel/src/components/ui/` for interactive overlays: `Popover`, `Sheet`, `Dialog`, `Checkbox`, `Sonner`, and the shared business `Modal` components.
+- All business modals must use `components/ui/modal.tsx` for the content shell, header, title/description block, close button, and actions. Feature-specific classes may define internal content layout only. Do not create one-off modal shells such as custom close buttons, header spacing, or independent overlay card styling.
+- Modal size may vary by intent: confirmation modals stay compact, workspace search can use the large size. The visual language—radius, padding, close button, title weight, action row, surface colors, and overlay treatment—must remain shared.
+- Explorer and Details must both use full-height `Sheet` drawers with matching header structure and visible close buttons. Explorer opens from the left; Details opens from the right.
+- The Explorer drawer is a VSCode-like file navigator. Show file and directory status with compact right-side badges, not large colored rows. Badge fills use light state tints and same-hue darker text. Selected rows stay neutral; selected state must not force badge text to black.
+- Explorer status priority is `Invalid JSON` > `Missing language files` > `Pending keys` > clean. Directory headings summarize descendant status; file rows show concrete status/count.
+- Search, filters, selected-cell translation, batch translation, Undo/Redo, Explorer, Details, and Save remain visible or one click away in the operation bar. Do not hide frequent actions inside drawers.
+- Global workspace search is a modal. It searches copy across configured locale files, can optionally include key paths, and uses shadcn `Checkbox` controls for language/state filters.
+- Selected-cell AI translation is a confirmation modal. Translation results enter the current browser draft first; Save writes local files later. The modal must not imply direct filesystem writes.
+
 ## Responsive behavior
 
 - At tablet widths, let the topbar wrap into a compact identity/session row plus navigation row without losing the local-session indicator.
 - At 390 px, stack the header action, metrics, route source, connector, targets, route metrics, and project record.
 - Keep primary tap targets at least 44 px.
-- Prevent horizontal page scrolling. Permit horizontal scrolling only inside a pending-change table if no clearer mobile representation is practical.
+- Prevent horizontal page scrolling. Permit horizontal scrolling only inside data tables or pending-change tables if no clearer mobile representation is practical.
 - Preserve route and state hierarchy when text wraps or locale codes are long.
 
 ## SCSS authoring model

@@ -3,6 +3,8 @@ import type {
   PanelEditorManifest,
   PanelEditorSaveRequest,
   PanelEditorSaveResult,
+  PanelEditorSearchRequest,
+  PanelEditorSearchResponse,
   PanelEditorSyncEvent,
   PanelEditorTranslateJob,
   PanelEditorTranslateRequest,
@@ -46,6 +48,22 @@ export async function loadEditorFile(
 ): Promise<PanelEditorFile> {
   const query = new URLSearchParams({ path: relativePath });
   return readResponse<PanelEditorFile>(await fetch(`/api/editor/file?${query}`, {
+    headers: { Accept: 'application/json' },
+    signal,
+  }));
+}
+
+export async function searchEditorCopy(
+  request: PanelEditorSearchRequest,
+  signal?: AbortSignal,
+): Promise<PanelEditorSearchResponse> {
+  const query = new URLSearchParams();
+  query.set('q', request.query);
+  for (const lang of request.languages || []) query.append('lang', lang);
+  for (const state of request.states || []) query.append('state', state);
+  if (request.includeKeys) query.set('includeKeys', 'true');
+  if (request.limit) query.set('limit', String(request.limit));
+  return readResponse<PanelEditorSearchResponse>(await fetch(`/api/editor/search?${query}`, {
     headers: { Accept: 'application/json' },
     signal,
   }));

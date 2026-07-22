@@ -11,6 +11,7 @@ import {
   Sparkle,
   Translate,
   WarningCircle,
+  X,
 } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -27,13 +28,16 @@ import type {
   PanelEditorAcceptedTranslation,
   PanelEditorFile,
   PanelEditorManifest,
+  PanelEditorSearchResult,
   PanelEditorSyncEvent,
   PanelEditorTranslateJob,
   PanelEditorTranslateResult,
   PanelProject,
 } from '../types';
 import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '../components/ui/dialog';
+import { Checkbox } from '../components/ui/checkbox';
+import { Dialog } from '../components/ui/dialog';
+import { ModalActions, ModalContent, ModalHeader, ModalTitleBlock } from '../components/ui/modal';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
 import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
 import { PanelLayout } from '../layout/PanelLayout';
@@ -46,6 +50,7 @@ import {
   type GridValueChange,
 } from './TranslationGrid';
 import { ToolsDrawer } from './ToolsDrawer';
+import { WorkspaceSearchDialog } from './WorkspaceSearchDialog';
 import {
   applyHistoryTransaction,
   createEditorPatches,
@@ -72,7 +77,7 @@ interface EditorPageProps {
 }
 
 type PendingNavigation =
-  | { kind: 'file'; relativePath: string }
+  | { kind: 'file'; relativePath: string; focus?: GridSelectionCell }
   | { kind: 'panel'; href: string };
 
 interface TranslatePreviewState {
@@ -92,6 +97,90 @@ type FailedTranslationMap = Map<string, GridSelectionCell & { error: string }>;
 
 const POLL_INTERVAL_MS = 650;
 
+type ExplorerStatusTone = 'clear' | 'pending' | 'missing' | 'invalid';
+
+interface ExplorerStatusDecoration {
+  tone: ExplorerStatusTone;
+  badge: string;
+  label: string;
+}
+
+function pluralize(value: number, singular: string, plural = `${singular}s`) {
+  return `${value} ${value === 1 ? singular : plural}`;
+}
+
+function formatExplorerBadge(prefix: string, count: number) {
+  return `${prefix} ${count > 99 ? '99+' : count}`;
+}
+
+function getExplorerFileStatus(file: PanelEditorManifest['files'][number]): ExplorerStatusDecoration {
+  if (file.invalidLanguages.length > 0) {
+    return {
+      tone: 'invalid',
+      badge: '!',
+      label: `Invalid JSON in ${file.invalidLanguages.join(', ')}`,
+    };
+  }
+
+  if (file.missingLanguages.length > 0) {
+    return {
+      tone: 'missing',
+      badge: formatExplorerBadge('U', file.missingLanguages.length),
+      label: `Missing ${pluralize(file.missingLanguages.length, 'language file')}: ${file.missingLanguages.join(', ')}`,
+    };
+  }
+
+  if (file.pendingKeys > 0) {
+    return {
+      tone: 'pending',
+      badge: formatExplorerBadge('M', file.pendingKeys),
+      label: `${pluralize(file.pendingKeys, 'pending key')} needs translation`,
+    };
+  }
+
+  return {
+    tone: 'clear',
+    badge: '',
+    label: 'No pending file work',
+  };
+}
+
+function getExplorerGroupStatus(files: PanelEditorManifest['files']): ExplorerStatusDecoration {
+  const invalidFiles = files.filter(file => file.invalidLanguages.length > 0).length;
+  if (invalidFiles > 0) {
+    return {
+      tone: 'invalid',
+      badge: String(invalidFiles),
+      label: `${pluralize(invalidFiles, 'file')} with invalid JSON`,
+    };
+  }
+
+  const missingFiles = files.filter(file => file.missingLanguages.length > 0).length;
+  if (missingFiles > 0) {
+    return {
+      tone: 'missing',
+      badge: String(missingFiles),
+      label: `${pluralize(missingFiles, 'file')} missing language files`,
+    };
+  }
+
+  const pendingKeys = files.reduce((total, file) => total + file.pendingKeys, 0);
+  if (pendingKeys > 0) {
+    const pendingFiles = files.filter(file => file.pendingKeys > 0).length;
+    return {
+      tone: 'pending',
+      badge: pendingKeys > 99 ? '99+' : String(pendingKeys),
+      label: `${pluralize(pendingKeys, 'pending key')} in ${pluralize(pendingFiles, 'file')}`,
+    };
+  }
+
+  return {
+    tone: 'clear',
+    badge: '',
+    label: 'No pending file work',
+  };
+}
+
 interface EditorSyncStatus {
   label: string;
   tone: 'muted' | 'ok' | 'warning';
@@ -103,11 +192,18 @@ interface EditorBroadcastMessage {
   event: PanelEditorSyncEvent;
 }
 
+interface EditorFocusRequest extends GridSelectionCell {
+  relativePath: string;
+  nonce: number;
+}
+
 export default function EditorPage({ project, onNavigate, onProjectChange }: EditorPageProps) {
   const initialPath = readInitialEditorPath(window.location.search);
+  const initialFocus = readInitialEditorFocus(window.location.search, initialPath);
   const [manifest, setManifest] = useState<PanelEditorManifest | null>(null);
   const [file, setFile] = useState<PanelEditorFile | null>(null);
   const [selectedPath, setSelectedPath] = useState(initialPath);
+  const [focusRequest, setFocusRequest] = useState<EditorFocusRequest | null>(initialFocus);
   const [manifestLoading, setManifestLoading] = useState(true);
   const [fileLoading, setFileLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,6 +219,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [showSkipped, setShowSkipped] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState<'tools' | null>(null);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [workspaceSearchOpen, setWorkspaceSearchOpen] = useState(false);
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [batchMenuOpen, setBatchMenuOpen] = useState(false);
   const [drafts, setDrafts] = useState<DraftMap>(new Map());
@@ -361,10 +458,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           selectedPath,
           manifest?.projectRoot || project?.projectRoot,
         );
-        const url = new URL(window.location.href);
-        url.pathname = '/editor';
-        url.searchParams.set('file', selectedPath);
-        window.history.replaceState(null, '', url);
       })
       .catch(requestError => {
         if ((requestError as Error).name !== 'AbortError') {
@@ -375,6 +468,21 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       .finally(() => setFileLoading(false));
     return () => controller.abort();
   }, [manifest?.projectRoot, project?.projectRoot, resetTransientEditorState, selectedPath]);
+
+  useEffect(() => {
+    if (!selectedPath) return;
+    const url = new URL(window.location.href);
+    url.pathname = '/editor';
+    url.searchParams.set('file', selectedPath);
+    if (focusRequest?.relativePath === selectedPath) {
+      url.searchParams.set('pointer', focusRequest.pointer);
+      url.searchParams.set('lang', focusRequest.lang);
+    } else {
+      url.searchParams.delete('pointer');
+      url.searchParams.delete('lang');
+    }
+    window.history.replaceState(null, '', url);
+  }, [focusRequest?.lang, focusRequest?.nonce, focusRequest?.pointer, focusRequest?.relativePath, selectedPath]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -391,6 +499,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     };
     window.addEventListener('click', closeContextMenu);
     return () => window.removeEventListener('click', closeContextMenu);
+  }, []);
+
+  useEffect(() => {
+    const openWorkspaceSearch = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || !event.shiftKey || event.key.toLocaleLowerCase() !== 'f') return;
+      event.preventDefault();
+      setWorkspaceSearchOpen(true);
+      setFilePickerOpen(false);
+      setFilterPanelOpen(false);
+      setBatchMenuOpen(false);
+      setContextMenu(null);
+    };
+    window.addEventListener('keydown', openWorkspaceSearch);
+    return () => window.removeEventListener('keydown', openWorkspaceSearch);
   }, []);
 
   const filteredFiles = useMemo(() => {
@@ -435,6 +557,13 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       );
     });
   }, [drafts, file, manifest, rowSearch, showChanged, showMissing, showPending, showSkipped]);
+  const hasVisibleRows = visibleRows.length > 0;
+
+  useEffect(() => {
+    if (hasVisibleRows) return;
+    setSelectedCells([]);
+    setContextMenu(null);
+  }, [hasVisibleRows]);
 
   const cellStateCounts = useMemo(() => {
     const counts = {
@@ -900,8 +1029,25 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     }
   }, [broadcastSyncEvent, file, manifest, onProjectChange, refreshManifest, rememberSyncEvent]);
 
+  const queueCellFocus = useCallback((relativePath: string, cell: GridSelectionCell) => {
+    setRowSearch('');
+    setShowMissing(false);
+    setShowPending(false);
+    setShowChanged(false);
+    setShowSkipped(false);
+    setFocusRequest({
+      relativePath,
+      lang: cell.lang,
+      pointer: cell.pointer,
+      nonce: Date.now(),
+    });
+    setStatus(`Opening ${relativePath} at ${cell.lang} ${cell.pointer}.`);
+  }, []);
+
   const performNavigation = useCallback((destination: PendingNavigation) => {
     if (destination.kind === 'file') {
+      if (destination.focus) queueCellFocus(destination.relativePath, destination.focus);
+      else setFocusRequest(null);
       setSelectedPath(destination.relativePath);
       setActiveDrawer(null);
       setFilePickerOpen(false);
@@ -913,10 +1059,11 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setFilePickerOpen(false);
     setFilterPanelOpen(false);
     onNavigate(destination.href);
-  }, [onNavigate]);
+  }, [onNavigate, queueCellFocus]);
 
   const requestGuardedNavigation = useCallback((destination: PendingNavigation) => {
     if (destination.kind === 'file' && destination.relativePath === selectedPath) {
+      if (destination.focus) queueCellFocus(destination.relativePath, destination.focus);
       setFilePickerOpen(false);
       setFilterPanelOpen(false);
       return;
@@ -930,7 +1077,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     }
 
     performNavigation(destination);
-  }, [performNavigation, selectedPath]);
+  }, [performNavigation, queueCellFocus, selectedPath]);
 
   const guardedNavigate = useCallback((href: string) => {
     requestGuardedNavigation({ kind: 'panel', href });
@@ -938,6 +1085,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
   const requestFile = (relativePath: string) => {
     requestGuardedNavigation({ kind: 'file', relativePath });
+  };
+
+  const openWorkspaceSearchResult = (result: PanelEditorSearchResult) => {
+    setWorkspaceSearchOpen(false);
+    requestGuardedNavigation({
+      kind: 'file',
+      relativePath: result.relativePath,
+      focus: { lang: result.lang, pointer: result.pointer },
+    });
   };
 
   const discardAndNavigate = () => {
@@ -1036,23 +1192,26 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     </div>
   );
 
-  const filterChips = (
-    <div className="editor-inline-filters" aria-label="Show rows">
-      <FilterButton active={showMissing} onClick={() => setShowMissing(value => !value)}>Missing</FilterButton>
-      <FilterButton active={showPending} onClick={() => setShowPending(value => !value)}>Pending</FilterButton>
-      <FilterButton active={showChanged} onClick={() => setShowChanged(value => !value)}>Changed</FilterButton>
-      <FilterButton active={showSkipped} onClick={() => setShowSkipped(value => !value)}>Skipped</FilterButton>
+  const filterControls = (
+    <div className="editor-filter-check-list" aria-label="Show rows">
+      <StatusFilterCheckbox checked={showMissing} label="Missing" onCheckedChange={setShowMissing} />
+      <StatusFilterCheckbox checked={showPending} label="Pending" onCheckedChange={setShowPending} />
+      <StatusFilterCheckbox checked={showChanged} label="Changed" onCheckedChange={setShowChanged} />
+      <StatusFilterCheckbox checked={showSkipped} label="Skipped" onCheckedChange={setShowSkipped} />
     </div>
   );
 
   const filePickerPanel = (
     <>
-      <div className="editor-toolbar-panel-header">
-        <span>
+      <div className="file-panel-header">
+        <div>
           <SheetTitle asChild>
             <strong>{manifest?.files.length || 0} JSON files</strong>
           </SheetTitle>
-        </span>
+        </div>
+        <button className="file-panel-close" type="button" onClick={() => setFilePickerOpen(false)} aria-label="Close locale files">
+          <X size={20} aria-hidden="true" />
+        </button>
       </div>
       <label className="editor-inline-search">
         <MagnifyingGlass size={17} aria-hidden="true" />
@@ -1062,21 +1221,55 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <div className="editor-file-menu-list">
         {fileGroups.length > 0 ? fileGroups.map(group => (
           <section key={group.directory}>
-            <p>{group.directory}</p>
-            {group.files.map(candidate => (
-              <button
-                key={candidate.relativePath}
-                type="button"
-                className={candidate.relativePath === selectedPath ? 'is-active' : ''}
-                onClick={() => requestFile(candidate.relativePath)}
-              >
-                <FileText size={16} aria-hidden="true" />
-                <span title={candidate.relativePath}>
-                  {candidate.relativePath.slice(candidate.relativePath.lastIndexOf('/') + 1)}
-                </span>
-                {candidate.pendingKeys > 0 && <em>{candidate.pendingKeys}</em>}
-              </button>
-            ))}
+            {(() => {
+              const groupStatus = getExplorerGroupStatus(group.files);
+              return (
+                <p>
+                  <span>{group.directory}</span>
+                  {groupStatus.tone !== 'clear' && (
+                    <span
+                      className={`editor-file-group-decoration is-${groupStatus.tone}`}
+                      title={groupStatus.label}
+                      aria-label={groupStatus.label}
+                    >
+                      <i aria-hidden="true" />
+                      <b>{groupStatus.badge}</b>
+                    </span>
+                  )}
+                </p>
+              );
+            })()}
+            {group.files.map(candidate => {
+              const fileStatus = getExplorerFileStatus(candidate);
+              const isActive = candidate.relativePath === selectedPath;
+              const className = [
+                isActive ? 'is-active' : '',
+                fileStatus.tone !== 'clear' ? `has-file-decoration is-${fileStatus.tone}` : '',
+              ].filter(Boolean).join(' ');
+              return (
+                <button
+                  key={candidate.relativePath}
+                  type="button"
+                  className={className}
+                  title={`${candidate.relativePath}${fileStatus.tone === 'clear' ? '' : ` · ${fileStatus.label}`}`}
+                  onClick={() => requestFile(candidate.relativePath)}
+                >
+                  <FileText size={16} aria-hidden="true" />
+                  <span>
+                    {candidate.relativePath.slice(candidate.relativePath.lastIndexOf('/') + 1)}
+                  </span>
+                  {fileStatus.tone !== 'clear' && (
+                    <em
+                      className={`editor-file-decoration is-${fileStatus.tone}`}
+                      title={fileStatus.label}
+                      aria-label={fileStatus.label}
+                    >
+                      {fileStatus.badge}
+                    </em>
+                  )}
+                </button>
+              );
+            })}
           </section>
         )) : (
           <p className="editor-toolbar-panel-empty">No JSON files match this search.</p>
@@ -1093,7 +1286,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         </span>
         <em>{visibleRows.length} / {file?.rows.length || 0} keys</em>
       </div>
-      {filterChips}
+      {filterControls}
     </>
   );
 
@@ -1182,6 +1375,22 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             <button type="button" onClick={() => void cancelTranslation()}>Cancel</button>
           </div>
         )}
+        <button
+          className={workspaceSearchOpen ? 'editor-command-button is-active' : 'editor-command-button'}
+          type="button"
+          aria-label="Search all locale copy"
+          aria-expanded={workspaceSearchOpen}
+          onClick={() => {
+            setWorkspaceSearchOpen(true);
+            setFilePickerOpen(false);
+            setFilterPanelOpen(false);
+            setBatchMenuOpen(false);
+            setContextMenu(null);
+          }}
+        >
+          <MagnifyingGlass size={20} aria-hidden="true" />
+          <span>Workspace</span>
+        </button>
         <label className="editor-inline-search editor-copy-search">
           <MagnifyingGlass size={17} aria-hidden="true" />
           <span className="sr-only">Search keys and copy</span>
@@ -1273,12 +1482,13 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               <div className="skeleton skeleton-route" />
               <div className="skeleton skeleton-route" />
             </div>
-          ) : file && manifest ? (
+          ) : file && manifest && hasVisibleRows ? (
             <TranslationGrid
               rows={visibleRows}
               manifest={manifest}
               drafts={drafts}
               editable={editable}
+              focusCell={focusRequest?.relativePath === file.relativePath ? focusRequest : undefined}
               translationStates={translationStates}
               onChangeValues={handleGridChanges}
               onSelectionChange={setSelectedCells}
@@ -1289,6 +1499,12 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                 setFilterPanelOpen(false);
               }}
             />
+          ) : file && manifest ? (
+            <div className="editor-table-empty is-filtered-empty">
+              <MagnifyingGlass size={28} aria-hidden="true" />
+              <strong>No matching keys</strong>
+              <span>No key path or copy in {file.relativePath} matches the current search and filters.</span>
+            </div>
           ) : (
             <div className="editor-table-empty">
               <FileText size={28} aria-hidden="true" />
@@ -1328,6 +1544,23 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         onClose={() => setActiveDrawer(null)}
       />
 
+      <WorkspaceSearchDialog
+        open={workspaceSearchOpen}
+        manifest={manifest}
+        currentFile={file}
+        drafts={drafts}
+        onOpenChange={open => {
+          setWorkspaceSearchOpen(open);
+          if (open) {
+            setFilePickerOpen(false);
+            setFilterPanelOpen(false);
+            setBatchMenuOpen(false);
+            setContextMenu(null);
+          }
+        }}
+        onOpenResult={openWorkspaceSearchResult}
+      />
+
       {contextMenu && (
         <div
           className="editor-context-menu"
@@ -1344,18 +1577,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
       <Dialog open={Boolean(translatePreview && currentPreview)} onOpenChange={open => { if (!open) setTranslatePreview(null); }}>
         {translatePreview && currentPreview && (
-          <DialogContent className="editor-modal translate-confirm-modal" aria-describedby="translate-description">
-            <Translate size={28} weight="fill" aria-hidden="true" />
-            <div>
-              <DialogTitle asChild>
-                <h2>{translatePreview.title}</h2>
-              </DialogTitle>
-              <DialogDescription asChild>
-                <p id="translate-description">
-                  {currentPreview.cells.length} target cell{currentPreview.cells.length === 1 ? '' : 's'} will be translated into the current browser draft.
-                  {currentPreview.skipped.length > 0 && <> {currentPreview.skipped.length} cell{currentPreview.skipped.length === 1 ? '' : 's'} will be skipped.</>}
-                </p>
-              </DialogDescription>
+          <ModalContent className="translate-confirm-modal" size="lg" aria-describedby="translate-description">
+            <ModalHeader icon={<Translate size={20} weight="bold" />}>
+              <ModalTitleBlock
+                title={translatePreview.title}
+                descriptionId="translate-description"
+                description={(
+                  <>
+                    {currentPreview.cells.length} target cell{currentPreview.cells.length === 1 ? '' : 's'} will be translated into the current browser draft.
+                    {currentPreview.skipped.length > 0 && <> {currentPreview.skipped.length} cell{currentPreview.skipped.length === 1 ? '' : 's'} will be skipped.</>}
+                  </>
+                )}
+              />
+            </ModalHeader>
+            <div className="translate-confirm-body">
               <dl className="translate-confirm-stats">
                 <div><dt>Selected</dt><dd>{translatePreview.cells.length}</dd></div>
                 <div><dt>Ready</dt><dd>{currentPreview.cells.length}</dd></div>
@@ -1363,20 +1598,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                 <div><dt>Cache</dt><dd>Checked on start</dd></div>
               </dl>
               <label className="translate-option">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={translatePreview.includeSkipped}
-                  onChange={event => setTranslatePreview(current => current && { ...current, includeSkipped: event.target.checked })}
+                  onCheckedChange={checked => setTranslatePreview(current => current && { ...current, includeSkipped: checked === true })}
                 />
-                Include skipped keys
+                <span>Include skipped keys</span>
               </label>
               <label className="translate-option">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={translatePreview.overwriteDrafts}
-                  onChange={event => setTranslatePreview(current => current && { ...current, overwriteDrafts: event.target.checked })}
+                  onCheckedChange={checked => setTranslatePreview(current => current && { ...current, overwriteDrafts: checked === true })}
                 />
-                Overwrite existing local drafts
+                <span>Overwrite existing local drafts</span>
               </label>
               {currentPreview.skipped.length > 0 && (
                 <div className="translate-skip-list">
@@ -1387,15 +1620,13 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                 </div>
               )}
             </div>
-            <div className="modal-actions">
-              <DialogClose asChild>
-                <button type="button" className="button-tertiary">Cancel</button>
-              </DialogClose>
+            <ModalActions>
+              <button type="button" className="button-tertiary" onClick={() => setTranslatePreview(null)}>Cancel</button>
               <button type="button" className="button-primary" disabled={currentPreview.cells.length === 0 || jobRunning} onClick={() => void confirmTranslation()}>
                 Start translation
               </button>
-            </div>
-          </DialogContent>
+            </ModalActions>
+          </ModalContent>
         )}
       </Dialog>
 
@@ -1436,10 +1667,37 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   );
 }
 
-function FilterButton({ active, onClick, children }: { active: boolean; onClick(): void; children: string }) {
-  return <button type="button" className={active ? 'filter-chip is-active' : 'filter-chip'} aria-pressed={active} onClick={onClick}>{children}</button>;
+function StatusFilterCheckbox({
+  checked,
+  label,
+  onCheckedChange,
+}: {
+  checked: boolean;
+  label: string;
+  onCheckedChange(value: boolean): void;
+}) {
+  return (
+    <label className="editor-filter-check">
+      <Checkbox checked={checked} onCheckedChange={next => onCheckedChange(next === true)} />
+      <span>{label}</span>
+    </label>
+  );
 }
 
 function createEditorTabId(): string {
   return globalThis.crypto?.randomUUID?.() || `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function readInitialEditorFocus(search: string, relativePath: string): EditorFocusRequest | null {
+  if (!relativePath) return null;
+  const params = new URLSearchParams(search);
+  const pointer = params.get('pointer');
+  const lang = params.get('lang');
+  if (!pointer || !lang) return null;
+  return {
+    relativePath,
+    pointer,
+    lang,
+    nonce: 0,
+  };
 }

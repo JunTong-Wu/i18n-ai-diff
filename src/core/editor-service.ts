@@ -10,6 +10,10 @@ import {
   EditorPatch,
   EditorRow,
   EditorSaveRequest,
+  EditorSearchRequest,
+  EditorSearchResponse,
+  EditorSearchResult,
+  EditorSearchStateFilter,
   EditorTranslateRequest,
   EditorTranslateResult,
   NestedJSON,
@@ -31,6 +35,8 @@ import pLimit from 'p-limit';
 
 const MAX_CHANGES = 10_000;
 const MAX_TRANSLATE_CELLS = 2_000;
+const DEFAULT_SEARCH_LIMIT = 200;
+const MAX_SEARCH_LIMIT = 500;
 
 interface JsonFormat {
   bom: string;
@@ -180,6 +186,92 @@ export class TranslationEditorService {
     await this.assertLogicalFileExists(normalized);
     const records = await this.readAllLanguageRecords(normalized);
     return this.buildEditorFile(normalized, records, await this.readSnapshotRecord());
+  }
+
+  async search(request: EditorSearchRequest): Promise<EditorSearchResponse> {
+    const rawQuery = typeof request.query === 'string' ? request.query.trim() : '';
+    if (rawQuery.length > 512) {
+      throw new EditorServiceError('Search query must be 512 characters or fewer', 'SEARCH_QUERY_TOO_LONG', 413);
+    }
+    const query = rawQuery.toLocaleLowerCase();
+    const includeKeys = request.includeKeys === true;
+    const limit = normalizeSearchLimit(request.limit);
+    const languages = this.normalizeSearchLanguages(request.languages);
+    const states = normalizeSearchStates(request.states);
+    const relativePaths = await this.collectLogicalFilePaths();
+
+    if (!query && states.size === 0) {
+      return {
+        query: rawQuery,
+        results: [],
+        total: 0,
+        limit,
+        limited: false,
+        searchedFiles: relativePaths.length,
+      };
+    }
+
+    const snapshot = await this.readSnapshotRecord();
+    const results: EditorSearchResult[] = [];
+    let total = 0;
+
+    for (const relativePath of relativePaths) {
+      const records = await this.readSearchRecords(relativePath);
+      const pending = this.calculatePending(relativePath, records, snapshot);
+      for (const segments of this.collectOrderedPaths(records)) {
+        const pointer = encodeJsonPointer(segments);
+        const displayPath = segments.join(' › ');
+        const dottedPath = segments.join('.');
+        const skipped = isKeySkipped(dottedPath, this.config.skipKeys);
+
+        for (const lang of languages) {
+          const routeOwnership = this.routeOwnershipForLanguage(lang);
+          const record = records.get(lang);
+          const resolved = record ? getPathValue(record.data, segments) : { exists: false, value: undefined };
+          const cell: EditorCell = {
+            kind: !resolved.exists
+              ? 'missing'
+              : typeof resolved.value === 'string'
+                ? 'string'
+                : 'unsupported',
+            ...(typeof resolved.value === 'string' ? { value: resolved.value } : {}),
+            pending: pending[lang]?.has(dottedPath) || false,
+            skipped,
+          };
+          if (!searchCellMatchesStates(cell, routeOwnership.isMaster, states)) continue;
+
+          const value = typeof resolved.value === 'string' ? resolved.value : '';
+          const valueMatchRanges = query ? findMatchRanges(value, query) : [];
+          const keyMatchRanges = includeKeys && query ? findMatchRanges(displayPath, query) : [];
+          if (query && valueMatchRanges.length === 0 && keyMatchRanges.length === 0) continue;
+
+          total += 1;
+          if (results.length >= limit) continue;
+          results.push({
+            relativePath,
+            pointer,
+            segments,
+            displayPath,
+            lang,
+            sourceLang: routeOwnership.sourceLang,
+            isMaster: routeOwnership.isMaster,
+            value,
+            valueMatchRanges,
+            keyMatchRanges,
+            cell,
+          });
+        }
+      }
+    }
+
+    return {
+      query: rawQuery,
+      results,
+      total,
+      limit,
+      limited: total > results.length,
+      searchedFiles: relativePaths.length,
+    };
   }
 
   async translateCells(
@@ -445,6 +537,22 @@ export class TranslationEditorService {
     const records = new Map<string, LocaleRecord | null>();
     for (const lang of this.languages) {
       records.set(lang, await this.readLocaleRecord(lang, relativePath));
+    }
+    return records;
+  }
+
+  private async readSearchRecords(relativePath: string): Promise<Map<string, LocaleRecord | null>> {
+    const records = new Map<string, LocaleRecord | null>();
+    for (const lang of this.languages) {
+      try {
+        records.set(lang, await this.readLocaleRecord(lang, relativePath));
+      } catch (error) {
+        if (error instanceof EditorServiceError && error.code === 'INVALID_JSON') {
+          records.set(lang, null);
+        } else {
+          throw error;
+        }
+      }
     }
     return records;
   }
@@ -904,6 +1012,36 @@ export class TranslationEditorService {
     return walk(root);
   }
 
+  private async collectLogicalFilePaths(): Promise<string[]> {
+    const files = new Set<string>();
+    for (const lang of this.languages) {
+      for (const relativePath of await this.scanLanguageFiles(lang)) files.add(relativePath);
+    }
+    return [...files].sort((left, right) => left.localeCompare(right));
+  }
+
+  private normalizeSearchLanguages(languages: string[] | undefined): string[] {
+    if (languages === undefined || languages.length === 0) return [...this.languages];
+    if (!Array.isArray(languages)) {
+      throw new EditorServiceError('Search languages must be an array', 'INVALID_SEARCH_FILTER');
+    }
+    const selected = new Set<string>();
+    for (const lang of languages) {
+      if (typeof lang !== 'string' || !this.languageSet.has(lang)) {
+        throw new EditorServiceError(`Language is not configured: ${String(lang)}`, 'UNKNOWN_LANGUAGE');
+      }
+      selected.add(lang);
+    }
+    return this.languages.filter(lang => selected.has(lang));
+  }
+
+  private routeOwnershipForLanguage(lang: string): { sourceLang: string; isMaster: boolean } {
+    const sourceRoute = this.config.routes.find(route => route.sourceLang === lang);
+    if (sourceRoute) return { sourceLang: sourceRoute.sourceLang, isMaster: true };
+    const targetRoute = this.config.routes.find(route => route.targetLangs.some(targetLang => targetLang === lang));
+    return { sourceLang: targetRoute?.sourceLang || lang, isMaster: false };
+  }
+
   private async assertLogicalFileExists(relativePath: string): Promise<void> {
     for (const lang of this.languages) {
       const filePath = this.localeFilePath(lang, relativePath);
@@ -1085,6 +1223,55 @@ function toPosixRelativePath(relativePath: string): string {
 
 function toNativeRelativePath(relativePath: string): string {
   return relativePath.split('/').join(path.sep);
+}
+
+function normalizeSearchLimit(limit: number | undefined): number {
+  if (typeof limit !== 'number' || !Number.isFinite(limit)) return DEFAULT_SEARCH_LIMIT;
+  return Math.min(Math.max(Math.trunc(limit), 1), MAX_SEARCH_LIMIT);
+}
+
+function normalizeSearchStates(states: EditorSearchStateFilter[] | undefined): Set<EditorSearchStateFilter> {
+  const allowed = new Set<EditorSearchStateFilter>(['pending', 'missing', 'skipped', 'master', 'target']);
+  if (states === undefined || states.length === 0) return new Set();
+  if (!Array.isArray(states)) {
+    throw new EditorServiceError('Search states must be an array', 'INVALID_SEARCH_FILTER');
+  }
+  const normalized = new Set<EditorSearchStateFilter>();
+  for (const state of states) {
+    if (!allowed.has(state)) {
+      throw new EditorServiceError(`Unsupported search state: ${String(state)}`, 'INVALID_SEARCH_FILTER');
+    }
+    normalized.add(state);
+  }
+  return normalized;
+}
+
+function searchCellMatchesStates(
+  cell: EditorCell,
+  isMaster: boolean,
+  states: Set<EditorSearchStateFilter>,
+): boolean {
+  if (states.size === 0) return true;
+  return (
+    (states.has('pending') && cell.pending)
+    || (states.has('missing') && cell.kind === 'missing')
+    || (states.has('skipped') && cell.skipped)
+    || (states.has('master') && isMaster)
+    || (states.has('target') && !isMaster)
+  );
+}
+
+function findMatchRanges(value: string, lowerQuery: string): Array<{ start: number; end: number }> {
+  if (!lowerQuery) return [];
+  const ranges: Array<{ start: number; end: number }> = [];
+  const lowerValue = value.toLocaleLowerCase();
+  let start = lowerValue.indexOf(lowerQuery);
+  while (start !== -1) {
+    ranges.push({ start, end: start + lowerQuery.length });
+    if (ranges.length >= 20) break;
+    start = lowerValue.indexOf(lowerQuery, start + Math.max(lowerQuery.length, 1));
+  }
+  return ranges;
 }
 
 export async function commitEditorWrites(writes: PlannedEditorWrite[]): Promise<void> {

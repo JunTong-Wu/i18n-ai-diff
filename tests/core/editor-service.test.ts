@@ -59,6 +59,58 @@ describe('translation editor JSON paths', () => {
   });
 });
 
+describe('translation editor global search', () => {
+  it('finds copy across logical locale files and can include key paths explicitly', async () => {
+    const { root, configPath } = await createProject();
+    await Promise.all([
+      writeJson(root, 'locales/en/pages/home.json', { hero: { title: 'Find your telescope' } }),
+      writeJson(root, 'locales/de/pages/home.json', { hero: { title: 'Finde dein Teleskop' } }),
+    ]);
+    const session = await createProjectSession({ cwd: root, configPath });
+
+    const copyResults = await session.searchEditorCopy({ query: 'Hallo', languages: ['de'] });
+    expect(copyResults).toMatchObject({
+      query: 'Hallo',
+      total: 1,
+      limited: false,
+    });
+    expect(copyResults.results).toEqual([
+      expect.objectContaining({
+        relativePath: 'common.json',
+        pointer: '/section/title',
+        displayPath: 'section › title',
+        lang: 'de',
+        sourceLang: 'en',
+        isMaster: false,
+        value: 'Hallo',
+        valueMatchRanges: [{ start: 0, end: 5 }],
+      }),
+    ]);
+
+    const copyOnly = await session.searchEditorCopy({ query: 'x/y', languages: ['fr'] });
+    expect(copyOnly.results).toHaveLength(0);
+
+    const keyResults = await session.searchEditorCopy({ query: 'x/y', languages: ['fr'], includeKeys: true });
+    expect(keyResults.results).toEqual([
+      expect.objectContaining({
+        relativePath: 'common.json',
+        pointer: '/section/a.b/x~1y/~0name',
+        displayPath: 'section › a.b › x/y › ~name',
+        lang: 'fr',
+        value: 'Profond',
+        keyMatchRanges: [{ start: 16, end: 19 }],
+      }),
+    ]);
+  });
+
+  it('validates search language filters', async () => {
+    const { root, configPath } = await createProject();
+    const session = await createProjectSession({ cwd: root, configPath });
+    await expect(session.searchEditorCopy({ query: 'Hello', languages: ['xx'] }))
+      .rejects.toMatchObject({ code: 'UNKNOWN_LANGUAGE' });
+  });
+});
+
 describe('translation editor save semantics', () => {
   it('preserves formatting and non-string values while making source-only edits pending', async () => {
     const { root, configPath } = await createProject();

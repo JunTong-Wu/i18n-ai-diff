@@ -6,6 +6,10 @@ import type {
   EditorPatch,
   EditorRow,
   EditorAcceptedTranslation,
+  EditorSearchRequest,
+  EditorSearchResponse,
+  EditorSearchResult,
+  EditorSearchStateFilter,
   EditorSaveRequest,
   EditorSaveResult,
   EditorTranslateCell,
@@ -48,6 +52,10 @@ export type PanelEditorRow = EditorRow;
 export type PanelEditorFile = EditorFile;
 export type PanelEditorPatch = EditorPatch;
 export type PanelEditorAcceptedTranslation = EditorAcceptedTranslation;
+export type PanelEditorSearchRequest = EditorSearchRequest;
+export type PanelEditorSearchResponse = EditorSearchResponse;
+export type PanelEditorSearchResult = EditorSearchResult;
+export type PanelEditorSearchStateFilter = EditorSearchStateFilter;
 export type PanelEditorSaveRequest = EditorSaveRequest;
 export type PanelEditorSaveResult = Omit<EditorSaveResult, 'project'> & {
   project: PanelProject;

@@ -9,6 +9,8 @@ import {
   EditorManifest,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorSearchRequest,
+  EditorSearchResponse,
   EditorSyncEvent,
   EditorTranslateJob,
   EditorTranslateRequest,
@@ -43,6 +45,7 @@ interface PanelSession {
   scan(): Promise<ProjectScan>;
   getEditorManifest?(editable: boolean, writeToken?: string): Promise<EditorManifest>;
   getEditorFile?(relativePath: string): Promise<EditorFile>;
+  searchEditorCopy?(request: EditorSearchRequest): Promise<EditorSearchResponse>;
   saveEditorFile?(request: EditorSaveRequest): Promise<EditorSaveResult>;
   translateEditorCells?(
     request: EditorTranslateRequest,
@@ -177,6 +180,15 @@ export async function startPanelServer(
           return;
         }
         sendJson(response, 200, { data: await session.getEditorFile(relativePath) });
+        return;
+      }
+
+      if (request.method === 'GET' && requestUrl.pathname === '/api/editor/search') {
+        if (!session.searchEditorCopy) {
+          sendJson(response, 501, { error: { code: 'EDITOR_SEARCH_UNAVAILABLE', message: 'Editor search API is unavailable' } });
+          return;
+        }
+        sendJson(response, 200, { data: await session.searchEditorCopy(readEditorSearchQuery(requestUrl)) });
         return;
       }
 
@@ -362,6 +374,28 @@ function openEditorEventStream(
 function writeEditorSse(response: ServerResponse, eventName: string, payload: unknown): void {
   response.write(`event: ${eventName}\n`);
   response.write(`data: ${JSON.stringify(payload)}\n\n`);
+}
+
+function readEditorSearchQuery(requestUrl: URL): EditorSearchRequest {
+  const languages = collectSearchParams(requestUrl.searchParams, 'lang', 'langs');
+  const states = collectSearchParams(requestUrl.searchParams, 'state', 'states');
+  const rawLimit = requestUrl.searchParams.get('limit');
+  const limit = rawLimit === null ? undefined : Number(rawLimit);
+  return {
+    query: requestUrl.searchParams.get('q') || '',
+    ...(languages.length > 0 ? { languages } : {}),
+    ...(states.length > 0 ? { states: states as EditorSearchRequest['states'] } : {}),
+    includeKeys: requestUrl.searchParams.get('includeKeys') === 'true'
+      || requestUrl.searchParams.get('includeKeys') === '1',
+    ...(Number.isFinite(limit) ? { limit } : {}),
+  };
+}
+
+function collectSearchParams(searchParams: URLSearchParams, singleKey: string, listKey: string): string[] {
+  return [
+    ...searchParams.getAll(singleKey),
+    ...searchParams.getAll(listKey).flatMap(value => value.split(',')),
+  ].map(value => value.trim()).filter(Boolean);
 }
 
 async function readJsonBody(request: IncomingMessage, maxBytes: number): Promise<unknown> {

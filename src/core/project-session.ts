@@ -3,6 +3,8 @@ import {
   EditorManifest,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorSearchRequest,
+  EditorSearchResponse,
   EditorSyncEvent,
   EditorTranslateRequest,
   EditorTranslateResult,
@@ -72,6 +74,12 @@ export class ProjectSession {
   async getEditorFile(relativePath: string): Promise<EditorFile> {
     return this.runExclusive(async () => {
       return this.editor.getFile(relativePath);
+    });
+  }
+
+  async searchEditorCopy(request: EditorSearchRequest): Promise<EditorSearchResponse> {
+    return this.runExclusive(async () => {
+      return this.editor.search(request);
     });
   }
 

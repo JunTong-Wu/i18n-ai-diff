@@ -199,6 +199,63 @@ describe('panel server', () => {
     expect(saves).toBe(1);
   });
 
+  it('serves read-only editor workspace search without a write token', async () => {
+    const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-search-'));
+    tempDirs.push(clientRoot);
+    await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
+    const scan = createScan();
+    const searchCalls: unknown[] = [];
+    const server = await startPanelServer({
+      scan: async () => scan,
+      searchEditorCopy: async request => {
+        searchCalls.push(request);
+        return {
+          query: request.query,
+          total: 1,
+          limit: request.limit || 200,
+          limited: false,
+          searchedFiles: 1,
+          results: [{
+            relativePath: 'common.json',
+            pointer: '/title',
+            segments: ['title'],
+            displayPath: 'title',
+            lang: 'de',
+            sourceLang: 'en',
+            isMaster: false,
+            value: 'Hallo',
+            valueMatchRanges: [{ start: 0, end: 5 }],
+            keyMatchRanges: [],
+            cell: { kind: 'string', value: 'Hallo', pending: true, skipped: false },
+          }],
+        };
+      },
+    }, {
+      port: 0,
+      open: false,
+      packageVersion: '1.2.0-test',
+      clientRoot,
+    });
+    servers.push(server);
+
+    const response = await fetch(`${server.url}/api/editor/search?q=Hallo&lang=de&state=pending&includeKeys=true&limit=25`);
+    expect(response.status).toBe(200);
+    expect(searchCalls).toEqual([{
+      query: 'Hallo',
+      languages: ['de'],
+      states: ['pending'],
+      includeKeys: true,
+      limit: 25,
+    }]);
+    expect(await response.json()).toEqual({
+      data: expect.objectContaining({
+        query: 'Hallo',
+        total: 1,
+        results: [expect.objectContaining({ relativePath: 'common.json', pointer: '/title', lang: 'de' })],
+      }),
+    });
+  });
+
   it('runs editable editor translation jobs behind the write token', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-translate-'));
     tempDirs.push(clientRoot);

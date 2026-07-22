@@ -1,10 +1,33 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { ListTable, type ColumnsDefine, type ListTableConstructorOptions, type TYPES } from '@visactor/vtable';
-import { TextAreaEditor } from '@visactor/vtable-editors';
+import { TextAreaEditor, type RectProps } from '@visactor/vtable-editors';
 import type { PanelEditorManifest, PanelEditorRow } from '../types';
 import { draftIdentity, effectiveCellValue, type DraftMap } from './model';
 
-const textAreaEditor = new TextAreaEditor();
+const DEFAULT_TABLE_ROW_HEIGHT = 48;
+const EDITOR_MIN_HEIGHT = 56;
+const EDITOR_BORDER_WIDTH = 2;
+const TABLE_CELL_FONT_SIZE = 13;
+const TABLE_CELL_LINE_HEIGHT = 20;
+const TABLE_CELL_PADDING: [number, number, number, number] = [8, 12, 8, 12];
+const KEY_PATH_CELL_PADDING: [number, number, number, number] = [8, 12, 8, 14];
+const TABLE_CELL_TEXT_BASELINE = 'top';
+const KEY_PATH_LINE_CLAMP = 3;
+const COPY_CELL_LINE_CLAMP = 5;
+
+class CopyTextAreaEditor extends TextAreaEditor {
+  override adjustPosition(rect: RectProps) {
+    if (!this.element) return;
+    const offset = EDITOR_BORDER_WIDTH / 2;
+    const height = Math.max(rect.height + EDITOR_BORDER_WIDTH, EDITOR_MIN_HEIGHT);
+    this.element.style.top = `${rect.top - offset}px`;
+    this.element.style.left = `${rect.left - offset}px`;
+    this.element.style.width = `${rect.width + EDITOR_BORDER_WIDTH}px`;
+    this.element.style.height = `${height}px`;
+  }
+}
+
+const textAreaEditor = new CopyTextAreaEditor();
 
 export interface GridValueChange {
   pointer: string;
@@ -19,11 +42,27 @@ export interface GridSelectionCell {
 
 export type GridCellTranslationState = 'queued' | 'translating' | 'failed' | 'ai';
 
+export interface GridFocusCell extends GridSelectionCell {
+  nonce: number;
+}
+
 export interface GridContextMenuRequest {
   x: number;
   y: number;
   clickedCell: GridSelectionCell;
   selectedCells: GridSelectionCell[];
+}
+
+interface TranslationGridProps {
+  rows: PanelEditorRow[];
+  manifest: PanelEditorManifest;
+  drafts: DraftMap;
+  editable: boolean;
+  focusCell?: GridFocusCell;
+  translationStates?: Map<string, GridCellTranslationState>;
+  onChangeValues(values: GridValueChange[]): void;
+  onContextMenu?(request: GridContextMenuRequest): void;
+  onSelectionChange?(cells: GridSelectionCell[]): void;
 }
 
 interface GridRecord extends Record<string, unknown> {
@@ -38,25 +77,30 @@ interface GridRecord extends Record<string, unknown> {
   }>;
 }
 
-export function TranslationGrid({
+export function TranslationGrid(props: TranslationGridProps) {
+  if (props.rows.length === 0) {
+    return (
+      <div className="editor-table-empty">
+        <strong>No matching keys</strong>
+        <span>Clear the filters or choose another locale file.</span>
+      </div>
+    );
+  }
+
+  return <TranslationGridTable {...props} />;
+}
+
+function TranslationGridTable({
   rows,
   manifest,
   drafts,
   editable,
+  focusCell,
   translationStates,
   onChangeValues,
   onContextMenu,
   onSelectionChange,
-}: {
-  rows: PanelEditorRow[];
-  manifest: PanelEditorManifest;
-  drafts: DraftMap;
-  editable: boolean;
-  translationStates?: Map<string, GridCellTranslationState>;
-  onChangeValues(values: GridValueChange[]): void;
-  onContextMenu?(request: GridContextMenuRequest): void;
-  onSelectionChange?(cells: GridSelectionCell[]): void;
-}) {
+}: TranslationGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<ListTable | null>(null);
   const recordsRef = useRef<GridRecord[]>([]);
@@ -100,11 +144,13 @@ export function TranslationGrid({
       style: {
         bgColor: '#F8FAFD',
         color: '#27364A',
-        fontSize: 13,
+        fontSize: TABLE_CELL_FONT_SIZE,
         fontWeight: 600,
-        padding: [8, 12, 8, 14],
+        lineHeight: TABLE_CELL_LINE_HEIGHT,
+        padding: KEY_PATH_CELL_PADDING,
+        textBaseline: TABLE_CELL_TEXT_BASELINE,
         autoWrapText: true,
-        lineClamp: 3,
+        lineClamp: KEY_PATH_LINE_CLAMP,
         borderColor: ['#E4E9F1', '#E4E9F1', '#E4E9F1', '#E4E9F1'],
       },
       headerStyle: {
@@ -168,12 +214,14 @@ export function TranslationGrid({
                     ? '#FFFAF0'
                     : '#FFFFFF',
             color: isUnsupported || isMissing ? '#7B8797' : '#101828',
-            fontSize: 13,
+            fontSize: TABLE_CELL_FONT_SIZE,
             fontStyle: isMissing || isUnsupported ? 'italic' : 'normal',
             fontWeight: state?.skipped ? 600 : 400,
-            padding: [8, 12, 8, 12],
+            lineHeight: TABLE_CELL_LINE_HEIGHT,
+            padding: TABLE_CELL_PADDING,
+            textBaseline: TABLE_CELL_TEXT_BASELINE,
             autoWrapText: true,
-            lineClamp: 3,
+            lineClamp: COPY_CELL_LINE_CLAMP,
             cursor: editable && !isUnsupported ? 'text' : 'default',
             marked: translationState === 'failed'
               ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#D92D20' }
@@ -209,10 +257,10 @@ export function TranslationGrid({
       columns,
       frozenColCount: 1,
       maxFrozenWidth: '46%',
-      defaultRowHeight: 56,
+      defaultRowHeight: DEFAULT_TABLE_ROW_HEIGHT,
       defaultHeaderRowHeight: [34, 42],
       widthMode: 'standard',
-      heightMode: 'standard',
+      heightMode: 'autoHeight',
       autoWrapText: true,
       enableLineBreak: true,
       editCellTrigger: ['doubleclick', 'keydown'],
@@ -354,14 +402,42 @@ export function TranslationGrid({
     tableRef.current?.setRecords(records);
   }, [records]);
 
-  if (rows.length === 0) {
-    return (
-      <div className="editor-table-empty">
-        <strong>No matching keys</strong>
-        <span>Clear the filters or choose another locale file.</span>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!focusCell || !tableRef.current) return;
+    let cancelled = false;
+    let frame = 0;
+    let retryTimer = 0;
+    let attempts = 0;
+
+    const focus = () => {
+      if (cancelled) return;
+      const table = tableRef.current;
+      if (!table) return;
+      try {
+        const focusAddress = table.getCellAddress(
+          (record: GridRecord) => record.pointer === focusCell.pointer,
+          focusCell.lang,
+        );
+        if (!focusAddress) return;
+        table.scrollToCell(focusAddress, false);
+        table.selectCell(focusAddress.col, focusAddress.row, false, false, true);
+        onSelectionChangeRef.current?.([{ lang: focusCell.lang, pointer: focusCell.pointer }]);
+      } catch {
+        attempts += 1;
+        if (attempts <= 8) retryTimer = window.setTimeout(focus, 50);
+      }
+    };
+
+    frame = window.requestAnimationFrame(() => {
+      frame = window.requestAnimationFrame(focus);
+    });
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(retryTimer);
+    };
+  }, [focusCell?.lang, focusCell?.nonce, focusCell?.pointer, records]);
 
   return <div className="translation-grid" ref={containerRef} aria-label="Locale copy table" />;
 }

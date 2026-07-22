@@ -5,10 +5,11 @@
 - `src/types/index.ts` owns public and internal TypeScript contracts for config, translation tasks, project scan data, editor rows, and save requests. Avoid duplicating shape definitions in server or UI code.
 - `src/core/config-loader.ts` owns config discovery, default merging, path resolution, validation, and route normalization.
 - `src/core/route-selector.ts`, `src/core/diff-analyzer.ts`, `src/core/translator.ts`, `src/core/file-watcher.ts`, and `src/core/project-inspector.ts` own translation semantics. Keep them free of HTTP and browser concerns.
-- `src/core/project-session.ts` owns panel process orchestration and serialization. Scan, manifest, file load, and save operations share the project-level queue.
-- `src/core/editor-service.ts` owns logical JSON file discovery, editor manifest/file construction, JSON Pointer writes, revision checks, snapshot review updates, and atomic filesystem commits.
+- `src/core/project-session.ts` owns panel process orchestration, event subscription, and serialization. Scan, manifest, file load, search, translation candidate generation, and save operations coordinate through the project-level session.
+- `src/core/panel-event-hub.ts` owns local filesystem watching for panel synchronization. It classifies config/cache/snapshot/locales changes and feeds SSE events without authorizing writes.
+- `src/core/editor-service.ts` owns logical JSON file discovery, editor manifest/file construction, workspace search, selected-cell translation candidate generation, JSON Pointer writes, accepted-translation cache validation, revision checks, snapshot review updates, and atomic filesystem commits.
 - `src/panel/contracts.ts` maps core results into panel API DTOs. Put package-version, local-only, and capability fields here instead of sprinkling them through the server.
-- `src/panel/server.ts` owns HTTP routing, loopback serving, Host/Origin checks, write-token checks, JSON body limits, security headers, static client fallback, and error serialization. It should delegate project behavior to `ProjectSession` and contract conversion helpers.
+- `src/panel/server.ts` owns HTTP routing, SSE response plumbing, translation job ids/poll/cancel lifecycle, loopback serving, Host/Origin checks, write-token checks, JSON body limits, security headers, static client fallback, and error serialization. It should delegate project behavior to `ProjectSession` and contract conversion helpers.
 
 ## Configuration and routes
 
@@ -28,7 +29,8 @@
 - Old projects and incomplete snapshots are bootstrapped conservatively: existing target translations are treated as reviewed assets until a source change happens after the baseline.
 - Changing master-route ownership does not directly rewrite target files. It changes future incremental baseline behavior.
 - Full refresh/retranslation is explicit CLI behavior. Config edits, model edits, prompt edits, panel scan, and panel overview reads must not trigger retranslation.
-- Manual editor saves do not write or delete translation cache entries.
+- Plain manual editor saves do not write or delete translation cache entries.
+- Selected-cell AI translation jobs may read from cache while producing draft candidates. A later save may write cache entries only for accepted AI drafts that still match their saved source text and saved target text. If the user edits the AI draft or the source text changes before save, treat it as human-edited copy and do not write cache.
 
 ## Editor save semantics
 
@@ -43,6 +45,18 @@
   - The edited target is reviewed against the new saved source.
   - Other targets remain pending when affected.
 - When the first editor save sees an old, missing, or incomplete snapshot, bootstrap a complete v3 baseline from the pre-save project contents, then apply the current changes. This preserves old translations as reviewed while allowing this save to produce accurate pending state.
+- `acceptedTranslations` on save is optional provenance, not a write command. Validate every item against configured route ownership, source language, target language, current saved source value, current saved target value, and the effective change set before writing it to cache.
+- Accepted AI translations must be cached only after the file save succeeds. A save conflict or partial failure must not leave cache entries for unsaved target text.
+
+## Editor AI translation jobs
+
+- Editor translation APIs generate candidate translations for the current browser draft. They do not directly write local JSON files, snapshots, or cache entries.
+- `panel --edit` is required to create or cancel translation jobs. Read-only panels may view editor data but must not run AI translation.
+- Translation requests include the logical file, revisions, snapshot revision, selected cells, optional current drafts, and options such as including skipped keys or overwriting existing drafts.
+- Resolve each target cell through its route owner and `sourceLang`. Source values should come from the current draft when the source cell is edited in the same browser draft; otherwise use disk values.
+- Skip master cells, unsupported cells, missing/non-string/empty source cells, unconfigured languages, changed drafts without overwrite permission, and skipped keys unless the request includes them.
+- Return per-cell results with `translated`, `skipped`, or `failed` status. Cache hits are candidate results and still become drafts client-side before any save.
+- Cancelling a job stops pending/running work where possible. Completed results may remain in the browser draft; cancellation must not write files.
 
 ## JSON editor model
 
@@ -61,12 +75,17 @@
   - `GET /api/health`
   - `GET /api/project`
   - `POST /api/scan`
+  - `GET /api/editor/events`
   - `GET /api/editor/manifest`
   - `GET /api/editor/file?path=...`
-- Write endpoint:
+  - `GET /api/editor/search`
+  - `GET /api/editor/translate-jobs/:id`
+- Candidate-generation and write endpoints:
+  - `POST /api/editor/translate-jobs`
+  - `DELETE /api/editor/translate-jobs/:id`
   - `PUT /api/editor/file`
 - Default panel startup is read-only. `i18n-ai-diff panel --edit` enables content editing for that process only.
-- Write requests must satisfy every boundary:
+- Write requests and AI translation job creation/cancellation must satisfy every boundary:
   - Server bound to loopback.
   - Host and Origin checks pass.
   - Current session write token is present.
@@ -79,12 +98,22 @@
 - A revision mismatch returns `409 REVISION_CONFLICT` and must not partially overwrite files.
 - Save should preflight the whole batch before committing. Commit physical files with same-directory temp files and atomic replacement. If a normal commit failure happens after a replacement, restore already replaced files from in-memory originals.
 
+## Panel synchronization
+
+- `GET /api/editor/events` is an SSE stream for local file changes. Events are hints to refresh manifests/files; they never authorize overwrites.
+- Browser tabs may use BroadcastChannel for same-browser synchronization, but backend revision checks remain mandatory for every save.
+- Coalesce or debounce bulk filesystem changes from CLI translation, cache updates, or snapshot updates so the panel does not thrash while many files are touched.
+- If a watched file changes while a browser has drafts, preserve the draft and surface that save will still use revision checks. Do not silently replace unsaved browser edits.
+
 ## Testing expectations
 
 - Config and route behavior: `tests/core/config-loader.routes.test.ts`, `tests/core/route-selector.test.ts`.
 - Diff/snapshot/cache behavior: `tests/core/diff-analyzer.routes.test.ts`, `tests/utils/cache-manager.routes.test.ts`, translator integration tests.
 - Editor write and JSON model behavior: `tests/core/editor-service.test.ts`, `tests/panel/editor-model.test.ts`.
+- Editor search, selected-cell AI translation, and accepted cache behavior: `tests/core/editor-service.test.ts`, panel API tests, and targeted regressions near the changed service.
 - Panel API security and contracts: `tests/panel/server.test.ts`.
+- SSE and file synchronization behavior: `tests/core/project-session.test.ts`, `tests/panel/server.test.ts`, or focused event-hub tests.
 - Broad backend regression: `npm test -- --run`.
 - Panel-facing contract or tooling changes: also run `npm run build:panel`.
+- Real consumer workspace changes: run `npm run test:consumer`.
 - Release or package-consumption changes: run `npm run test:package`, `npm run test:install`, or `npm run test:consumer` as appropriate.

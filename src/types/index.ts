@@ -373,6 +373,44 @@ export interface EditorFile {
   rows: EditorRow[];
 }
 
+export type EditorSearchStateFilter = 'pending' | 'missing' | 'skipped' | 'master' | 'target';
+
+export interface EditorSearchRequest {
+  query: string;
+  languages?: string[];
+  states?: EditorSearchStateFilter[];
+  includeKeys?: boolean;
+  limit?: number;
+}
+
+export interface EditorSearchMatchRange {
+  start: number;
+  end: number;
+}
+
+export interface EditorSearchResult {
+  relativePath: string;
+  pointer: string;
+  segments: string[];
+  displayPath: string;
+  lang: string;
+  sourceLang: string;
+  isMaster: boolean;
+  value: string;
+  valueMatchRanges: EditorSearchMatchRange[];
+  keyMatchRanges: EditorSearchMatchRange[];
+  cell: EditorCell;
+}
+
+export interface EditorSearchResponse {
+  query: string;
+  results: EditorSearchResult[];
+  total: number;
+  limit: number;
+  limited: boolean;
+  searchedFiles: number;
+}
+
 export interface EditorPatch {
   lang: string;
   pointer: string;
