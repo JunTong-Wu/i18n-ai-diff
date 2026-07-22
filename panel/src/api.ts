@@ -10,6 +10,11 @@ import type {
   PanelEditorTranslateJob,
   PanelEditorTranslateRequest,
   PanelProject,
+  PanelSettingsConfigFile,
+  PanelSettingsConfigSaveRequest,
+  PanelSettingsConfigSaveResult,
+  PanelTranslationRunJob,
+  PanelTranslationRunRequest,
 } from './types';
 
 export class PanelApiError extends Error {
@@ -135,6 +140,53 @@ export async function cancelEditorTranslateJob(
       Accept: 'application/json',
       'X-I18n-Panel-Token': writeToken,
     },
+  }));
+}
+
+export async function createTranslationRun(
+  request: PanelTranslationRunRequest,
+  writeToken: string,
+): Promise<PanelTranslationRunJob> {
+  return readResponse<PanelTranslationRunJob>(await fetch('/api/translation-runs', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-I18n-Panel-Token': writeToken,
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function loadTranslationRun(
+  jobId: string,
+  signal?: AbortSignal,
+): Promise<PanelTranslationRunJob> {
+  return readResponse<PanelTranslationRunJob>(await fetch(`/api/translation-runs/${encodeURIComponent(jobId)}`, {
+    headers: { Accept: 'application/json' },
+    signal,
+  }));
+}
+
+export async function loadSettingsConfig(signal?: AbortSignal): Promise<PanelSettingsConfigFile> {
+  return readResponse<PanelSettingsConfigFile>(await fetch('/api/settings/config', {
+    headers: { Accept: 'application/json' },
+    signal,
+  }));
+}
+
+export async function saveSettingsConfig(
+  request: PanelSettingsConfigSaveRequest,
+  writeToken: string,
+): Promise<PanelSettingsConfigSaveResult> {
+  return readResponse<PanelSettingsConfigSaveResult>(await fetch('/api/settings/config', {
+    method: 'PUT',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-I18n-Panel-Token': writeToken,
+    },
+    body: JSON.stringify(request),
   }));
 }
 

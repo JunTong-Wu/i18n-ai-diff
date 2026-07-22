@@ -218,10 +218,14 @@ Saving is deliberately bounded: it accepts only configured languages and existin
 
 When `panel --edit` is enabled, the editor can also translate selected target cells into the browser draft. In multi-master projects, right-click a master-language column header to run a one-time translation from another master into that master. AI results still require **Save N changes** before any local file or cache is updated.
 
+The **CLI shortcut** page is for cross-file operations that should behave like the command line. It can generate copyable commands in read-only mode, and when the panel is started with `--edit` it can run the same project-wide flows directly: incremental pending translation, force refresh with optional language scope, and one-time master-to-master translation. Unlike Copy editor AI drafts, CLI shortcut runs write local files, cache, and snapshots immediately.
+
+The **Settings** page visualizes `i18n-translate.config.mjs` as editable project structure, route, LLM, prompt, skip-key, watch, cache, and batching fields. It is viewable in read-only mode, while saving requires `panel --edit`. A settings save rewrites only the config file into the standard `defineConfig` format; it does not touch locale JSON, cache, or snapshots. Restart the panel after saving so the new routes, paths, model, or prompt become the active runtime configuration.
+
 ```bash
 npx i18n-ai-diff panel --port 4180   # Choose a local port
 npx i18n-ai-diff panel --no-open     # Start without opening the browser
-npx i18n-ai-diff panel --edit        # Enable explicit copy-editor saves
+npx i18n-ai-diff panel --edit        # Enable explicit saves, settings writes, and CLI shortcut runs
 ```
 
 ## Step 3: Run the first translation

@@ -55,9 +55,10 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 ## Desktop layout
 
 - Keep the app full-height with a compact fixed, edge-attached topbar and a full-width main workspace.
-- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
+- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The top-level destinations are Project overview, Copy editor, CLI shortcut, and Settings. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
 - Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority. Do not style the topbar as a floating rounded card.
 - Use the shared layout slots consistently across views: fixed global topbar, optional operation bar below it, content workspace, and optional fixed bottom status bar. Keep the editor table from being covered by bottom status content.
+- On feature bento pages such as CLI shortcut and Settings, card headers must use only the card icon plus one large title. Do not add eyebrow labels, small subtitles, or explanatory paragraphs inside the card header; move essential safety or state copy into the card body.
 - On the overview, use a 12-column bento grid on PC widths. Primary workspace cards use 8 columns and right-rail cards use 4 columns. Do not use full-width business cards on PC; pending, operational, project record, metrics, and scan-history surfaces must align to either the 8-column main rail or the 4-column side rail.
 - Place the title and read-only explanation at the top left. Keep `Scan project` at the top right.
 - Put the healthy state before the metrics so the scan result is understood before details.
@@ -91,7 +92,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Error: red message with a retry action; keep it concise and actionable.
 - Loading: neutral skeletons with reduced-motion fallback.
 - Hover: use fill or ink changes only on actual controls such as buttons, links, tabs, search controls, and editable file rows. Display-only route cards, record cards, metrics, badges, target pills, status summaries, and notification surfaces do not change on hover.
-- Focus: visible 3 px black outline with sufficient offset.
+- Focus: visible 3 px black outline with sufficient offset for general controls. Large text inputs and textareas use the shared `Input`/`Textarea` soft-focus treatment instead: no heavy black outline, white active field, and a quiet neutral focus halo.
 
 ## Copy editor table
 
@@ -106,7 +107,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 
 ## Editor controls, drawers, and modals
 
-- Use shadcn/Radix primitives already wrapped in `panel/src/components/ui/` for interactive overlays: `Popover`, `Sheet`, `Dialog`, `Checkbox`, `Sonner`, and the shared business `Modal` components.
+- Use shadcn/Radix primitives already wrapped in `panel/src/components/ui/` for interactive overlays and form controls: `Popover`, `Sheet`, `Dialog`, `Checkbox`, `Select`, `Input`, `Textarea`, `Sonner`, and the shared business `Modal` components.
 - All business modals must use `components/ui/modal.tsx` for the content shell, header, title/description block, close button, and actions. Feature-specific classes may define internal content layout only. Do not create one-off modal shells such as custom close buttons, header spacing, or independent overlay card styling.
 - Modal size may vary by intent: confirmation modals stay compact, workspace search can use the large size. The visual language—radius, padding, close button, title weight, action row, surface colors, and overlay treatment—must remain shared.
 - Explorer and Details must both use full-height `Sheet` drawers with matching header structure and visible close buttons. Explorer opens from the left; Details opens from the right.
@@ -116,6 +117,8 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Global workspace search is a modal. It searches copy across configured locale files, can optionally include key paths, and uses shadcn `Checkbox` controls for language/state filters.
 - Selected-cell AI translation is a confirmation modal. Translation results enter the current browser draft first; Save writes local files later. The modal must not imply direct filesystem writes. Default selected-cell translation follows CLI incremental semantics; expose `Force retranslate · ignore cache` as an explicit opt-in inside this modal when reviewed cells need fresh LLM output. Do not expose an AI override for `skipKeys`; skipped cells remain excluded from AI translation and may only be overridden through direct manual table editing.
 - Master-to-master AI translation is available only from a master language column-header context menu. Use the same shared confirmation modal shell as selected-cell translation, show the source-master selector and overwrite/cache options inside the modal, and keep results as browser drafts until Save.
+- CLI shortcut is a separate top-level page for cross-file CLI-equivalent runs. It must use the shared topbar, operation bar, bottom bar, bento card surfaces, shadcn `Dialog`/business modal shell, and black primary action. It may generate copyable commands in read-only mode, but direct execution is gated by `panel --edit` and must clearly state that it writes local files, cache, and snapshots immediately rather than creating editor drafts.
+- Settings is a separate top-level page for visual `i18n-translate.config.*` editing. It must use the shared topbar, operation bar, bottom bar, bento card surfaces, shared modal shell, shadcn-style `Input`/`Textarea` form primitives, and black primary `Save settings` action. Treat config saves as explicit local writes gated by `panel --edit`, write token, same-origin checks, and revision checks. The page must not imply that changing config rewrites locale JSON, cache, or snapshots; after saving, clearly require restarting the panel for routes, paths, model, prompt, or watcher changes to apply.
 
 ## Responsive behavior
 

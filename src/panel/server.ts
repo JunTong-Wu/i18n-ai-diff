@@ -17,13 +17,22 @@ import {
   EditorTranslateRequest,
   EditorTranslateResult,
   ProjectScan,
+  SettingsConfigFile,
+  SettingsConfigSaveRequest,
+  SettingsConfigSaveResult,
+  TranslationRunJob,
+  TranslationRunRequest,
+  TranslationRunResult,
 } from '../types/index.js';
 import { EditorServiceError } from '../core/editor-service.js';
+import { SettingsConfigError } from '../core/settings-service.js';
+import { TranslationRunError, buildTranslationRunCommand } from '../core/translation-runner.js';
 import { warn } from '../utils/logger.js';
 import {
   toPanelEditorSaveResult,
   toPanelHealth,
   toPanelProject,
+  toPanelTranslationRunJob,
 } from './contracts.js';
 
 const LOOPBACK_HOST = '127.0.0.1';
@@ -62,6 +71,9 @@ interface PanelSession {
       onProgress?: (results: EditorTranslateResult[]) => void;
     },
   ): Promise<EditorTranslateResult[]>;
+  runTranslationShortcut?(request: TranslationRunRequest): Promise<TranslationRunResult>;
+  getSettingsConfig?(editable: boolean, writeToken?: string): Promise<SettingsConfigFile>;
+  saveSettingsConfig?(request: SettingsConfigSaveRequest): Promise<SettingsConfigSaveResult>;
   subscribeToEditorEvents?(listener: (event: EditorSyncEvent) => void): () => void;
   close?(): Promise<void> | void;
 }
@@ -69,6 +81,8 @@ interface PanelSession {
 interface ServerTranslateJob extends EditorTranslateJob {
   controller: AbortController;
 }
+
+type ServerTranslationRunJob = TranslationRunJob;
 
 export async function startPanelServer(
   session: PanelSession,
@@ -83,6 +97,7 @@ export async function startPanelServer(
   };
   const writeToken = editable ? crypto.randomBytes(32).toString('base64url') : undefined;
   const translateJobs = new Map<string, ServerTranslateJob>();
+  const translationRunJobs = new Map<string, ServerTranslationRunJob>();
   let serverUrl = '';
   const runTranslateJob = async (job: ServerTranslateJob, body: EditorTranslateRequest) => {
     if (!session.translateEditorCells) {
@@ -156,6 +171,28 @@ export async function startPanelServer(
       job.updatedAt = new Date().toISOString();
     }
   };
+  const runTranslationRunJob = async (job: ServerTranslationRunJob, body: TranslationRunRequest) => {
+    if (!session.runTranslationShortcut) {
+      job.status = 'failed';
+      job.error = 'CLI shortcut API is unavailable';
+      job.updatedAt = new Date().toISOString();
+      return;
+    }
+    job.status = 'running';
+    job.updatedAt = new Date().toISOString();
+    try {
+      const result = await session.runTranslationShortcut(body);
+      job.command = result.command;
+      job.stats = result.stats;
+      job.project = result.project;
+      job.status = 'completed';
+      job.updatedAt = new Date().toISOString();
+    } catch (error) {
+      job.status = 'failed';
+      job.error = (error as Error).message;
+      job.updatedAt = new Date().toISOString();
+    }
+  };
 
   const server = http.createServer(async (request, response) => {
     applySecurityHeaders(response);
@@ -199,6 +236,41 @@ export async function startPanelServer(
         sendJson(response, 200, {
           data: toPanelProject(scan, contractContext),
         });
+        return;
+      }
+
+      if (request.method === 'GET' && requestUrl.pathname === '/api/settings/config') {
+        if (!session.getSettingsConfig) {
+          sendJson(response, 501, { error: { code: 'SETTINGS_UNAVAILABLE', message: 'Settings API is unavailable' } });
+          return;
+        }
+        sendJson(response, 200, {
+          data: await session.getSettingsConfig(editable, writeToken),
+        });
+        return;
+      }
+
+      if (request.method === 'PUT' && requestUrl.pathname === '/api/settings/config') {
+        if (!editable) {
+          sendJson(response, 403, {
+            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to write the project config' },
+          });
+          return;
+        }
+        if (!session.saveSettingsConfig) {
+          sendJson(response, 501, { error: { code: 'SETTINGS_UNAVAILABLE', message: 'Settings API is unavailable' } });
+          return;
+        }
+        if (!writeToken || request.headers['x-i18n-panel-token'] !== writeToken) {
+          sendJson(response, 403, { error: { code: 'INVALID_WRITE_TOKEN', message: 'Invalid editor write token' } });
+          return;
+        }
+        if (!request.headers['content-type']?.toLowerCase().startsWith('application/json')) {
+          sendJson(response, 415, { error: { code: 'INVALID_CONTENT_TYPE', message: 'Expected application/json' } });
+          return;
+        }
+        const body = await readJsonBody(request, 5 * 1024 * 1024) as SettingsConfigSaveRequest;
+        sendJson(response, 200, { data: await session.saveSettingsConfig(body) });
         return;
       }
 
@@ -363,6 +435,52 @@ export async function startPanelServer(
         return;
       }
 
+      if (request.method === 'POST' && requestUrl.pathname === '/api/translation-runs') {
+        if (!editable) {
+          sendJson(response, 403, {
+            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run CLI shortcuts' },
+          });
+          return;
+        }
+        if (!session.runTranslationShortcut) {
+          sendJson(response, 501, { error: { code: 'TRANSLATION_RUN_UNAVAILABLE', message: 'CLI shortcut API is unavailable' } });
+          return;
+        }
+        if (!writeToken || request.headers['x-i18n-panel-token'] !== writeToken) {
+          sendJson(response, 403, { error: { code: 'INVALID_WRITE_TOKEN', message: 'Invalid editor write token' } });
+          return;
+        }
+        if (!request.headers['content-type']?.toLowerCase().startsWith('application/json')) {
+          sendJson(response, 415, { error: { code: 'INVALID_CONTENT_TYPE', message: 'Expected application/json' } });
+          return;
+        }
+        const body = await readJsonBody(request, 5 * 1024 * 1024) as TranslationRunRequest;
+        const now = new Date().toISOString();
+        const job: ServerTranslationRunJob = {
+          id: crypto.randomUUID(),
+          status: 'queued',
+          createdAt: now,
+          updatedAt: now,
+          request: body,
+          command: safeBuildTranslationRunCommand(body),
+        };
+        translationRunJobs.set(job.id, job);
+        void runTranslationRunJob(job, body);
+        sendJson(response, 202, { data: toPanelTranslationRunJob(job, contractContext) });
+        return;
+      }
+
+      const translationRunMatch = requestUrl.pathname.match(/^\/api\/translation-runs\/([^/]+)$/u);
+      if (translationRunMatch && request.method === 'GET') {
+        const job = translationRunJobs.get(translationRunMatch[1]);
+        if (!job) {
+          sendJson(response, 404, { error: { code: 'TRANSLATION_RUN_NOT_FOUND', message: 'CLI shortcut run not found' } });
+          return;
+        }
+        sendJson(response, 200, { data: toPanelTranslationRunJob(job, contractContext) });
+        return;
+      }
+
       if (requestUrl.pathname.startsWith('/api/')) {
         sendJson(response, 404, { error: { message: 'API route not found' } });
         return;
@@ -381,6 +499,18 @@ export async function startPanelServer(
         return;
       }
       if (error instanceof EditorServiceError) {
+        sendJson(response, error.status, {
+          error: { code: error.code, message: error.message, details: error.details },
+        });
+        return;
+      }
+      if (error instanceof TranslationRunError) {
+        sendJson(response, error.status, {
+          error: { code: error.code, message: error.message },
+        });
+        return;
+      }
+      if (error instanceof SettingsConfigError) {
         sendJson(response, error.status, {
           error: { code: error.code, message: error.message, details: error.details },
         });
@@ -511,7 +641,7 @@ function isAllowedOrigin(request: IncomingMessage, serverUrl: string): boolean {
 function applySecurityHeaders(response: ServerResponse): void {
   response.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
       + "connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
   );
   response.setHeader('Referrer-Policy', 'no-referrer');
@@ -541,6 +671,14 @@ function publicTranslateJob(job: ServerTranslateJob): EditorTranslateJob {
 
 function isTranslateJobCancelled(job: ServerTranslateJob): boolean {
   return job.status === 'cancelled';
+}
+
+function safeBuildTranslationRunCommand(request: TranslationRunRequest): string {
+  try {
+    return buildTranslationRunCommand(request);
+  } catch {
+    return 'i18n-ai-diff';
+  }
 }
 
 async function serveStatic(

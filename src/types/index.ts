@@ -202,6 +202,132 @@ export interface TranslationStats {
 }
 
 /**
+ * 面板中的跨文件 CLI 快捷运行模式。
+ * 与 copy editor 的单元格候选翻译不同，这些模式会按 CLI 语义直接写入本地文件。
+ */
+export type TranslationRunMode = 'pending' | 'force' | 'master-to-master';
+
+export interface MasterToMasterRunOptions {
+  /** 一次性翻译来源母版 */
+  sourceLang: string;
+  /** 一次性翻译目标母版 */
+  targetLang: string;
+  /** 限制到一个或多个逻辑 JSON 文件 */
+  files?: string[];
+  /** 覆盖已有目标母版文案并忽略缓存 */
+  force?: boolean;
+}
+
+export interface TranslationRunRequest {
+  /** CLI 快捷运行模式 */
+  mode: TranslationRunMode;
+  /** pending / force 模式下要处理的已配置目标语言；省略表示全部目标语言 */
+  targetLangs?: string[];
+  /** master-to-master 模式参数 */
+  masterToMaster?: MasterToMasterRunOptions;
+}
+
+export interface TranslationRunResult {
+  /** 等价 CLI 命令 */
+  command: string;
+  /** 本次运行后的翻译统计 */
+  stats: TranslationStats;
+  /** 运行后重新扫描到的项目状态 */
+  project: ProjectScan;
+}
+
+export type TranslationRunJobStatus = 'queued' | 'running' | 'completed' | 'failed';
+
+export interface TranslationRunJob {
+  id: string;
+  status: TranslationRunJobStatus;
+  createdAt: string;
+  updatedAt: string;
+  request: TranslationRunRequest;
+  command: string;
+  stats?: TranslationStats;
+  project?: ProjectScan;
+  error?: string;
+}
+
+/**
+ * 面板设置页可视化编辑的翻译路由。
+ */
+export interface SettingsRouteDraft {
+  /** 母版语言 */
+  sourceLang: string;
+  /** 由该母版生成的目标语言 */
+  targetLangs: string[];
+}
+
+/**
+ * 面板设置页可视化编辑的 LLM 配置。
+ * apiKey 不在面板中展示或落入请求体；生成的配置文件始终从环境变量读取。
+ */
+export interface SettingsLLMDraft {
+  apiKeyEnv: 'OPENAI_API_KEY';
+  baseURL?: string;
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  timeout: number;
+  retries: number;
+}
+
+export interface SettingsWatchDraft {
+  enabled: boolean;
+  debounceMs: number;
+  ignored: string[];
+}
+
+/**
+ * i18n-translate.config.* 的标准化可视化配置草稿。
+ */
+export interface SettingsConfigDraft {
+  routes: SettingsRouteDraft[];
+  localesDir: string;
+  skipKeys: string[];
+  llm: SettingsLLMDraft;
+  prompt: string;
+  watch: SettingsWatchDraft;
+  cachePath: string;
+  concurrency: number;
+  batchSize: number;
+}
+
+export interface SettingsConfigFile {
+  editable: boolean;
+  writeToken?: string;
+  projectRoot: string;
+  configPath: string;
+  revision: string;
+  mode: 'single-master' | 'multi-master';
+  config: SettingsConfigDraft;
+  /** 安全预览文本；不包含从用户配置解析出的密钥字面量 */
+  raw: string;
+  standardConfigPreview: string;
+  canWrite: boolean;
+  saveUnsupportedReason?: string;
+  restartRequired: boolean;
+  warnings: string[];
+}
+
+export interface SettingsConfigSaveRequest {
+  revision: string;
+  config: SettingsConfigDraft;
+}
+
+export interface SettingsConfigSaveResult {
+  configPath: string;
+  revision: string;
+  config: SettingsConfigDraft;
+  raw: string;
+  standardConfigPreview: string;
+  restartRequired: true;
+  warnings: string[];
+}
+
+/**
  * 缓存条目
  */
 export interface CacheEntry {

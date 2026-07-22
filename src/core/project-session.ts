@@ -11,12 +11,19 @@ import {
   EditorTranslateResult,
   ProjectScan,
   ResolvedTranslateConfig,
+  SettingsConfigFile,
+  SettingsConfigSaveRequest,
+  SettingsConfigSaveResult,
+  TranslationRunRequest,
+  TranslationRunResult,
 } from '../types/index.js';
 import { loadConfigWithMetadata } from './config-loader.js';
 import { createSnapshotStore, SnapshotStore } from './diff-analyzer.js';
 import { TranslationEditorService } from './editor-service.js';
 import { PanelFileEventHub } from './panel-event-hub.js';
 import { scanProject } from './project-inspector.js';
+import { TranslationSettingsService } from './settings-service.js';
+import { runTranslationShortcut } from './translation-runner.js';
 
 export interface ProjectSessionOptions {
   configPath?: string;
@@ -29,6 +36,7 @@ export class ProjectSession {
   readonly projectRoot: string;
   private readonly editor: TranslationEditorService;
   private readonly events: PanelFileEventHub;
+  private readonly settings: TranslationSettingsService;
   private readonly snapshotStore: SnapshotStore;
   private activeScan?: Promise<ProjectScan>;
   private serial: Promise<void> = Promise.resolve();
@@ -44,6 +52,7 @@ export class ProjectSession {
     this.snapshotStore = createSnapshotStore(config.cachePath || '.i18n-translate-cache.json');
     this.editor = new TranslationEditorService(config, projectRoot);
     this.events = new PanelFileEventHub(config, configPath);
+    this.settings = new TranslationSettingsService(config, configPath, projectRoot);
   }
 
   static async open(options: ProjectSessionOptions = {}): Promise<ProjectSession> {
@@ -114,6 +123,27 @@ export class ProjectSession {
   ): Promise<EditorTranslateResult[]> {
     return this.runExclusive(async () => {
       return this.editor.translateMasterCells(request, hooks);
+    });
+  }
+
+  async runTranslationShortcut(request: TranslationRunRequest): Promise<TranslationRunResult> {
+    return this.runExclusive(async () => {
+      const result = await runTranslationShortcut(this.config, request);
+      await this.snapshotStore.load();
+      const project = await scanProject(this.config, this.projectRoot, this.configPath, this.snapshotStore);
+      return { ...result, project };
+    });
+  }
+
+  async getSettingsConfig(editable: boolean, writeToken?: string): Promise<SettingsConfigFile> {
+    return this.runExclusive(async () => {
+      return this.settings.getConfig(editable, writeToken);
+    });
+  }
+
+  async saveSettingsConfig(request: SettingsConfigSaveRequest): Promise<SettingsConfigSaveResult> {
+    return this.runExclusive(async () => {
+      return this.settings.saveConfig(request);
     });
   }
 

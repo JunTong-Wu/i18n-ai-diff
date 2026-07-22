@@ -95,6 +95,13 @@ describe('panel server', () => {
       body: '{}',
     });
     expect(readonlyWrite.status).toBe(403);
+
+    const readonlySettingsWrite = await fetch(`${server.url}/api/settings/config`, {
+      method: 'PUT',
+      headers: { origin: server.url, 'content-type': 'application/json' },
+      body: '{}',
+    });
+    expect(readonlySettingsWrite.status).toBe(403);
   });
 
   it('requires edit mode, same-origin JSON, and the session write token', async () => {
@@ -103,6 +110,7 @@ describe('panel server', () => {
     await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
     const scan = createScan();
     let saves = 0;
+    const settingsSaves: unknown[] = [];
     const file = {
       relativePath: 'common.json',
       revisions: { en: 'a', de: 'b' },
@@ -122,6 +130,50 @@ describe('panel server', () => {
       saveEditorFile: async () => {
         saves += 1;
         return { savedLanguages: ['de'], snapshotUpdated: true, file, project: scan };
+      },
+      getSettingsConfig: async (editable, writeToken) => ({
+        editable,
+        writeToken,
+        projectRoot: '/tmp/project',
+        configPath: '/tmp/project/i18n-translate.config.mjs',
+        revision: 'settings-a',
+        mode: 'single-master',
+        config: {
+          routes: [{ sourceLang: 'en', targetLangs: ['de'] }],
+          localesDir: './locales',
+          skipKeys: [],
+          llm: {
+            apiKeyEnv: 'OPENAI_API_KEY',
+            model: 'test-model',
+            baseURL: '',
+            maxTokens: 4096,
+            temperature: 0.3,
+            timeout: 60000,
+            retries: 3,
+          },
+          prompt: '',
+          watch: { enabled: false, debounceMs: 300, ignored: [] },
+          cachePath: './state/cache.json',
+          concurrency: 3,
+          batchSize: 20,
+        },
+        raw: 'export default {}',
+        standardConfigPreview: 'export default {}',
+        canWrite: true,
+        restartRequired: false,
+        warnings: [],
+      }),
+      saveSettingsConfig: async request => {
+        settingsSaves.push(request);
+        return {
+          configPath: '/tmp/project/i18n-translate.config.mjs',
+          revision: 'settings-b',
+          config: request.config,
+          raw: 'next config',
+          standardConfigPreview: 'next config',
+          restartRequired: true,
+          warnings: [],
+        };
       },
     }, {
       port: 0,
@@ -197,6 +249,37 @@ describe('panel server', () => {
       },
     });
     expect(saves).toBe(1);
+
+    const settings = await fetch(`${server.url}/api/settings/config`).then(response => response.json());
+    expect(settings.data.editable).toBe(true);
+    expect(settings.data.writeToken).toBe(manifest.data.writeToken);
+    expect(settings.data.config.routes).toEqual([{ sourceLang: 'en', targetLangs: ['de'] }]);
+
+    const settingsForbidden = await fetch(`${server.url}/api/settings/config`, {
+      method: 'PUT',
+      headers: { origin: server.url, 'content-type': 'application/json' },
+      body: JSON.stringify({ revision: 'settings-a', config: settings.data.config }),
+    });
+    expect(settingsForbidden.status).toBe(403);
+
+    const settingsSaved = await fetch(`${server.url}/api/settings/config`, {
+      method: 'PUT',
+      headers: {
+        origin: server.url,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({ revision: 'settings-a', config: settings.data.config }),
+    });
+    expect(settingsSaved.status).toBe(200);
+    expect(await settingsSaved.json()).toEqual({
+      data: expect.objectContaining({
+        revision: 'settings-b',
+        restartRequired: true,
+        raw: 'next config',
+      }),
+    });
+    expect(settingsSaves).toEqual([{ revision: 'settings-a', config: settings.data.config }]);
   });
 
   it('serves read-only editor workspace search without a write token', async () => {
@@ -393,6 +476,83 @@ describe('panel server', () => {
         status: 'translated',
       }),
     ]);
+  });
+
+  it('runs editable CLI shortcut translation jobs behind the write token', async () => {
+    const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-shortcuts-'));
+    tempDirs.push(clientRoot);
+    await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
+    const scan = createScan();
+    const runCalls: unknown[] = [];
+    const server = await startPanelServer({
+      scan: async () => scan,
+      getEditorManifest: async (editable, writeToken) => ({
+        editable,
+        writeToken,
+        routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
+        languages: ['en', 'de'],
+        files: [],
+      }),
+      runTranslationShortcut: async request => {
+        runCalls.push(request);
+        return {
+          command: 'i18n-ai-diff -l de',
+          stats: {
+            totalFiles: 1,
+            successFiles: 1,
+            failedFiles: 0,
+            totalAdded: 0,
+            totalUpdated: 1,
+            totalSkipped: 0,
+            estimatedSavedTokens: 0,
+            actualUsedTokens: 0,
+          },
+          project: scan,
+        };
+      },
+    }, {
+      port: 0,
+      open: false,
+      editable: true,
+      packageVersion: '1.2.0-test',
+      clientRoot,
+    });
+    servers.push(server);
+
+    const manifest = await fetch(`${server.url}/api/editor/manifest`).then(response => response.json());
+    const forbidden = await fetch(`${server.url}/api/translation-runs`, {
+      method: 'POST',
+      headers: { origin: server.url, 'content-type': 'application/json' },
+      body: JSON.stringify({ mode: 'pending', targetLangs: ['de'] }),
+    });
+    expect(forbidden.status).toBe(403);
+
+    const created = await fetch(`${server.url}/api/translation-runs`, {
+      method: 'POST',
+      headers: {
+        origin: server.url,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({ mode: 'pending', targetLangs: ['de'] }),
+    });
+    expect(created.status).toBe(202);
+    const createdBody = await created.json();
+    expect(createdBody.data.status).toMatch(/queued|running|completed/u);
+    expect(createdBody.data.command).toBe('i18n-ai-diff -l de');
+
+    let job = createdBody.data;
+    for (let attempt = 0; attempt < 10 && job.status !== 'completed'; attempt += 1) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      job = await fetch(`${server.url}/api/translation-runs/${job.id}`).then(response => response.json()).then(body => body.data);
+    }
+    expect(job.status).toBe('completed');
+    expect(job.stats).toEqual(expect.objectContaining({ totalFiles: 1, totalUpdated: 1 }));
+    expect(job.project).toEqual(expect.objectContaining({
+      version: '1.2.0-test',
+      capabilities: { contentEditing: true, aiTranslation: true },
+    }));
+    expect(runCalls).toEqual([{ mode: 'pending', targetLangs: ['de'] }]);
   });
 
   it('streams editor file sync events as server-sent events', async () => {

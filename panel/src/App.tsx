@@ -11,6 +11,8 @@ import {
 import type { PanelProject } from './types';
 
 const EditorPage = lazy(() => import('./editor/EditorPage'));
+const ShortcutsPage = lazy(() => import('./shortcuts/ShortcutsPage'));
+const SettingsPage = lazy(() => import('./settings/SettingsPage'));
 
 function currentBrowserLocation() {
   return {
@@ -66,7 +68,13 @@ export function App() {
   }, []);
 
   const pendingFiles = project?.totals.pendingFiles ?? 0;
-  const activeView = location.pathname === '/editor' ? 'editor' : 'overview';
+  const activeView = location.pathname === '/editor'
+    ? 'editor'
+    : location.pathname === '/shortcuts'
+      ? 'shortcuts'
+      : location.pathname === '/settings'
+        ? 'settings'
+      : 'overview';
 
   if (activeView === 'editor') {
     return (
@@ -84,6 +92,46 @@ export function App() {
       )}
       >
         <EditorPage project={project} onNavigate={navigate} onProjectChange={setProject} />
+      </Suspense>
+    );
+  }
+
+  if (activeView === 'shortcuts') {
+    return (
+      <Suspense fallback={(
+        <PanelLayout
+          activeView="shortcuts"
+          onNavigate={navigate}
+          project={project}
+          skipLabel="CLI shortcut"
+          shellClassName="is-shortcuts-shell"
+          workspaceClassName="shortcuts-workspace"
+        >
+          <LoadingState />
+        </PanelLayout>
+      )}
+      >
+        <ShortcutsPage project={project} onNavigate={navigate} onProjectChange={setProject} />
+      </Suspense>
+    );
+  }
+
+  if (activeView === 'settings') {
+    return (
+      <Suspense fallback={(
+        <PanelLayout
+          activeView="settings"
+          onNavigate={navigate}
+          project={project}
+          skipLabel="settings"
+          shellClassName="is-settings-shell"
+          workspaceClassName="settings-workspace"
+        >
+          <LoadingState />
+        </PanelLayout>
+      )}
+      >
+        <SettingsPage project={project} onNavigate={navigate} />
       </Suspense>
     );
   }

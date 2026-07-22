@@ -1,6 +1,6 @@
 ---
 name: i18n-ai-diff-ui
-description: Apply and protect the i18n-ai-diff local Web panel's approved UI system. Use when creating, modifying, reviewing, or testing files under panel/, including the overview bento workspace, VTable copy editor, Explorer/Details drawers, global search, selected-cell AI translation UI, shared shadcn/Radix primitives, panel-facing assets, responsive layouts, component states, visual tokens, or design QA.
+description: Apply and protect the i18n-ai-diff local Web panel's approved UI system. Use when creating, modifying, reviewing, or testing files under panel/, including the overview bento workspace, VTable copy editor, CLI shortcut page, Settings page, Explorer/Details drawers, global search, selected-cell AI translation UI, shared shadcn/Radix primitives, panel-facing assets, responsive layouts, component states, visual tokens, or design QA.
 ---
 
 # i18n-ai-diff UI
@@ -14,7 +14,7 @@ Read [references/style-guide.md](references/style-guide.md) completely before ch
 ## Workflow
 
 1. Preserve translation, routing, cache, snapshot, and scan semantics. Limit visual work to the panel unless the requested UI behavior requires a typed API change.
-2. Reuse shared UI primitives before adding page-local shells: `components/ui/modal.tsx`, `dialog.tsx`, `sheet.tsx`, `popover.tsx`, `checkbox.tsx`, and `sonner.tsx`.
+2. Reuse shared UI primitives before adding page-local shells: `components/ui/modal.tsx`, `dialog.tsx`, `sheet.tsx`, `popover.tsx`, `checkbox.tsx`, `select.tsx`, `input.tsx`, `textarea.tsx`, and `sonner.tsx`.
 3. Reuse the SCSS modules under `panel/src/styles/`, especially `panel/src/styles/_tokens.scss`; promote repeated values to variables instead of adding one-off colors or sizes.
 4. Keep responsive rules beside the selector they modify. Do not create catch-all `responsive/` partials or page-bottom breakpoint dumps for component-specific styles.
 5. Keep Tailwind V3 as a low-level utility layer: import `tailwind.css` before `index.scss`, keep preflight disabled, and put reusable `@apply` primitives in `_tailwind-apply.scss`.

@@ -5,7 +5,9 @@
 - `src/types/index.ts` owns public and internal TypeScript contracts for config, translation tasks, project scan data, editor rows, and save requests. Avoid duplicating shape definitions in server or UI code.
 - `src/core/config-loader.ts` owns config discovery, default merging, path resolution, validation, and route normalization.
 - `src/core/route-selector.ts`, `src/core/diff-analyzer.ts`, `src/core/translator.ts`, `src/core/file-watcher.ts`, and `src/core/project-inspector.ts` own translation semantics. Keep them free of HTTP and browser concerns.
-- `src/core/project-session.ts` owns panel process orchestration, event subscription, and serialization. Scan, manifest, file load, search, translation candidate generation, and save operations coordinate through the project-level session.
+- `src/core/translation-runner.ts` owns panel-triggered CLI shortcut execution: pending translation, force refresh, language-scoped runs, and one-time master-to-master runs. It must reuse the same translator and route-selector semantics as the CLI.
+- `src/core/settings-service.ts` owns panel-triggered visual config reads and writes for `i18n-translate.config.*`: current config projection, standard config rendering, validation, revision checks, and atomic replacement. It must never expose or write API keys.
+- `src/core/project-session.ts` owns panel process orchestration, event subscription, and serialization. Scan, manifest, file load, search, translation candidate generation, editor save operations, and CLI shortcut runs coordinate through the project-level session.
 - `src/core/panel-event-hub.ts` owns local filesystem watching for panel synchronization. It classifies config/cache/snapshot/locales changes and feeds SSE events without authorizing writes.
 - `src/core/editor-service.ts` owns logical JSON file discovery, editor manifest/file construction, workspace search, selected-cell translation candidate generation, JSON Pointer writes, accepted-translation cache validation, revision checks, snapshot review updates, and atomic filesystem commits.
 - `src/panel/contracts.ts` maps core results into panel API DTOs. Put package-version, local-only, and capability fields here instead of sprinkling them through the server.
@@ -30,6 +32,7 @@
 - Changing master-route ownership does not directly rewrite target files. It changes future incremental baseline behavior.
 - Full refresh/retranslation is explicit CLI behavior, or explicit editor `forceRetranslate` behavior for selected cells. Config edits, model edits, prompt edits, panel scan, and panel overview reads must not trigger retranslation.
 - Master-to-master translation is a special one-time flow, not route ownership. It is allowed only in multi-master mode, requires both endpoints to be configured `sourceLang` values, and must not create a normal target route or update route snapshots for the target master.
+- Panel CLI shortcut runs are direct-write equivalents of CLI commands, not browser drafts. They may update local JSON files, translation cache, and snapshots immediately after confirmation, and they must run through `ProjectSession` serialization.
 - Plain manual editor saves do not write or delete translation cache entries.
 - Selected-cell AI translation jobs, including master-to-master jobs, may read from cache while producing draft candidates. A later save may write cache entries only for accepted AI drafts that still match their saved source text and saved target text. If the user edits the AI draft or the source text changes before save, treat it as human-edited copy and do not write cache.
 
@@ -84,12 +87,16 @@
   - `GET /api/editor/search`
   - `GET /api/editor/translate-jobs/:id`
   - `GET /api/editor/master-translate-jobs/:id`
+  - `GET /api/translation-runs/:id`
+  - `GET /api/settings/config`
 - Candidate-generation and write endpoints:
   - `POST /api/editor/translate-jobs`
   - `DELETE /api/editor/translate-jobs/:id`
   - `POST /api/editor/master-translate-jobs`
   - `DELETE /api/editor/master-translate-jobs/:id`
   - `PUT /api/editor/file`
+  - `POST /api/translation-runs`
+  - `PUT /api/settings/config`
 - Default panel startup is read-only. `i18n-ai-diff panel --edit` enables content editing for that process only.
 - Write requests and AI translation job creation/cancellation must satisfy every boundary:
   - Server bound to loopback.
@@ -101,6 +108,9 @@
   - Path is a manifest-known relative `.json` logical file.
   - Absolute paths, `..`, encoded traversal, NUL bytes, unconfigured languages, and symlink traversal are rejected.
   - Revisions for all language files and the snapshot match current disk state.
+- CLI shortcut runs require the same edit mode, loopback Host/Origin checks, current session write token, JSON content type, and body-size limit. Normal and force shortcut modes only accept configured target languages in the panel; master-to-master shortcut mode only accepts configured source master languages.
+- Visual settings saves require the same edit mode, loopback Host/Origin checks, current session write token, JSON content type, body-size limit, and config-file revision check. Saving config must only rewrite the config file; it must not write locale JSON, cache, or snapshots, and the panel should require restart before new routes, paths, model, prompt, or watcher settings are treated as active.
+- Visual settings must not serialize secrets. Generated config may read `OPENAI_API_KEY` and optional `.env` values, but it must not write a resolved API key value into the repository.
 - A revision mismatch returns `409 REVISION_CONFLICT` and must not partially overwrite files.
 - Save should preflight the whole batch before committing. Commit physical files with same-directory temp files and atomic replacement. If a normal commit failure happens after a replacement, restore already replaced files from in-memory originals.
 

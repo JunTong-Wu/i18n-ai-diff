@@ -21,6 +21,12 @@ import type {
   EditorTranslateResult,
   EditorSyncEvent,
   ProjectScan,
+  SettingsConfigFile,
+  SettingsConfigSaveRequest,
+  SettingsConfigSaveResult,
+  TranslationRunJob,
+  TranslationRunRequest,
+  TranslationRunResult,
 } from '../types/index.js';
 
 export interface PanelCapabilities {
@@ -70,6 +76,16 @@ export type PanelEditorTranslateRequest = EditorTranslateRequest;
 export type PanelEditorTranslateResult = EditorTranslateResult;
 export type PanelEditorTranslateJob = EditorTranslateJob;
 export type PanelEditorSyncEvent = EditorSyncEvent;
+export type PanelTranslationRunRequest = TranslationRunRequest;
+export type PanelTranslationRunResult = Omit<TranslationRunResult, 'project'> & {
+  project: PanelProject;
+};
+export type PanelTranslationRunJob = Omit<TranslationRunJob, 'project'> & {
+  project?: PanelProject;
+};
+export type PanelSettingsConfigFile = SettingsConfigFile;
+export type PanelSettingsConfigSaveRequest = SettingsConfigSaveRequest;
+export type PanelSettingsConfigSaveResult = SettingsConfigSaveResult;
 
 export interface PanelContractContext {
   packageVersion: string;
@@ -95,6 +111,27 @@ export function toPanelEditorSaveResult(
   return {
     ...result,
     project: toPanelProject(result.project, context),
+  };
+}
+
+export function toPanelTranslationRunResult(
+  result: TranslationRunResult,
+  context: PanelContractContext,
+): PanelTranslationRunResult {
+  return {
+    ...result,
+    project: toPanelProject(result.project, context),
+  };
+}
+
+export function toPanelTranslationRunJob(
+  job: TranslationRunJob,
+  context: PanelContractContext,
+): PanelTranslationRunJob {
+  const { project, ...rest } = job;
+  return {
+    ...rest,
+    ...(project ? { project: toPanelProject(project, context) } : {}),
   };
 }
 

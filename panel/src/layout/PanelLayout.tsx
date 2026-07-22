@@ -1,10 +1,10 @@
-import { SquaresFour, Table } from '@phosphor-icons/react';
+import { GearSix, Lightning, SquaresFour, Table } from '@phosphor-icons/react';
 import type { MouseEvent, ReactNode } from 'react';
 import logoMarkUrl from '../assets/logo-mark.png';
 import { projectDirectoryName } from '../path-display';
 import type { PanelProject } from '../types';
 
-export type PanelView = 'overview' | 'editor';
+export type PanelView = 'overview' | 'editor' | 'shortcuts' | 'settings';
 
 interface PanelLayoutProps {
   activeView: PanelView;
@@ -104,6 +104,26 @@ export function PanelLayout({
             >
               <Table size={24} weight="fill" aria-hidden="true" />
               <span>Copy editor</span>
+            </a>
+            <a
+              className={activeView === 'shortcuts' ? 'nav-item is-active' : 'nav-item'}
+              href="/shortcuts"
+              aria-current={activeView === 'shortcuts' ? 'page' : undefined}
+              aria-label="CLI shortcut"
+              onClick={createNavigationHandler('/shortcuts')}
+            >
+              <Lightning size={24} weight="fill" aria-hidden="true" />
+              <span>CLI shortcut</span>
+            </a>
+            <a
+              className={activeView === 'settings' ? 'nav-item is-active' : 'nav-item'}
+              href="/settings"
+              aria-current={activeView === 'settings' ? 'page' : undefined}
+              aria-label="Settings"
+              onClick={createNavigationHandler('/settings')}
+            >
+              <GearSix size={24} weight="fill" aria-hidden="true" />
+              <span>Settings</span>
             </a>
           </nav>
 

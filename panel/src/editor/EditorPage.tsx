@@ -40,6 +40,13 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Dialog } from '../components/ui/dialog';
 import { ModalActions, ModalContent, ModalHeader, ModalTitleBlock } from '../components/ui/modal';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
 import { PanelLayout } from '../layout/PanelLayout';
 import { ConflictModal } from './ConflictModal';
@@ -855,15 +862,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     )));
   }, [manifest, visibleRows]);
 
-  const currentFilePendingCells = useMemo(() => {
-    if (!file || !manifest) return [];
-    return file.rows.flatMap(row => manifest.routes.flatMap(route => (
-      route.languages
-        .filter(lang => lang !== route.sourceLang && row.cells[lang]?.pending)
-        .map(lang => ({ lang, pointer: row.pointer }))
-    )));
-  }, [file, manifest]);
-
   const retryFailedCells = useMemo(() => [...failedTranslations.values()].map(({ error: _error, ...cell }) => cell), [failedTranslations]);
 
   const applyTranslationResults = useCallback((results: PanelEditorTranslateResult[]) => {
@@ -1537,7 +1535,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             <div className="editor-batch-action-list">
               <button type="button" onClick={() => openTranslatePreview('Translate visible pending cells', visiblePendingCells)}>Translate visible pending <b>{visiblePendingCells.length}</b></button>
               <button type="button" onClick={() => openTranslatePreview('Translate visible missing cells', visibleMissingCells)}>Translate visible missing <b>{visibleMissingCells.length}</b></button>
-              <button type="button" onClick={() => openTranslatePreview('Translate current file pending cells', currentFilePendingCells)}>Translate current file pending <b>{currentFilePendingCells.length}</b></button>
               <button type="button" disabled={retryFailedCells.length === 0} onClick={() => openTranslatePreview('Retry failed translations', retryFailedCells)}>Retry failed <b>{retryFailedCells.length}</b></button>
             </div>
           </PopoverContent>
@@ -1830,17 +1827,22 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               />
             </ModalHeader>
             <div className="translate-confirm-body">
-              <label className="translate-select-field">
+              <div className="translate-select-field">
                 <span>From master</span>
-                <select
-                  value={masterTranslatePreview.sourceLang}
-                  onChange={event => setMasterTranslatePreview(current => current && { ...current, sourceLang: event.target.value })}
+                <Select
+                  value={masterTranslatePreview.sourceLang || undefined}
+                  onValueChange={value => setMasterTranslatePreview(current => current && { ...current, sourceLang: value })}
                 >
+                  <SelectTrigger aria-label="From master">
+                    <SelectValue placeholder="Choose master" />
+                  </SelectTrigger>
+                  <SelectContent>
                   {masterLanguages.filter(lang => lang !== masterTranslatePreview.targetLang).map(lang => (
-                    <option key={lang} value={lang}>{lang}</option>
+                    <SelectItem key={lang} value={lang}>{lang}</SelectItem>
                   ))}
-                </select>
-              </label>
+                  </SelectContent>
+                </Select>
+              </div>
               <dl className="translate-confirm-stats">
                 <div><dt>Target</dt><dd>{masterTranslatePreview.targetLang}</dd></div>
                 <div><dt>Selected</dt><dd>{masterTranslatePreview.pointers.length}</dd></div>

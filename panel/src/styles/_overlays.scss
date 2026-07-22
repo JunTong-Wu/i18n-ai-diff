@@ -240,6 +240,118 @@
   color: var(--ink) !important;
 }
 
+.ui-select-trigger {
+  min-width: 8rem;
+  min-height: 2.5rem;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--muted);
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+
+  &[data-state="open"] svg {
+    transform: rotate(180deg);
+  }
+
+  &[data-placeholder] {
+    color: var(--muted);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--brand-soft);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--action-disabled-text);
+    background: var(--action-disabled-bg);
+  }
+}
+
+.ui-select-content {
+  z-index: 130;
+  min-width: var(--radix-select-trigger-width);
+  max-height: min(18rem, var(--radix-select-content-available-height));
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 18px 42px rgba(16, 24, 40, 0.16);
+  transform-origin: var(--radix-select-content-transform-origin);
+  animation: overlay-in var(--dur-1) var(--ease-out);
+}
+
+.ui-select-viewport {
+  padding: var(--space-2);
+}
+
+.ui-select-item {
+  position: relative;
+  min-height: 2.25rem;
+  display: flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem 0.45rem 2rem;
+  border-radius: var(--radius-xs);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background: var(--brand-soft);
+  }
+
+  &[data-state="checked"] {
+    background: var(--action-secondary-bg);
+  }
+
+  &[data-disabled] {
+    cursor: not-allowed;
+    color: var(--action-disabled-text);
+  }
+}
+
+.ui-select-item-indicator {
+  position: absolute;
+  left: 0.6rem;
+  width: 1rem;
+  display: inline-grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+.ui-select-scroll-button {
+  height: 1.6rem;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
 .ui-checkbox {
   width: 1.125rem;
   height: 1.125rem;

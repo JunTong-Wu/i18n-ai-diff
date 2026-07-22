@@ -6,7 +6,10 @@
 @use "overview/routes";
 @use "overview/record";
 @use "overview/changes";
+@use "shortcuts/shortcuts";
+@use "settings/settings";
 @use "feedback";
+@use "forms";
 @use "overlays";
 @use "editor/workspace";
 @use "editor/files";
