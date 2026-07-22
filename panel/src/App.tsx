@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { loadProject } from './api';
 import { PanelLayout } from './layout/PanelLayout';
+import { usePanelI18n } from './i18n';
 import {
   ErrorState,
   LoadingState,
@@ -22,6 +23,7 @@ function currentBrowserLocation() {
 }
 
 export function App() {
+  const { formatNumber, t } = usePanelI18n();
   const [project, setProject] = useState<PanelProject | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -83,7 +85,7 @@ export function App() {
           activeView="editor"
           onNavigate={navigate}
           project={project}
-          skipLabel="table editor"
+          skipLabel={t('editor.skipLabel')}
           shellClassName="is-editor-shell"
           workspaceClassName="editor-workspace"
         >
@@ -103,7 +105,7 @@ export function App() {
           activeView="shortcuts"
           onNavigate={navigate}
           project={project}
-          skipLabel="CLI shortcut"
+          skipLabel={t('nav.shortcuts')}
           shellClassName="is-shortcuts-shell"
           workspaceClassName="shortcuts-workspace"
         >
@@ -123,7 +125,7 @@ export function App() {
           activeView="settings"
           onNavigate={navigate}
           project={project}
-          skipLabel="settings"
+          skipLabel={t('nav.settings')}
           shellClassName="is-settings-shell"
           workspaceClassName="settings-workspace"
         >
@@ -141,7 +143,7 @@ export function App() {
       activeView="overview"
       bottomBar={project ? <OverviewBottomBar project={project} /> : undefined}
       bottomBarClassName="overview-bottom-bar"
-      bottomBarLabel="Overview status"
+      bottomBarLabel={t('overview.statusLabel')}
       onNavigate={navigate}
       operationBar={project ? (
         <OverviewOperationBar
@@ -152,14 +154,14 @@ export function App() {
         />
       ) : undefined}
       operationBarClassName="overview-operation-bar"
-      operationBarLabel="Project overview controls"
+      operationBarLabel={t('overview.controlsLabel')}
       project={project}
-      skipLabel="project overview"
+      skipLabel={t('nav.overview')}
       shellClassName="is-overview-shell"
       liveStatus={refreshing
-        ? 'Scanning translation project'
+        ? t('app.scanningProject')
         : project
-          ? `Scan complete. ${pendingFiles} pending files.`
+          ? t('app.scanComplete', { count: formatNumber(pendingFiles) })
           : ''}
     >
       {loading && !project && <LoadingState />}

@@ -150,8 +150,35 @@
   }
 }
 
-.settings-panel-empty {
-  min-height: 6rem;
+.settings-panel-options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.settings-select-field {
+  min-width: 0;
+  display: grid;
+  gap: 0.45rem;
+
+  > span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  .ui-select-trigger {
+    width: 100%;
+    justify-content: space-between;
+    background: var(--surface-quiet);
+  }
+}
+
+.settings-panel-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: 1.45;
 }
 
 .settings-placeholder-card {

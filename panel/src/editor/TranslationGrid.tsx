@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { ListTable, type ColumnsDefine, type ListTableConstructorOptions, type TYPES } from '@visactor/vtable';
 import { TextAreaEditor, type RectProps } from '@visactor/vtable-editors';
+import { usePanelI18n } from '../i18n';
 import type { PanelEditorManifest, PanelEditorRow } from '../types';
 import { draftIdentity, effectiveCellValue, type DraftMap } from './model';
 
@@ -98,11 +99,12 @@ interface GridRecord extends Record<string, unknown> {
 }
 
 export function TranslationGrid(props: TranslationGridProps) {
+  const { t } = usePanelI18n();
   if (props.rows.length === 0) {
     return (
       <div className="editor-table-empty">
-        <strong>No matching keys</strong>
-        <span>Clear the filters or choose another locale file.</span>
+        <strong>{t('editor.noMatchingKeys')}</strong>
+        <span>{t('editor.clearFilters')}</span>
       </div>
     );
   }
@@ -121,6 +123,7 @@ function TranslationGridTable({
   onContextMenu,
   onSelectionChange,
 }: TranslationGridProps) {
+  const { t } = usePanelI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<ListTable | null>(null);
   const recordsRef = useRef<GridRecord[]>([]);
@@ -163,7 +166,7 @@ function TranslationGridTable({
   const columns = useMemo<ColumnsDefine>(() => {
     const keyColumn = {
       field: 'keyPath',
-      title: 'Key path',
+      title: t('editor.keyPath'),
       width: 290,
       minWidth: 220,
       maxWidth: 420,
@@ -190,7 +193,7 @@ function TranslationGridTable({
       },
     };
     const groups = manifest.routes.map(route => ({
-      title: `${route.sourceLang} route`,
+      title: t('editor.routeTitle', { sourceLang: route.sourceLang }),
       headerStyle: {
         bgColor: '#F8FAFD',
         color: '#5D6979',
@@ -202,16 +205,16 @@ function TranslationGridTable({
       columns: route.languages.map(lang => ({
         field: lang,
         key: lang,
-        title: lang === route.sourceLang ? `${lang}  ·  Master` : lang,
+        title: lang === route.sourceLang ? `${lang}  ·  ${t('common.master')}` : lang,
         width: 250,
         minWidth: 190,
         maxWidth: 420,
         fieldFormat: (record: GridRecord) => {
           const state = record.__states[lang];
-          if (state.kind === 'unsupported') return 'Non-string value';
-          if (state.kind === 'missing' && !state.changed) return 'Missing';
+          if (state.kind === 'unsupported') return t('editor.nonStringValue');
+          if (state.kind === 'missing' && !state.changed) return t('common.missing');
           const value = record[lang];
-          return value === '' ? 'Empty string' : value;
+          return value === '' ? t('common.emptyString') : value;
         },
         editor: ((args: { col: number; row: number; table: ListTable }) => {
           const record = args.table.getCellOriginRecord(args.col, args.row) as GridRecord | undefined;
@@ -275,7 +278,7 @@ function TranslationGridTable({
       })),
     }));
     return [keyColumn, ...groups] as ColumnsDefine;
-  }, [editable, manifest.routes]);
+  }, [editable, manifest.routes, t]);
 
   useEffect(() => {
     if (!containerRef.current) return undefined;
@@ -426,13 +429,20 @@ function TranslationGridTable({
       if (changes.length > 0) onChangeRef.current(changes);
     };
     let selectedCell: { col: number; row: number } | null = null;
+    let selectionFrame = 0;
+    const publishSelectedCells = () => {
+      if (selectionFrame) window.cancelAnimationFrame(selectionFrame);
+      selectionFrame = window.requestAnimationFrame(() => {
+        selectionFrame = 0;
+        onSelectionChangeRef.current?.(collectSelectedCells());
+      });
+    };
     const handleSelectedCell = (event: TYPES.TableEventHandlersEventArgumentMap['selected_cell']) => {
       selectedCell = { col: event.col, row: event.row };
-      const cell = cellFromPosition(event.col, event.row);
-      if (cell) onSelectionChangeRef.current?.([cell]);
+      publishSelectedCells();
     };
     const handleSelectedChanged = () => {
-      onSelectionChangeRef.current?.(collectSelectedCells());
+      publishSelectedCells();
     };
     const handleContextMenu = (event: TYPES.TableEventHandlersEventArgumentMap['contextmenu_cell']) => {
       const x = event.event instanceof MouseEvent ? event.event.clientX : 0;
@@ -505,6 +515,7 @@ function TranslationGridTable({
       table.off('drag_select_end', handleSelectedChanged as never);
       table.off('contextmenu_cell', handleContextMenu as never);
       table.off('before_keydown', handleBeforeKeydown as never);
+      if (selectionFrame) window.cancelAnimationFrame(selectionFrame);
       table.release();
       tableRef.current = null;
     };
@@ -551,5 +562,5 @@ function TranslationGridTable({
     };
   }, [focusCell?.lang, focusCell?.nonce, focusCell?.pointer, records]);
 
-  return <div className="translation-grid" ref={containerRef} aria-label="Locale copy table" />;
+  return <div className="translation-grid" ref={containerRef} aria-label={t('editor.localeTable')} />;
 }

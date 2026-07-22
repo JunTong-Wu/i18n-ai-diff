@@ -26,8 +26,16 @@ import {
   ModalTitleBlock,
 } from '../components/ui/modal';
 import { Input } from '../components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { toast } from '../components/ui/sonner';
 import { Textarea } from '../components/ui/textarea';
+import { usePanelI18n, type PanelLocale } from '../i18n';
 import { PanelLayout } from '../layout/PanelLayout';
 import { projectRelativePath } from '../path-display';
 import type {
@@ -43,6 +51,7 @@ interface SettingsPageProps {
 }
 
 function SettingsPage({ project, onNavigate }: SettingsPageProps) {
+  const { locale, setLocale, t } = usePanelI18n();
   const [settings, setSettings] = useState<PanelSettingsConfigFile | null>(null);
   const [draft, setDraft] = useState<SettingsDraft | null>(null);
   const [initialDraftKey, setInitialDraftKey] = useState('');
@@ -51,7 +60,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [confirmingSave, setConfirmingSave] = useState(false);
 
-  usePanelErrorToast(error, 'Settings failed');
+  usePanelErrorToast(error, t('settings.failedTitle'));
 
   const loadSettings = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
@@ -84,13 +93,13 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
   const configPath = settings?.configPath || project?.configPath || '';
   const displayConfigPath = settings && configPath
     ? projectRelativePath(configPath, settings.projectRoot)
-    : configPath || 'Reading config…';
+    : configPath || t('settings.readingConfig');
   const restartRequired = settings?.restartRequired === true;
   const bottomStatusLabel = settings?.saveUnsupportedReason
-    ? 'Config is read-only in visual settings'
+    ? t('settings.readonlyConfig')
     : restartRequired
-      ? 'Saved config is waiting for panel restart'
-      : 'Config loaded in this panel session';
+      ? t('settings.restartWaiting')
+      : t('settings.loadedSession');
   const bottomStatusWarning = restartRequired || Boolean(settings?.saveUnsupportedReason);
 
   const updateDraft = useCallback((recipe: (current: SettingsDraft) => SettingsDraft) => {
@@ -120,8 +129,8 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
         mode: nextConfig.routes.length > 1 ? 'multi-master' : 'single-master',
         warnings: result.warnings,
       } : current);
-      toast.success('Settings saved', {
-        description: 'Restart the panel for route, path, prompt, or watcher changes to apply.',
+      toast.success(t('settings.saved'), {
+        description: t('settings.restartToast'),
       });
     } catch (requestError) {
       const message = requestError instanceof PanelApiError
@@ -138,14 +147,14 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
       <div className="settings-operation-left">
         <div className="settings-title-cluster">
           <GearSix size={17} weight="fill" aria-hidden="true" />
-          <h1>Settings</h1>
+          <h1>{t('settings.title')}</h1>
         </div>
         {restartRequired && (
-          <span className="settings-operation-pill is-warning">Restart required</span>
+          <span className="settings-operation-pill is-warning">{t('settings.restartRequired')}</span>
         )}
         {settings?.saveUnsupportedReason && (
           <span className="settings-operation-pill is-warning" title={settings.saveUnsupportedReason}>
-            Read-only config
+            {t('settings.readonlyPill')}
           </span>
         )}
       </div>
@@ -162,7 +171,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
           }}
         >
           <ArrowsClockwise size={16} aria-hidden="true" />
-          <span>Reset</span>
+          <span>{t('common.reset')}</span>
         </button>
         <button
           type="button"
@@ -171,7 +180,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
           onClick={() => setConfirmingSave(true)}
         >
           {saving ? <ArrowsClockwise size={16} className="is-spinning" aria-hidden="true" /> : <FloppyDisk size={16} aria-hidden="true" />}
-          <span>{saving ? 'Saving…' : 'Save settings'}</span>
+          <span>{saving ? t('settings.saving') : t('settings.save')}</span>
         </button>
       </div>
     </>
@@ -195,31 +204,31 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
       activeView="settings"
       bottomBar={bottomBar}
       bottomBarClassName="settings-bottom-bar"
-      bottomBarLabel="Settings status"
+      bottomBarLabel={t('settings.statusLabel')}
       operationBar={operationBar}
       operationBarClassName="settings-operation-bar"
-      operationBarLabel="Settings controls"
+      operationBarLabel={t('settings.controlsLabel')}
       onNavigate={onNavigate}
       project={project}
-      skipLabel="settings"
+      skipLabel={t('nav.settings')}
       shellClassName="is-settings-shell"
       workspaceClassName="settings-workspace"
-      liveStatus={saving ? 'Saving visual settings' : undefined}
+      liveStatus={saving ? t('settings.savingLive') : undefined}
     >
       <div className="workspace-content settings-bento">
         {loading && (
           <section className="settings-placeholder-card bento-card">
             <ArrowsClockwise className="is-spinning" size={22} aria-hidden="true" />
-            <span>Loading i18n-translate config…</span>
+            <span>{t('settings.loading')}</span>
           </section>
         )}
 
         {!loading && !draft && (
           <section className="settings-placeholder-card bento-card is-error">
             <WarningCircle size={22} weight="fill" aria-hidden="true" />
-            <span>{error || 'Unable to load settings.'}</span>
+            <span>{error || t('settings.loadFailed')}</span>
             <button type="button" className="layout-control-button" onClick={() => void loadSettings()}>
-              Retry
+              {t('common.retry')}
             </button>
           </section>
         )}
@@ -230,23 +239,23 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
               <SettingsCardHeading
                 icon={<SlidersHorizontal size={23} weight="bold" />}
                 tone="cobalt"
-                title="Language routes"
+                title={t('settings.languageRoutes')}
                 titleId="settings-routes-title"
                 trailing={(
                   <span className="settings-mode-badge">
-                    {settings.mode === 'multi-master' ? 'Multi-master' : 'Single-master'}
+                    {settings.mode === 'multi-master' ? t('common.multiMaster') : t('common.singleMaster')}
                   </span>
                 )}
               />
 
               <div className="settings-field-grid">
                 <TextField
-                  label="Locales directory"
+                  label={t('settings.localesDir')}
                   value={draft.localesDir}
                   onChange={value => updateDraft(current => ({ ...current, localesDir: value }))}
                 />
                 <TextField
-                  label="Cache file"
+                  label={t('settings.cacheFile')}
                   value={draft.cachePath}
                   onChange={value => updateDraft(current => ({ ...current, cachePath: value }))}
                 />
@@ -256,7 +265,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                 {draft.routes.map((route, index) => (
                   <div key={`${index}-${route.sourceLang}`} className="settings-route-editor">
                     <TextField
-                      label={`Route ${index + 1} master`}
+                      label={t('settings.routeMaster', { index: index + 1 })}
                       value={route.sourceLang}
                       onChange={value => updateDraft(current => replaceRoute(current, index, {
                         ...route,
@@ -264,7 +273,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                       }))}
                     />
                     <TextField
-                      label="Target languages"
+                      label={t('settings.targetLanguages')}
                       value={route.targetLangs.join(', ')}
                       placeholder="ja, ko"
                       onChange={value => updateDraft(current => replaceRoute(current, index, {
@@ -275,7 +284,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                     <button
                       type="button"
                       className="settings-icon-button"
-                      aria-label={`Remove route ${index + 1}`}
+                      aria-label={t('settings.removeRoute', { index: index + 1 })}
                       disabled={draft.routes.length <= 1}
                       onClick={() => updateDraft(current => ({
                         ...current,
@@ -297,7 +306,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                 }))}
               >
                 <ListPlus size={16} aria-hidden="true" />
-                <span>Add master route</span>
+                <span>{t('settings.addRoute')}</span>
               </button>
             </section>
 
@@ -305,32 +314,46 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
               <SettingsCardHeading
                 icon={<Palette size={23} weight="bold" />}
                 tone="amber"
-                title="Panel style"
+                title={t('settings.panelStyle')}
                 titleId="settings-panel-title"
                 compact
               />
 
-              <div className="settings-panel-empty" aria-hidden="true" />
+              <div className="settings-panel-options">
+                <div className="settings-select-field">
+                  <span>{t('settings.panelLanguage')}</span>
+                  <Select value={locale} onValueChange={value => setLocale(value as PanelLocale)}>
+                    <SelectTrigger aria-label={t('settings.panelLanguage')}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">{t('settings.languageEnglish')}</SelectItem>
+                      <SelectItem value="zh-CN">{t('settings.languageChinese')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <p className="settings-panel-note">{t('settings.panelLanguageHelp')}</p>
+              </div>
             </section>
 
             <section className="settings-rules-card bento-card" aria-labelledby="settings-rules-title">
               <SettingsCardHeading
                 icon={<Code size={23} weight="bold" />}
                 tone="teal"
-                title="AI behavior"
+                title={t('settings.aiBehavior')}
                 titleId="settings-rules-title"
               />
 
               <div className="settings-number-grid">
                 <NumberField
-                  label="Concurrency"
+                  label={t('settings.concurrency')}
                   min={1}
                   max={10}
                   value={draft.concurrency}
                   onChange={value => updateDraft(current => ({ ...current, concurrency: value }))}
                 />
                 <NumberField
-                  label="Batch size"
+                  label={t('settings.batchSize')}
                   min={1}
                   max={100}
                   value={draft.batchSize}
@@ -340,16 +363,16 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
 
               <div className="settings-rules-grid">
                 <TextAreaField
-                  label="Custom prompt"
+                  label={t('settings.customPrompt')}
                   value={draft.prompt}
-                  placeholder="Brand terms, tone, formatting, domain vocabulary…"
+                  placeholder={t('settings.promptPlaceholder')}
                   rows={9}
                   onChange={value => updateDraft(current => ({ ...current, prompt: value }))}
                 />
                 <TextAreaField
-                  label="Skip keys"
+                  label={t('settings.skipKeys')}
                   value={draft.skipKeys.join('\n')}
-                  placeholder="One matcher per line"
+                  placeholder={t('settings.skipPlaceholder')}
                   rows={9}
                   onChange={value => updateDraft(current => ({
                     ...current,
@@ -360,7 +383,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
 
               <div className="settings-watch-panel">
                 <NumberField
-                  label="Watch debounce"
+                  label={t('settings.watchDebounce')}
                   min={0}
                   max={60000}
                   value={draft.watch.debounceMs}
@@ -370,7 +393,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                   }))}
                 />
                 <TextAreaField
-                  label="Watch ignored patterns"
+                  label={t('settings.watchIgnored')}
                   value={draft.watch.ignored.join('\n')}
                   placeholder="node_modules/**"
                   rows={4}
@@ -386,21 +409,21 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
               <SettingsCardHeading
                 icon={<Key size={23} weight="bold" />}
                 tone="violet"
-                title="Model runtime"
+                title={t('settings.modelRuntime')}
                 titleId="settings-llm-title"
                 compact
               />
 
               <div className="settings-runtime-list">
-                <RuntimeField label="Model" value={draft.llm.model || 'Default model'} />
-                <RuntimeField label="Base URL" value={draft.llm.baseURL || 'Provider default'} />
-                <RuntimeField label="Max tokens" value={String(draft.llm.maxTokens)} />
-                <RuntimeField label="Temperature" value={String(draft.llm.temperature)} />
-                <RuntimeField label="Timeout" value={`${draft.llm.timeout} ms`} />
-                <RuntimeField label="Retries" value={String(draft.llm.retries)} />
+                <RuntimeField label={t('settings.model')} value={draft.llm.model || t('common.defaultModel')} />
+                <RuntimeField label={t('settings.baseUrl')} value={draft.llm.baseURL || t('common.providerDefault')} />
+                <RuntimeField label={t('settings.maxTokens')} value={String(draft.llm.maxTokens)} />
+                <RuntimeField label={t('settings.temperature')} value={String(draft.llm.temperature)} />
+                <RuntimeField label={t('settings.timeout')} value={`${draft.llm.timeout} ms`} />
+                <RuntimeField label={t('settings.retries')} value={String(draft.llm.retries)} />
                 <div className="settings-secret-note">
                   <Key size={16} aria-hidden="true" />
-                  <span>Resolved from current config · not rewritten by Settings</span>
+                  <span>{t('settings.runtimeNote')}</span>
                 </div>
               </div>
             </section>
@@ -414,39 +437,39 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
           <ModalContent className="settings-confirm-modal" size="lg" aria-describedby="settings-confirm-description">
             <ModalHeader icon={<GearSix size={20} weight="bold" />}>
               <ModalTitleBlock
-                title="Save visual settings"
+                title={t('settings.confirmTitle')}
                 descriptionId="settings-confirm-description"
-                description="This updates i18n-translate.config.mjs only. Locale JSON files, cache, and snapshots are not changed by this save."
+                description={t('settings.confirmDescription')}
               />
             </ModalHeader>
             <div className="settings-confirm-body">
               <div className="settings-confirm-note">
                 <WarningCircle size={18} weight="fill" aria-hidden="true" />
-                <span>Settings will patch managed defineConfig fields in place. Custom imports, helper functions, comments outside changed managed properties, and the llm block are preserved.</span>
+                <span>{t('settings.confirmNote')}</span>
               </div>
               <dl className="settings-confirm-grid">
                 <div>
-                  <dt>Routes</dt>
+                  <dt>{t('common.routes')}</dt>
                   <dd>{draft.routes.length}</dd>
                 </div>
                 <div>
-                  <dt>Targets</dt>
+                  <dt>{t('common.targets')}</dt>
                   <dd>{draft.routes.reduce((total, route) => total + route.targetLangs.length, 0)}</dd>
                 </div>
                 <div>
-                  <dt>Runtime</dt>
-                  <dd>Preserved</dd>
+                  <dt>{t('common.runtime')}</dt>
+                  <dd>{t('common.preserved')}</dd>
                 </div>
                 <div>
-                  <dt>Restart</dt>
-                  <dd>Required</dd>
+                  <dt>{t('common.restart')}</dt>
+                  <dd>{t('common.required')}</dd>
                 </div>
               </dl>
             </div>
             <ModalActions>
-              <button type="button" className="button-tertiary" onClick={() => setConfirmingSave(false)}>Cancel</button>
+              <button type="button" className="button-tertiary" onClick={() => setConfirmingSave(false)}>{t('common.cancel')}</button>
               <button type="button" className="button-primary" disabled={!canSave} onClick={() => void saveConfirmed()}>
-                Save settings
+                {t('settings.save')}
               </button>
             </ModalActions>
           </ModalContent>

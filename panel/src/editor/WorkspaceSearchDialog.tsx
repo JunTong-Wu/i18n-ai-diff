@@ -8,6 +8,7 @@ import { searchEditorCopy } from '../api';
 import { Checkbox } from '../components/ui/checkbox';
 import { Dialog } from '../components/ui/dialog';
 import { ModalContent, ModalHeader, ModalTitleBlock } from '../components/ui/modal';
+import { usePanelI18n } from '../i18n';
 import type {
   PanelEditorFile,
   PanelEditorManifest,
@@ -31,13 +32,7 @@ type WorkspaceSearchDisplayResult = PanelEditorSearchResult & {
 };
 
 const SEARCH_LIMIT = 200;
-const STATE_FILTERS: Array<{ value: PanelEditorSearchStateFilter; label: string }> = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'missing', label: 'Missing' },
-  { value: 'skipped', label: 'Skipped' },
-  { value: 'master', label: 'Master' },
-  { value: 'target', label: 'Target' },
-];
+const STATE_FILTERS: PanelEditorSearchStateFilter[] = ['pending', 'missing', 'skipped', 'master', 'target'];
 
 export function WorkspaceSearchDialog({
   open,
@@ -47,6 +42,7 @@ export function WorkspaceSearchDialog({
   onOpenChange,
   onOpenResult,
 }: WorkspaceSearchDialogProps) {
+  const { t } = usePanelI18n();
   const [query, setQuery] = useState('');
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedStates, setSelectedStates] = useState<PanelEditorSearchStateFilter[]>([]);
@@ -133,30 +129,30 @@ export function WorkspaceSearchDialog({
       <ModalContent className="workspace-search-dialog" size="xl" aria-describedby="workspace-search-description">
         <ModalHeader>
           <ModalTitleBlock
-            title="Search workspace"
+            title={t('search.title')}
             descriptionId="workspace-search-description"
-            description="Find copy across every configured locale file, then jump straight to the table cell."
+            description={t('search.description')}
           />
         </ModalHeader>
 
         <label className="workspace-search-input">
           <MagnifyingGlass size={20} aria-hidden="true" />
-          <span className="sr-only">Search all locale copy</span>
+          <span className="sr-only">{t('search.inputSr')}</span>
           <input
             autoFocus
             value={query}
             onChange={event => setQuery(event.target.value)}
-            placeholder="Search all locale copy…"
+            placeholder={t('search.placeholder')}
           />
         </label>
 
         <div className="workspace-search-controls">
-          <section className="workspace-search-control-group" aria-label="Workspace search languages">
-            <span>Languages</span>
+          <section className="workspace-search-control-group" aria-label={t('search.languages')}>
+            <span>{t('search.languages')}</span>
             <div className="workspace-search-checkbox-grid">
               <FilterCheckbox
                 checked={selectedLanguages.length === 0}
-                label="All languages"
+                label={t('search.allLanguages')}
                 onCheckedChange={checked => {
                   if (checked) setSelectedLanguages([]);
                   else setSelectedLanguages(manifest?.languages || []);
@@ -173,26 +169,26 @@ export function WorkspaceSearchDialog({
             </div>
           </section>
 
-          <section className="workspace-search-control-group" aria-label="Workspace search states">
-            <span>States</span>
+          <section className="workspace-search-control-group" aria-label={t('search.states')}>
+            <span>{t('search.states')}</span>
             <div className="workspace-search-checkbox-grid">
               {STATE_FILTERS.map(filter => (
                 <FilterCheckbox
-                  key={filter.value}
-                  checked={selectedStates.includes(filter.value)}
-                  label={filter.label}
-                  onCheckedChange={() => toggleState(filter.value)}
+                  key={filter}
+                  checked={selectedStates.includes(filter)}
+                  label={searchStateLabel(filter, t)}
+                  onCheckedChange={() => toggleState(filter)}
                 />
               ))}
             </div>
           </section>
 
-          <section className="workspace-search-control-group is-compact" aria-label="Workspace search options">
-            <span>Options</span>
+          <section className="workspace-search-control-group is-compact" aria-label={t('search.options')}>
+            <span>{t('search.options')}</span>
             <div className="workspace-search-checkbox-grid">
               <FilterCheckbox
                 checked={includeKeys}
-                label="Include key path"
+                label={t('search.includeKeyPath')}
                 onCheckedChange={checked => setIncludeKeys(checked === true)}
               />
             </div>
@@ -201,10 +197,10 @@ export function WorkspaceSearchDialog({
 
         <div className="workspace-search-summary" role="status" aria-live="polite">
           {loading
-            ? 'Searching locale files…'
+            ? t('search.searching')
             : readyToSearch
-              ? `${total} match${total === 1 ? '' : 'es'}${response?.limited ? ` · first ${response.limit}` : ''}`
-              : 'Type copy, or choose a state filter.'}
+              ? `${t('search.matches', { count: total })}${response?.limited ? ` · ${t('search.firstLimit', { limit: response.limit })}` : ''}`
+              : t('search.typeCopy')}
         </div>
 
         {error && (
@@ -217,14 +213,14 @@ export function WorkspaceSearchDialog({
           {!readyToSearch && (
             <div className="workspace-search-empty">
               <MagnifyingGlass size={24} aria-hidden="true" />
-              <span>Search by visible copy first. Add key path matching only when you need structural lookup.</span>
+              <span>{t('search.emptyHint')}</span>
             </div>
           )}
 
           {readyToSearch && !loading && !error && groups.length === 0 && (
             <div className="workspace-search-empty">
               <FileText size={24} aria-hidden="true" />
-              <span>No matching copy found in configured locale files.</span>
+              <span>{t('search.noResults')}</span>
             </div>
           )}
 
@@ -249,18 +245,18 @@ export function WorkspaceSearchDialog({
                     </span>
                     <span className="workspace-search-result-meta">
                       <b>{result.lang}</b>
-                      {result.isMaster && <em>Master</em>}
-                      {result.cell.pending && <em className="is-pending">Pending</em>}
-                      {result.cell.kind === 'missing' && <em>Missing</em>}
-                      {result.cell.skipped && <em>Skipped</em>}
-                      {result.draft && <em>Draft</em>}
+                      {result.isMaster && <em>{t('search.master')}</em>}
+                      {result.cell.pending && <em className="is-pending">{t('search.pending')}</em>}
+                      {result.cell.kind === 'missing' && <em>{t('search.missing')}</em>}
+                      {result.cell.skipped && <em>{t('search.skipped')}</em>}
+                      {result.draft && <em>{t('search.draft')}</em>}
                     </span>
                     <span className="workspace-search-result-copy">
                       {result.value
                         ? <Highlight value={result.value} ranges={result.valueMatchRanges} />
                         : result.cell.kind === 'missing'
-                          ? 'Missing'
-                          : 'Empty string'}
+                          ? t('common.missing')
+                          : t('common.emptyString')}
                     </span>
                   </button>
                 ))}
@@ -430,4 +426,15 @@ function sourceLangForLanguage(manifest: PanelEditorManifest, lang: string): str
   const sourceRoute = manifest.routes.find(route => route.sourceLang === lang);
   if (sourceRoute) return sourceRoute.sourceLang;
   return manifest.routes.find(route => route.languages.includes(lang))?.sourceLang || lang;
+}
+
+function searchStateLabel(
+  state: PanelEditorSearchStateFilter,
+  t: ReturnType<typeof usePanelI18n>['t'],
+): string {
+  if (state === 'pending') return t('search.pending');
+  if (state === 'missing') return t('search.missing');
+  if (state === 'skipped') return t('search.skipped');
+  if (state === 'master') return t('search.master');
+  return t('common.target');
 }

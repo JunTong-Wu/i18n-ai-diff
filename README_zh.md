@@ -22,7 +22,7 @@ npm install i18n-ai-diff
 
 在项目中创建一个语言目录。每种语言占一个子目录，内部可以包含任意层级的 JSON 文件。
 
-最简单的单母版项目只需要先创建母版目录：
+最简单的单母版模式项目只需要先创建母版目录：
 
 ```text
 src/i18n/messages/
@@ -148,16 +148,16 @@ src/i18n/messages/
 └── es/
 ```
 
-多母版规则：
+多母版模式规则：
 
 - 每个母版语言只能配置一条路由
 - 每个目标语言只能属于一个母版路由
 - 同一种语言不能同时作为母版语言和目标语言，以免 Watch 模式产生链式回写
-- 多母版 `routes` 使用 `sourceLang + targetLangs`，不能与顶层 `baseLang + targetLangs` 混用
+- 多母版模式 `routes` 使用 `sourceLang + targetLangs`，不能与顶层 `baseLang + targetLangs` 混用
 - 将目标语言改分配给其他母版时，会保留已有译文并建立新的增量基线
 
 无论使用哪种模式，内部都会统一转换为 `sourceLang → targetLang` 翻译任务，缓存和快照也使用同一套隔离规则。
-旧版多母版 route 中的 `baseLang` 字段仍可被读取，用于兼容已有项目；新配置建议使用 `sourceLang`。
+旧版多母版模式 route 中的 `baseLang` 字段仍可被读取，用于兼容已有项目；新配置建议使用 `sourceLang`。
 
 ## 常用配置
 
@@ -209,9 +209,9 @@ export default defineConfig({
 npx i18n-ai-diff panel
 ```
 
-面板只监听 `127.0.0.1`，并默认使用系统浏览器打开。项目概览保持只读：它可以展示单母版或多母版路由、扫描源文件与目标文件差异，并查看缓存和快照状态，但不会调用 LLM，也不会写入翻译文件。
+面板只监听 `127.0.0.1`，并默认使用系统浏览器打开。项目概览保持只读：它可以展示单母版模式或多母版模式路由、扫描源文件与目标文件差异，并查看缓存和快照状态，但不会调用 LLM，也不会写入翻译文件。
 
-**文案管理**会把所有已配置语言中的现有字符串 key 对齐到一张表格中。面板默认仍为只读；需要保存人工校对的文案时，必须显式启用编辑权限：
+**表格编辑器（Table editor）**会把所有已配置语言中的现有字符串 key 对齐到一张表格中。面板默认仍为只读；需要保存人工校对的文案时，必须显式启用编辑权限：
 
 ```bash
 npx i18n-ai-diff panel --edit
@@ -223,12 +223,12 @@ npx i18n-ai-diff panel --edit
 
 **CLI shortcut** 页面用于处理跨文件操作，行为应当与命令行一致。只读模式下它可以生成可复制命令；使用 `--edit` 启动面板后，它可以直接执行项目级流程：增量翻译 Pending、按语言范围强制刷新、以及一次性的母版到母版翻译。与 Table editor 中先进入浏览器草稿的 AI 翻译不同，CLI shortcut 执行后会立即写入本地文件、缓存和快照。
 
-**Settings** 页面用于可视化编辑 `i18n-translate.config.mjs` 中的项目结构、语言路由、locale/cache 路径，以及 Prompt、skip keys、concurrency、batch size、CLI watch 防抖和忽略规则等 AI behavior 配置。它在只读模式下可查看，保存必须使用 `panel --edit`。Settings 保存时只会在导出的配置对象里 patch 受管字段，会保留自定义 imports、辅助函数、未修改字段外的注释，以及用户自有的 `llm` 运行时配置。保存配置不会触碰语言 JSON、缓存或快照；保存后需要重启面板，新的路由、路径、Prompt、批处理或 watch 参数才会成为当前运行时配置。
+**Settings** 页面用于可视化编辑 `i18n-translate.config.mjs` 中的项目结构、语言路由、locale/cache 路径，以及 Prompt、skip keys、concurrency、batch size、CLI watch 防抖和忽略规则等 AI behavior 配置。它在只读模式下可查看，保存必须使用 `panel --edit`。Settings 保存时只会在导出的配置对象里 patch 受管字段，会保留自定义 imports、辅助函数、未修改字段外的注释，以及用户自有的 `llm` 运行时配置。保存配置不会触碰语言 JSON、缓存或快照。Panel style 中的面板语言等偏好属于个人浏览器偏好，保存在 localStorage，不会写入项目配置；保存项目配置后需要重启面板，新的路由、路径、Prompt、批处理或 watch 参数才会成为当前运行时配置。
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # 指定本地端口
 npx i18n-ai-diff panel --no-open     # 启动但不自动打开浏览器
-npx i18n-ai-diff panel --edit        # 显式启用文案管理保存
+npx i18n-ai-diff panel --edit        # 显式启用表格编辑器保存
 ```
 
 ## 第三步：执行第一次翻译

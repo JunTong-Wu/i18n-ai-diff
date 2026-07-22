@@ -1,4 +1,7 @@
 import { WarningCircle } from '@phosphor-icons/react';
+import { Dialog } from '../components/ui/dialog';
+import { ModalActions, ModalContent, ModalHeader, ModalTitleBlock } from '../components/ui/modal';
+import { usePanelI18n } from '../i18n';
 import type { DraftConflict } from './model';
 
 interface ConflictModalProps {
@@ -12,21 +15,30 @@ export function ConflictModal({
   onApply,
   onResolve,
 }: ConflictModalProps) {
+  const { t } = usePanelI18n();
   return (
-    <div className="editor-modal-layer" role="presentation">
-      <section className="editor-modal conflict-modal" role="dialog" aria-modal="true" aria-labelledby="conflict-title">
-        <WarningCircle size={28} weight="fill" aria-hidden="true" />
-        <div>
-          <h2 id="conflict-title">Resolve overlapping cells</h2>
-          <p>Unrelated disk changes are already preserved. Choose a value for each cell changed in both places.</p>
-        </div>
+    <Dialog open={conflicts.length > 0}>
+      <ModalContent
+        className="conflict-modal"
+        size="xl"
+        aria-describedby="conflict-description"
+        onEscapeKeyDown={event => event.preventDefault()}
+        onPointerDownOutside={event => event.preventDefault()}
+      >
+        <ModalHeader icon={<WarningCircle size={20} weight="fill" />} showClose={false}>
+          <ModalTitleBlock
+            title={t('conflict.title')}
+            descriptionId="conflict-description"
+            description={t('conflict.description')}
+          />
+        </ModalHeader>
         <div className="conflict-list">
           {conflicts.map(conflict => (
             <article className="conflict-item" key={conflict.identity}>
               <header><strong>{conflict.lang}</strong><code>{conflict.displayPath}</code></header>
               <div className="conflict-original">
-                <span>Originally loaded</span>
-                <small>{displayConflictValue(conflict.originalValue)}</small>
+                <span>{t('conflict.originallyLoaded')}</span>
+                <small>{displayConflictValue(conflict.originalValue, t)}</small>
               </div>
               <div className="conflict-values">
                 <button
@@ -34,8 +46,8 @@ export function ConflictModal({
                   className={conflict.resolution === 'disk' ? 'conflict-choice is-selected' : 'conflict-choice'}
                   onClick={() => onResolve(conflict.identity, 'disk')}
                 >
-                  <span>Use disk</span>
-                  <small>{displayConflictValue(conflict.diskValue)}</small>
+                  <span>{t('conflict.useDisk')}</span>
+                  <small>{displayConflictValue(conflict.diskValue, t)}</small>
                 </button>
                 <button
                   type="button"
@@ -43,25 +55,25 @@ export function ConflictModal({
                   disabled={!conflict.canKeepDraft}
                   onClick={() => onResolve(conflict.identity, 'draft')}
                 >
-                  <span>Keep my draft</span>
-                  <small>{conflict.canKeepDraft ? displayConflictValue(conflict.draftValue) : 'The key no longer exists in any language.'}</small>
+                  <span>{t('conflict.keepDraft')}</span>
+                  <small>{conflict.canKeepDraft ? displayConflictValue(conflict.draftValue, t) : t('conflict.keyGone')}</small>
                 </button>
               </div>
             </article>
           ))}
         </div>
-        <div className="modal-actions">
+        <ModalActions>
           <button type="button" className="button-primary" disabled={conflicts.some(conflict => !conflict.resolution)} onClick={onApply}>
-            Apply resolutions
+            {t('conflict.apply')}
           </button>
-        </div>
-      </section>
-    </div>
+        </ModalActions>
+      </ModalContent>
+    </Dialog>
   );
 }
 
-function displayConflictValue(value: string | undefined): string {
-  if (value === undefined) return 'Missing';
-  if (value === '') return 'Empty string';
+function displayConflictValue(value: string | undefined, t: ReturnType<typeof usePanelI18n>['t']): string {
+  if (value === undefined) return t('common.missing');
+  if (value === '') return t('common.emptyString');
   return value.length > 160 ? `${value.slice(0, 157)}…` : value;
 }

@@ -1,6 +1,7 @@
 import { X } from '@phosphor-icons/react';
 import type { PanelEditorManifest, PanelEditorTranslateJob } from '../types';
 import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
+import { usePanelI18n } from '../i18n';
 
 interface ToolsDrawerProps {
   draftCount: number;
@@ -27,68 +28,69 @@ export function ToolsDrawer({
   visibleRowCount,
   onClose,
 }: ToolsDrawerProps) {
+  const { t } = usePanelI18n();
   return (
     <Sheet open={isOpen} onOpenChange={open => { if (!open) onClose(); }}>
       <SheetContent className="editor-controls-drawer" side="right">
       <div className="file-panel-header">
         <div>
           <SheetTitle asChild>
-            <strong>Details and safety</strong>
+            <strong>{t('details.title')}</strong>
           </SheetTitle>
         </div>
-        <button className="file-panel-close" type="button" onClick={onClose} aria-label="Close editor details">
+        <button className="file-panel-close" type="button" onClick={onClose} aria-label={t('details.close')}>
           <X size={20} aria-hidden="true" />
         </button>
       </div>
 
       <section className="editor-state-card">
-        <strong>Current file</strong>
+        <strong>{t('details.currentFile')}</strong>
         <dl className="editor-file-stats">
           <div>
-            <dt>Visible keys</dt>
+            <dt>{t('details.visibleKeys')}</dt>
             <dd>{visibleRowCount}/{totalRowCount}</dd>
           </div>
           <div>
-            <dt>Language files</dt>
+            <dt>{t('details.languageFiles')}</dt>
             <dd>{selectedMeta ? `${selectedMeta.presentLanguages.length}/${languageCount}` : '0/0'}</dd>
           </div>
           <div>
-            <dt>Missing files</dt>
+            <dt>{t('details.missingFiles')}</dt>
             <dd>{selectedMeta?.missingLanguages.length ?? 0}</dd>
           </div>
         </dl>
       </section>
 
       <section className="editor-state-card">
-        <strong>Draft status</strong>
-        <p>{status || (draftCount > 0 ? `${draftCount} changes remain in this browser.` : 'Local files match the current editor draft.')}</p>
+        <strong>{t('details.draftStatus')}</strong>
+        <p>{status || (draftCount > 0 ? t('details.changesRemain', { count: draftCount }) : t('details.filesMatchDraft'))}</p>
       </section>
 
       <section className="editor-state-card">
-        <strong>Translation job</strong>
+        <strong>{t('details.translationJob')}</strong>
         {job ? (
           <dl className="editor-file-stats">
             <div>
-              <dt>Status</dt>
+              <dt>{t('common.status')}</dt>
               <dd>{job.status}</dd>
             </div>
             <div>
-              <dt>Progress</dt>
+              <dt>{t('details.progress')}</dt>
               <dd>{job.completed}/{job.total}</dd>
             </div>
             <div>
-              <dt>Cache hits</dt>
+              <dt>{t('details.cacheHits')}</dt>
               <dd>{job.results.filter(result => result.fromCache).length}</dd>
             </div>
           </dl>
         ) : (
-          <p>No AI translation job has run in this file session.</p>
+          <p>{t('details.noJob')}</p>
         )}
       </section>
 
       <section className="editor-state-card">
-        <strong>Editing boundary</strong>
-        <p>{editable ? 'Local editing is enabled. AI translations become drafts first; only Save writes files, snapshots, and accepted cache entries.' : 'Viewing in read-only mode. Restart with i18n-ai-diff panel --edit to save file changes or run AI translation drafts.'}</p>
+        <strong>{t('details.editingBoundary')}</strong>
+        <p>{editable ? t('details.editableBoundary') : t('details.readonlyBoundary')}</p>
       </section>
       </SheetContent>
     </Sheet>

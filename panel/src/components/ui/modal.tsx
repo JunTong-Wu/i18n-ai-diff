@@ -23,10 +23,12 @@ export function ModalContent({
 export function ModalHeader({
   children,
   className,
+  showClose = true,
   icon,
 }: {
   children: ReactNode;
   className?: string;
+  showClose?: boolean;
   icon?: ReactNode;
 }) {
   return (
@@ -35,7 +37,7 @@ export function ModalHeader({
         {icon && <span className="ui-modal-icon" aria-hidden="true">{icon}</span>}
         {children}
       </div>
-      <ModalCloseButton />
+      {showClose && <ModalCloseButton />}
     </div>
   );
 }

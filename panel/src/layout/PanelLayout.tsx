@@ -1,6 +1,7 @@
 import { GearSix, Lightning, SquaresFour, Table } from '@phosphor-icons/react';
 import type { MouseEvent, ReactNode } from 'react';
 import logoMarkUrl from '../assets/logo-mark.png';
+import { usePanelI18n } from '../i18n';
 import { projectDirectoryName } from '../path-display';
 import type { PanelProject } from '../types';
 
@@ -43,10 +44,11 @@ export function PanelLayout({
   workspaceClassName,
   liveStatus,
 }: PanelLayoutProps) {
-  const projectName = project ? projectDirectoryName(project.projectRoot) : 'Reading local project…';
-  const sessionMode = project?.capabilities.contentEditing ? 'Local editing' : 'Local session';
+  const { t } = usePanelI18n();
+  const projectName = project ? projectDirectoryName(project.projectRoot) : t('app.loadingProject');
+  const sessionMode = project?.capabilities.contentEditing ? t('session.localEditing') : t('session.localSession');
   const sessionTooltip = project
-    ? `${sessionMode}\nProject: ${projectName}\nRoot: ${project.projectRoot}`
+    ? t('session.tooltip', { mode: sessionMode, project: projectName, root: project.projectRoot })
     : sessionMode;
   const shellClasses = [
     'app-shell',
@@ -72,10 +74,10 @@ export function PanelLayout({
 
   return (
     <>
-      <a className="skip-link" href="#main">Skip to {skipLabel}</a>
+      <a className="skip-link" href="#main">{t('app.skip', { label: skipLabel })}</a>
       <div className={shellClasses}>
         <header className="topbar">
-          <a className="topbar-brand" href="/" aria-label="i18n-ai-diff project overview" onClick={createNavigationHandler('/')}>
+          <a className="topbar-brand" href="/" aria-label={t('nav.brandAria')} onClick={createNavigationHandler('/')}>
             <span className="brand-mark" aria-hidden="true">
               <img src={logoMarkUrl} alt="" />
             </span>
@@ -84,46 +86,46 @@ export function PanelLayout({
             </div>
           </a>
 
-          <nav className="topbar-nav" aria-label="Panel sections">
+          <nav className="topbar-nav" aria-label={t('nav.aria')}>
             <a
               className={activeView === 'overview' ? 'nav-item is-active' : 'nav-item'}
               href="/"
               aria-current={activeView === 'overview' ? 'page' : undefined}
-              aria-label="Project overview"
+              aria-label={t('nav.overview')}
               onClick={createNavigationHandler('/')}
             >
               <SquaresFour size={24} weight="fill" aria-hidden="true" />
-              <span>Project overview</span>
+              <span>{t('nav.overview')}</span>
             </a>
             <a
               className={activeView === 'editor' ? 'nav-item is-active' : 'nav-item'}
               href="/editor"
               aria-current={activeView === 'editor' ? 'page' : undefined}
-              aria-label="Table editor"
+              aria-label={t('nav.editor')}
               onClick={createNavigationHandler('/editor')}
             >
               <Table size={24} weight="fill" aria-hidden="true" />
-              <span>Table editor</span>
+              <span>{t('nav.editor')}</span>
             </a>
             <a
               className={activeView === 'shortcuts' ? 'nav-item is-active' : 'nav-item'}
               href="/shortcuts"
               aria-current={activeView === 'shortcuts' ? 'page' : undefined}
-              aria-label="CLI shortcut"
+              aria-label={t('nav.shortcuts')}
               onClick={createNavigationHandler('/shortcuts')}
             >
               <Lightning size={24} weight="fill" aria-hidden="true" />
-              <span>CLI shortcut</span>
+              <span>{t('nav.shortcuts')}</span>
             </a>
             <a
               className={activeView === 'settings' ? 'nav-item is-active' : 'nav-item'}
               href="/settings"
               aria-current={activeView === 'settings' ? 'page' : undefined}
-              aria-label="Settings"
+              aria-label={t('nav.settings')}
               onClick={createNavigationHandler('/settings')}
             >
               <GearSix size={24} weight="fill" aria-hidden="true" />
-              <span>Settings</span>
+              <span>{t('nav.settings')}</span>
             </a>
           </nav>
 
@@ -131,7 +133,7 @@ export function PanelLayout({
 
           <div className="topbar-right">
             {topbarActions && <div className="topbar-actions">{topbarActions}</div>}
-            <div className="topbar-session" title={sessionTooltip} aria-label={`${sessionMode}: ${projectName}`}>
+            <div className="topbar-session" title={sessionTooltip} aria-label={t('session.aria', { mode: sessionMode, project: projectName })}>
               <span className="status-dot" aria-hidden="true" />
               <span className="topbar-session-label">
                 <strong>{projectName}</strong>

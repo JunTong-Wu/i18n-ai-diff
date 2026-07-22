@@ -48,6 +48,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
+import { usePanelI18n } from '../i18n';
 import { PanelLayout } from '../layout/PanelLayout';
 import { ConflictModal } from './ConflictModal';
 import {
@@ -127,20 +128,19 @@ interface ExplorerStatusDecoration {
   label: string;
 }
 
-function pluralize(value: number, singular: string, plural = `${singular}s`) {
-  return `${value} ${value === 1 ? singular : plural}`;
-}
-
 function formatExplorerBadge(prefix: string, count: number) {
   return `${prefix} ${count > 99 ? '99+' : count}`;
 }
 
-function getExplorerFileStatus(file: PanelEditorManifest['files'][number]): ExplorerStatusDecoration {
+function getExplorerFileStatus(
+  file: PanelEditorManifest['files'][number],
+  t: ReturnType<typeof usePanelI18n>['t'],
+): ExplorerStatusDecoration {
   if (file.invalidLanguages.length > 0) {
     return {
       tone: 'invalid',
       badge: '!',
-      label: `Invalid JSON in ${file.invalidLanguages.join(', ')}`,
+      label: `${t('explorer.invalidJson')}: ${file.invalidLanguages.join(', ')}`,
     };
   }
 
@@ -148,7 +148,10 @@ function getExplorerFileStatus(file: PanelEditorManifest['files'][number]): Expl
     return {
       tone: 'missing',
       badge: formatExplorerBadge('U', file.missingLanguages.length),
-      label: `Missing ${pluralize(file.missingLanguages.length, 'language file')}: ${file.missingLanguages.join(', ')}`,
+      label: t('explorer.missingLanguageFiles', {
+        count: file.missingLanguages.length,
+        langs: file.missingLanguages.join(', '),
+      }),
     };
   }
 
@@ -156,24 +159,27 @@ function getExplorerFileStatus(file: PanelEditorManifest['files'][number]): Expl
     return {
       tone: 'pending',
       badge: formatExplorerBadge('M', file.pendingKeys),
-      label: `${pluralize(file.pendingKeys, 'pending key')} needs translation`,
+      label: t('explorer.pendingKeys', { count: file.pendingKeys }),
     };
   }
 
   return {
     tone: 'clear',
     badge: '',
-    label: 'No pending file work',
+    label: t('explorer.noPending'),
   };
 }
 
-function getExplorerGroupStatus(files: PanelEditorManifest['files']): ExplorerStatusDecoration {
+function getExplorerGroupStatus(
+  files: PanelEditorManifest['files'],
+  t: ReturnType<typeof usePanelI18n>['t'],
+): ExplorerStatusDecoration {
   const invalidFiles = files.filter(file => file.invalidLanguages.length > 0).length;
   if (invalidFiles > 0) {
     return {
       tone: 'invalid',
       badge: String(invalidFiles),
-      label: `${pluralize(invalidFiles, 'file')} with invalid JSON`,
+      label: t('explorer.filesInvalid', { count: invalidFiles }),
     };
   }
 
@@ -182,7 +188,7 @@ function getExplorerGroupStatus(files: PanelEditorManifest['files']): ExplorerSt
     return {
       tone: 'missing',
       badge: String(missingFiles),
-      label: `${pluralize(missingFiles, 'file')} missing language files`,
+      label: t('explorer.filesMissing', { count: missingFiles }),
     };
   }
 
@@ -192,14 +198,14 @@ function getExplorerGroupStatus(files: PanelEditorManifest['files']): ExplorerSt
     return {
       tone: 'pending',
       badge: pendingKeys > 99 ? '99+' : String(pendingKeys),
-      label: `${pluralize(pendingKeys, 'pending key')} in ${pluralize(pendingFiles, 'file')}`,
+      label: t('explorer.pendingInFiles', { keys: pendingKeys, files: pendingFiles }),
     };
   }
 
   return {
     tone: 'clear',
     badge: '',
-    label: 'No pending file work',
+    label: t('explorer.noPending'),
   };
 }
 
@@ -220,6 +226,7 @@ interface EditorFocusRequest extends GridSelectionCell {
 }
 
 export default function EditorPage({ project, onNavigate, onProjectChange }: EditorPageProps) {
+  const { t } = usePanelI18n();
   const initialPath = readInitialEditorPath(window.location.search);
   const initialFocus = readInitialEditorFocus(window.location.search, initialPath);
   const [manifest, setManifest] = useState<PanelEditorManifest | null>(null);
@@ -251,6 +258,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [selectedCells, setSelectedCells] = useState<GridSelectionCell[]>([]);
   const [translatePreview, setTranslatePreview] = useState<TranslatePreviewState | null>(null);
   const [masterTranslatePreview, setMasterTranslatePreview] = useState<MasterTranslatePreviewState | null>(null);
+  const [translateSkippedExpanded, setTranslateSkippedExpanded] = useState(false);
+  const [masterSkippedExpanded, setMasterSkippedExpanded] = useState(false);
   const [activeJob, setActiveJob] = useState<PanelEditorTranslateJob | null>(null);
   const [contextMenu, setContextMenu] = useState<GridContextMenuRequest | null>(null);
   const [undoStack, setUndoStack] = useState<DraftHistoryTransaction[]>([]);
@@ -270,8 +279,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   activeJobRef.current = activeJob;
   draftsRef.current = drafts;
   aiDraftsRef.current = aiDrafts;
-  usePanelErrorToast(error, 'Editor error');
-  usePanelErrorToast(translationError, 'Translation failed');
+  usePanelErrorToast(error, t('editor.errorTitle'));
+  usePanelErrorToast(translationError, t('editor.translationErrorTitle'));
 
   const refreshManifest = useCallback(async (signal?: AbortSignal) => {
     const nextManifest = await loadEditorManifest(signal);
@@ -331,15 +340,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
   const reloadCurrentFileFromDisk = useCallback(async (
     relativePath: string,
-    label = 'Synced from disk',
+    label = t('editor.syncedFromDisk'),
   ) => {
     if (hasProtectedLocalState()) {
       setSyncStatus({
         tone: 'warning',
-        label: 'Disk changed',
-        title: 'The file changed on disk while this tab has a local draft or translation job. Save will still use revision checks before writing.',
+        label: t('editor.diskChanged'),
+        title: t('editor.fileChangedReview'),
       });
-      setStatus('The current file changed on disk. Save will check revisions before writing.');
+      setStatus(t('editor.fileChangedReview'));
       return;
     }
 
@@ -355,7 +364,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       if ((requestError as Error).name !== 'AbortError') {
         setSyncStatus({
           tone: 'warning',
-          label: 'Sync needs review',
+          label: t('editor.syncNeedsReview'),
           title: (requestError as Error).message,
         });
         setError((requestError as Error).message);
@@ -363,14 +372,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     } finally {
       setFileLoading(false);
     }
-  }, [hasProtectedLocalState, resetTransientEditorState]);
+  }, [hasProtectedLocalState, resetTransientEditorState, t]);
 
   const applyEditorSyncEvent = useCallback(async (event: PanelEditorSyncEvent) => {
     const currentPath = selectedPathRef.current;
     try {
       const nextManifest = await refreshManifest();
       if (!currentPath) {
-        setSyncStatus({ tone: 'muted', label: 'Project updated' });
+        setSyncStatus({ tone: 'muted', label: t('editor.projectUpdated') });
         return;
       }
 
@@ -380,14 +389,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         : event.relativePaths.length === 0 || event.relativePaths.includes(currentPath);
 
       if (!touchesCurrentFile) {
-        setSyncStatus({ tone: 'muted', label: 'Project updated' });
+        setSyncStatus({ tone: 'muted', label: t('editor.projectUpdated') });
         return;
       }
 
       if (!manifestStillContainsCurrent) {
         setSyncStatus({
           tone: hasProtectedLocalState() ? 'warning' : 'muted',
-          label: hasProtectedLocalState() ? 'Disk changed' : 'File moved',
+          label: hasProtectedLocalState() ? t('editor.diskChanged') : t('editor.fileMoved'),
           title: `${currentPath} is no longer present in the editor manifest.`,
         });
         if (!hasProtectedLocalState()) {
@@ -398,19 +407,19 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
       await reloadCurrentFileFromDisk(
         currentPath,
-        event.source === 'browser' ? 'Synced from another tab' : 'Synced from disk',
+        event.source === 'browser' ? t('editor.syncedFromAnotherTab') : t('editor.syncedFromDisk'),
       );
     } catch (requestError) {
       if ((requestError as Error).name !== 'AbortError') {
         setSyncStatus({
           tone: 'warning',
-          label: 'Sync paused',
+          label: t('editor.syncPaused'),
           title: (requestError as Error).message,
         });
         setError((requestError as Error).message);
       }
     }
-  }, [hasProtectedLocalState, refreshManifest, reloadCurrentFileFromDisk]);
+  }, [hasProtectedLocalState, refreshManifest, reloadCurrentFileFromDisk, t]);
 
   const receiveEditorSyncEvent = useCallback((event: PanelEditorSyncEvent, options: { rebroadcast: boolean }) => {
     if (!rememberSyncEvent(event.id)) return;
@@ -438,17 +447,17 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           if (connectionState === 'connected') {
             return current?.tone === 'warning'
               ? current
-              : { tone: 'muted', label: 'Live sync on', title: 'Watching local files for changes.' };
+              : { tone: 'muted', label: t('editor.liveSyncOn'), title: 'Watching local files for changes.' };
           }
           return {
             tone: 'warning',
-            label: 'Sync reconnecting',
+            label: t('editor.syncReconnecting'),
             title: 'The local event stream is reconnecting. Manual saves still use revision checks.',
           };
         });
       },
     );
-  }, [receiveEditorSyncEvent]);
+  }, [receiveEditorSyncEvent, t]);
 
   useEffect(() => {
     if (!('BroadcastChannel' in window)) return undefined;
@@ -653,24 +662,24 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       const row = rowsByPointer.get(cell.pointer);
       const route = routeForTarget(cell.lang);
       if (!row) {
-        skipped.push({ ...cell, reason: 'Key is not in the current file' });
+        skipped.push({ ...cell, reason: t('editor.reasonKeyMissing') });
         continue;
       }
       if (!route) {
-        skipped.push({ ...cell, reason: 'Master language cells cannot be translated' });
+        skipped.push({ ...cell, reason: t('editor.reasonMasterCell') });
         continue;
       }
       const targetCell = row.cells[cell.lang];
       if (targetCell?.kind === 'unsupported') {
-        skipped.push({ ...cell, reason: 'Target cell is not a string value' });
+        skipped.push({ ...cell, reason: t('editor.reasonTargetNotString') });
         continue;
       }
       if (targetCell?.skipped) {
-        skipped.push({ ...cell, reason: 'Skipped key' });
+        skipped.push({ ...cell, reason: t('editor.reasonSkippedKey') });
         continue;
       }
       if (drafts.has(identity) && !options.overwriteDrafts) {
-        skipped.push({ ...cell, reason: 'Cell already has a local draft' });
+        skipped.push({ ...cell, reason: t('editor.reasonLocalDraft') });
         continue;
       }
       const sourceIdentity = draftIdentity(route.sourceLang, cell.pointer);
@@ -678,18 +687,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       const hasSourceDraft = drafts.has(sourceIdentity);
       const sourceText = effectiveCellValue(row, route.sourceLang, drafts);
       if (!hasSourceDraft && sourceCell?.kind !== 'string') {
-        skipped.push({ ...cell, reason: 'Source cell is missing or not a string value' });
+        skipped.push({ ...cell, reason: t('editor.reasonSourceMissing') });
         continue;
       }
       if (sourceText.length === 0) {
-        skipped.push({ ...cell, reason: 'Source cell is empty' });
+        skipped.push({ ...cell, reason: t('editor.reasonSourceEmpty') });
         continue;
       }
       const needsTranslation = targetCell?.kind === 'missing'
         || targetCell?.pending
         || hasSourceDraft;
       if (!options.forceRetranslate && !needsTranslation) {
-        skipped.push({ ...cell, reason: 'Already reviewed; use Force retranslate to refresh' });
+        skipped.push({ ...cell, reason: t('editor.reasonReviewed') });
         continue;
       }
       candidates.set(identity, cell);
@@ -722,7 +731,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         skipped: preview.pointers.map(pointer => ({
           lang: preview.targetLang,
           pointer,
-          reason: 'Choose two different master languages in multi-master mode',
+          reason: t('editor.reasonChooseTwoMasters'),
         })),
       };
     }
@@ -732,21 +741,21 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       if (candidates.has(identity)) continue;
       const row = rowsByPointer.get(pointer);
       if (!row) {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Key is not in the current file' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonKeyMissing') });
         continue;
       }
 
       const targetCell = row.cells[preview.targetLang];
       if (targetCell?.kind === 'unsupported') {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Target master cell is not a string value' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonTargetMasterNotString') });
         continue;
       }
       if (targetCell?.skipped) {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Skipped key' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonSkippedKey') });
         continue;
       }
       if (drafts.has(identity) && !preview.overwriteDrafts) {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Cell already has a local draft' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonLocalDraft') });
         continue;
       }
 
@@ -755,11 +764,11 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       const hasSourceDraft = drafts.has(sourceIdentity);
       const sourceText = effectiveCellValue(row, preview.sourceLang, drafts);
       if (!hasSourceDraft && sourceCell?.kind !== 'string') {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Source master cell is missing or not a string value' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonSourceMasterMissing') });
         continue;
       }
       if (sourceText.length === 0) {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Source master cell is empty' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonSourceMasterEmpty') });
         continue;
       }
 
@@ -768,7 +777,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         && targetCell?.kind === 'string'
         && targetCell.value !== sourceText
       ) {
-        skipped.push({ lang: preview.targetLang, pointer, reason: 'Existing master copy; enable overwrite to replace' });
+        skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonExistingMaster') });
         continue;
       }
 
@@ -786,15 +795,17 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
   const openTranslatePreview = useCallback((title: string, cells: GridSelectionCell[]) => {
     if (!editable) {
-      setStatus('Restart with i18n-ai-diff panel --edit to run AI translations.');
+      setStatus(t('editor.editRequiredTranslation'));
       return;
     }
     if (!file || !manifest) return;
     if (cells.length === 0) {
-      setStatus('Select target-language cells before translating.');
+      setStatus(t('editor.selectTargets'));
       return;
     }
     setMasterTranslatePreview(null);
+    setMasterSkippedExpanded(false);
+    setTranslateSkippedExpanded(false);
     setTranslatePreview({
       title,
       cells,
@@ -805,20 +816,22 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
   const openMasterTranslatePreview = useCallback((targetLang: string) => {
     if (!editable) {
-      setStatus('Restart with i18n-ai-diff panel --edit to run AI translations.');
+      setStatus(t('editor.editRequiredTranslation'));
       return;
     }
     if (!file || !manifest) return;
     if (masterLanguages.length < 2) {
-      setStatus('Master-to-master translation is only available in multi-master mode.');
+      setStatus(t('editor.masterOnlyMulti'));
       return;
     }
     const sourceLang = masterLanguages.find(lang => lang !== targetLang) || '';
     if (!sourceLang) {
-      setStatus('Choose another master language as the source.');
+      setStatus(t('editor.chooseOtherMaster'));
       return;
     }
     setTranslatePreview(null);
+    setTranslateSkippedExpanded(false);
+    setMasterSkippedExpanded(false);
     setMasterTranslatePreview({
       targetLang,
       sourceLang,
@@ -878,7 +891,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         nextFailures.set(identity, {
           lang: result.lang,
           pointer: result.pointer,
-          error: result.error || 'Translation failed',
+          error: result.error || t('editor.translationResultFailed'),
         });
         continue;
       }
@@ -922,18 +935,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     if (failed > 0) {
       const firstFailure = [...nextFailures.values()][0];
       setTranslationError(
-        `${failed} cell${failed === 1 ? '' : 's'} failed. `
-        + `${firstFailure.lang} ${firstFailure.pointer}: ${firstFailure.error}`,
+        t('editor.translationFailedToast', {
+          count: failed,
+          message: `${firstFailure.lang} ${firstFailure.pointer}: ${firstFailure.error}`,
+        }),
       );
     } else {
       setTranslationError(null);
     }
     setStatus(
       failed > 0
-        ? `Generated ${translated} AI draft${translated === 1 ? '' : 's'}; ${failed} cell${failed === 1 ? '' : 's'} failed.`
-        : `Generated ${translated} AI draft${translated === 1 ? '' : 's'}. Review and save explicitly.`,
+        ? t('editor.aiDraftsGeneratedWithFailures', { translated, failed })
+        : t('editor.aiDraftsGenerated', { count: translated }),
     );
-  }, [file, manifest, rowsByPointer]);
+  }, [file, manifest, rowsByPointer, t]);
 
   const pollTranslateJob = useCallback(async (createdJob: PanelEditorTranslateJob) => {
     let current = createdJob;
@@ -948,18 +963,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         applyTranslationResults(current.results);
       } else if (current.status === 'failed') {
         setTranslatingCells(new Set());
-        setError(current.error || 'AI translation failed.');
+        setError(current.error || t('editor.aiTranslationFailed'));
       }
     } catch (requestError) {
       setTranslatingCells(new Set());
       setError((requestError as Error).message);
     }
-  }, [applyTranslationResults]);
+  }, [applyTranslationResults, t]);
 
   const confirmTranslation = useCallback(async () => {
     if (!file || !manifest?.editable || !manifest.writeToken || !translatePreview || !currentPreview) return;
     if (currentPreview.cells.length === 0) {
-      setStatus('No translatable target cells in this selection.');
+      setStatus(t('editor.noTranslatableCells'));
       return;
     }
     setTranslatePreview(null);
@@ -972,7 +987,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setFailedTranslations(new Map());
     const identities = new Set(currentPreview.cells.map(cell => draftIdentity(cell.lang, cell.pointer)));
     setTranslatingCells(identities);
-    setStatus(`Starting AI translation for ${currentPreview.cells.length} cell${currentPreview.cells.length === 1 ? '' : 's'}…`);
+    setStatus(t('editor.startingTranslation', { count: currentPreview.cells.length }));
     try {
       const job = await createEditorTranslateJob({
         relativePath: file.relativePath,
@@ -995,7 +1010,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const confirmMasterTranslation = useCallback(async () => {
     if (!file || !manifest?.editable || !manifest.writeToken || !masterTranslatePreview || !currentMasterPreview) return;
     if (currentMasterPreview.cells.length === 0) {
-      setStatus('No master cells can be translated with the current options.');
+      setStatus(t('editor.noMasterCells'));
       return;
     }
     setMasterTranslatePreview(null);
@@ -1008,7 +1023,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setFailedTranslations(new Map());
     const identities = new Set(currentMasterPreview.cells.map(cell => draftIdentity(cell.lang, cell.pointer)));
     setTranslatingCells(identities);
-    setStatus(`Starting master translation for ${currentMasterPreview.cells.length} cell${currentMasterPreview.cells.length === 1 ? '' : 's'}…`);
+    setStatus(t('editor.startingMasterTranslation', { count: currentMasterPreview.cells.length }));
     try {
       const job = await createEditorMasterTranslateJob({
         relativePath: file.relativePath,
@@ -1037,7 +1052,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       const cancelled = await cancelEditorTranslateJob(activeJob.id, manifest.writeToken);
       setActiveJob(cancelled);
       applyTranslationResults(cancelled.results);
-      setStatus('Translation job cancelled. Completed AI drafts were kept.');
+      setStatus(t('editor.cancelled'));
     } catch (requestError) {
       setError((requestError as Error).message);
     } finally {
@@ -1077,7 +1092,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setAiDrafts(nextAiDrafts);
     setUndoStack(current => [...current, transaction]);
     setRedoStack([]);
-    setStatus(`${next.size} unsaved change${next.size === 1 ? '' : 's'}.`);
+    setStatus(t('editor.unsavedChanges', { count: next.size }));
   }, [file, manifest, rowsByPointer]);
 
   const undo = useCallback(() => {
@@ -1131,7 +1146,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     ));
     setSaving(true);
     setError(null);
-    setStatus('Writing locale files…');
+    setStatus(t('editor.writingFiles'));
     try {
       const result = await saveEditorFile({
         relativePath: file.relativePath,
@@ -1164,8 +1179,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         rememberSyncEvent(event.id);
         broadcastSyncEvent(event);
       }
-      setSyncStatus({ tone: 'ok', label: 'Saved locally', title: `${file.relativePath} was written to disk.` });
-      setStatus(`Saved ${result.savedLanguages.length} language file${result.savedLanguages.length === 1 ? '' : 's'} safely.`);
+      setSyncStatus({ tone: 'ok', label: t('editor.savedLocally'), title: `${file.relativePath} was written to disk.` });
+      setStatus(t('editor.savedFiles', { count: result.savedLanguages.length }));
       return true;
     } catch (requestError) {
       if (requestError instanceof PanelApiError && requestError.code === 'REVISION_CONFLICT') {
@@ -1185,17 +1200,17 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           setRedoStack([]);
           if (rebased.conflicts.length > 0) {
             setConflicts(rebased.conflicts);
-            setStatus('The file changed on disk. Resolve the overlapping cells before saving again.');
+            setStatus(t('editor.fileChangedResolve'));
           } else {
-            setStatus('External changes were preserved and your draft was rebased. Review and save again.');
+            setStatus(t('editor.externalPreserved'));
           }
         } catch (reloadError) {
-          setError(`Could not reload the changed file: ${(reloadError as Error).message}`);
+          setError(t('editor.reloadFailed', { message: (reloadError as Error).message }));
         }
         return false;
       }
       setError((requestError as Error).message);
-      setStatus('Save failed. No unchecked overwrite was attempted.');
+      setStatus(t('editor.saveFailed'));
       return false;
     } finally {
       setSaving(false);
@@ -1214,8 +1229,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       pointer: cell.pointer,
       nonce: Date.now(),
     });
-    setStatus(`Opening ${relativePath} at ${cell.lang} ${cell.pointer}.`);
-  }, []);
+    setStatus(t('editor.openingCell', { path: relativePath, lang: cell.lang, pointer: cell.pointer }));
+  }, [t]);
 
   const performNavigation = useCallback((destination: PendingNavigation) => {
     if (destination.kind === 'file') {
@@ -1309,7 +1324,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setAiDrafts(nextAiDrafts);
     aiDraftsRef.current = nextAiDrafts;
     setConflicts(null);
-    setStatus('Conflicts resolved in the draft. Review the table and save again.');
+    setStatus(t('editor.conflictsResolved'));
   };
 
   const resolveConflict = useCallback((identity: string, resolution: 'disk' | 'draft') => {
@@ -1321,7 +1336,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const currentFileTriggerContent = (
     <>
       <FileText size={18} aria-hidden="true" />
-      <span>Explorer</span>
+      <span>{t('editor.explorer')}</span>
     </>
   );
 
@@ -1333,27 +1348,27 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       onClick={() => void save()}
     >
       <FloppyDisk size={22} weight="bold" aria-hidden="true" />
-      <span>{saving ? 'Saving safely…' : `Save ${drafts.size} change${drafts.size === 1 ? '' : 's'}`}</span>
+      <span>{saving ? t('editor.saveSafely') : t('editor.saveChanges', { count: drafts.size })}</span>
     </button>
   );
 
   const cellStateSummary = (
     <div className="editor-cell-state-summary">
       <div className="editor-state-legend">
-        <span><i className="legend-dot is-changed" />Changed <b>{cellStateCounts.changed}</b></span>
-        <span><i className="legend-dot is-pending" />Pending <b>{cellStateCounts.pending}</b></span>
-        <span><i className="legend-dot is-missing" />Missing <b>{cellStateCounts.missing}</b></span>
-        <span><i className="legend-dot is-skipped" />Skipped <b>{cellStateCounts.skipped}</b></span>
-        <span><i className="legend-dot is-ai" />AI <b>{cellStateCounts.ai}</b></span>
-        {cellStateCounts.failed > 0 && <span><i className="legend-dot is-failed" />Failed <b>{cellStateCounts.failed}</b></span>}
+        <span><i className="legend-dot is-changed" />{t('editor.changed')} <b>{cellStateCounts.changed}</b></span>
+        <span><i className="legend-dot is-pending" />{t('editor.pending')} <b>{cellStateCounts.pending}</b></span>
+        <span><i className="legend-dot is-missing" />{t('editor.missing')} <b>{cellStateCounts.missing}</b></span>
+        <span><i className="legend-dot is-skipped" />{t('editor.skipped')} <b>{cellStateCounts.skipped}</b></span>
+        <span><i className="legend-dot is-ai" />{t('editor.ai')} <b>{cellStateCounts.ai}</b></span>
+        {cellStateCounts.failed > 0 && <span><i className="legend-dot is-failed" />{t('editor.failed')} <b>{cellStateCounts.failed}</b></span>}
       </div>
     </div>
   );
 
   const currentFileSummary = (
-    <div className="editor-bottom-file" title={selectedPath || 'No JSON file selected'}>
+    <div className="editor-bottom-file" title={selectedPath || t('editor.noJsonFile')}>
       <FileText size={16} aria-hidden="true" />
-      <span>{selectedPath || 'No JSON file selected'}</span>
+      <span>{selectedPath || t('editor.noJsonFile')}</span>
       {syncStatus && (
         <em
           className={`editor-sync-pill is-${syncStatus.tone}`}
@@ -1366,11 +1381,11 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   );
 
   const filterControls = (
-    <div className="editor-filter-check-list" aria-label="Show rows">
-      <StatusFilterCheckbox checked={showMissing} label="Missing" onCheckedChange={setShowMissing} />
-      <StatusFilterCheckbox checked={showPending} label="Pending" onCheckedChange={setShowPending} />
-      <StatusFilterCheckbox checked={showChanged} label="Changed" onCheckedChange={setShowChanged} />
-      <StatusFilterCheckbox checked={showSkipped} label="Skipped" onCheckedChange={setShowSkipped} />
+    <div className="editor-filter-check-list" aria-label={t('editor.showRows')}>
+      <StatusFilterCheckbox checked={showMissing} label={t('editor.missing')} onCheckedChange={setShowMissing} />
+      <StatusFilterCheckbox checked={showPending} label={t('editor.pending')} onCheckedChange={setShowPending} />
+      <StatusFilterCheckbox checked={showChanged} label={t('editor.changed')} onCheckedChange={setShowChanged} />
+      <StatusFilterCheckbox checked={showSkipped} label={t('editor.skipped')} onCheckedChange={setShowSkipped} />
     </div>
   );
 
@@ -1379,23 +1394,23 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <div className="file-panel-header">
         <div>
           <SheetTitle asChild>
-            <strong>{manifest?.files.length || 0} JSON files</strong>
+            <strong>{t('editor.jsonFiles', { count: manifest?.files.length || 0 })}</strong>
           </SheetTitle>
         </div>
-        <button className="file-panel-close" type="button" onClick={() => setFilePickerOpen(false)} aria-label="Close locale files">
+        <button className="file-panel-close" type="button" onClick={() => setFilePickerOpen(false)} aria-label={t('editor.closeExplorer')}>
           <X size={20} aria-hidden="true" />
         </button>
       </div>
       <label className="editor-inline-search">
         <MagnifyingGlass size={17} aria-hidden="true" />
-        <span className="sr-only">Search locale files</span>
-        <input value={fileSearch} onChange={event => setFileSearch(event.target.value)} placeholder="Find a JSON file…" />
+        <span className="sr-only">{t('editor.searchFiles')}</span>
+        <input value={fileSearch} onChange={event => setFileSearch(event.target.value)} placeholder={t('editor.findJsonFile')} />
       </label>
       <div className="editor-file-menu-list">
         {fileGroups.length > 0 ? fileGroups.map(group => (
           <section key={group.directory}>
             {(() => {
-              const groupStatus = getExplorerGroupStatus(group.files);
+              const groupStatus = getExplorerGroupStatus(group.files, t);
               return (
                 <p>
                   <span>{group.directory}</span>
@@ -1413,7 +1428,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               );
             })()}
             {group.files.map(candidate => {
-              const fileStatus = getExplorerFileStatus(candidate);
+              const fileStatus = getExplorerFileStatus(candidate, t);
               const isActive = candidate.relativePath === selectedPath;
               const className = [
                 isActive ? 'is-active' : '',
@@ -1445,7 +1460,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             })}
           </section>
         )) : (
-          <p className="editor-toolbar-panel-empty">No JSON files match this search.</p>
+          <p className="editor-toolbar-panel-empty">{t('editor.noFileMatches')}</p>
         )}
       </div>
     </>
@@ -1455,9 +1470,9 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     <>
       <div className="editor-toolbar-panel-header">
         <span>
-          <strong>{activeFilterCount === 0 ? 'All states' : `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} active`}</strong>
+                <strong>{activeFilterCount === 0 ? t('editor.allStates') : t('editor.filtersActive', { count: activeFilterCount })}</strong>
         </span>
-        <em>{visibleRows.length} / {file?.rows.length || 0} keys</em>
+        <em>{t('editor.keysRatio', { visible: visibleRows.length, total: file?.rows.length || 0 })}</em>
       </div>
       {filterControls}
     </>
@@ -1469,7 +1484,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         <button
           className={filePickerOpen ? 'editor-file-trigger is-active' : 'editor-file-trigger'}
           type="button"
-          aria-label="Open locale files"
+          aria-label={t('editor.openExplorer')}
           aria-expanded={filePickerOpen}
           onClick={() => {
             setFilePickerOpen(true);
@@ -1480,24 +1495,24 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         >
           {currentFileTriggerContent}
         </button>
-        <div className="editor-history" aria-label="Draft history">
-          <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
+        <div className="editor-history" aria-label={t('editor.draftHistory')}>
+          <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label={t('editor.undoAria')}>
             <ArrowUUpLeft size={20} aria-hidden="true" />
-            <span>Undo</span>
+            <span>{t('editor.undo')}</span>
           </button>
-          <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
+          <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label={t('editor.redoAria')}>
             <ArrowUUpRight size={20} aria-hidden="true" />
-            <span>Redo</span>
+            <span>{t('editor.redo')}</span>
           </button>
         </div>
         <button
           className="editor-command-button editor-translate-button"
           type="button"
           disabled={!editable || selectedCells.length === 0 || jobRunning}
-          onClick={() => openTranslatePreview('Translate selected cells', selectedCells)}
+          onClick={() => openTranslatePreview(t('editor.translateSelectedCells'), selectedCells)}
         >
           <Translate size={20} aria-hidden="true" />
-          <span>Translate selected</span>
+          <span>{t('editor.translateSelected')}</span>
           {selectedCells.length > 0 && <b>{selectedCells.length}</b>}
         </button>
         <Popover
@@ -1522,20 +1537,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               disabled={!editable || jobRunning}
             >
               <Sparkle size={20} aria-hidden="true" />
-              <span>Batch</span>
+              <span>{t('editor.batch')}</span>
               <CaretDown size={16} aria-hidden="true" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="editor-toolbar-panel editor-batch-panel" aria-label="Batch translation actions">
+          <PopoverContent className="editor-toolbar-panel editor-batch-panel" aria-label={t('editor.batchActions')}>
             <div className="editor-toolbar-panel-header">
               <span>
-                <strong>Translate current view</strong>
+                <strong>{t('editor.translateCurrentView')}</strong>
               </span>
             </div>
             <div className="editor-batch-action-list">
-              <button type="button" onClick={() => openTranslatePreview('Translate visible pending cells', visiblePendingCells)}>Translate visible pending <b>{visiblePendingCells.length}</b></button>
-              <button type="button" onClick={() => openTranslatePreview('Translate visible missing cells', visibleMissingCells)}>Translate visible missing <b>{visibleMissingCells.length}</b></button>
-              <button type="button" disabled={retryFailedCells.length === 0} onClick={() => openTranslatePreview('Retry failed translations', retryFailedCells)}>Retry failed <b>{retryFailedCells.length}</b></button>
+              <button type="button" onClick={() => openTranslatePreview(t('editor.translateVisiblePendingCells'), visiblePendingCells)}>{t('editor.translateVisiblePending')} <b>{visiblePendingCells.length}</b></button>
+              <button type="button" onClick={() => openTranslatePreview(t('editor.translateVisibleMissingCells'), visibleMissingCells)}>{t('editor.translateVisibleMissing')} <b>{visibleMissingCells.length}</b></button>
+              <button type="button" disabled={retryFailedCells.length === 0} onClick={() => openTranslatePreview(t('editor.retryFailedTranslations'), retryFailedCells)}>{t('editor.retryFailed')} <b>{retryFailedCells.length}</b></button>
             </div>
           </PopoverContent>
         </Popover>
@@ -1543,14 +1558,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <div className="editor-operation-right">
         {jobRunning && activeJob && (
           <div className="editor-translation-progress" role="status">
-            Translating {activeJob.completed}/{activeJob.total}
-            <button type="button" onClick={() => void cancelTranslation()}>Cancel</button>
+            {t('editor.translatingProgress', { completed: activeJob.completed, total: activeJob.total })}
+            <button type="button" onClick={() => void cancelTranslation()}>{t('editor.cancelJob')}</button>
           </div>
         )}
         <button
           className={workspaceSearchOpen ? 'editor-command-button is-active' : 'editor-command-button'}
           type="button"
-          aria-label="Search all locale copy"
+          aria-label={t('editor.searchAllCopy')}
           aria-expanded={workspaceSearchOpen}
           onClick={() => {
             setWorkspaceSearchOpen(true);
@@ -1561,12 +1576,12 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           }}
         >
           <MagnifyingGlass size={20} aria-hidden="true" />
-          <span>Workspace</span>
+          <span>{t('editor.workspace')}</span>
         </button>
         <label className="editor-inline-search editor-copy-search">
           <MagnifyingGlass size={17} aria-hidden="true" />
-          <span className="sr-only">Search keys and copy</span>
-          <input value={rowSearch} onChange={event => setRowSearch(event.target.value)} placeholder="Search keys or copy…" />
+          <span className="sr-only">{t('editor.searchKeysCopy')}</span>
+          <input value={rowSearch} onChange={event => setRowSearch(event.target.value)} placeholder={t('editor.searchKeysPlaceholder')} />
         </label>
         <Popover
           open={filterPanelOpen}
@@ -1583,20 +1598,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             <button
               className={filterPanelOpen ? 'editor-command-button editor-filter-trigger is-active' : 'editor-command-button editor-filter-trigger'}
               type="button"
-              aria-label="Filter visible rows"
+              aria-label={t('editor.filterRows')}
             >
               <Funnel size={20} aria-hidden="true" />
               {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="editor-toolbar-panel editor-filter-panel" aria-label="Filter visible rows">
+          <PopoverContent className="editor-toolbar-panel editor-filter-panel" aria-label={t('editor.filterRows')}>
             {filterPanel}
           </PopoverContent>
         </Popover>
         <button
           className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
           type="button"
-          aria-label="Open editor details"
+          aria-label={t('editor.openDetails')}
           aria-expanded={activeDrawer === 'tools'}
           onClick={() => {
             setFilePickerOpen(false);
@@ -1623,13 +1638,13 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       activeView="editor"
       bottomBar={editorBottomBar}
       bottomBarClassName="editor-cell-state-bar"
-      bottomBarLabel="Editor status"
+      bottomBarLabel={t('editor.statusLabel')}
       operationBar={editorOperationBar}
       operationBarClassName="editor-operation-bar"
-      operationBarLabel="Table editor controls"
+      operationBarLabel={t('editor.controlsLabel')}
       onNavigate={guardedNavigate}
       project={project}
-      skipLabel="table editor"
+      skipLabel={t('editor.skipLabel')}
       shellClassName="is-editor-shell"
       workspaceClassName="editor-workspace"
       liveStatus={status}
@@ -1637,19 +1652,19 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <div className="editor-table-stage">
         <div className="editor-floating-alerts">
           {!manifestLoading && manifest && !manifest.editable && (
-            <section className="editor-readonly-banner" aria-label="Read-only editor">
+            <section className="editor-readonly-banner" aria-label={t('editor.readonlyTitle')}>
               <Lock size={22} weight="fill" aria-hidden="true" />
               <div>
-                <strong>Viewing local copy in read-only mode</strong>
-                <span>Restart with <code>i18n-ai-diff panel --edit</code> to enable local saves and AI translation drafts.</span>
+                <strong>{t('editor.readonlyTitle')}</strong>
+                <span>{t('editor.readonlyBody')}</span>
               </div>
             </section>
           )}
         </div>
 
-        <section className="editor-table-panel" aria-label="Translation table">
+        <section className="editor-table-panel" aria-label={t('editor.tableLabel')}>
           {manifestLoading || fileLoading ? (
-            <div className="editor-table-loading" aria-label="Loading locale file">
+            <div className="editor-table-loading" aria-label={t('editor.loadingFile')}>
               <div className="skeleton skeleton-metrics" />
               <div className="skeleton skeleton-route" />
               <div className="skeleton skeleton-route" />
@@ -1674,14 +1689,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           ) : file && manifest ? (
             <div className="editor-table-empty is-filtered-empty">
               <MagnifyingGlass size={28} aria-hidden="true" />
-              <strong>No matching keys</strong>
-              <span>No key path or copy in {file.relativePath} matches the current search and filters.</span>
+              <strong>{t('editor.noMatchingKeys')}</strong>
+              <span>{t('editor.noMatchingKeysBody', { path: file.relativePath })}</span>
             </div>
           ) : (
             <div className="editor-table-empty">
               <FileText size={28} aria-hidden="true" />
-              <strong>Select a valid JSON file</strong>
-              <span>The table will align every string leaf across configured languages.</span>
+              <strong>{t('editor.selectValidJson')}</strong>
+              <span>{t('editor.selectValidJsonBody')}</span>
             </div>
           )}
         </section>
@@ -1741,16 +1756,16 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           role="menu"
         >
           {contextMenu.kind === 'cell' && (
-            <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate selected cells', contextMenu.selectedCells)}>Translate selected cells <b>{contextMenu.selectedCells.length}</b></button>
+            <button type="button" role="menuitem" onClick={() => openTranslatePreview(t('editor.translateSelectedCells'), contextMenu.selectedCells)}>{t('editor.translateSelectedCells')} <b>{contextMenu.selectedCells.length}</b></button>
           )}
           {contextMenu.kind === 'row' && (
-            <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate row targets', cellsForRowTargets(contextMenu.pointer))}>Translate row targets</button>
+            <button type="button" role="menuitem" onClick={() => openTranslatePreview(t('editor.translateRowTargets'), cellsForRowTargets(contextMenu.pointer))}>{t('editor.translateRowTargets')}</button>
           )}
           {contextMenu.kind === 'language' && (
-            <button type="button" role="menuitem" onClick={() => openTranslatePreview(`Translate ${contextMenu.lang} column targets`, cellsForLanguageTargets(contextMenu.lang))}>Translate column targets</button>
+            <button type="button" role="menuitem" onClick={() => openTranslatePreview(`${contextMenu.lang} · ${t('editor.translateColumnTargets')}`, cellsForLanguageTargets(contextMenu.lang))}>{t('editor.translateColumnTargets')}</button>
           )}
           {contextMenu.kind === 'master-language' && (
-            <button type="button" role="menuitem" onClick={() => openMasterTranslatePreview(contextMenu.lang)}>Translate from other master</button>
+            <button type="button" role="menuitem" onClick={() => openMasterTranslatePreview(contextMenu.lang)}>{t('editor.translateFromOtherMaster')}</button>
           )}
         </div>
       )}
@@ -1764,46 +1779,56 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                 descriptionId="translate-description"
                 description={(
                   <>
-                    {currentPreview.cells.length} target cell{currentPreview.cells.length === 1 ? '' : 's'} will be translated into the current browser draft.
-                    {currentPreview.skipped.length > 0 && <> {currentPreview.skipped.length} cell{currentPreview.skipped.length === 1 ? '' : 's'} will be skipped.</>}
+                    {t('editor.translateDescription', { ready: currentPreview.cells.length })}
+                    {currentPreview.skipped.length > 0 && <> {t('editor.translateSkippedDescription', { skipped: currentPreview.skipped.length })}</>}
                   </>
                 )}
               />
             </ModalHeader>
             <div className="translate-confirm-body">
               <dl className="translate-confirm-stats">
-                <div><dt>Selected</dt><dd>{translatePreview.cells.length}</dd></div>
-                <div><dt>Ready</dt><dd>{currentPreview.cells.length}</dd></div>
-                <div><dt>Skipped</dt><dd>{currentPreview.skipped.length}</dd></div>
-                <div><dt>Cache</dt><dd>{translatePreview.forceRetranslate ? 'Ignored' : 'Checked on start'}</dd></div>
+                <div><dt>{t('common.selected')}</dt><dd>{translatePreview.cells.length}</dd></div>
+                <div><dt>{t('editor.ready')}</dt><dd>{currentPreview.cells.length}</dd></div>
+                <div><dt>{t('common.skipped')}</dt><dd>{currentPreview.skipped.length}</dd></div>
+                <div><dt>{t('common.cache')}</dt><dd>{translatePreview.forceRetranslate ? t('common.ignored') : t('editor.checkedOnStart')}</dd></div>
               </dl>
               <label className="translate-option">
                 <Checkbox
                   checked={translatePreview.overwriteDrafts}
                   onCheckedChange={checked => setTranslatePreview(current => current && { ...current, overwriteDrafts: checked === true })}
                 />
-                <span>Overwrite existing local drafts</span>
+                <span>{t('editor.overwriteDrafts')}</span>
               </label>
               <label className="translate-option">
                 <Checkbox
                   checked={translatePreview.forceRetranslate}
                   onCheckedChange={checked => setTranslatePreview(current => current && { ...current, forceRetranslate: checked === true })}
                 />
-                <span>Force retranslate · ignore cache</span>
+                <span>{t('editor.forceRetranslate')}</span>
               </label>
               {currentPreview.skipped.length > 0 && (
                 <div className="translate-skip-list">
-                  {currentPreview.skipped.slice(0, 5).map(item => (
+                  {currentPreview.skipped.slice(0, translateSkippedExpanded ? currentPreview.skipped.length : 5).map(item => (
                     <span key={`${item.lang}:${item.pointer}`}>{item.lang} {item.pointer} · {item.reason}</span>
                   ))}
-                  {currentPreview.skipped.length > 5 && <span>+ {currentPreview.skipped.length - 5} more skipped cells</span>}
+                  {currentPreview.skipped.length > 5 && (
+                    <button
+                      type="button"
+                      className="translate-skip-more"
+                      onClick={() => setTranslateSkippedExpanded(expanded => !expanded)}
+                    >
+                      {translateSkippedExpanded
+                        ? t('editor.showFewerSkipped')
+                        : t('editor.moreSkippedCells', { count: currentPreview.skipped.length - 5 })}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
             <ModalActions>
-              <button type="button" className="button-tertiary" onClick={() => setTranslatePreview(null)}>Cancel</button>
+              <button type="button" className="button-tertiary" onClick={() => setTranslatePreview(null)}>{t('common.cancel')}</button>
               <button type="button" className="button-primary" disabled={currentPreview.cells.length === 0 || jobRunning} onClick={() => void confirmTranslation()}>
-                Start translation
+                {t('editor.startTranslation')}
               </button>
             </ModalActions>
           </ModalContent>
@@ -1815,26 +1840,26 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           <ModalContent className="translate-confirm-modal" size="lg" aria-describedby="master-translate-description">
             <ModalHeader icon={<Translate size={20} weight="bold" />}>
               <ModalTitleBlock
-                title={`Translate ${masterTranslatePreview.targetLang} master`}
+                title={t('editor.masterTranslateTitle', { lang: masterTranslatePreview.targetLang })}
                 descriptionId="master-translate-description"
                 description={(
                   <>
-                    One-time translation from another master into the current master draft.
+                    {t('editor.masterTranslateDescription')}
                     {' '}
-                    {currentMasterPreview.skipped.length > 0 && <> {currentMasterPreview.skipped.length} key{currentMasterPreview.skipped.length === 1 ? '' : 's'} will be skipped.</>}
+                    {currentMasterPreview.skipped.length > 0 && <> {t('editor.masterTranslateSkipped', { count: currentMasterPreview.skipped.length })}</>}
                   </>
                 )}
               />
             </ModalHeader>
             <div className="translate-confirm-body">
               <div className="translate-select-field">
-                <span>From master</span>
+                <span>{t('editor.fromMaster')}</span>
                 <Select
                   value={masterTranslatePreview.sourceLang || undefined}
                   onValueChange={value => setMasterTranslatePreview(current => current && { ...current, sourceLang: value })}
                 >
-                  <SelectTrigger aria-label="From master">
-                    <SelectValue placeholder="Choose master" />
+                  <SelectTrigger aria-label={t('editor.fromMaster')}>
+                    <SelectValue placeholder={t('editor.chooseMaster')} />
                   </SelectTrigger>
                   <SelectContent>
                   {masterLanguages.filter(lang => lang !== masterTranslatePreview.targetLang).map(lang => (
@@ -1844,77 +1869,89 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                 </Select>
               </div>
               <dl className="translate-confirm-stats">
-                <div><dt>Target</dt><dd>{masterTranslatePreview.targetLang}</dd></div>
-                <div><dt>Selected</dt><dd>{masterTranslatePreview.pointers.length}</dd></div>
-                <div><dt>Ready</dt><dd>{currentMasterPreview.cells.length}</dd></div>
-                <div><dt>Skipped</dt><dd>{currentMasterPreview.skipped.length}</dd></div>
-                <div><dt>Cache</dt><dd>{masterTranslatePreview.forceRetranslate ? 'Ignored' : 'Checked on start'}</dd></div>
+                <div><dt>{t('common.target')}</dt><dd>{masterTranslatePreview.targetLang}</dd></div>
+                <div><dt>{t('common.selected')}</dt><dd>{masterTranslatePreview.pointers.length}</dd></div>
+                <div><dt>{t('editor.ready')}</dt><dd>{currentMasterPreview.cells.length}</dd></div>
+                <div><dt>{t('common.skipped')}</dt><dd>{currentMasterPreview.skipped.length}</dd></div>
+                <div><dt>{t('common.cache')}</dt><dd>{masterTranslatePreview.forceRetranslate ? t('common.ignored') : t('editor.checkedOnStart')}</dd></div>
               </dl>
               <label className="translate-option">
                 <Checkbox
                   checked={masterTranslatePreview.overwriteExisting}
                   onCheckedChange={checked => setMasterTranslatePreview(current => current && { ...current, overwriteExisting: checked === true })}
                 />
-                <span>Overwrite existing master copy</span>
+                <span>{t('editor.overwriteMasterCopy')}</span>
               </label>
               <label className="translate-option">
                 <Checkbox
                   checked={masterTranslatePreview.overwriteDrafts}
                   onCheckedChange={checked => setMasterTranslatePreview(current => current && { ...current, overwriteDrafts: checked === true })}
                 />
-                <span>Overwrite existing local drafts</span>
+                <span>{t('editor.overwriteDrafts')}</span>
               </label>
               <label className="translate-option">
                 <Checkbox
                   checked={masterTranslatePreview.forceRetranslate}
                   onCheckedChange={checked => setMasterTranslatePreview(current => current && { ...current, forceRetranslate: checked === true })}
                 />
-                <span>Force retranslate · ignore cache</span>
+                <span>{t('editor.forceRetranslate')}</span>
               </label>
               {currentMasterPreview.skipped.length > 0 && (
                 <div className="translate-skip-list">
-                  {currentMasterPreview.skipped.slice(0, 5).map(item => (
+                  {currentMasterPreview.skipped.slice(0, masterSkippedExpanded ? currentMasterPreview.skipped.length : 5).map(item => (
                     <span key={`${item.lang}:${item.pointer}`}>{item.lang} {item.pointer} · {item.reason}</span>
                   ))}
-                  {currentMasterPreview.skipped.length > 5 && <span>+ {currentMasterPreview.skipped.length - 5} more skipped keys</span>}
+                  {currentMasterPreview.skipped.length > 5 && (
+                    <button
+                      type="button"
+                      className="translate-skip-more"
+                      onClick={() => setMasterSkippedExpanded(expanded => !expanded)}
+                    >
+                      {masterSkippedExpanded
+                        ? t('editor.showFewerSkipped')
+                        : t('editor.moreSkippedKeys', { count: currentMasterPreview.skipped.length - 5 })}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
             <ModalActions>
-              <button type="button" className="button-tertiary" onClick={() => setMasterTranslatePreview(null)}>Cancel</button>
+              <button type="button" className="button-tertiary" onClick={() => setMasterTranslatePreview(null)}>{t('common.cancel')}</button>
               <button type="button" className="button-primary" disabled={currentMasterPreview.cells.length === 0 || jobRunning} onClick={() => void confirmMasterTranslation()}>
-                Start master translation
+                {t('editor.startMasterTranslation')}
               </button>
             </ModalActions>
           </ModalContent>
         )}
       </Dialog>
 
-      {pendingNavigation && (
-        <div className="editor-modal-layer" role="presentation">
-          <section className="editor-modal" role="dialog" aria-modal="true" aria-labelledby="leave-title">
-            <WarningCircle size={28} weight="fill" aria-hidden="true" />
-            <div>
-              <h2 id="leave-title">
-                {pendingNavigation.kind === 'file' ? 'Save before opening another file?' : 'Save before leaving the table editor?'}
-              </h2>
-              <p>
-                {drafts.size} changes belong to <strong>{selectedPath}</strong>.{' '}
-                {pendingNavigation.kind === 'file'
-                  ? 'They cannot follow you into another JSON file.'
-                  : 'They stay in this browser draft until you save or discard them.'}
-              </p>
-            </div>
-            <div className="modal-actions">
-              <button type="button" className="button-tertiary" onClick={() => setPendingNavigation(null)}>Stay here</button>
-              <button type="button" className="button-secondary is-danger" onClick={discardAndNavigate}>Discard draft</button>
+      <Dialog open={Boolean(pendingNavigation)} onOpenChange={open => { if (!open) setPendingNavigation(null); }}>
+        {pendingNavigation && (
+          <ModalContent className="leave-confirm-modal" aria-describedby="leave-description">
+            <ModalHeader icon={<WarningCircle size={20} weight="fill" />}>
+              <ModalTitleBlock
+                title={pendingNavigation.kind === 'file' ? t('editor.saveBeforeFile') : t('editor.saveBeforeLeave')}
+                descriptionId="leave-description"
+                description={(
+                  <>
+                    {t('editor.draftsBelongTo', { count: drafts.size, path: selectedPath })}{' '}
+                    {pendingNavigation.kind === 'file'
+                      ? t('editor.draftsCannotFollow')
+                      : t('editor.draftsStayBrowser')}
+                  </>
+                )}
+              />
+            </ModalHeader>
+            <ModalActions>
+              <button type="button" className="button-tertiary" onClick={() => setPendingNavigation(null)}>{t('editor.stayHere')}</button>
+              <button type="button" className="button-secondary is-danger" onClick={discardAndNavigate}>{t('editor.discardDraft')}</button>
               <button type="button" className="button-primary" disabled={saving} onClick={() => void saveAndNavigate()}>
-                {pendingNavigation.kind === 'file' ? 'Save and continue' : 'Save and leave'}
+                {pendingNavigation.kind === 'file' ? t('editor.saveContinue') : t('editor.saveLeave')}
               </button>
-            </div>
-          </section>
-        </div>
-      )}
+            </ModalActions>
+          </ModalContent>
+        )}
+      </Dialog>
 
       {conflicts && (
         <ConflictModal

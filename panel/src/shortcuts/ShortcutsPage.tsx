@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { toast } from '../components/ui/sonner';
+import { usePanelI18n } from '../i18n';
 import { PanelLayout } from '../layout/PanelLayout';
 import type {
   PanelProject,
@@ -58,25 +59,8 @@ interface ConfirmationState {
   command: string;
 }
 
-const modeCopy: Record<ShortcutMode, {
-  title: string;
-  label: string;
-}> = {
-  pending: {
-    title: 'Translate pending copy',
-    label: 'Incremental',
-  },
-  force: {
-    title: 'Force refresh translations',
-    label: 'Refresh',
-  },
-  'master-to-master': {
-    title: 'Translate master to master',
-    label: 'Special flow',
-  },
-};
-
 function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPageProps) {
+  const { formatNumber, t } = usePanelI18n();
   const [mode, setMode] = useState<ShortcutMode>('pending');
   const [writeToken, setWriteToken] = useState<string | null>(null);
   const [manifestLoading, setManifestLoading] = useState(true);
@@ -89,7 +73,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
   const [activeJob, setActiveJob] = useState<PanelTranslationRunJob | null>(null);
   const [copying, setCopying] = useState(false);
 
-  usePanelErrorToast(error, 'CLI shortcut failed');
+  usePanelErrorToast(error, t('shortcuts.failedTitle'));
 
   const targetLangs = useMemo(
     () => project ? [...new Set(project.routes.flatMap(route => route.targetLangs))] : [],
@@ -146,25 +130,25 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
   const selectedScope = mode === 'master-to-master'
     ? `${masterSource || '—'} → ${masterTarget || '—'}`
     : selectedTargets.length === targetLangs.length
-      ? 'All configured target languages'
-      : `${selectedTargets.length} selected target language${selectedTargets.length === 1 ? '' : 's'}`;
+      ? t('shortcuts.allTargets')
+      : t('shortcuts.selectedTargets', { count: selectedTargets.length });
 
   const openConfirmation = useCallback(() => {
     if (!request) return;
     setConfirmation({
       request,
       command,
-      title: modeCopy[mode].title,
+      title: shortcutModeTitle(mode, t),
       description: mode === 'master-to-master'
-        ? `${masterSource} will be translated into ${masterTarget}. This writes the target master files directly.`
-        : `${selectedScope} will be processed across the project using CLI semantics.`,
+        ? t('shortcuts.masterDescription', { source: masterSource, target: masterTarget })
+        : t('shortcuts.scopeDescription', { scope: selectedScope }),
       warning: mode === 'force'
-        ? 'Force refresh clears the translation cache before running and may rewrite reviewed target copy.'
+        ? t('shortcuts.forceWarning')
         : mode === 'master-to-master'
-          ? 'This is a one-time helper. It does not change route ownership and writes the target master files directly.'
-          : 'This writes local target files, cache, and snapshot directly. It does not create browser drafts.',
+          ? t('shortcuts.masterWarning')
+          : t('shortcuts.pendingWarning'),
     });
-  }, [command, masterSource, masterTarget, mode, request, selectedScope]);
+  }, [command, masterSource, masterTarget, mode, request, selectedScope, t]);
 
   const runConfirmedShortcut = useCallback(async () => {
     if (!confirmation || !writeToken) return;
@@ -177,11 +161,11 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       setActiveJob(finalJob);
       if (finalJob.status === 'completed' && finalJob.project) {
         onProjectChange(finalJob.project);
-        toast.success('CLI shortcut finished', {
-          description: summarizeStats(finalJob.stats),
+        toast.success(t('shortcuts.finished'), {
+          description: summarizeStats(finalJob.stats, formatNumber, t),
         });
       } else if (finalJob.status === 'failed') {
-        setError(finalJob.error || 'Translation run failed');
+        setError(finalJob.error || t('shortcuts.runFailed'));
       }
     } catch (requestError) {
       const message = requestError instanceof PanelApiError
@@ -195,9 +179,9 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
     setCopying(true);
     try {
       await navigator.clipboard.writeText(command);
-      toast.success('Command copied', { description: command });
+      toast.success(t('shortcuts.commandCopied'), { description: command });
     } catch {
-      setError('Unable to copy command to clipboard');
+      setError(t('shortcuts.copyFailed'));
     } finally {
       setCopying(false);
     }
@@ -208,9 +192,9 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       <div className="shortcuts-operation-left">
         <div className="shortcuts-title-cluster">
           <Lightning size={17} weight="fill" aria-hidden="true" />
-          <h1>CLI shortcut</h1>
+          <h1>{t('shortcuts.title')}</h1>
         </div>
-        <div className="shortcut-mode-tabs" role="tablist" aria-label="CLI shortcut mode">
+        <div className="shortcut-mode-tabs" role="tablist" aria-label={t('shortcuts.mode')}>
           {(['pending', 'force', 'master-to-master'] as ShortcutMode[]).map(candidate => (
             <button
               key={candidate}
@@ -220,7 +204,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               className={mode === candidate ? 'shortcut-mode-tab is-active' : 'shortcut-mode-tab'}
               onClick={() => setMode(candidate)}
             >
-              {modeCopy[candidate].label}
+              {shortcutModeLabel(candidate, t)}
             </button>
           ))}
         </div>
@@ -228,11 +212,11 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       <div className="shortcuts-operation-right">
         <button type="button" className="layout-control-button" onClick={() => void copyCommand()} disabled={copying || !request}>
           <ClipboardText size={16} aria-hidden="true" />
-          <span>{copying ? 'Copied' : 'Copy command'}</span>
+          <span>{copying ? t('shortcuts.copied') : t('shortcuts.copyCommand')}</span>
         </button>
         <button type="button" className="layout-primary-button" disabled={!canRun} onClick={openConfirmation}>
           {isRunning ? <ArrowsClockwise size={16} className="is-spinning" aria-hidden="true" /> : <Play size={16} weight="fill" aria-hidden="true" />}
-          <span>{isRunning ? 'Running…' : 'Run shortcut'}</span>
+          <span>{isRunning ? t('shortcuts.running') : t('shortcuts.runShortcut')}</span>
         </button>
       </div>
     </>
@@ -252,7 +236,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
             : isRunning
               ? <ArrowsClockwise size={15} className="is-spinning" aria-hidden="true" />
               : <Database size={15} aria-hidden="true" />}
-        <span>{formatJobStatus(activeJob)}</span>
+        <span>{formatJobStatus(activeJob, t, formatNumber)}</span>
       </div>
     </>
   );
@@ -262,13 +246,13 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       activeView="shortcuts"
       bottomBar={bottomBar}
       bottomBarClassName="shortcuts-bottom-bar"
-      bottomBarLabel="CLI shortcut status"
+      bottomBarLabel={t('shortcuts.statusLabel')}
       operationBar={operationBar}
       operationBarClassName="shortcuts-operation-bar"
-      operationBarLabel="CLI shortcut controls"
+      operationBarLabel={t('shortcuts.controlsLabel')}
       onNavigate={onNavigate}
       project={project}
-      skipLabel="CLI shortcut"
+      skipLabel={t('shortcuts.title')}
       shellClassName="is-shortcuts-shell"
       workspaceClassName="shortcuts-workspace"
       liveStatus={activeJob ? `CLI shortcut ${activeJob.status}` : undefined}
@@ -280,7 +264,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               <Sparkle size={23} weight="fill" />
             </span>
             <div>
-              <h2 id="shortcut-setup-title">{modeCopy[mode].title}</h2>
+          <h2 id="shortcut-setup-title">{shortcutModeTitle(mode, t)}</h2>
             </div>
           </div>
 
@@ -321,18 +305,18 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               <Code size={23} weight="bold" />
             </span>
             <div>
-              <h2 id="shortcut-command-title">Copy or run</h2>
+              <h2 id="shortcut-command-title">{t('shortcuts.commandLabel')}</h2>
             </div>
           </div>
           <pre className="shortcut-command-preview"><code>{command}</code></pre>
           <dl className="shortcut-command-meta">
             <div>
-              <dt>Scope</dt>
+              <dt>{t('shortcuts.scope')}</dt>
               <dd>{selectedScope}</dd>
             </div>
             <div>
-              <dt>Mode</dt>
-              <dd>{modeCopy[mode].label}</dd>
+              <dt>{t('shortcuts.mode')}</dt>
+              <dd>{shortcutModeLabel(mode, t)}</dd>
             </div>
           </dl>
         </section>
@@ -345,18 +329,18 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
                 : <CheckCircle size={23} weight="fill" />}
             </span>
             <div>
-              <h2 id="shortcut-run-title">{activeJob ? sentenceCase(activeJob.status) : 'Ready'}</h2>
+              <h2 id="shortcut-run-title">{activeJob ? sentenceCase(activeJob.status) : t('common.ready')}</h2>
             </div>
           </div>
           {activeJob?.stats ? (
-            <dl className="shortcuts-stats-grid" aria-label="Last run statistics">
-              <div><dt>Files</dt><dd>{formatNumber(activeJob.stats.totalFiles)}</dd></div>
-              <div><dt>Success</dt><dd>{formatNumber(activeJob.stats.successFiles)}</dd></div>
-              <div><dt>Added</dt><dd>{formatNumber(activeJob.stats.totalAdded)}</dd></div>
-              <div><dt>Changed</dt><dd>{formatNumber(activeJob.stats.totalUpdated)}</dd></div>
+            <dl className="shortcuts-stats-grid" aria-label={t('shortcuts.lastStats')}>
+              <div><dt>{t('shortcuts.files')}</dt><dd>{formatNumber(activeJob.stats.totalFiles)}</dd></div>
+              <div><dt>{t('common.success')}</dt><dd>{formatNumber(activeJob.stats.successFiles)}</dd></div>
+              <div><dt>{t('common.added')}</dt><dd>{formatNumber(activeJob.stats.totalAdded)}</dd></div>
+              <div><dt>{t('common.changed')}</dt><dd>{formatNumber(activeJob.stats.totalUpdated)}</dd></div>
             </dl>
           ) : (
-            <p className="shortcuts-muted-copy">{isRunning ? 'The run is using the same project queue as scan and save.' : 'No shortcut has run in this panel session yet.'}</p>
+            <p className="shortcuts-muted-copy">{isRunning ? t('shortcuts.queueNote') : t('shortcuts.noRun')}</p>
           )}
           {activeJob?.error && <p className="shortcuts-error-copy">{activeJob.error}</p>}
         </section>
@@ -367,13 +351,13 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               <WarningCircle size={23} weight="fill" />
             </span>
             <div>
-              <h2 id="shortcut-safety-title">{editable ? 'Direct-write mode' : 'Read-only mode'}</h2>
+              <h2 id="shortcut-safety-title">{editable ? t('shortcuts.directWrite') : t('shortcuts.readonly')}</h2>
             </div>
           </div>
           <ul className="shortcuts-safety-list">
-            <li>Runs use the same core logic as the CLI.</li>
-            <li>Results write local JSON files, cache, and snapshot directly.</li>
-            <li>{editable ? 'This session was started with edit capability.' : 'Restart with i18n-ai-diff panel --edit to run shortcuts.'}</li>
+            <li>{t('shortcuts.safetyCli')}</li>
+            <li>{t('shortcuts.safetyWrites')}</li>
+            <li>{editable ? t('shortcuts.safetyEditable') : t('shortcuts.safetyReadonly')}</li>
           </ul>
         </section>
       </div>
@@ -396,9 +380,9 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               </div>
             </div>
             <ModalActions>
-              <button type="button" className="button-tertiary" onClick={() => setConfirmation(null)}>Cancel</button>
+              <button type="button" className="button-tertiary" onClick={() => setConfirmation(null)}>{t('common.cancel')}</button>
               <button type="button" className="button-primary" disabled={!canRun} onClick={() => void runConfirmedShortcut()}>
-                Run shortcut
+                {t('shortcuts.runShortcut')}
               </button>
             </ModalActions>
           </ModalContent>
@@ -423,20 +407,21 @@ function TargetScope({
   onSelectAll(): void;
   onClear(): void;
 }) {
+  const { t } = usePanelI18n();
   return (
     <div className="shortcut-scope-panel">
       <div className="shortcut-inline-actions is-scope-actions">
-        <button type="button" onClick={onSelectAll}>All</button>
-        <button type="button" onClick={onClear}>None</button>
+        <button type="button" onClick={onSelectAll}>{t('common.all')}</button>
+        <button type="button" onClick={onClear}>{t('common.none')}</button>
       </div>
 
       <div className="shortcut-route-scope">
         {routes.map(route => (
-          <section key={route.sourceLang} className="shortcut-route-group" aria-label={`${route.sourceLang} route targets`}>
+          <section key={route.sourceLang} className="shortcut-route-group" aria-label={t('shortcuts.routeTargets', { sourceLang: route.sourceLang })}>
             <div className="shortcut-route-source">
               <ShareNetwork size={18} aria-hidden="true" />
               <strong>{route.sourceLang}</strong>
-              <span>{route.targets.length} target{route.targets.length === 1 ? '' : 's'}</span>
+              <span>{t('shortcuts.targetCount', { count: route.targets.length })}</span>
             </div>
             <div className="shortcut-language-list">
               {route.targets.map(target => (
@@ -476,14 +461,15 @@ function MasterScope({
   onSourceChange(value: string): void;
   onTargetChange(value: string): void;
 }) {
+  const { t } = usePanelI18n();
   return (
     <div className="shortcut-scope-panel">
       <div className="shortcut-master-grid">
         <div className="shortcut-select-field">
-          <span>From master</span>
+          <span>{t('shortcuts.fromMaster')}</span>
           <Select value={sourceLang || undefined} disabled={disabled} onValueChange={onSourceChange}>
-            <SelectTrigger aria-label="From master">
-              <SelectValue placeholder="Choose master" />
+            <SelectTrigger aria-label={t('shortcuts.fromMaster')}>
+              <SelectValue placeholder={t('shortcuts.chooseMaster')} />
             </SelectTrigger>
             <SelectContent>
               {masterLangs.map(lang => <SelectItem key={lang} value={lang}>{lang}</SelectItem>)}
@@ -491,10 +477,10 @@ function MasterScope({
           </Select>
         </div>
         <div className="shortcut-select-field">
-          <span>To master</span>
+          <span>{t('shortcuts.toMaster')}</span>
           <Select value={targetLang || undefined} disabled={disabled} onValueChange={onTargetChange}>
-            <SelectTrigger aria-label="To master">
-              <SelectValue placeholder="Choose master" />
+            <SelectTrigger aria-label={t('shortcuts.toMaster')}>
+              <SelectValue placeholder={t('shortcuts.chooseMaster')} />
             </SelectTrigger>
             <SelectContent>
               {masterLangs.filter(lang => lang !== sourceLang).map(lang => (
@@ -507,7 +493,7 @@ function MasterScope({
 
       <label className="shortcut-language-option is-wide">
         <Checkbox checked={force} disabled={disabled} onCheckedChange={checked => onForceChange(checked === true)} />
-        <span>Overwrite existing master copy · ignore cache</span>
+        <span>{t('shortcuts.overwriteMaster')}</span>
       </label>
     </div>
   );
@@ -577,22 +563,38 @@ function quoteArg(value: string): string {
   return `'${value.replace(/'/gu, `'\\''`)}'`;
 }
 
-function formatJobStatus(job: PanelTranslationRunJob | null): string {
-  if (!job) return 'Ready to copy or run a CLI shortcut';
-  if (job.status === 'completed') return summarizeStats(job.stats);
-  if (job.status === 'failed') return job.error || 'Run failed';
-  return `${sentenceCase(job.status)} · direct-write CLI flow`;
+function formatJobStatus(
+  job: PanelTranslationRunJob | null,
+  t: ReturnType<typeof usePanelI18n>['t'],
+  formatNumber: ReturnType<typeof usePanelI18n>['formatNumber'],
+): string {
+  if (!job) return t('shortcuts.readyStatus');
+  if (job.status === 'completed') return summarizeStats(job.stats, formatNumber, t);
+  if (job.status === 'failed') return job.error || t('shortcuts.runFailed');
+  return t('shortcuts.directWriteFlow', { status: sentenceCase(job.status) });
 }
 
-function summarizeStats(stats: PanelTranslationRunJob['stats']): string {
-  if (!stats) return 'No stats reported';
-  return `${formatNumber(stats.successFiles)}/${formatNumber(stats.totalFiles)} files · +${formatNumber(stats.totalAdded)} · ~${formatNumber(stats.totalUpdated)}`;
-}
-
-function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
+function summarizeStats(
+  stats: PanelTranslationRunJob['stats'],
+  formatNumber: ReturnType<typeof usePanelI18n>['formatNumber'],
+  t: ReturnType<typeof usePanelI18n>['t'],
+): string {
+  if (!stats) return t('shortcuts.noStats');
+  return `${formatNumber(stats.successFiles)}/${formatNumber(stats.totalFiles)} ${t('shortcuts.files')} · +${formatNumber(stats.totalAdded)} · ~${formatNumber(stats.totalUpdated)}`;
 }
 
 function sentenceCase(value: string): string {
   return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
+function shortcutModeTitle(mode: ShortcutMode, t: ReturnType<typeof usePanelI18n>['t']): string {
+  if (mode === 'pending') return t('shortcuts.pendingTitle');
+  if (mode === 'force') return t('shortcuts.forceTitle');
+  return t('shortcuts.masterTitle');
+}
+
+function shortcutModeLabel(mode: ShortcutMode, t: ReturnType<typeof usePanelI18n>['t']): string {
+  if (mode === 'pending') return t('shortcuts.pendingLabel');
+  if (mode === 'force') return t('shortcuts.forceLabel');
+  return t('shortcuts.masterLabel');
 }
