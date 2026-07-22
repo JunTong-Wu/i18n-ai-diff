@@ -16,7 +16,7 @@ afterEach(async () => {
 });
 
 describe('translation settings service', () => {
-  it('loads visual config fields and writes a standard config module behind a revision', async () => {
+  it('loads visual config fields and patches managed config properties without replacing custom source', async () => {
     const { projectRoot, configPath, config } = await createSettingsFixture();
     const service = new TranslationSettingsService(config, configPath, projectRoot);
 
@@ -28,6 +28,7 @@ describe('translation settings service', () => {
     expect(loaded.config.routes).toEqual([
       { sourceLang: 'en', targetLangs: ['de', 'fr'] },
     ]);
+    expect(loaded.raw).not.toContain('test-secret');
 
     const saved = await service.saveConfig({
       revision: loaded.revision,
@@ -49,10 +50,19 @@ describe('translation settings service', () => {
     const raw = await fs.readFile(configPath, 'utf8');
     expect(saved.restartRequired).toBe(true);
     expect(saved.revision).toBe(sha256(raw));
+    expect(saved.raw).not.toContain('test-secret');
     expect(raw).toContain("import { defineConfig } from 'i18n-ai-diff';");
+    expect(raw).toContain('function loadLocalEnv()');
+    expect(raw).toContain('custom env loader should survive visual settings saves');
     expect(raw).toContain('sourceLang: "zh-Hans"');
-    expect(raw).toContain('apiKey: process.env.OPENAI_API_KEY');
-    expect(raw).not.toContain('test-secret');
+    expect(raw).toContain('Keep brand terms stable.');
+    expect(raw).toContain('watch: {');
+    expect(raw).toContain('debounceMs: 300');
+    expect(raw).not.toContain('enabled: false');
+    expect(raw).not.toContain('enabled: true');
+    expect(raw).toContain("apiKey: 'test-secret'");
+    expect(raw).toContain("model: process.env.CUSTOM_TRANSLATION_MODEL || 'test-model'");
+    expect(raw).not.toContain('process.env.OPENAI_MODEL');
   });
 
   it('rejects stale config revisions without overwriting the disk file', async () => {
@@ -84,13 +94,18 @@ async function createSettingsFixture(): Promise<{
   await fs.mkdir(path.join(projectRoot, 'state'), { recursive: true });
   const configPath = path.join(projectRoot, 'i18n-translate.config.ts');
   await fs.writeFile(configPath, `
-    export default {
+    import { defineConfig } from 'i18n-ai-diff';
+
+    loadLocalEnv();
+
+    export default defineConfig({
+      // Route ownership is user-documented and should survive.
       routes: [{ sourceLang: 'en', targetLangs: ['de', 'fr'] }],
       localesDir: './locales',
       skipKeys: ['internal.*'],
       llm: {
         apiKey: 'test-secret',
-        model: 'test-model',
+        model: process.env.CUSTOM_TRANSLATION_MODEL || 'test-model',
         maxTokens: 2048,
         temperature: 0.2,
         timeout: 30000,
@@ -100,7 +115,11 @@ async function createSettingsFixture(): Promise<{
       concurrency: 2,
       batchSize: 10,
       cachePath: './state/cache.json',
-    };
+    });
+
+    function loadLocalEnv() {
+      // custom env loader should survive visual settings saves
+    }
   `, 'utf8');
 
   return {
@@ -122,7 +141,6 @@ async function createSettingsFixture(): Promise<{
       },
       prompt: 'Use a friendly tone.',
       watch: {
-        enabled: false,
         debounceMs: 300,
         ignored: ['node_modules/**', '**/*.ts'],
       },

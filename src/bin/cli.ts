@@ -60,7 +60,6 @@ program
 
       if (options.watch) {
         config.watch = {
-          enabled: true,
           debounceMs: config.watch?.debounceMs ?? 300,
           ignored: config.watch?.ignored,
         };

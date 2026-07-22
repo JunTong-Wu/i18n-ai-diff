@@ -6,6 +6,7 @@ import {
   GearSix,
   Key,
   ListPlus,
+  Palette,
   Path,
   SlidersHorizontal,
   Trash,
@@ -24,7 +25,6 @@ import {
   ModalHeader,
   ModalTitleBlock,
 } from '../components/ui/modal';
-import { Checkbox } from '../components/ui/checkbox';
 import { Input } from '../components/ui/input';
 import { toast } from '../components/ui/sonner';
 import { Textarea } from '../components/ui/textarea';
@@ -86,6 +86,12 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
     ? projectRelativePath(configPath, settings.projectRoot)
     : configPath || 'Reading config…';
   const restartRequired = settings?.restartRequired === true;
+  const bottomStatusLabel = settings?.saveUnsupportedReason
+    ? 'Config is read-only in visual settings'
+    : restartRequired
+      ? 'Saved config is waiting for panel restart'
+      : 'Config loaded in this panel session';
+  const bottomStatusWarning = restartRequired || Boolean(settings?.saveUnsupportedReason);
 
   const updateDraft = useCallback((recipe: (current: SettingsDraft) => SettingsDraft) => {
     setDraft(current => current ? recipe(cloneDraft(current)) : current);
@@ -115,7 +121,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
         warnings: result.warnings,
       } : current);
       toast.success('Settings saved', {
-        description: 'Restart the panel for route, model, path, or watcher changes to apply.',
+        description: 'Restart the panel for route, path, prompt, or watcher changes to apply.',
       });
     } catch (requestError) {
       const message = requestError instanceof PanelApiError
@@ -134,13 +140,13 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
           <GearSix size={17} weight="fill" aria-hidden="true" />
           <h1>Settings</h1>
         </div>
-        {settings && (
-          <span className={restartRequired ? 'settings-operation-pill is-warning' : 'settings-operation-pill'}>
-            {settings.mode === 'multi-master' ? 'Multi-master' : 'Single-master'}
-          </span>
-        )}
         {restartRequired && (
           <span className="settings-operation-pill is-warning">Restart required</span>
+        )}
+        {settings?.saveUnsupportedReason && (
+          <span className="settings-operation-pill is-warning" title={settings.saveUnsupportedReason}>
+            Read-only config
+          </span>
         )}
       </div>
       <div className="settings-operation-right">
@@ -177,9 +183,9 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
         <Path size={15} aria-hidden="true" />
         <span>{displayConfigPath}</span>
       </div>
-      <div className={restartRequired ? 'settings-bottom-status is-warning' : 'settings-bottom-status'}>
+      <div className={bottomStatusWarning ? 'settings-bottom-status is-warning' : 'settings-bottom-status'} title={settings?.saveUnsupportedReason}>
         <GearSix size={15} aria-hidden="true" />
-        <span>{restartRequired ? 'Saved config is waiting for panel restart' : 'Config loaded in this panel session'}</span>
+        <span>{bottomStatusLabel}</span>
       </div>
     </>
   );
@@ -226,6 +232,11 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                 tone="cobalt"
                 title="Language routes"
                 titleId="settings-routes-title"
+                trailing={(
+                  <span className="settings-mode-badge">
+                    {settings.mode === 'multi-master' ? 'Multi-master' : 'Single-master'}
+                  </span>
+                )}
               />
 
               <div className="settings-field-grid">
@@ -238,20 +249,6 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                   label="Cache file"
                   value={draft.cachePath}
                   onChange={value => updateDraft(current => ({ ...current, cachePath: value }))}
-                />
-                <NumberField
-                  label="Concurrency"
-                  min={1}
-                  max={10}
-                  value={draft.concurrency}
-                  onChange={value => updateDraft(current => ({ ...current, concurrency: value }))}
-                />
-                <NumberField
-                  label="Batch size"
-                  min={1}
-                  max={100}
-                  value={draft.batchSize}
-                  onChange={value => updateDraft(current => ({ ...current, batchSize: value }))}
                 />
               </div>
 
@@ -304,90 +301,42 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
               </button>
             </section>
 
-            <section className="settings-llm-card bento-card" aria-labelledby="settings-llm-title">
+            <section className="settings-panel-card bento-card" aria-labelledby="settings-panel-title">
               <SettingsCardHeading
-                icon={<Key size={23} weight="bold" />}
-                tone="violet"
-                title="Model runtime"
-                titleId="settings-llm-title"
+                icon={<Palette size={23} weight="bold" />}
+                tone="amber"
+                title="Panel style"
+                titleId="settings-panel-title"
                 compact
               />
 
-              <div className="settings-stack-fields">
-                <TextField
-                  label="Model"
-                  value={draft.llm.model}
-                  onChange={value => updateDraft(current => ({
-                    ...current,
-                    llm: { ...current.llm, model: value },
-                  }))}
-                />
-                <TextField
-                  label="Base URL"
-                  value={draft.llm.baseURL || ''}
-                  placeholder="Optional OpenAI-compatible endpoint"
-                  onChange={value => updateDraft(current => ({
-                    ...current,
-                    llm: { ...current.llm, baseURL: value },
-                  }))}
-                />
-                <div className="settings-number-grid">
-                  <NumberField
-                    label="Max tokens"
-                    min={1}
-                    max={128000}
-                    value={draft.llm.maxTokens}
-                    onChange={value => updateDraft(current => ({
-                      ...current,
-                      llm: { ...current.llm, maxTokens: value },
-                    }))}
-                  />
-                  <NumberField
-                    label="Temperature"
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    value={draft.llm.temperature}
-                    onChange={value => updateDraft(current => ({
-                      ...current,
-                      llm: { ...current.llm, temperature: value },
-                    }))}
-                  />
-                  <NumberField
-                    label="Timeout"
-                    min={1000}
-                    max={600000}
-                    value={draft.llm.timeout}
-                    onChange={value => updateDraft(current => ({
-                      ...current,
-                      llm: { ...current.llm, timeout: value },
-                    }))}
-                  />
-                  <NumberField
-                    label="Retries"
-                    min={0}
-                    max={10}
-                    value={draft.llm.retries}
-                    onChange={value => updateDraft(current => ({
-                      ...current,
-                      llm: { ...current.llm, retries: value },
-                    }))}
-                  />
-                </div>
-                <div className="settings-secret-note">
-                  <Key size={16} aria-hidden="true" />
-                  <span>API key: environment only · {draft.llm.apiKeyEnv}</span>
-                </div>
-              </div>
+              <div className="settings-panel-empty" aria-hidden="true" />
             </section>
 
             <section className="settings-rules-card bento-card" aria-labelledby="settings-rules-title">
               <SettingsCardHeading
                 icon={<Code size={23} weight="bold" />}
                 tone="teal"
-                title="Prompt and skip keys"
+                title="AI behavior"
                 titleId="settings-rules-title"
               />
+
+              <div className="settings-number-grid">
+                <NumberField
+                  label="Concurrency"
+                  min={1}
+                  max={10}
+                  value={draft.concurrency}
+                  onChange={value => updateDraft(current => ({ ...current, concurrency: value }))}
+                />
+                <NumberField
+                  label="Batch size"
+                  min={1}
+                  max={100}
+                  value={draft.batchSize}
+                  onChange={value => updateDraft(current => ({ ...current, batchSize: value }))}
+                />
+              </div>
 
               <div className="settings-rules-grid">
                 <TextAreaField
@@ -410,16 +359,6 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
               </div>
 
               <div className="settings-watch-panel">
-                <label className="settings-checkbox-row">
-                  <Checkbox
-                    checked={draft.watch.enabled}
-                    onCheckedChange={checked => updateDraft(current => ({
-                      ...current,
-                      watch: { ...current.watch, enabled: checked === true },
-                    }))}
-                  />
-                  <span>Enable watch mode in generated config</span>
-                </label>
                 <NumberField
                   label="Watch debounce"
                   min={0}
@@ -443,23 +382,29 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
               </div>
             </section>
 
-            <section className="settings-preview-card bento-card" aria-labelledby="settings-preview-title">
+            <section className="settings-llm-card bento-card" aria-labelledby="settings-llm-title">
               <SettingsCardHeading
-                icon={<WarningCircle size={23} weight="fill" />}
-                tone={settings.canWrite ? 'amber' : 'coral'}
-                title={settings.canWrite ? 'Live draft preview' : 'Read-only format'}
-                titleId="settings-preview-title"
+                icon={<Key size={23} weight="bold" />}
+                tone="violet"
+                title="Model runtime"
+                titleId="settings-llm-title"
                 compact
               />
 
-              <ul className="settings-warning-list">
-                {[...(settings.saveUnsupportedReason ? [settings.saveUnsupportedReason] : []), ...settings.warnings].map(warning => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-
-              <pre className="settings-config-preview"><code>{renderDraftPreview(draft)}</code></pre>
+              <div className="settings-runtime-list">
+                <RuntimeField label="Model" value={draft.llm.model || 'Default model'} />
+                <RuntimeField label="Base URL" value={draft.llm.baseURL || 'Provider default'} />
+                <RuntimeField label="Max tokens" value={String(draft.llm.maxTokens)} />
+                <RuntimeField label="Temperature" value={String(draft.llm.temperature)} />
+                <RuntimeField label="Timeout" value={`${draft.llm.timeout} ms`} />
+                <RuntimeField label="Retries" value={String(draft.llm.retries)} />
+                <div className="settings-secret-note">
+                  <Key size={16} aria-hidden="true" />
+                  <span>Resolved from current config · not rewritten by Settings</span>
+                </div>
+              </div>
             </section>
+
           </>
         )}
       </div>
@@ -477,7 +422,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
             <div className="settings-confirm-body">
               <div className="settings-confirm-note">
                 <WarningCircle size={18} weight="fill" aria-hidden="true" />
-                <span>Existing comments or custom JavaScript expressions in the config file will be replaced by the standard defineConfig format.</span>
+                <span>Settings will patch managed defineConfig fields in place. Custom imports, helper functions, comments outside changed managed properties, and the llm block are preserved.</span>
               </div>
               <dl className="settings-confirm-grid">
                 <div>
@@ -489,8 +434,8 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
                   <dd>{draft.routes.reduce((total, route) => total + route.targetLangs.length, 0)}</dd>
                 </div>
                 <div>
-                  <dt>Model</dt>
-                  <dd>{draft.llm.model || '—'}</dd>
+                  <dt>Runtime</dt>
+                  <dd>Preserved</dd>
                 </div>
                 <div>
                   <dt>Restart</dt>
@@ -519,12 +464,14 @@ function SettingsCardHeading({
   title,
   titleId,
   tone,
+  trailing,
 }: {
   compact?: boolean;
   icon: ReactNode;
   title: string;
   titleId: string;
   tone: 'cobalt' | 'violet' | 'teal' | 'amber' | 'coral';
+  trailing?: ReactNode;
 }) {
   return (
     <div className={compact ? 'settings-card-heading is-compact' : 'settings-card-heading'}>
@@ -534,6 +481,22 @@ function SettingsCardHeading({
       <div>
         <h2 id={titleId}>{title}</h2>
       </div>
+      {trailing && <div className="settings-card-trailing">{trailing}</div>}
+    </div>
+  );
+}
+
+function RuntimeField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="settings-runtime-field">
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
@@ -644,19 +607,4 @@ function serializeDraft(draft: SettingsDraft): string {
 
 function cloneDraft(draft: SettingsDraft): SettingsDraft {
   return JSON.parse(JSON.stringify(draft)) as SettingsDraft;
-}
-
-function renderDraftPreview(draft: SettingsDraft): string {
-  return JSON.stringify({
-    ...draft,
-    llm: {
-      apiKey: 'process.env.OPENAI_API_KEY || ""',
-      model: draft.llm.model,
-      baseURL: draft.llm.baseURL || 'process.env.OPENAI_BASE_URL',
-      maxTokens: draft.llm.maxTokens,
-      temperature: draft.llm.temperature,
-      timeout: draft.llm.timeout,
-      retries: draft.llm.retries,
-    },
-  }, null, 2);
 }

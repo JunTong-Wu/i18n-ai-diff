@@ -51,7 +51,7 @@ describe('multi-master file watcher', () => {
       localesDir,
       skipKeys: [],
       llm: { apiKey: 'test-key' },
-      watch: { enabled: true, debounceMs: 5 },
+      watch: { debounceMs: 5 },
     };
     const translator = {
       translateFile: vi.fn(async () => ({ success: true })),
@@ -97,7 +97,7 @@ describe('multi-master file watcher', () => {
       localesDir,
       skipKeys: [],
       llm: { apiKey: 'test-key' },
-      watch: { enabled: true, debounceMs: 5 },
+      watch: { debounceMs: 5 },
     };
     let releaseFirst!: () => void;
     const firstCall = new Promise<void>(resolve => { releaseFirst = resolve; });
@@ -140,7 +140,7 @@ describe('multi-master file watcher', () => {
       localesDir,
       skipKeys: [],
       llm: { apiKey: 'test-key' },
-      watch: { enabled: true, debounceMs: 5 },
+      watch: { debounceMs: 5 },
     };
     const translator = {
       translateFile: vi.fn(async (_file, targetLang) => ({

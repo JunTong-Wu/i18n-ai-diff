@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
+import * as babelParser from '@babel/parser';
 import {
   ResolvedTranslateConfig,
   SettingsConfigDraft,
@@ -12,6 +13,18 @@ import {
 import { loadConfigWithMetadata } from './config-loader.js';
 
 const SUPPORTED_WRITE_EXTENSIONS = new Set(['.mjs', '.ts']);
+const MANAGED_SETTINGS_FIELDS = new Set([
+  'routes',
+  'baseLang',
+  'targetLangs',
+  'localesDir',
+  'skipKeys',
+  'prompt',
+  'watch',
+  'cachePath',
+  'concurrency',
+  'batchSize',
+]);
 
 export class SettingsConfigError extends Error {
   constructor(
@@ -35,7 +48,7 @@ export class TranslationSettingsService {
   ) {}
 
   async getConfig(editable: boolean, writeToken?: string): Promise<SettingsConfigFile> {
-    const { raw, revision } = await this.readConfigFile();
+    const { revision } = await this.readConfigFile();
     const loadWarnings: string[] = [];
     let resolvedConfig = this.startupConfig;
     try {
@@ -45,7 +58,7 @@ export class TranslationSettingsService {
       loadWarnings.push(`The config file on disk could not be loaded by this running panel: ${(error as Error).message}`);
     }
     const draft = toSettingsDraft(resolvedConfig, this.projectRoot);
-    const standardConfigPreview = renderConfigModule(draft);
+    const standardConfigPreview = renderManagedConfigPreview(draft);
     const writeSupport = inspectWriteSupport(this.configPath);
     return {
       editable,
@@ -86,16 +99,17 @@ export class TranslationSettingsService {
     }
 
     const normalized = normalizeSettingsDraft(request.config);
-    const nextRaw = renderConfigModule(normalized);
+    const nextRaw = patchConfigModule(currentRaw, normalized, this.configPath);
     await atomicWriteFile(this.configPath, nextRaw);
     this.restartRequired = true;
+    const safePreview = renderManagedConfigPreview(normalized);
 
     return {
       configPath: this.configPath,
       revision: revisionForContent(nextRaw),
       config: normalized,
-      raw: nextRaw,
-      standardConfigPreview: nextRaw,
+      raw: safePreview,
+      standardConfigPreview: safePreview,
       restartRequired: true,
       warnings: settingsWarnings(normalized),
     };
@@ -132,7 +146,6 @@ export function toSettingsDraft(
     },
     prompt: config.prompt || '',
     watch: {
-      enabled: config.watch?.enabled === true,
       debounceMs: config.watch?.debounceMs ?? 300,
       ignored: [...(config.watch?.ignored || [])],
     },
@@ -198,7 +211,6 @@ export function normalizeSettingsDraft(config: SettingsConfigDraft): SettingsCon
   const concurrency = normalizeInteger(config.concurrency, 'concurrency', 1, 10);
   const batchSize = normalizeInteger(config.batchSize, 'batchSize', 1, 100);
   const watch = {
-    enabled: config.watch?.enabled === true,
     debounceMs: normalizeInteger(config.watch?.debounceMs ?? 300, 'watch.debounceMs', 0, 60_000),
     ignored,
   };
@@ -232,76 +244,36 @@ export function normalizeSettingsDraft(config: SettingsConfigDraft): SettingsCon
   };
 }
 
-export function renderConfigModule(config: SettingsConfigDraft): string {
+export function renderManagedConfigPreview(config: SettingsConfigDraft): string {
   const normalized = normalizeSettingsDraft(config);
   return [
-    "import fs from 'node:fs';",
-    "import { defineConfig } from 'i18n-ai-diff';",
-    '',
-    "loadLocalEnv(new URL('.env', import.meta.url));",
-    '',
-    'export default defineConfig({',
+    'defineConfig({',
     `  routes: ${renderRoutes(normalized.routes, 2)},`,
     `  localesDir: ${jsString(normalized.localesDir)},`,
     `  skipKeys: ${renderStringArray(normalized.skipKeys, 2)},`,
-    '  llm: {',
-    "    apiKey: process.env.OPENAI_API_KEY || '',",
-    `    model: process.env.OPENAI_MODEL || ${jsString(normalized.llm.model)},`,
-    normalized.llm.baseURL
-      ? `    baseURL: process.env.OPENAI_BASE_URL || ${jsString(normalized.llm.baseURL)},`
-      : '    baseURL: process.env.OPENAI_BASE_URL,',
-    `    maxTokens: ${normalized.llm.maxTokens},`,
-    `    temperature: ${normalized.llm.temperature},`,
-    `    timeout: Number(process.env.OPENAI_TIMEOUT || ${normalized.llm.timeout}),`,
-    `    retries: Number(process.env.OPENAI_RETRIES || ${normalized.llm.retries}),`,
-    '  },',
     `  prompt: ${jsString(normalized.prompt)},`,
     '  watch: {',
-    `    enabled: ${normalized.watch.enabled ? 'true' : 'false'},`,
     `    debounceMs: ${normalized.watch.debounceMs},`,
     `    ignored: ${renderStringArray(normalized.watch.ignored, 4)},`,
     '  },',
     `  concurrency: ${normalized.concurrency},`,
     `  batchSize: ${normalized.batchSize},`,
     `  cachePath: ${jsString(normalized.cachePath)},`,
-    '});',
-    '',
-    'function loadLocalEnv(envUrl) {',
-    "  let content = '';",
-    '  try {',
-    "    content = fs.readFileSync(envUrl, 'utf8');",
-    '  } catch (error) {',
-    "    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return;",
-    '    throw error;',
-    '  }',
-    '',
-    '  for (const line of content.split(/\\r?\\n/)) {',
-    '    const trimmed = line.trim();',
-    "    if (!trimmed || trimmed.startsWith('#')) continue;",
-    '',
-    "    const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(.*)$/);",
-    '    if (!match) continue;',
-    '',
-    '    const [, key, rawValue] = match;',
-    '    if (process.env[key] !== undefined) continue;',
-    '',
-    '    process.env[key] = parseEnvValue(rawValue);',
-    '  }',
-    '}',
-    '',
-    'function parseEnvValue(rawValue) {',
-    '  let value = rawValue.trim();',
-    '  const quote = value[0];',
-    '  if ((quote === \'"\' || quote === "\'") && value.endsWith(quote)) {',
-    '    value = value.slice(1, -1);',
-    '  } else {',
-    "    value = value.replace(/\\s+#.*$/, '').trim();",
-    '  }',
-    '',
-    '  return value;',
-    '}',
-    '',
+    '  // llm is preserved from the existing config source and is not rewritten here.',
+    '})',
   ].join('\n');
+}
+
+export function patchConfigModule(raw: string, config: SettingsConfigDraft, configPath = 'i18n-translate.config.mjs'): string {
+  const normalized = normalizeSettingsDraft(config);
+  const configObject = findConfigObject(raw, configPath);
+  const properties = collectObjectProperties(configObject);
+  const useLegacySingleMaster = shouldPatchLegacySingleMaster(properties, normalized);
+  const updates = buildManagedPropertyUpdates(normalized, useLegacySingleMaster);
+  const deletions = useLegacySingleMaster
+    ? ['routes']
+    : ['baseLang', 'targetLangs'];
+  return applyObjectPropertyPatch(raw, configObject, properties, updates, deletions);
 }
 
 function normalizeRoutes(routes: SettingsRouteDraft[] | undefined): SettingsRouteDraft[] {
@@ -362,10 +334,361 @@ function renderStringArray(values: string[], indent: number): string {
   ].join('\n');
 }
 
+interface ConfigObjectNode {
+  type: 'ObjectExpression';
+  start: number;
+  end: number;
+  properties: ConfigObjectPropertyNode[];
+}
+
+type ConfigObjectPropertyNode = ConfigNamedPropertyNode | ConfigSpreadNode;
+
+interface ConfigNamedPropertyNode {
+  type: 'ObjectProperty' | 'ObjectMethod';
+  start: number;
+  end: number;
+  key: ConfigKeyNode;
+  value?: ConfigAstNode;
+  computed?: boolean;
+  shorthand?: boolean;
+}
+
+interface ConfigSpreadNode {
+  type: 'SpreadElement';
+  start: number;
+  end: number;
+}
+
+interface ConfigKeyNode {
+  type: string;
+  name?: string;
+  value?: string | number;
+}
+
+interface ConfigAstNode {
+  type: string;
+  start: number;
+  end: number;
+  [key: string]: unknown;
+}
+
+interface CollectedProperty {
+  node: ConfigNamedPropertyNode;
+  name: string;
+}
+
+interface TextEdit {
+  start: number;
+  end: number;
+  text: string;
+}
+
+type ManagedPropertyRenderer = (indent: number) => string;
+
+function findConfigObject(raw: string, configPath: string): ConfigObjectNode {
+  let ast: ConfigAstNode;
+  try {
+    ast = babelParser.parse(raw, {
+      sourceType: 'module',
+      plugins: ['typescript'],
+    }) as unknown as ConfigAstNode;
+  } catch (error) {
+    throw new SettingsConfigError(
+      `Unable to parse ${path.basename(configPath)} for safe visual editing: ${(error as Error).message}`,
+      'UNSUPPORTED_CONFIG_AST',
+    );
+  }
+
+  const program = ast.program as { body?: ConfigAstNode[] } | undefined;
+  for (const statement of program?.body || []) {
+    if (statement.type === 'ExportDefaultDeclaration') {
+      const object = objectFromConfigExpression(statement.declaration as ConfigAstNode | undefined);
+      if (object) return object;
+    }
+  }
+
+  throw new SettingsConfigError(
+    'The visual settings editor can only save config files whose default export is a direct defineConfig({ ... }) call or object literal.',
+    'UNSUPPORTED_CONFIG_AST',
+  );
+}
+
+function objectFromConfigExpression(node: ConfigAstNode | undefined): ConfigObjectNode | null {
+  const expression = unwrapExpression(node);
+  if (!expression) return null;
+  if (expression.type === 'ObjectExpression') return assertObjectNode(expression);
+  if (expression.type === 'CallExpression') {
+    const args = expression.arguments as ConfigAstNode[] | undefined;
+    const callee = expression.callee as ConfigAstNode | undefined;
+    if (isDefineConfigCallee(callee)) {
+      const firstArg = unwrapExpression(args?.[0]);
+      if (firstArg?.type === 'ObjectExpression') return assertObjectNode(firstArg);
+    }
+  }
+  return null;
+}
+
+function unwrapExpression(node: ConfigAstNode | undefined): ConfigAstNode | undefined {
+  let current = node;
+  while (
+    current
+    && ['TSAsExpression', 'TSSatisfiesExpression', 'TypeCastExpression', 'ParenthesizedExpression'].includes(current.type)
+  ) {
+    current = (current.expression as ConfigAstNode | undefined);
+  }
+  return current;
+}
+
+function isDefineConfigCallee(node: ConfigAstNode | undefined): boolean {
+  if (!node) return false;
+  if (node.type === 'Identifier') return node.name === 'defineConfig';
+  if (node.type === 'MemberExpression') {
+    const property = node.property as ConfigAstNode | undefined;
+    return property?.type === 'Identifier' && property.name === 'defineConfig';
+  }
+  return false;
+}
+
+function assertObjectNode(node: ConfigAstNode): ConfigObjectNode {
+  if (typeof node.start !== 'number' || typeof node.end !== 'number') {
+    throw new SettingsConfigError('The config parser did not provide source ranges for the exported config object.', 'UNSUPPORTED_CONFIG_AST');
+  }
+  return node as unknown as ConfigObjectNode;
+}
+
+function collectObjectProperties(configObject: ConfigObjectNode): Map<string, CollectedProperty> {
+  const properties = new Map<string, CollectedProperty>();
+  for (const property of configObject.properties) {
+    if (property.type === 'SpreadElement') {
+      throw new SettingsConfigError(
+        'The visual settings editor cannot safely save config objects with top-level spread properties. Move the spread inside a manually maintained field or edit the config by hand.',
+        'UNSUPPORTED_CONFIG_AST',
+      );
+    }
+    const name = propertyName(property);
+    if (!name) {
+      if (isManagedComputedProperty(property)) {
+        throw new SettingsConfigError(
+          'The visual settings editor cannot safely save computed config keys for managed settings fields.',
+          'UNSUPPORTED_CONFIG_AST',
+        );
+      }
+      continue;
+    }
+    if (properties.has(name)) {
+      throw new SettingsConfigError(
+        `The config object contains duplicate "${name}" properties, so the visual settings editor cannot safely patch it.`,
+        'UNSUPPORTED_CONFIG_AST',
+      );
+    }
+    properties.set(name, { node: property, name });
+  }
+  return properties;
+}
+
+function propertyName(property: ConfigNamedPropertyNode): string | null {
+  if (property.computed) return null;
+  if (property.key.type === 'Identifier') return property.key.name || null;
+  if (property.key.type === 'StringLiteral' || property.key.type === 'Literal') {
+    return typeof property.key.value === 'string' ? property.key.value : null;
+  }
+  return null;
+}
+
+function isManagedComputedProperty(property: ConfigNamedPropertyNode): boolean {
+  const keyText = property.key?.value || property.key?.name;
+  return typeof keyText === 'string' && MANAGED_SETTINGS_FIELDS.has(keyText);
+}
+
+function shouldPatchLegacySingleMaster(
+  properties: Map<string, CollectedProperty>,
+  config: SettingsConfigDraft,
+): boolean {
+  return !properties.has('routes')
+    && properties.has('baseLang')
+    && properties.has('targetLangs')
+    && config.routes.length === 1;
+}
+
+function buildManagedPropertyUpdates(
+  config: SettingsConfigDraft,
+  useLegacySingleMaster: boolean,
+): Map<string, ManagedPropertyRenderer> {
+  const updates = new Map<string, ManagedPropertyRenderer>();
+  if (useLegacySingleMaster) {
+    const [route] = config.routes;
+    updates.set('baseLang', () => jsString(route.sourceLang));
+    updates.set('targetLangs', indent => renderStringArray(route.targetLangs, indent));
+  } else {
+    updates.set('routes', indent => renderRoutes(config.routes, indent));
+  }
+  updates.set('localesDir', () => jsString(config.localesDir));
+  updates.set('skipKeys', indent => renderStringArray(config.skipKeys, indent));
+  updates.set('prompt', () => jsString(config.prompt));
+  updates.set('watch', indent => renderWatch(config.watch, indent));
+  updates.set('cachePath', () => jsString(config.cachePath));
+  updates.set('concurrency', () => String(config.concurrency));
+  updates.set('batchSize', () => String(config.batchSize));
+  return updates;
+}
+
+function applyObjectPropertyPatch(
+  raw: string,
+  configObject: ConfigObjectNode,
+  properties: Map<string, CollectedProperty>,
+  updates: Map<string, ManagedPropertyRenderer>,
+  deletions: string[],
+): string {
+  const edits: TextEdit[] = [];
+  for (const [name, renderValue] of updates) {
+    const property = properties.get(name);
+    if (!property) continue;
+    if (property.node.type !== 'ObjectProperty' || !property.node.value) {
+      throw new SettingsConfigError(
+        `The visual settings editor cannot safely patch "${name}" because it is not a plain object property.`,
+        'UNSUPPORTED_CONFIG_AST',
+      );
+    }
+    const valueCode = renderValue(indentationBefore(raw, property.node.start).length);
+    if (property.node.shorthand) {
+      edits.push({
+        start: property.node.start,
+        end: property.node.end,
+        text: `${renderPropertyKey(name)}: ${valueCode}`,
+      });
+    } else {
+      edits.push({
+        start: property.node.value.start,
+        end: property.node.value.end,
+        text: valueCode,
+      });
+    }
+  }
+
+  for (const name of deletions) {
+    const property = properties.get(name);
+    if (!property) continue;
+    edits.push(deletionEditForProperty(raw, property.node));
+  }
+
+  const missingEntries = [...updates]
+    .filter(([name]) => !properties.has(name))
+    .map(([name, renderValue]) => ({ name, renderValue }));
+  if (missingEntries.length > 0) {
+    edits.push(insertionEditForProperties(raw, configObject, missingEntries));
+  }
+
+  return applyTextEdits(raw, edits);
+}
+
+function deletionEditForProperty(raw: string, property: ConfigNamedPropertyNode): TextEdit {
+  let start = property.start;
+  let end = property.end;
+  const next = nextNonWhitespaceIndex(raw, end);
+  if (next !== -1 && raw[next] === ',') {
+    end = next + 1;
+    while (end < raw.length && /[ \t]/u.test(raw[end])) end += 1;
+    if (raw[end] === '\r' && raw[end + 1] === '\n') end += 2;
+    else if (raw[end] === '\n') end += 1;
+    return { start, end, text: '' };
+  }
+
+  const previous = previousNonWhitespaceIndex(raw, start - 1);
+  if (previous !== -1 && raw[previous] === ',') {
+    start = previous;
+    while (start > 0 && /[ \t]/u.test(raw[start - 1])) start -= 1;
+    return { start, end, text: '' };
+  }
+  return { start, end, text: '' };
+}
+
+function insertionEditForProperties(
+  raw: string,
+  configObject: ConfigObjectNode,
+  entries: Array<{ name: string; renderValue: ManagedPropertyRenderer }>,
+): TextEdit {
+  const closeBrace = configObject.end - 1;
+  const objectIndent = indentationBefore(raw, configObject.start);
+  const propertyIndent = inferPropertyIndent(raw, configObject, objectIndent);
+  const propertyIndentLength = propertyIndent.length;
+  const previous = previousNonWhitespaceIndex(raw, closeBrace - 1);
+  const hasExistingProperties = previous !== -1 && previous > configObject.start && raw[previous] !== '{';
+  const needsLeadingComma = hasExistingProperties && raw[previous] !== ',';
+  const text = [
+    needsLeadingComma ? ',' : '',
+    '\n',
+    entries
+      .map(entry => `${propertyIndent}${renderPropertyKey(entry.name)}: ${entry.renderValue(propertyIndentLength)}`)
+      .join(',\n'),
+    ',',
+    '\n',
+    objectIndent,
+  ].join('');
+  return { start: closeBrace, end: closeBrace, text };
+}
+
+function inferPropertyIndent(raw: string, configObject: ConfigObjectNode, objectIndent: string): string {
+  const firstProperty = configObject.properties.find(property => property.type !== 'SpreadElement');
+  if (firstProperty) {
+    return indentationBefore(raw, firstProperty.start);
+  }
+  return `${objectIndent}  `;
+}
+
+function renderPropertyKey(name: string): string {
+  if (/^[A-Za-z_$][\w$]*$/u.test(name)) return name;
+  return jsString(name);
+}
+
+function renderWatch(watch: SettingsConfigDraft['watch'], indent: number): string {
+  const base = ' '.repeat(indent);
+  const child = ' '.repeat(indent + 2);
+  return [
+    '{',
+    `${child}debounceMs: ${watch.debounceMs},`,
+    `${child}ignored: ${renderStringArray(watch.ignored, indent + 2)},`,
+    `${base}}`,
+  ].join('\n');
+}
+
+function applyTextEdits(raw: string, edits: TextEdit[]): string {
+  const sorted = [...edits].sort((left, right) => right.start - left.start);
+  let next = raw;
+  let lastStart = Number.POSITIVE_INFINITY;
+  for (const edit of sorted) {
+    if (edit.end > lastStart) {
+      throw new SettingsConfigError('Overlapping config edits were generated while saving settings.', 'UNSUPPORTED_CONFIG_AST');
+    }
+    next = `${next.slice(0, edit.start)}${edit.text}${next.slice(edit.end)}`;
+    lastStart = edit.start;
+  }
+  return next;
+}
+
+function indentationBefore(raw: string, index: number): string {
+  const lineStart = raw.lastIndexOf('\n', index - 1) + 1;
+  const prefix = raw.slice(lineStart, index);
+  return prefix.match(/^[ \t]*/u)?.[0] || '';
+}
+
+function nextNonWhitespaceIndex(raw: string, start: number): number {
+  for (let index = start; index < raw.length; index += 1) {
+    if (!/\s/u.test(raw[index])) return index;
+  }
+  return -1;
+}
+
+function previousNonWhitespaceIndex(raw: string, start: number): number {
+  for (let index = start; index >= 0; index -= 1) {
+    if (!/\s/u.test(raw[index])) return index;
+  }
+  return -1;
+}
+
 function settingsWarnings(config: SettingsConfigDraft): string[] {
   const warnings = [
-    'Saving rewrites the config into the standard defineConfig format. Existing comments or custom JavaScript expressions in the config file are not preserved.',
-    'API keys are never written by the settings page. Keep OPENAI_API_KEY in the environment or a local .env file.',
+    'Saving patches managed defineConfig fields in place. Custom imports, helper functions, comments outside managed properties, and LLM runtime expressions are preserved.',
+    'Model runtime is shown as the current resolved value only. Edit the llm block in the config file when the project needs custom provider logic.',
   ];
   if (config.routes.length === 1) {
     warnings.push('A single route still uses routes[].sourceLang internally, so single-master and multi-master behavior stay unified.');

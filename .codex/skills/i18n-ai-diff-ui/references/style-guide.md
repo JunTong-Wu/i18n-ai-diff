@@ -25,6 +25,8 @@ Use `../assets/route-wave-reference.png` as the precise route-connector referenc
 - Danger: `#D92D20`.
 - Decorative cobalt: `#1467F3`.
 - Decorative violet: `#7C3AED`.
+- Decorative violet soft: `#F1EAFF`.
+- Decorative violet strong: `#5B21B6`.
 - Decorative teal: `#0FAFA8`.
 - Decorative coral: `#F04438`.
 - Decorative amber: `#F59E0B`.
@@ -55,7 +57,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 ## Desktop layout
 
 - Keep the app full-height with a compact fixed, edge-attached topbar and a full-width main workspace.
-- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The top-level destinations are Project overview, Copy editor, CLI shortcut, and Settings. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
+- Keep product identity at the left, the small top-level navigation set beside it, and local-session context at the right. The top-level destinations are Project overview, Table editor, CLI shortcut, and Settings. The selected top-level navigation item uses black fill with white icon/text. Nested editor controls and selected file rows use neutral selected fill with dark text.
 - Do not reserve permanent horizontal space for a sidebar; operational tables and editors take priority. Do not style the topbar as a floating rounded card.
 - Use the shared layout slots consistently across views: fixed global topbar, optional operation bar below it, content workspace, and optional fixed bottom status bar. Keep the editor table from being covered by bottom status content.
 - On feature bento pages such as CLI shortcut and Settings, card headers must use only the card icon plus one large title. Do not add eyebrow labels, small subtitles, or explanatory paragraphs inside the card header; move essential safety or state copy into the card body.
@@ -84,7 +86,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 ## States and interaction
 
 - Scan button: black fill when enabled; disabled/loading actions use the neutral disabled fill. Keep clear hover, pressed, no drop shadow, and visible keyboard focus.
-- Copy editor: keep `Save changes` as its only primary action. Draft, pending, missing, skipped, conflict, AI draft, failed translation, and read-only states use small semantic markers on neutral table surfaces.
+- Table editor: keep `Save changes` as its only primary action. Draft, pending, missing, skipped, conflict, AI draft, failed translation, and read-only states use small semantic markers on neutral table surfaces.
 - Keep the Key path column frozen and route groups neutral. Master languages may use a quiet header tint, but language count and route count must stay data-driven.
 - File writes are never automatic: editing is gated by `panel --edit`, changes remain a per-file browser draft, and conflicts must be resolved before saving.
 - Success: green icon and text; keep the surrounding surface neutral or barely tinted.
@@ -94,9 +96,9 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Hover: use fill or ink changes only on actual controls such as buttons, links, tabs, search controls, and editable file rows. Display-only route cards, record cards, metrics, badges, target pills, status summaries, and notification surfaces do not change on hover.
 - Focus: visible 3 px black outline with sufficient offset for general controls. Large text inputs and textareas use the shared `Input`/`Textarea` soft-focus treatment instead: no heavy black outline, white active field, and a quiet neutral focus halo.
 
-## Copy editor table
+## Table editor
 
-- Use VisActor VTable `ListTable` for the copy editor. Do not switch to a free spreadsheet/sheet interaction model unless the product direction explicitly changes.
+- Use VisActor VTable `ListTable` for the table editor. Do not switch to a free spreadsheet/sheet interaction model unless the product direction explicitly changes.
 - Keep the table as the dominant editor surface. Put high-frequency controls in the operation bar or context menu, and low-frequency details in drawers.
 - Keep `Key path` frozen and language columns horizontally scrollable inside the table. Avoid page-level horizontal scrolling.
 - Preview and edit mode typography must match. Body cells use compact copy sizing, consistent line-height, consistent padding, and top vertical alignment. Do not let preview text vertically center while textarea editing aligns to the top.
@@ -118,7 +120,7 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Selected-cell AI translation is a confirmation modal. Translation results enter the current browser draft first; Save writes local files later. The modal must not imply direct filesystem writes. Default selected-cell translation follows CLI incremental semantics; expose `Force retranslate · ignore cache` as an explicit opt-in inside this modal when reviewed cells need fresh LLM output. Do not expose an AI override for `skipKeys`; skipped cells remain excluded from AI translation and may only be overridden through direct manual table editing.
 - Master-to-master AI translation is available only from a master language column-header context menu. Use the same shared confirmation modal shell as selected-cell translation, show the source-master selector and overwrite/cache options inside the modal, and keep results as browser drafts until Save.
 - CLI shortcut is a separate top-level page for cross-file CLI-equivalent runs. It must use the shared topbar, operation bar, bottom bar, bento card surfaces, shadcn `Dialog`/business modal shell, and black primary action. It may generate copyable commands in read-only mode, but direct execution is gated by `panel --edit` and must clearly state that it writes local files, cache, and snapshots immediately rather than creating editor drafts.
-- Settings is a separate top-level page for visual `i18n-translate.config.*` editing. It must use the shared topbar, operation bar, bottom bar, bento card surfaces, shared modal shell, shadcn-style `Input`/`Textarea` form primitives, and black primary `Save settings` action. Treat config saves as explicit local writes gated by `panel --edit`, write token, same-origin checks, and revision checks. The page must not imply that changing config rewrites locale JSON, cache, or snapshots; after saving, clearly require restarting the panel for routes, paths, model, prompt, or watcher changes to apply.
+- Settings is a separate top-level page for visual `i18n-translate.config.*` editing. It must use the shared topbar, operation bar, bottom bar, bento card surfaces, shared modal shell, shadcn-style `Input`/`Textarea` form primitives, and black primary `Save settings` action. Keep locale/cache paths and route definitions in `Language routes`; show the current `Multi-master` or `Single-master` mode as a non-interactive light-violet badge on the right side of that card header, not in the operation bar. Keep prompt, skip keys, concurrency, batch size, and CLI watch debounce/ignore patterns in `AI behavior`; do not expose or serialize a `watch.enabled` toggle because CLI watch remains an explicit `--watch` command behavior. Keep `Panel style` as the right-side panel-behavior card above `Model runtime`; keep `Model runtime` in the fourth card position as read-only runtime information. Treat config saves as explicit local writes gated by `panel --edit`, write token, same-origin checks, and revision checks. The page must communicate that saves patch managed fields in place rather than regenerating the full module; custom imports/helpers and the `llm` block are preserved. The page must not imply that changing config rewrites locale JSON, cache, or snapshots; after saving, clearly require restarting the panel for routes, paths, prompt, batch behavior, or watcher changes to apply.
 
 ## Responsive behavior
 

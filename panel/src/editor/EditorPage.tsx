@@ -1626,10 +1626,10 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       bottomBarLabel="Editor status"
       operationBar={editorOperationBar}
       operationBarClassName="editor-operation-bar"
-      operationBarLabel="Copy editor controls"
+      operationBarLabel="Table editor controls"
       onNavigate={guardedNavigate}
       project={project}
-      skipLabel="copy editor"
+      skipLabel="table editor"
       shellClassName="is-editor-shell"
       workspaceClassName="editor-workspace"
       liveStatus={status}
@@ -1896,7 +1896,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             <WarningCircle size={28} weight="fill" aria-hidden="true" />
             <div>
               <h2 id="leave-title">
-                {pendingNavigation.kind === 'file' ? 'Save before opening another file?' : 'Save before leaving the copy editor?'}
+                {pendingNavigation.kind === 'file' ? 'Save before opening another file?' : 'Save before leaving the table editor?'}
               </h2>
               <p>
                 {drafts.size} changes belong to <strong>{selectedPath}</strong>.{' '}

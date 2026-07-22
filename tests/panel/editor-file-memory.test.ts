@@ -7,7 +7,7 @@ import {
   type EditorFileStorage,
 } from '../../panel/src/editor/file-memory.js';
 
-describe('copy editor file memory', () => {
+describe('table editor file memory', () => {
   it('lets an explicit URL file win over remembered history', () => {
     expect(resolveEditorPath(
       ['common.json', 'pages/home.json'],
@@ -35,6 +35,16 @@ describe('copy editor file memory', () => {
 
     expect(readRememberedEditorPath(storage, '/workspace/a')).toBe('common.json');
     expect(readRememberedEditorPath(storage, '/workspace/b')).toBe('pages/home.json');
+  });
+
+  it('does not migrate deprecated copy-editor storage keys', () => {
+    const storage = createStorage();
+    storage.setItem('i18n-ai-diff:copy-editor:last-file-by-project', JSON.stringify({
+      '/workspace/a': 'pages/home.json',
+    }));
+    storage.setItem('i18n-ai-diff:copy-editor:last-file', 'pages/home.json');
+
+    expect(readRememberedEditorPath(storage, '/workspace/a')).toBe('');
   });
 
   it('falls back to the first manifest file when remembered history is stale', () => {

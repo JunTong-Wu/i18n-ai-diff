@@ -99,11 +99,11 @@ export function PanelLayout({
               className={activeView === 'editor' ? 'nav-item is-active' : 'nav-item'}
               href="/editor"
               aria-current={activeView === 'editor' ? 'page' : undefined}
-              aria-label="Copy editor"
+              aria-label="Table editor"
               onClick={createNavigationHandler('/editor')}
             >
               <Table size={24} weight="fill" aria-hidden="true" />
-              <span>Copy editor</span>
+              <span>Table editor</span>
             </a>
             <a
               className={activeView === 'shortcuts' ? 'nav-item is-active' : 'nav-item'}

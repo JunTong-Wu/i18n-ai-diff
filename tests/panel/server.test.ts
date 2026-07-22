@@ -152,7 +152,7 @@ describe('panel server', () => {
             retries: 3,
           },
           prompt: '',
-          watch: { enabled: false, debounceMs: 300, ignored: [] },
+          watch: { debounceMs: 300, ignored: [] },
           cachePath: './state/cache.json',
           concurrency: 3,
           batchSize: 20,

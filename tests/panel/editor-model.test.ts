@@ -7,7 +7,7 @@ import {
   rebaseDrafts,
 } from '../../panel/src/editor/model.js';
 
-describe('copy editor draft model', () => {
+describe('table editor draft model', () => {
   it('turns language/pointer drafts into save patches', () => {
     const drafts = new Map([
       [draftIdentity('de', '/section/title'), 'Hallo'],

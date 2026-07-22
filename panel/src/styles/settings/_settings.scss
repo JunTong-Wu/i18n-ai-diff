@@ -131,8 +131,8 @@
   }
 }
 
-.settings-llm-card,
-.settings-preview-card {
+.settings-panel-card,
+.settings-llm-card {
   grid-column: 9 / span 4;
   display: grid;
   align-content: start;
@@ -148,6 +148,10 @@
   @media (max-width: 760px) {
     padding: 1.35rem;
   }
+}
+
+.settings-panel-empty {
+  min-height: 6rem;
 }
 
 .settings-placeholder-card {
@@ -190,6 +194,25 @@
       font-size: var(--text-lg);
     }
   }
+}
+
+.settings-card-trailing {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.settings-mode-badge {
+  min-height: 1.95rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.72rem;
+  border-radius: 999px;
+  background: var(--decor-violet-soft);
+  color: var(--decor-violet-strong);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .settings-card-icon {
@@ -236,6 +259,40 @@
 .settings-stack-fields {
   display: grid;
   gap: var(--space-3);
+}
+
+.settings-runtime-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.settings-runtime-field {
+  min-width: 0;
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.72rem 0.78rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-quiet);
+
+  span,
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  strong {
+    color: var(--ink);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
 }
 
 .settings-field {
@@ -328,8 +385,7 @@
   }
 }
 
-.settings-secret-note,
-.settings-checkbox-row {
+.settings-secret-note {
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -361,7 +417,7 @@
 
 .settings-watch-panel {
   display: grid;
-  grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 0.35fr);
+  grid-template-columns: 1fr;
   gap: var(--space-3);
   padding: var(--space-3);
   border-radius: var(--radius-md);
@@ -372,70 +428,8 @@
     background: var(--surface);
   }
 
-  .settings-field:last-child {
-    grid-column: 1 / -1;
-  }
-
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
-  }
-}
-
-.settings-checkbox-row {
-  min-height: 2.6rem;
-  padding: 0 0.8rem;
-  background: var(--surface);
-  color: var(--ink);
-  cursor: pointer;
-
-  span {
-    font-size: var(--text-sm);
-    font-weight: 400;
-  }
-}
-
-.settings-warning-list {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  color: var(--muted);
-  font-size: var(--text-sm);
-  line-height: 1.45;
-  list-style: none;
-
-  li {
-    position: relative;
-    padding-left: 1rem;
-  }
-
-  li::before {
-    content: "";
-    position: absolute;
-    top: 0.62em;
-    left: 0;
-    width: 0.35rem;
-    height: 0.35rem;
-    border-radius: 999px;
-    background: var(--warning);
-  }
-}
-
-.settings-config-preview {
-  min-height: 18rem;
-  max-height: 28rem;
-  margin: 0;
-  padding: var(--space-3);
-  overflow: auto;
-  border-radius: var(--radius-sm);
-  background: var(--surface-quiet);
-  color: var(--ink);
-  font-size: 0.78rem;
-  line-height: 1.55;
-  white-space: pre;
-
-  code {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   }
 }
 

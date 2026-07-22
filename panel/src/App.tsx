@@ -83,7 +83,7 @@ export function App() {
           activeView="editor"
           onNavigate={navigate}
           project={project}
-          skipLabel="copy editor"
+          skipLabel="table editor"
           shellClassName="is-editor-shell"
           workspaceClassName="editor-workspace"
         >

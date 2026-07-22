@@ -43,7 +43,7 @@ export class FileWatcher {
       return;
     }
 
-    const watchConfig = this.config.watch || { enabled: false, debounceMs: 300 };
+    const watchConfig = this.config.watch || { debounceMs: 300 };
     const sourceLangs = [...new Set(this.config.routes.map(route => route.sourceLang))];
     const sourceDirs = sourceLangs.map(lang => path.join(this.config.localesDir, lang));
 

@@ -34,7 +34,6 @@ const defaultConfig: Partial<TranslateConfig> = {
   localesDir: './locales',
   skipKeys: [],
   watch: {
-    enabled: false,
     debounceMs: 300,
     ignored: ['node_modules/**', '**/*.ts'],
   },

@@ -23,11 +23,9 @@ export interface LLMConfig {
 }
 
 /**
- * 监听模式配置
+ * 监听参数配置。是否进入监听模式由 CLI `--watch` 显式决定。
  */
 export interface WatchConfig {
-  /** 是否启用监听 */
-  enabled: boolean;
   /** 防抖延迟（毫秒） */
   debounceMs: number;
   /** 忽略的文件模式 */
@@ -203,7 +201,7 @@ export interface TranslationStats {
 
 /**
  * 面板中的跨文件 CLI 快捷运行模式。
- * 与 copy editor 的单元格候选翻译不同，这些模式会按 CLI 语义直接写入本地文件。
+ * 与 table editor 的单元格候选翻译不同，这些模式会按 CLI 语义直接写入本地文件。
  */
 export type TranslationRunMode = 'pending' | 'force' | 'master-to-master';
 
@@ -261,8 +259,8 @@ export interface SettingsRouteDraft {
 }
 
 /**
- * 面板设置页可视化编辑的 LLM 配置。
- * apiKey 不在面板中展示或落入请求体；生成的配置文件始终从环境变量读取。
+ * 面板设置页展示的 LLM 运行时配置。
+ * apiKey 不在面板中展示；Settings 保存不会重写用户配置中的 llm 块。
  */
 export interface SettingsLLMDraft {
   apiKeyEnv: 'OPENAI_API_KEY';
@@ -275,13 +273,13 @@ export interface SettingsLLMDraft {
 }
 
 export interface SettingsWatchDraft {
-  enabled: boolean;
   debounceMs: number;
   ignored: string[];
 }
 
 /**
- * i18n-translate.config.* 的标准化可视化配置草稿。
+ * i18n-translate.config.* 的可视化配置草稿。
+ * Settings 保存只 patch 托管字段；llm 随草稿回传用于展示，但不会写回源码。
  */
 export interface SettingsConfigDraft {
   routes: SettingsRouteDraft[];
@@ -303,8 +301,9 @@ export interface SettingsConfigFile {
   revision: string;
   mode: 'single-master' | 'multi-master';
   config: SettingsConfigDraft;
-  /** 安全预览文本；不包含从用户配置解析出的密钥字面量 */
+  /** 安全预览文本；只展示托管字段，不包含从用户配置解析出的密钥字面量 */
   raw: string;
+  /** @deprecated 兼容旧前端字段名；现在表示安全的托管字段预览，而不是完整标准配置源码。 */
   standardConfigPreview: string;
   canWrite: boolean;
   saveUnsupportedReason?: string;
@@ -682,7 +681,7 @@ export interface FileChangeEvent {
 export interface CLIOptions {
   /** 配置文件路径 */
   config?: string;
-  /** 是否启用监听模式 */
+  /** CLI -w/--watch 标记 */
   watch?: boolean;
   /** 指定目标语言 */
   langs?: string[];

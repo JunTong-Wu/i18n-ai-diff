@@ -3,8 +3,7 @@ export interface EditorFileStorage {
   setItem(key: string, value: string): void;
 }
 
-const LEGACY_LAST_EDITOR_FILE_KEY = 'i18n-ai-diff:copy-editor:last-file';
-const LAST_EDITOR_FILE_BY_PROJECT_KEY = 'i18n-ai-diff:copy-editor:last-file-by-project';
+const LAST_EDITOR_FILE_BY_PROJECT_KEY = 'i18n-ai-diff:table-editor:last-file-by-project';
 
 export function readInitialEditorPath(search: string): string {
   return new URLSearchParams(search).get('file') || '';
@@ -24,7 +23,7 @@ export function readRememberedEditorPath(storage: EditorFileStorage, projectRoot
   try {
     const rememberedByProject = readProjectMemory(storage);
     if (projectRoot && rememberedByProject[projectRoot]) return rememberedByProject[projectRoot];
-    return storage.getItem(LEGACY_LAST_EDITOR_FILE_KEY) || '';
+    return '';
   } catch {
     return '';
   }
@@ -42,10 +41,9 @@ export function rememberEditorPath(
       rememberedByProject[projectRoot] = relativePath;
       storage.setItem(LAST_EDITOR_FILE_BY_PROJECT_KEY, JSON.stringify(rememberedByProject));
     }
-    storage.setItem(LEGACY_LAST_EDITOR_FILE_KEY, relativePath);
   } catch {
     // Remembering the last editor file is a convenience only. Private browsing
-    // or storage limits should never block the local copy editor.
+    // or storage limits should never block the local table editor.
   }
 }
 

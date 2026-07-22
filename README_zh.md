@@ -190,11 +190,16 @@ export default defineConfig({
 
   concurrency: 3,
   batchSize: 20,
+  watch: {
+    debounceMs: 300,
+    ignored: ['node_modules/**', '**/*.ts'],
+  },
   cachePath: '.i18n-translate-cache.json',
 });
 ```
 
 `skipKeys` 支持 glob 形式的点路径。例如 `footer.**` 会让 `footer` 下的全部字符串保持母版原文。
+`watch` 只配置 CLI 监听循环的参数，不会自动启用监听模式。
 
 ## 使用本地面板检查项目
 
@@ -215,6 +220,10 @@ npx i18n-ai-diff panel --edit
 选择一个逻辑 JSON 文件后，可以修改已有单元格或补齐缺失语言，最后点击 **Save N changes**。每行内部使用 JSON Pointer 标识，因此嵌套路径以及真实包含 `.`, `/`, `~` 的 key 都不会被破坏。数组、对象、数字、布尔值与 `null` 不进入可编辑表格，也不会被表格写入覆盖。
 
 保存边界是显式且保守的：服务端只接受已配置语言与 manifest 中的逻辑 JSON 文件，写入前核对所有文件 revision，使用同目录临时文件原子替换，并且绝不会触发机器翻译。人工修改目标语言会把该目标对应的母版快照标记为已复核；修改母版不会同步更新其他目标，它们会进入 Pending。人工编辑不会写入或删除翻译缓存。
+
+**CLI shortcut** 页面用于处理跨文件操作，行为应当与命令行一致。只读模式下它可以生成可复制命令；使用 `--edit` 启动面板后，它可以直接执行项目级流程：增量翻译 Pending、按语言范围强制刷新、以及一次性的母版到母版翻译。与 Table editor 中先进入浏览器草稿的 AI 翻译不同，CLI shortcut 执行后会立即写入本地文件、缓存和快照。
+
+**Settings** 页面用于可视化编辑 `i18n-translate.config.mjs` 中的项目结构、语言路由、locale/cache 路径，以及 Prompt、skip keys、concurrency、batch size、CLI watch 防抖和忽略规则等 AI behavior 配置。它在只读模式下可查看，保存必须使用 `panel --edit`。Settings 保存时只会在导出的配置对象里 patch 受管字段，会保留自定义 imports、辅助函数、未修改字段外的注释，以及用户自有的 `llm` 运行时配置。保存配置不会触碰语言 JSON、缓存或快照；保存后需要重启面板，新的路由、路径、Prompt、批处理或 watch 参数才会成为当前运行时配置。
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # 指定本地端口
@@ -250,6 +259,20 @@ npx i18n-ai-diff -w
 ```
 
 某个母版文件变化时，只会更新该母版路由下的目标语言。按 `Ctrl+C` 退出。
+
+可以在 `i18n-translate.config.mjs` 中调整监听循环参数：
+
+```typescript
+export default defineConfig({
+  // ...
+  watch: {
+    debounceMs: 300, // 文件变化后的防抖等待时间
+    ignored: ['node_modules/**', '**/*.ts'], // chokidar 忽略规则
+  },
+});
+```
+
+`watch` 对象只控制监听参数。进入监听模式始终需要显式执行 `-w` / `--watch`。
 
 ## 只处理指定语言
 
