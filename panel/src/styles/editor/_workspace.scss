@@ -8,10 +8,6 @@
   padding-bottom: 1.35rem;
 }
 
-.editor-header .section-kicker {
-  margin: 0 0 0.35rem;
-}
-
 .editor-save-button {
   min-width: 12.5rem;
 }
@@ -53,6 +49,7 @@
 
 .editor-readonly-banner strong {
   color: #8a4b05;
+  font-weight: 600;
 }
 
 .editor-readonly-banner span {
@@ -103,6 +100,10 @@
 .editor-file-heading span {
   color: var(--muted);
   font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.editor-file-heading strong {
   font-weight: 600;
 }
 
@@ -225,7 +226,7 @@
   margin-right: var(--space-1);
   color: var(--muted);
   font-size: var(--text-sm);
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .filter-chip {
@@ -236,7 +237,7 @@
   background: var(--surface);
   color: var(--muted);
   font-size: var(--text-xs);
-  font-weight: 650;
+  font-weight: 500;
   cursor: pointer;
 }
 

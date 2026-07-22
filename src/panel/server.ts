@@ -9,6 +9,7 @@ import {
   EditorManifest,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorSyncEvent,
   EditorTranslateJob,
   EditorTranslateRequest,
   EditorTranslateResult,
@@ -50,6 +51,8 @@ interface PanelSession {
       onProgress?: (results: EditorTranslateResult[]) => void;
     },
   ): Promise<EditorTranslateResult[]>;
+  subscribeToEditorEvents?(listener: (event: EditorSyncEvent) => void): () => void;
+  close?(): Promise<void> | void;
 }
 
 interface ServerTranslateJob extends EditorTranslateJob {
@@ -125,6 +128,19 @@ export async function startPanelServer(
         sendJson(response, 200, {
           data: toPanelHealth(contractContext),
         });
+        return;
+      }
+
+      if (request.method === 'GET' && requestUrl.pathname === '/api/editor/events') {
+        if (!session.subscribeToEditorEvents) {
+          sendJson(response, 501, { error: { code: 'EDITOR_EVENTS_UNAVAILABLE', message: 'Editor event stream is unavailable' } });
+          return;
+        }
+        openEditorEventStream(
+          request,
+          response,
+          listener => session.subscribeToEditorEvents!(listener),
+        );
         return;
       }
 
@@ -266,6 +282,11 @@ export async function startPanelServer(
 
       await serveStatic(clientRoot, requestUrl.pathname, request, response);
     } catch (error) {
+      if (response.headersSent) {
+        warn(`Panel response failed after headers were sent: ${(error as Error).message}`);
+        response.destroy(error as Error);
+        return;
+      }
       if (error instanceof EditorServiceError) {
         sendJson(response, error.status, {
           error: { code: error.code, message: error.message, details: error.details },
@@ -297,10 +318,50 @@ export async function startPanelServer(
   return {
     url: serverUrl,
     port: address.port,
-    close: () => new Promise((resolve, reject) => {
-      server.close(error => error ? reject(error) : resolve());
-    }),
+    close: async () => {
+      await session.close?.();
+      await new Promise<void>((resolve, reject) => {
+        server.close(error => error ? reject(error) : resolve());
+        server.closeAllConnections?.();
+      });
+    },
   };
+}
+
+function openEditorEventStream(
+  request: IncomingMessage,
+  response: ServerResponse,
+  subscribe: (listener: (event: EditorSyncEvent) => void) => () => void,
+): void {
+  response.statusCode = 200;
+  response.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  response.setHeader('Cache-Control', 'no-store, no-transform');
+  response.setHeader('Connection', 'keep-alive');
+  response.setHeader('X-Accel-Buffering', 'no');
+  response.flushHeaders?.();
+
+  const unsubscribe = subscribe(event => {
+    writeEditorSse(response, event.type, event);
+  });
+  writeEditorSse(response, 'editor:connected', {
+    type: 'editor:connected',
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+  });
+
+  const heartbeat = setInterval(() => {
+    response.write(': ping\n\n');
+  }, 25_000);
+
+  request.on('close', () => {
+    clearInterval(heartbeat);
+    unsubscribe();
+  });
+}
+
+function writeEditorSse(response: ServerResponse, eventName: string, payload: unknown): void {
+  response.write(`event: ${eventName}\n`);
+  response.write(`data: ${JSON.stringify(payload)}\n\n`);
 }
 
 async function readJsonBody(request: IncomingMessage, maxBytes: number): Promise<unknown> {

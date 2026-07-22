@@ -448,6 +448,38 @@ export interface EditorTranslateJob {
   error?: string;
 }
 
+export type EditorSyncEventSource = 'filesystem' | 'browser';
+
+export interface EditorFileSyncEvent {
+  type: 'editor:file-changed';
+  id: string;
+  timestamp: string;
+  source: EditorSyncEventSource;
+  relativePath: string;
+  languages: string[];
+  changes: FileChangeType[];
+}
+
+export type EditorProjectSyncReason =
+  | 'config'
+  | 'cache'
+  | 'snapshot'
+  | 'locales-bulk'
+  | 'watcher-error';
+
+export interface EditorProjectSyncEvent {
+  type: 'editor:project-changed';
+  id: string;
+  timestamp: string;
+  source: EditorSyncEventSource;
+  reason: EditorProjectSyncReason;
+  relativePaths: string[];
+  languages: string[];
+  count: number;
+}
+
+export type EditorSyncEvent = EditorFileSyncEvent | EditorProjectSyncEvent;
+
 /**
  * 文件变更类型
  */

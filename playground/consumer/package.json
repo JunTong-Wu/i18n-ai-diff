@@ -1,0 +1,12 @@
+{
+  "name": "i18n-ai-diff-playground-consumer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "translate": "i18n-ai-diff",
+    "panel": "i18n-ai-diff panel --edit"
+  },
+  "dependencies": {
+    "i18n-ai-diff": "file:../.."
+  }
+}

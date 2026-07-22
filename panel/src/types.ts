@@ -8,6 +8,7 @@ export type {
   PanelEditorRow,
   PanelEditorSaveRequest,
   PanelEditorSaveResult,
+  PanelEditorSyncEvent,
   PanelEditorTranslateCell,
   PanelEditorTranslateJob,
   PanelEditorTranslateOptions,

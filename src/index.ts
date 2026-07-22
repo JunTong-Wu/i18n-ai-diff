@@ -38,6 +38,11 @@ export type {
   EditorTranslateResultStatus,
   EditorTranslateJobStatus,
   EditorTranslateJob,
+  EditorSyncEventSource,
+  EditorFileSyncEvent,
+  EditorProjectSyncReason,
+  EditorProjectSyncEvent,
+  EditorSyncEvent,
 } from './types/index.js';
 
 export { loadConfig, defineConfig } from './core/config-loader.js';

@@ -15,6 +15,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   cancelEditorTranslateJob,
+  connectEditorEvents,
   createEditorTranslateJob,
   loadEditorFile,
   loadEditorManifest,
@@ -26,6 +27,7 @@ import type {
   PanelEditorAcceptedTranslation,
   PanelEditorFile,
   PanelEditorManifest,
+  PanelEditorSyncEvent,
   PanelEditorTranslateJob,
   PanelEditorTranslateResult,
   PanelProject,
@@ -90,6 +92,17 @@ type FailedTranslationMap = Map<string, GridSelectionCell & { error: string }>;
 
 const POLL_INTERVAL_MS = 650;
 
+interface EditorSyncStatus {
+  label: string;
+  tone: 'muted' | 'ok' | 'warning';
+  title?: string;
+}
+
+interface EditorBroadcastMessage {
+  sender: string;
+  event: PanelEditorSyncEvent;
+}
+
 export default function EditorPage({ project, onNavigate, onProjectChange }: EditorPageProps) {
   const initialPath = readInitialEditorPath(window.location.search);
   const [manifest, setManifest] = useState<PanelEditorManifest | null>(null);
@@ -99,7 +112,9 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [fileLoading, setFileLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [translationError, setTranslationError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
+  const [syncStatus, setSyncStatus] = useState<EditorSyncStatus | null>(null);
   const [fileSearch, setFileSearch] = useState('');
   const [rowSearch, setRowSearch] = useState('');
   const [showMissing, setShowMissing] = useState(false);
@@ -122,11 +137,21 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [redoStack, setRedoStack] = useState<DraftHistoryTransaction[]>([]);
   const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const [conflicts, setConflicts] = useState<DraftConflict[] | null>(null);
+  const tabIdRef = useRef(createEditorTabId());
+  const channelRef = useRef<BroadcastChannel | null>(null);
+  const seenSyncEventsRef = useRef<string[]>([]);
+  const selectedPathRef = useRef(selectedPath);
+  const translatingCellsRef = useRef(translatingCells);
+  const activeJobRef = useRef(activeJob);
   const draftsRef = useRef(drafts);
   const aiDraftsRef = useRef(aiDrafts);
+  selectedPathRef.current = selectedPath;
+  translatingCellsRef.current = translatingCells;
+  activeJobRef.current = activeJob;
   draftsRef.current = drafts;
   aiDraftsRef.current = aiDrafts;
   usePanelErrorToast(error, 'Editor error');
+  usePanelErrorToast(translationError, 'Translation failed');
 
   const refreshManifest = useCallback(async (signal?: AbortSignal) => {
     const nextManifest = await loadEditorManifest(signal);
@@ -145,6 +170,132 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     return nextManifest;
   }, [project?.projectRoot]);
 
+  const rememberSyncEvent = useCallback((id: string): boolean => {
+    const seen = seenSyncEventsRef.current;
+    if (seen.includes(id)) return false;
+    seen.push(id);
+    if (seen.length > 240) seen.splice(0, seen.length - 240);
+    return true;
+  }, []);
+
+  const broadcastSyncEvent = useCallback((event: PanelEditorSyncEvent) => {
+    channelRef.current?.postMessage({
+      sender: tabIdRef.current,
+      event,
+    } satisfies EditorBroadcastMessage);
+  }, []);
+
+  const hasProtectedLocalState = useCallback(() => {
+    const job = activeJobRef.current;
+    const jobRunningNow = job?.status === 'queued' || job?.status === 'running';
+    return draftsRef.current.size > 0 || translatingCellsRef.current.size > 0 || jobRunningNow;
+  }, []);
+
+  const resetTransientEditorState = useCallback(() => {
+    const emptyDrafts = new Map<string, string>();
+    const emptyAiDrafts = new Map<string, PanelEditorAcceptedTranslation>();
+    setDrafts(emptyDrafts);
+    draftsRef.current = emptyDrafts;
+    setAiDrafts(emptyAiDrafts);
+    aiDraftsRef.current = emptyAiDrafts;
+    setFailedTranslations(new Map());
+    setTranslationError(null);
+    setTranslatingCells(new Set());
+    setSelectedCells([]);
+    setUndoStack([]);
+    setRedoStack([]);
+    setConflicts(null);
+  }, []);
+
+  const reloadCurrentFileFromDisk = useCallback(async (
+    relativePath: string,
+    label = 'Synced from disk',
+  ) => {
+    if (hasProtectedLocalState()) {
+      setSyncStatus({
+        tone: 'warning',
+        label: 'Disk changed',
+        title: 'The file changed on disk while this tab has a local draft or translation job. Save will still use revision checks before writing.',
+      });
+      setStatus('The current file changed on disk. Save will check revisions before writing.');
+      return;
+    }
+
+    setFileLoading(true);
+    try {
+      const nextFile = await loadEditorFile(relativePath);
+      if (selectedPathRef.current !== relativePath || hasProtectedLocalState()) return;
+      setFile(nextFile);
+      resetTransientEditorState();
+      setSyncStatus({ tone: 'ok', label, title: `${relativePath} was reloaded from disk.` });
+      setStatus(`${label}: ${relativePath}`);
+    } catch (requestError) {
+      if ((requestError as Error).name !== 'AbortError') {
+        setSyncStatus({
+          tone: 'warning',
+          label: 'Sync needs review',
+          title: (requestError as Error).message,
+        });
+        setError((requestError as Error).message);
+      }
+    } finally {
+      setFileLoading(false);
+    }
+  }, [hasProtectedLocalState, resetTransientEditorState]);
+
+  const applyEditorSyncEvent = useCallback(async (event: PanelEditorSyncEvent) => {
+    const currentPath = selectedPathRef.current;
+    try {
+      const nextManifest = await refreshManifest();
+      if (!currentPath) {
+        setSyncStatus({ tone: 'muted', label: 'Project updated' });
+        return;
+      }
+
+      const manifestStillContainsCurrent = nextManifest.files.some(candidate => candidate.relativePath === currentPath);
+      const touchesCurrentFile = event.type === 'editor:file-changed'
+        ? event.relativePath === currentPath
+        : event.relativePaths.length === 0 || event.relativePaths.includes(currentPath);
+
+      if (!touchesCurrentFile) {
+        setSyncStatus({ tone: 'muted', label: 'Project updated' });
+        return;
+      }
+
+      if (!manifestStillContainsCurrent) {
+        setSyncStatus({
+          tone: hasProtectedLocalState() ? 'warning' : 'muted',
+          label: hasProtectedLocalState() ? 'Disk changed' : 'File moved',
+          title: `${currentPath} is no longer present in the editor manifest.`,
+        });
+        if (!hasProtectedLocalState()) {
+          setStatus(`${currentPath} changed on disk and is no longer listed. The editor will open the next available file.`);
+        }
+        return;
+      }
+
+      await reloadCurrentFileFromDisk(
+        currentPath,
+        event.source === 'browser' ? 'Synced from another tab' : 'Synced from disk',
+      );
+    } catch (requestError) {
+      if ((requestError as Error).name !== 'AbortError') {
+        setSyncStatus({
+          tone: 'warning',
+          label: 'Sync paused',
+          title: (requestError as Error).message,
+        });
+        setError((requestError as Error).message);
+      }
+    }
+  }, [hasProtectedLocalState, refreshManifest, reloadCurrentFileFromDisk]);
+
+  const receiveEditorSyncEvent = useCallback((event: PanelEditorSyncEvent, options: { rebroadcast: boolean }) => {
+    if (!rememberSyncEvent(event.id)) return;
+    if (options.rebroadcast) broadcastSyncEvent(event);
+    void applyEditorSyncEvent(event);
+  }, [applyEditorSyncEvent, broadcastSyncEvent, rememberSyncEvent]);
+
   useEffect(() => {
     const controller = new AbortController();
     setManifestLoading(true);
@@ -158,6 +309,41 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [refreshManifest]);
 
   useEffect(() => {
+    return connectEditorEvents(
+      event => receiveEditorSyncEvent(event, { rebroadcast: true }),
+      connectionState => {
+        setSyncStatus(current => {
+          if (connectionState === 'connected') {
+            return current?.tone === 'warning'
+              ? current
+              : { tone: 'muted', label: 'Live sync on', title: 'Watching local files for changes.' };
+          }
+          return {
+            tone: 'warning',
+            label: 'Sync reconnecting',
+            title: 'The local event stream is reconnecting. Manual saves still use revision checks.',
+          };
+        });
+      },
+    );
+  }, [receiveEditorSyncEvent]);
+
+  useEffect(() => {
+    if (!('BroadcastChannel' in window)) return undefined;
+    const projectRoot = manifest?.projectRoot || project?.projectRoot || 'pending-project';
+    const channel = new BroadcastChannel(`i18n-ai-diff:editor:${projectRoot}`);
+    channelRef.current = channel;
+    channel.onmessage = (message: MessageEvent<EditorBroadcastMessage>) => {
+      if (!message.data || message.data.sender === tabIdRef.current) return;
+      receiveEditorSyncEvent(message.data.event, { rebroadcast: false });
+    };
+    return () => {
+      if (channelRef.current === channel) channelRef.current = null;
+      channel.close();
+    };
+  }, [manifest?.projectRoot, project?.projectRoot, receiveEditorSyncEvent]);
+
+  useEffect(() => {
     if (!selectedPath) {
       setFile(null);
       return undefined;
@@ -169,17 +355,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     void loadEditorFile(selectedPath, controller.signal)
       .then(nextFile => {
         setFile(nextFile);
-        const emptyDrafts = new Map<string, string>();
-        setDrafts(emptyDrafts);
-        draftsRef.current = emptyDrafts;
-        setAiDrafts(new Map());
-        aiDraftsRef.current = new Map();
-        setFailedTranslations(new Map());
-        setTranslatingCells(new Set());
-        setSelectedCells([]);
-        setUndoStack([]);
-        setRedoStack([]);
-        setConflicts(null);
+        resetTransientEditorState();
         rememberEditorPath(
           window.localStorage,
           selectedPath,
@@ -198,7 +374,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       })
       .finally(() => setFileLoading(false));
     return () => controller.abort();
-  }, [manifest?.projectRoot, project?.projectRoot, selectedPath]);
+  }, [manifest?.projectRoot, project?.projectRoot, resetTransientEditorState, selectedPath]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -480,6 +656,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       setRedoStack([]);
     }
     const failed = nextFailures.size;
+    if (failed > 0) {
+      const firstFailure = [...nextFailures.values()][0];
+      setTranslationError(
+        `${failed} cell${failed === 1 ? '' : 's'} failed. `
+        + `${firstFailure.lang} ${firstFailure.pointer}: ${firstFailure.error}`,
+      );
+    } else {
+      setTranslationError(null);
+    }
     setStatus(
       failed > 0
         ? `Generated ${translated} AI draft${translated === 1 ? '' : 's'}; ${failed} cell${failed === 1 ? '' : 's'} failed.`
@@ -520,6 +705,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setFilePickerOpen(false);
     setFilterPanelOpen(false);
     setError(null);
+    setTranslationError(null);
     setFailedTranslations(new Map());
     const identities = new Set(currentPreview.cells.map(cell => draftIdentity(cell.lang, cell.pointer)));
     setTranslatingCells(identities);
@@ -663,6 +849,20 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       setRedoStack([]);
       onProjectChange(result.project);
       await refreshManifest();
+      if (result.savedLanguages.length > 0) {
+        const event: PanelEditorSyncEvent = {
+          type: 'editor:file-changed',
+          id: `${tabIdRef.current}:save:${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          source: 'browser',
+          relativePath: file.relativePath,
+          languages: result.savedLanguages,
+          changes: ['change'],
+        };
+        rememberSyncEvent(event.id);
+        broadcastSyncEvent(event);
+      }
+      setSyncStatus({ tone: 'ok', label: 'Saved locally', title: `${file.relativePath} was written to disk.` });
       setStatus(`Saved ${result.savedLanguages.length} language file${result.savedLanguages.length === 1 ? '' : 's'} safely.`);
       return true;
     } catch (requestError) {
@@ -698,7 +898,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     } finally {
       setSaving(false);
     }
-  }, [file, manifest, onProjectChange, refreshManifest]);
+  }, [broadcastSyncEvent, file, manifest, onProjectChange, refreshManifest, rememberSyncEvent]);
 
   const performNavigation = useCallback((destination: PendingNavigation) => {
     if (destination.kind === 'file') {
@@ -810,7 +1010,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
   const cellStateSummary = (
     <div className="editor-cell-state-summary">
-      <strong>Cell states</strong>
       <div className="editor-state-legend">
         <span><i className="legend-dot is-changed" />Changed <b>{cellStateCounts.changed}</b></span>
         <span><i className="legend-dot is-pending" />Pending <b>{cellStateCounts.pending}</b></span>
@@ -826,6 +1025,14 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     <div className="editor-bottom-file" title={selectedPath || 'No JSON file selected'}>
       <FileText size={16} aria-hidden="true" />
       <span>{selectedPath || 'No JSON file selected'}</span>
+      {syncStatus && (
+        <em
+          className={`editor-sync-pill is-${syncStatus.tone}`}
+          title={syncStatus.title || syncStatus.label}
+        >
+          {syncStatus.label}
+        </em>
+      )}
     </div>
   );
 
@@ -842,7 +1049,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     <>
       <div className="editor-toolbar-panel-header">
         <span>
-          <small>Project files</small>
           <SheetTitle asChild>
             <strong>{manifest?.files.length || 0} JSON files</strong>
           </SheetTitle>
@@ -883,19 +1089,163 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     <>
       <div className="editor-toolbar-panel-header">
         <span>
-          <small>Show rows</small>
           <strong>{activeFilterCount === 0 ? 'All states' : `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} active`}</strong>
         </span>
         <em>{visibleRows.length} / {file?.rows.length || 0} keys</em>
       </div>
       {filterChips}
-      <p>Combine filters to narrow the current file by cell state without changing any local draft.</p>
+    </>
+  );
+
+  const editorOperationBar = (
+    <>
+      <div className="editor-operation-left">
+        <button
+          className={filePickerOpen ? 'editor-file-trigger is-active' : 'editor-file-trigger'}
+          type="button"
+          aria-label="Open locale files"
+          aria-expanded={filePickerOpen}
+          onClick={() => {
+            setFilePickerOpen(true);
+            setFilterPanelOpen(false);
+            setBatchMenuOpen(false);
+            setContextMenu(null);
+          }}
+        >
+          {currentFileTriggerContent}
+        </button>
+        <div className="editor-history" aria-label="Draft history">
+          <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
+            <ArrowUUpLeft size={20} aria-hidden="true" />
+            <span>Undo</span>
+          </button>
+          <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
+            <ArrowUUpRight size={20} aria-hidden="true" />
+            <span>Redo</span>
+          </button>
+        </div>
+        <button
+          className="editor-command-button editor-translate-button"
+          type="button"
+          disabled={!editable || selectedCells.length === 0 || jobRunning}
+          onClick={() => openTranslatePreview('Translate selected cells', selectedCells)}
+        >
+          <Translate size={20} aria-hidden="true" />
+          <span>Translate selected</span>
+          {selectedCells.length > 0 && <b>{selectedCells.length}</b>}
+        </button>
+        <Popover
+          open={batchMenuOpen}
+          onOpenChange={open => {
+            if (!editable || jobRunning) {
+              setBatchMenuOpen(false);
+              return;
+            }
+            setBatchMenuOpen(open);
+            if (open) {
+              setFilePickerOpen(false);
+              setFilterPanelOpen(false);
+              setContextMenu(null);
+            }
+          }}
+        >
+          <PopoverTrigger asChild>
+            <button
+              className={batchMenuOpen ? 'editor-command-button is-active' : 'editor-command-button'}
+              type="button"
+              disabled={!editable || jobRunning}
+            >
+              <Sparkle size={20} aria-hidden="true" />
+              <span>Batch</span>
+              <CaretDown size={16} aria-hidden="true" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="editor-toolbar-panel editor-batch-panel" aria-label="Batch translation actions">
+            <div className="editor-toolbar-panel-header">
+              <span>
+                <strong>Translate current view</strong>
+              </span>
+            </div>
+            <div className="editor-batch-action-list">
+              <button type="button" onClick={() => openTranslatePreview('Translate visible pending cells', visiblePendingCells)}>Translate visible pending <b>{visiblePendingCells.length}</b></button>
+              <button type="button" onClick={() => openTranslatePreview('Translate visible missing cells', visibleMissingCells)}>Translate visible missing <b>{visibleMissingCells.length}</b></button>
+              <button type="button" onClick={() => openTranslatePreview('Translate current file pending cells', currentFilePendingCells)}>Translate current file pending <b>{currentFilePendingCells.length}</b></button>
+              <button type="button" disabled={retryFailedCells.length === 0} onClick={() => openTranslatePreview('Retry failed translations', retryFailedCells)}>Retry failed <b>{retryFailedCells.length}</b></button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="editor-operation-right">
+        {jobRunning && activeJob && (
+          <div className="editor-translation-progress" role="status">
+            Translating {activeJob.completed}/{activeJob.total}
+            <button type="button" onClick={() => void cancelTranslation()}>Cancel</button>
+          </div>
+        )}
+        <label className="editor-inline-search editor-copy-search">
+          <MagnifyingGlass size={17} aria-hidden="true" />
+          <span className="sr-only">Search keys and copy</span>
+          <input value={rowSearch} onChange={event => setRowSearch(event.target.value)} placeholder="Search keys or copy…" />
+        </label>
+        <Popover
+          open={filterPanelOpen}
+          onOpenChange={open => {
+            setFilterPanelOpen(open);
+            if (open) {
+              setFilePickerOpen(false);
+              setBatchMenuOpen(false);
+              setContextMenu(null);
+            }
+          }}
+        >
+          <PopoverTrigger asChild>
+            <button
+              className={filterPanelOpen ? 'editor-command-button editor-filter-trigger is-active' : 'editor-command-button editor-filter-trigger'}
+              type="button"
+              aria-label="Filter visible rows"
+            >
+              <Funnel size={20} aria-hidden="true" />
+              {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="editor-toolbar-panel editor-filter-panel" aria-label="Filter visible rows">
+            {filterPanel}
+          </PopoverContent>
+        </Popover>
+        <button
+          className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
+          type="button"
+          aria-label="Open editor details"
+          aria-expanded={activeDrawer === 'tools'}
+          onClick={() => {
+            setFilePickerOpen(false);
+            setFilterPanelOpen(false);
+            setActiveDrawer(current => (current === 'tools' ? null : 'tools'));
+          }}
+        >
+          <SlidersHorizontal size={20} aria-hidden="true" />
+        </button>
+        {saveButton}
+      </div>
+    </>
+  );
+
+  const editorBottomBar = (
+    <>
+      {currentFileSummary}
+      {cellStateSummary}
     </>
   );
 
   return (
     <PanelLayout
       activeView="editor"
+      bottomBar={editorBottomBar}
+      bottomBarClassName="editor-cell-state-bar"
+      bottomBarLabel="Editor status"
+      operationBar={editorOperationBar}
+      operationBarClassName="editor-operation-bar"
+      operationBarLabel="Copy editor controls"
       onNavigate={guardedNavigate}
       project={project}
       skipLabel="copy editor"
@@ -903,138 +1253,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       workspaceClassName="editor-workspace"
       liveStatus={status}
     >
-      <section className="editor-operation-bar" aria-label="Copy editor controls">
-        <div className="editor-operation-left">
-          <button
-            className={filePickerOpen ? 'editor-file-trigger is-active' : 'editor-file-trigger'}
-            type="button"
-            aria-label="Open locale files"
-            aria-expanded={filePickerOpen}
-            onClick={() => {
-              setFilePickerOpen(true);
-              setFilterPanelOpen(false);
-              setBatchMenuOpen(false);
-              setContextMenu(null);
-            }}
-          >
-            {currentFileTriggerContent}
-          </button>
-          <div className="editor-history" aria-label="Draft history">
-            <button type="button" disabled={undoStack.length === 0} onClick={undo} aria-label="Undo draft change">
-              <ArrowUUpLeft size={20} aria-hidden="true" />
-              <span>Undo</span>
-            </button>
-            <button type="button" disabled={redoStack.length === 0} onClick={redo} aria-label="Redo draft change">
-              <ArrowUUpRight size={20} aria-hidden="true" />
-              <span>Redo</span>
-            </button>
-          </div>
-          <button
-            className="editor-command-button editor-translate-button"
-            type="button"
-            disabled={!editable || selectedCells.length === 0 || jobRunning}
-            onClick={() => openTranslatePreview('Translate selected cells', selectedCells)}
-          >
-            <Translate size={20} aria-hidden="true" />
-            <span>Translate selected</span>
-            {selectedCells.length > 0 && <b>{selectedCells.length}</b>}
-          </button>
-          <Popover
-            open={batchMenuOpen}
-            onOpenChange={open => {
-              if (!editable || jobRunning) {
-                setBatchMenuOpen(false);
-                return;
-              }
-              setBatchMenuOpen(open);
-              if (open) {
-                setFilePickerOpen(false);
-                setFilterPanelOpen(false);
-                setContextMenu(null);
-              }
-            }}
-          >
-            <PopoverTrigger asChild>
-              <button
-                className={batchMenuOpen ? 'editor-command-button is-active' : 'editor-command-button'}
-                type="button"
-                disabled={!editable || jobRunning}
-              >
-                <Sparkle size={20} aria-hidden="true" />
-                <span>Batch</span>
-                <CaretDown size={16} aria-hidden="true" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="editor-toolbar-panel editor-batch-panel" aria-label="Batch translation actions">
-              <div className="editor-toolbar-panel-header">
-                <span>
-                  <small>AI batch</small>
-                  <strong>Translate current view</strong>
-                </span>
-              </div>
-              <div className="editor-batch-action-list">
-                <button type="button" onClick={() => openTranslatePreview('Translate visible pending cells', visiblePendingCells)}>Translate visible pending <b>{visiblePendingCells.length}</b></button>
-                <button type="button" onClick={() => openTranslatePreview('Translate visible missing cells', visibleMissingCells)}>Translate visible missing <b>{visibleMissingCells.length}</b></button>
-                <button type="button" onClick={() => openTranslatePreview('Translate current file pending cells', currentFilePendingCells)}>Translate current file pending <b>{currentFilePendingCells.length}</b></button>
-                <button type="button" disabled={retryFailedCells.length === 0} onClick={() => openTranslatePreview('Retry failed translations', retryFailedCells)}>Retry failed <b>{retryFailedCells.length}</b></button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="editor-operation-right">
-          {jobRunning && activeJob && (
-            <div className="editor-translation-progress" role="status">
-              Translating {activeJob.completed}/{activeJob.total}
-              <button type="button" onClick={() => void cancelTranslation()}>Cancel</button>
-            </div>
-          )}
-          <label className="editor-inline-search editor-copy-search">
-            <MagnifyingGlass size={17} aria-hidden="true" />
-            <span className="sr-only">Search keys and copy</span>
-            <input value={rowSearch} onChange={event => setRowSearch(event.target.value)} placeholder="Search keys or copy…" />
-          </label>
-          <Popover
-            open={filterPanelOpen}
-            onOpenChange={open => {
-              setFilterPanelOpen(open);
-              if (open) {
-                setFilePickerOpen(false);
-                setBatchMenuOpen(false);
-                setContextMenu(null);
-              }
-            }}
-          >
-            <PopoverTrigger asChild>
-              <button
-                className={filterPanelOpen ? 'editor-command-button editor-filter-trigger is-active' : 'editor-command-button editor-filter-trigger'}
-                type="button"
-                aria-label="Filter visible rows"
-              >
-                <Funnel size={20} aria-hidden="true" />
-                {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="editor-toolbar-panel editor-filter-panel" aria-label="Filter visible rows">
-              {filterPanel}
-            </PopoverContent>
-          </Popover>
-          <button
-            className={activeDrawer === 'tools' ? 'editor-command-button is-active' : 'editor-command-button'}
-            type="button"
-            aria-label="Open editor details"
-            aria-expanded={activeDrawer === 'tools'}
-            onClick={() => {
-              setFilePickerOpen(false);
-              setFilterPanelOpen(false);
-              setActiveDrawer(current => (current === 'tools' ? null : 'tools'));
-            }}
-          >
-            <SlidersHorizontal size={20} aria-hidden="true" />
-          </button>
-          {saveButton}
-        </div>
-      </section>
-
       <div className="editor-table-stage">
         <div className="editor-floating-alerts">
           {!manifestLoading && manifest && !manifest.editable && (
@@ -1081,11 +1299,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         </section>
       </div>
 
-      <section className="editor-cell-state-bar" aria-label="Editor status">
-        {currentFileSummary}
-        {cellStateSummary}
-      </section>
-
       <Sheet
         open={filePickerOpen}
         onOpenChange={open => {
@@ -1103,10 +1316,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       </Sheet>
 
       <ToolsDrawer
-        aiDraftCount={aiDrafts.size}
         draftCount={drafts.size}
         editable={editable}
-        failedCount={failedTranslations.size}
         isOpen={activeDrawer === 'tools'}
         job={activeJob}
         languageCount={manifest?.languages.length || 0}
@@ -1136,7 +1347,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           <DialogContent className="editor-modal translate-confirm-modal" aria-describedby="translate-description">
             <Translate size={28} weight="fill" aria-hidden="true" />
             <div>
-              <p className="section-kicker">AI translation draft</p>
               <DialogTitle asChild>
                 <h2>{translatePreview.title}</h2>
               </DialogTitle>
@@ -1194,7 +1404,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           <section className="editor-modal" role="dialog" aria-modal="true" aria-labelledby="leave-title">
             <WarningCircle size={28} weight="fill" aria-hidden="true" />
             <div>
-              <p className="section-kicker">Unsaved local draft</p>
               <h2 id="leave-title">
                 {pendingNavigation.kind === 'file' ? 'Save before opening another file?' : 'Save before leaving the copy editor?'}
               </h2>
@@ -1229,4 +1438,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
 function FilterButton({ active, onClick, children }: { active: boolean; onClick(): void; children: string }) {
   return <button type="button" className={active ? 'filter-chip is-active' : 'filter-chip'} aria-pressed={active} onClick={onClick}>{children}</button>;
+}
+
+function createEditorTabId(): string {
+  return globalThis.crypto?.randomUUID?.() || `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }

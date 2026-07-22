@@ -13,6 +13,7 @@ import type {
   EditorTranslateOptions,
   EditorTranslateRequest,
   EditorTranslateResult,
+  EditorSyncEvent,
   ProjectScan,
 } from '../types/index.js';
 
@@ -56,6 +57,7 @@ export type PanelEditorTranslateOptions = EditorTranslateOptions;
 export type PanelEditorTranslateRequest = EditorTranslateRequest;
 export type PanelEditorTranslateResult = EditorTranslateResult;
 export type PanelEditorTranslateJob = EditorTranslateJob;
+export type PanelEditorSyncEvent = EditorSyncEvent;
 
 export interface PanelContractContext {
   packageVersion: string;

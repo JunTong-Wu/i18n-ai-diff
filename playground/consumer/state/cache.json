@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "entries": {
+    "b262d4765c95b0cd3c21c89dc6239129": {
+      "sourceText": "首页页面中的标题 测试",
+      "sourceLang": "zh-Hans",
+      "translatedText": "ホームページのタイトル テスト",
+      "targetLang": "ja",
+      "timestamp": 1784687903568,
+      "model": "deepseek-v4-flash-260425"
+    },
+    "5ba969b90aa1a16e85cb13eb99ffbd5b": {
+      "sourceText": "首页页面中的标题 测试",
+      "sourceLang": "zh-Hans",
+      "translatedText": "홈페이지 제목 테스트",
+      "targetLang": "ko",
+      "timestamp": 1784687903569,
+      "model": "deepseek-v4-flash-260425"
+    }
+  }
+}

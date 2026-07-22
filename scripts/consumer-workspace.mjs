@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const projectRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
-const fixtureRoot = path.join(projectRoot, 'tests/fixtures/headless-consumer');
+const playgroundConsumerRoot = path.join(projectRoot, 'playground/consumer');
 const tempRoot = path.join(projectRoot, '.temp');
 const defaultWorkspaceRoot = path.join(os.tmpdir(), 'i18n-ai-diff-consumer');
 const workspaceRoot = process.env.I18N_CONSUMER_DIR
@@ -31,15 +31,15 @@ async function run(command, args, options = {}) {
   });
 }
 
-async function copyFixture() {
-  await fs.cp(path.join(fixtureRoot, 'locales'), path.join(workspaceRoot, 'locales'), {
+async function copyPlaygroundConsumer() {
+  await fs.cp(path.join(playgroundConsumerRoot, 'locales'), path.join(workspaceRoot, 'locales'), {
     recursive: true,
   });
-  await fs.cp(path.join(fixtureRoot, 'state'), path.join(workspaceRoot, 'state'), {
+  await fs.cp(path.join(playgroundConsumerRoot, 'state'), path.join(workspaceRoot, 'state'), {
     recursive: true,
   });
   await fs.copyFile(
-    path.join(fixtureRoot, 'i18n-translate.config.mjs'),
+    path.join(playgroundConsumerRoot, 'i18n-translate.config.mjs'),
     path.join(workspaceRoot, 'i18n-translate.config.mjs'),
   );
 }
@@ -113,7 +113,7 @@ async function prepareWorkspace() {
     }, null, 2) + '\n',
     'utf8',
   );
-  await copyFixture();
+  await copyPlaygroundConsumer();
 
   console.log('Installing the tarball in an isolated consumer project...');
   await run(
@@ -343,7 +343,7 @@ async function verifyEditablePanel(binPath) {
 
 async function verifyWorkspace() {
   const { binPath } = await prepareWorkspace();
-  const manifest = await readJson(path.join(fixtureRoot, 'fixture-manifest.json'));
+  const manifest = await readJson(path.join(playgroundConsumerRoot, 'fixture-manifest.json'));
   const localesDir = path.join(workspaceRoot, 'locales');
   const cachePath = path.join(workspaceRoot, 'state/cache.json');
   const snapshotPath = path.join(workspaceRoot, 'state/cache.snapshot.json');

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import { ProjectScan } from '../../src/types/index.js';
+import { EditorSyncEvent, ProjectScan } from '../../src/types/index.js';
 import { RunningPanelServer, startPanelServer } from '../../src/panel/server.js';
 
 const tempDirs: string[] = [];
@@ -283,6 +283,57 @@ describe('panel server', () => {
       }),
     ]);
   });
+
+  it('streams editor file sync events as server-sent events', async () => {
+    const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-events-'));
+    tempDirs.push(clientRoot);
+    await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
+    const scan = createScan();
+    const listeners: Array<(event: EditorSyncEvent) => void> = [];
+    let unsubscribes = 0;
+    const server = await startPanelServer({
+      scan: async () => scan,
+      subscribeToEditorEvents: listener => {
+        listeners.push(listener);
+        return () => {
+          unsubscribes += 1;
+        };
+      },
+    }, {
+      port: 0,
+      open: false,
+      packageVersion: '1.2.0-test',
+      clientRoot,
+    });
+    servers.push(server);
+
+    const response = await fetch(`${server.url}/api/editor/events`, {
+      headers: { Accept: 'text/event-stream' },
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
+    expect(listeners).toHaveLength(1);
+
+    const reader = response.body?.getReader();
+    expect(reader).toBeDefined();
+    listeners[0]({
+      type: 'editor:file-changed',
+      id: 'event-1',
+      timestamp: '2026-07-22T00:00:00.000Z',
+      source: 'filesystem',
+      relativePath: 'common.json',
+      languages: ['en'],
+      changes: ['change'],
+    });
+
+    const streamText = await readUntil(reader!, 'common.json');
+    expect(streamText).toContain('event: editor:file-changed');
+    expect(streamText).toContain('"relativePath":"common.json"');
+
+    await reader!.cancel();
+    await waitUntil(() => unsubscribes >= 1);
+    expect(unsubscribes).toBeGreaterThanOrEqual(1);
+  });
 });
 
 function createScan(): ProjectScan {
@@ -308,4 +359,31 @@ function createScan(): ProjectScan {
       removedKeys: 0,
     },
   };
+}
+
+async function readUntil(
+  reader: { read(): Promise<{ done: boolean; value?: Uint8Array }> },
+  expected: string,
+): Promise<string> {
+  const deadline = Date.now() + 1_000;
+  let text = '';
+  while (!text.includes(expected)) {
+    if (Date.now() > deadline) throw new Error(`Timed out waiting for ${expected}`);
+    const result = await Promise.race([
+      reader.read(),
+      new Promise<null>(resolve => setTimeout(() => resolve(null), 20)),
+    ]);
+    if (!result) continue;
+    if (result.done) break;
+    if (result.value) text += Buffer.from(result.value).toString('utf8');
+  }
+  return text;
+}
+
+async function waitUntil(condition: () => boolean): Promise<void> {
+  const deadline = Date.now() + 1_000;
+  while (!condition()) {
+    if (Date.now() > deadline) throw new Error('Timed out waiting for condition');
+    await new Promise(resolve => setTimeout(resolve, 20));
+  }
 }

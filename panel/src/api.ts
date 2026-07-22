@@ -3,6 +3,7 @@ import type {
   PanelEditorManifest,
   PanelEditorSaveRequest,
   PanelEditorSaveResult,
+  PanelEditorSyncEvent,
   PanelEditorTranslateJob,
   PanelEditorTranslateRequest,
   PanelProject,
@@ -101,6 +102,26 @@ export async function cancelEditorTranslateJob(
       'X-I18n-Panel-Token': writeToken,
     },
   }));
+}
+
+export function connectEditorEvents(
+  onEvent: (event: PanelEditorSyncEvent) => void,
+  onConnectionChange?: (state: 'connected' | 'disconnected') => void,
+): () => void {
+  const source = new EventSource('/api/editor/events');
+  const handleSyncEvent = (event: MessageEvent<string>) => {
+    onEvent(JSON.parse(event.data) as PanelEditorSyncEvent);
+  };
+  source.addEventListener('editor:file-changed', handleSyncEvent);
+  source.addEventListener('editor:project-changed', handleSyncEvent);
+  source.addEventListener('editor:connected', () => onConnectionChange?.('connected'));
+  source.onopen = () => onConnectionChange?.('connected');
+  source.onerror = () => onConnectionChange?.('disconnected');
+  return () => {
+    source.removeEventListener('editor:file-changed', handleSyncEvent);
+    source.removeEventListener('editor:project-changed', handleSyncEvent);
+    source.close();
+  };
 }
 
 async function readResponse<T>(response: Response): Promise<T> {

@@ -17,7 +17,6 @@ export function ConflictModal({
       <section className="editor-modal conflict-modal" role="dialog" aria-modal="true" aria-labelledby="conflict-title">
         <WarningCircle size={28} weight="fill" aria-hidden="true" />
         <div>
-          <p className="section-kicker">External file change</p>
           <h2 id="conflict-title">Resolve overlapping cells</h2>
           <p>Unrelated disk changes are already preserved. Choose a value for each cell changed in both places.</p>
         </div>

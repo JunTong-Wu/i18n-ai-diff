@@ -3,10 +3,8 @@ import type { PanelEditorManifest, PanelEditorTranslateJob } from '../types';
 import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
 
 interface ToolsDrawerProps {
-  aiDraftCount: number;
   draftCount: number;
   editable: boolean;
-  failedCount: number;
   isOpen: boolean;
   job: PanelEditorTranslateJob | null;
   languageCount: number;
@@ -18,10 +16,8 @@ interface ToolsDrawerProps {
 }
 
 export function ToolsDrawer({
-  aiDraftCount,
   draftCount,
   editable,
-  failedCount,
   isOpen,
   job,
   languageCount,
@@ -36,7 +32,6 @@ export function ToolsDrawer({
       <SheetContent className="editor-controls-drawer" side="right">
       <div className="file-panel-header">
         <div>
-          <p className="section-kicker">Local editor</p>
           <SheetTitle asChild>
             <strong>Details and safety</strong>
           </SheetTitle>
@@ -67,7 +62,6 @@ export function ToolsDrawer({
       <section className="editor-state-card">
         <strong>Draft status</strong>
         <p>{status || (draftCount > 0 ? `${draftCount} changes remain in this browser.` : 'Local files match the current editor draft.')}</p>
-        <small>{aiDraftCount} AI draft{aiDraftCount === 1 ? '' : 's'} · {failedCount} failed translation{failedCount === 1 ? '' : 's'}</small>
       </section>
 
       <section className="editor-state-card">
@@ -95,7 +89,6 @@ export function ToolsDrawer({
       <section className="editor-state-card">
         <strong>Editing boundary</strong>
         <p>{editable ? 'Local editing is enabled. AI translations become drafts first; only Save writes files, snapshots, and accepted cache entries.' : 'Viewing in read-only mode. Restart with i18n-ai-diff panel --edit to save file changes or run AI translation drafts.'}</p>
-        <small>Double-click or press Enter to edit. Shift+Enter adds a line.</small>
       </section>
       </SheetContent>
     </Sheet>

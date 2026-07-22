@@ -1,7 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { loadProject } from './api';
 import { PanelLayout } from './layout/PanelLayout';
-import { ErrorState, LoadingState, OverviewPage } from './overview/OverviewPage';
+import {
+  ErrorState,
+  LoadingState,
+  OverviewBottomBar,
+  OverviewOperationBar,
+  OverviewPage,
+} from './overview/OverviewPage';
 import type { PanelProject } from './types';
 
 const EditorPage = lazy(() => import('./editor/EditorPage'));
@@ -85,9 +91,23 @@ export function App() {
   return (
     <PanelLayout
       activeView="overview"
+      bottomBar={project ? <OverviewBottomBar project={project} /> : undefined}
+      bottomBarClassName="overview-bottom-bar"
+      bottomBarLabel="Overview status"
       onNavigate={navigate}
+      operationBar={project ? (
+        <OverviewOperationBar
+          project={project}
+          loading={loading}
+          refreshing={refreshing}
+          onScan={() => void requestProject(true)}
+        />
+      ) : undefined}
+      operationBarClassName="overview-operation-bar"
+      operationBarLabel="Project overview controls"
       project={project}
       skipLabel="project overview"
+      shellClassName="is-overview-shell"
       liveStatus={refreshing
         ? 'Scanning translation project'
         : project
@@ -102,10 +122,7 @@ export function App() {
       {project && (
         <OverviewPage
           project={project}
-          loading={loading}
-          refreshing={refreshing}
           error={error}
-          onScan={() => void requestProject(true)}
         />
       )}
     </PanelLayout>

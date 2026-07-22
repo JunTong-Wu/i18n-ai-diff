@@ -1,6 +1,6 @@
 .ui-sheet-content.editor-file-drawer,
 .ui-sheet-content.editor-controls-drawer {
-  top: 3.6rem;
+  top: 0;
   bottom: 0;
   width: min(25rem, calc(100vw - 1.5rem));
   min-width: 0;
@@ -77,10 +77,10 @@
 .editor-state-card > strong {
   color: var(--ink);
   font-size: var(--text-sm);
+  font-weight: 600;
 }
 
-.editor-state-card p,
-.editor-state-card small {
+.editor-state-card p {
   margin: 0;
   color: var(--muted);
   font-size: var(--text-xs);
@@ -108,10 +108,10 @@
 
 .editor-file-stats dt {
   color: var(--muted);
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .editor-file-stats dd {
   color: var(--ink);
-  font-weight: 750;
+  font-weight: 600;
 }

@@ -27,32 +27,18 @@ const decorativeDots = ['cobalt', 'violet', 'teal', 'amber', 'coral'] as const;
 
 interface OverviewPageProps {
   project: PanelProject;
-  loading: boolean;
-  refreshing: boolean;
   error: string | null;
-  onScan(): void;
 }
 
 export function OverviewPage({
   project,
-  loading,
-  refreshing,
   error,
-  onScan,
 }: OverviewPageProps) {
   const pendingFiles = project.totals.pendingFiles;
   usePanelErrorToast(error, 'Scan failed');
 
   return (
     <div className="workspace-content overview-bento">
-      <OverviewHero
-        project={project}
-        loading={loading}
-        refreshing={refreshing}
-        onScan={onScan}
-      />
-      <Metrics project={project} />
-
       <section className="routes-section bento-card" aria-labelledby="routes-title">
         <div className="section-heading">
           <h2 id="routes-title">Master routes</h2>
@@ -66,13 +52,12 @@ export function OverviewPage({
         </div>
       </section>
 
-      <ProjectDetails project={project} />
+      <Metrics project={project} />
 
       {project.changes.length > 0 && (
         <section className="changes-section bento-card" aria-labelledby="changes-title">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">Pending work</p>
               <h2 id="changes-title">Change plan</h2>
             </div>
             <span>{pendingFiles} file{pendingFiles === 1 ? '' : 's'} waiting</span>
@@ -81,12 +66,12 @@ export function OverviewPage({
         </section>
       )}
 
-      <OperationalState project={project} />
+      <ProjectDetails project={project} />
     </div>
   );
 }
 
-function OverviewHero({
+export function OverviewOperationBar({
   project,
   loading,
   refreshing,
@@ -97,18 +82,29 @@ function OverviewHero({
   refreshing: boolean;
   onScan(): void;
 }) {
+  const isClear = project.totals.pendingFiles === 0;
   return (
-    <section className="overview-hero-card bento-card" aria-labelledby="overview-title">
-      <div className="overview-hero-copy">
-        <h1 id="overview-title">Translation workspace</h1>
-        <p>Inspect every master, target, and pending change before translation touches a file.</p>
-        <p>The overview stays read-only; file edits live in the copy editor.</p>
-        <ProjectHealth project={project} />
+    <>
+      <div className="overview-operation-left">
+        <div className="overview-title-cluster">
+          <h1 id="overview-title">Translation workspace</h1>
+        </div>
+
+        <div className={isClear ? 'overview-health-pill is-clear' : 'overview-health-pill is-pending'} role="status">
+          {isClear
+            ? <CheckCircle size={18} weight="fill" aria-hidden="true" />
+            : <WarningCircle size={18} weight="fill" aria-hidden="true" />}
+          <span>
+            {isClear
+              ? 'Reviewed translations are intact'
+              : `${formatNumber(project.totals.pendingFiles)} pending file${project.totals.pendingFiles === 1 ? '' : 's'}`}
+          </span>
+        </div>
       </div>
 
-      <div className="overview-hero-action">
+      <div className="overview-operation-right">
         <button
-          className="scan-button"
+          className="scan-button overview-scan-button"
           type="button"
           disabled={loading || refreshing}
           onClick={onScan}
@@ -116,32 +112,37 @@ function OverviewHero({
           <ArrowsClockwise className={refreshing ? 'is-spinning' : undefined} size={23} weight="bold" aria-hidden="true" />
           <span>{refreshing ? 'Scanning project…' : 'Scan project'}</span>
         </button>
-        <div className="last-scan">
-          <span>Last scanned</span>
-          <time dateTime={project.scannedAt}>{formatScanClock(project.scannedAt)}</time>
-        </div>
       </div>
-    </section>
+    </>
   );
 }
 
-function ProjectHealth({ project }: { project: PanelProject }) {
+export function OverviewBottomBar({ project }: { project: PanelProject }) {
   const isClear = project.totals.pendingFiles === 0;
   return (
-    <section className={isClear ? 'health-banner is-clear' : 'health-banner is-pending'} aria-label="Project health">
-      {isClear
-        ? <CheckCircle size={28} weight="fill" aria-hidden="true" />
-        : <WarningCircle size={28} weight="fill" aria-hidden="true" />}
-      <div>
-        <strong>{isClear ? 'Reviewed translations are intact.' : 'Source changes need translation.'}</strong>
-        <span>
-          {isClear
-            ? 'No source change requires a target file write.'
-            : `${project.totals.pendingFiles} files contain ${formatNumber(project.totals.pendingKeys)} pending keys.`}
-        </span>
+    <>
+      <div className={isClear ? 'overview-bottom-health' : 'overview-bottom-health is-pending'}>
+        {isClear
+          ? <CheckCircle size={16} weight="fill" aria-hidden="true" />
+          : <WarningCircle size={16} weight="fill" aria-hidden="true" />}
+        <span>{isClear ? 'No target file write required' : `${formatNumber(project.totals.pendingKeys)} keys need translation`}</span>
       </div>
-      <time dateTime={project.scannedAt}>{formatScanTime(project.scannedAt)}</time>
-    </section>
+
+      <dl className="overview-bottom-meta" aria-label="Scan summary">
+        <div>
+          <dt>Last scan</dt>
+          <dd><time dateTime={project.scannedAt}>{formatScanClock(project.scannedAt)}</time></dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd><span className={isClear ? 'status-dot is-inline' : 'status-dot is-inline is-warning'} aria-hidden="true" />{isClear ? 'Success' : 'Pending'}</dd>
+        </div>
+        <div>
+          <dt>Files scanned</dt>
+          <dd>{formatNumber(project.totals.fileTasks)}</dd>
+        </div>
+      </dl>
+    </>
   );
 }
 
@@ -177,9 +178,6 @@ function RouteCard({ route }: { route: PanelTranslationRoutePlan }) {
       <div className="route-source">
         <span>Master</span>
         <h3>{route.sourceLang}</h3>
-        {route.pendingFiles > 0 && (
-          <small>{route.pendingFiles} pending file{route.pendingFiles === 1 ? '' : 's'}</small>
-        )}
       </div>
 
       <div className="route-wave" aria-hidden="true">
@@ -388,46 +386,6 @@ function ProjectDetails({ project }: { project: PanelProject }) {
   );
 }
 
-function OperationalState({ project }: { project: PanelProject }) {
-  const isClear = project.totals.pendingFiles === 0;
-  return (
-    <section className="operational-state bento-card" aria-labelledby="operational-title">
-      <div className={isClear ? 'operational-summary' : 'operational-summary is-pending'}>
-        {isClear
-          ? <CheckCircle size={30} weight="fill" aria-hidden="true" />
-          : <WarningCircle size={30} weight="fill" aria-hidden="true" />}
-        <div>
-          <h2 id="operational-title">Operational state</h2>
-          <strong>{isClear ? 'Reviewed translations are intact.' : 'Source changes need translation.'}</strong>
-          <span>
-            {isClear
-              ? 'No source change requires a target file write.'
-              : `${formatNumber(project.totals.pendingFiles)} pending files need review.`}
-          </span>
-        </div>
-      </div>
-
-      <div className="scan-history" aria-label="Scan history">
-        <h3>Scan history</h3>
-        <dl>
-          <div>
-            <dt>Last scan</dt>
-            <dd>{formatScanClock(project.scannedAt)}</dd>
-          </div>
-          <div>
-            <dt>Status</dt>
-            <dd><span className={isClear ? 'status-dot is-inline' : 'status-dot is-inline is-warning'} aria-hidden="true" />{isClear ? 'Success' : 'Pending'}</dd>
-          </div>
-          <div>
-            <dt>Files scanned</dt>
-            <dd>{formatNumber(project.totals.fileTasks)}</dd>
-          </div>
-        </dl>
-      </div>
-    </section>
-  );
-}
-
 export function LoadingState() {
   return (
     <div className="loading-block" aria-label="Loading project">
@@ -454,14 +412,6 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry(): v
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
-}
-
-function formatScanTime(value: string): string {
-  return `Scanned ${new Intl.DateTimeFormat('en', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date(value))}`;
 }
 
 function formatScanClock(value: string): string {

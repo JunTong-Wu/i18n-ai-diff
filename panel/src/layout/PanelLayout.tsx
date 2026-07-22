@@ -8,8 +8,14 @@ export type PanelView = 'overview' | 'editor';
 
 interface PanelLayoutProps {
   activeView: PanelView;
+  bottomBar?: ReactNode;
+  bottomBarClassName?: string;
+  bottomBarLabel?: string;
   children: ReactNode;
   onNavigate?(href: string): void;
+  operationBar?: ReactNode;
+  operationBarClassName?: string;
+  operationBarLabel?: string;
   project: PanelProject | null;
   skipLabel: string;
   shellClassName?: string;
@@ -21,8 +27,14 @@ interface PanelLayoutProps {
 
 export function PanelLayout({
   activeView,
+  bottomBar,
+  bottomBarClassName,
+  bottomBarLabel,
   children,
   onNavigate,
+  operationBar,
+  operationBarClassName,
+  operationBarLabel,
   project,
   skipLabel,
   shellClassName,
@@ -36,8 +48,20 @@ export function PanelLayout({
   const sessionTooltip = project
     ? `${sessionMode}\nProject: ${projectName}\nRoot: ${project.projectRoot}`
     : sessionMode;
-  const shellClasses = ['app-shell', shellClassName].filter(Boolean).join(' ');
-  const workspaceClasses = ['workspace', workspaceClassName].filter(Boolean).join(' ');
+  const shellClasses = [
+    'app-shell',
+    operationBar && 'has-layout-operation-bar',
+    bottomBar && 'has-layout-bottom-bar',
+    shellClassName,
+  ].filter(Boolean).join(' ');
+  const workspaceClasses = [
+    'workspace',
+    operationBar && 'has-layout-operation-bar',
+    bottomBar && 'has-layout-bottom-bar',
+    workspaceClassName,
+  ].filter(Boolean).join(' ');
+  const operationBarClasses = ['layout-operation-bar', operationBarClassName].filter(Boolean).join(' ');
+  const bottomBarClasses = ['layout-bottom-bar', bottomBarClassName].filter(Boolean).join(' ');
   const createNavigationHandler = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     if (!onNavigate) return;
     if (event.defaultPrevented || event.button !== 0) return;
@@ -90,8 +114,6 @@ export function PanelLayout({
             <div className="topbar-session" title={sessionTooltip} aria-label={`${sessionMode}: ${projectName}`}>
               <span className="status-dot" aria-hidden="true" />
               <span className="topbar-session-label">
-                <small>{sessionMode}</small>
-                <span aria-hidden="true">·</span>
                 <strong>{projectName}</strong>
               </span>
             </div>
@@ -99,8 +121,19 @@ export function PanelLayout({
         </header>
 
         <main className={workspaceClasses} id="main">
+          {operationBar && (
+            <section className={operationBarClasses} aria-label={operationBarLabel}>
+              {operationBar}
+            </section>
+          )}
           {children}
         </main>
+
+        {bottomBar && (
+          <section className={bottomBarClasses} aria-label={bottomBarLabel}>
+            {bottomBar}
+          </section>
+        )}
       </div>
 
       {liveStatus !== undefined && (
