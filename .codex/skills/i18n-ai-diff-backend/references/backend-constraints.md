@@ -28,9 +28,10 @@
 - Snapshots record source text hashes by file, target language, key, and source language owner. They detect when a target needs retranslation after its master text changes.
 - Old projects and incomplete snapshots are bootstrapped conservatively: existing target translations are treated as reviewed assets until a source change happens after the baseline.
 - Changing master-route ownership does not directly rewrite target files. It changes future incremental baseline behavior.
-- Full refresh/retranslation is explicit CLI behavior. Config edits, model edits, prompt edits, panel scan, and panel overview reads must not trigger retranslation.
+- Full refresh/retranslation is explicit CLI behavior, or explicit editor `forceRetranslate` behavior for selected cells. Config edits, model edits, prompt edits, panel scan, and panel overview reads must not trigger retranslation.
+- Master-to-master translation is a special one-time flow, not route ownership. It is allowed only in multi-master mode, requires both endpoints to be configured `sourceLang` values, and must not create a normal target route or update route snapshots for the target master.
 - Plain manual editor saves do not write or delete translation cache entries.
-- Selected-cell AI translation jobs may read from cache while producing draft candidates. A later save may write cache entries only for accepted AI drafts that still match their saved source text and saved target text. If the user edits the AI draft or the source text changes before save, treat it as human-edited copy and do not write cache.
+- Selected-cell AI translation jobs, including master-to-master jobs, may read from cache while producing draft candidates. A later save may write cache entries only for accepted AI drafts that still match their saved source text and saved target text. If the user edits the AI draft or the source text changes before save, treat it as human-edited copy and do not write cache.
 
 ## Editor save semantics
 
@@ -52,11 +53,13 @@
 
 - Editor translation APIs generate candidate translations for the current browser draft. They do not directly write local JSON files, snapshots, or cache entries.
 - `panel --edit` is required to create or cancel translation jobs. Read-only panels may view editor data but must not run AI translation.
-- Translation requests include the logical file, revisions, snapshot revision, selected cells, optional current drafts, and options such as including skipped keys or overwriting existing drafts.
+- Translation requests include the logical file, revisions, snapshot revision, selected cells, optional current drafts, and options such as overwriting existing drafts or forcing retranslation.
 - Resolve each target cell through its route owner and `sourceLang`. Source values should come from the current draft when the source cell is edited in the same browser draft; otherwise use disk values.
-- Skip master cells, unsupported cells, missing/non-string/empty source cells, unconfigured languages, changed drafts without overwrite permission, and skipped keys unless the request includes them.
-- Return per-cell results with `translated`, `skipped`, or `failed` status. Cache hits are candidate results and still become drafts client-side before any save.
+- By default, selected-cell translation must follow CLI incremental semantics: generate candidates only for missing target cells, pending target cells, or cells affected by a source-language draft in the current browser draft. Existing reviewed target cells are skipped unless `forceRetranslate` is enabled.
+- Skip master cells, unsupported cells, missing/non-string/empty source cells, unconfigured languages, changed drafts without overwrite permission, reviewed cells without `forceRetranslate`, and skipped keys. AI translation must always respect `skipKeys`; only direct manual table editing may override a skipped target value.
+- Return per-cell results with `translated`, `skipped`, or `failed` status. Cache hits are candidate results and still become drafts client-side before any save. When `forceRetranslate` is enabled, bypass cache reads and request fresh LLM output for the eligible cells.
 - Cancelling a job stops pending/running work where possible. Completed results may remain in the browser draft; cancellation must not write files.
+- Master-to-master editor jobs are separate from normal selected-cell route translation. They resolve source text from another master language, target only the selected/current master language, skip `skipKeys`, skip existing master copy unless `overwriteExisting` is explicit, and still return draft candidates only.
 
 ## JSON editor model
 
@@ -80,9 +83,12 @@
   - `GET /api/editor/file?path=...`
   - `GET /api/editor/search`
   - `GET /api/editor/translate-jobs/:id`
+  - `GET /api/editor/master-translate-jobs/:id`
 - Candidate-generation and write endpoints:
   - `POST /api/editor/translate-jobs`
   - `DELETE /api/editor/translate-jobs/:id`
+  - `POST /api/editor/master-translate-jobs`
+  - `DELETE /api/editor/master-translate-jobs/:id`
   - `PUT /api/editor/file`
 - Default panel startup is read-only. `i18n-ai-diff panel --edit` enables content editing for that process only.
 - Write requests and AI translation job creation/cancellation must satisfy every boundary:

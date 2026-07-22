@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import crypto from 'crypto';
 import { createProjectSession } from '../../src/core/project-session.js';
 import {
   decodeJsonPointer,
@@ -33,6 +34,29 @@ async function createProject(): Promise<{ root: string; configPath: string }> {
     targetLangs: ['de', 'fr'],
     localesDir: './locales',
     cachePath: './cache.json',
+    llm: { apiKey: 'fixture-key', model: 'fixture-model' },
+  });
+  return { root, configPath };
+}
+
+async function createMultiMasterProject(): Promise<{ root: string; configPath: string }> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-editor-master-'));
+  tempDirs.push(root);
+  await Promise.all([
+    writeJson(root, 'locales/zh-Hans/common.json', { section: { title: '你好', skip: '保持' } }),
+    writeJson(root, 'locales/en/common.json', { section: { title: 'Hello', skip: 'Keep' } }),
+    writeJson(root, 'locales/de/common.json', { section: { title: 'Hallo', skip: 'Keep' } }),
+    writeJson(root, 'cache.json', { version: '2.0.0', entries: {} }),
+  ]);
+  const configPath = path.join(root, 'i18n-translate.config.json');
+  await writeJson(root, 'i18n-translate.config.json', {
+    routes: [
+      { sourceLang: 'zh-Hans', targetLangs: ['ja'] },
+      { sourceLang: 'en', targetLangs: ['de'] },
+    ],
+    localesDir: './locales',
+    cachePath: './cache.json',
+    skipKeys: ['section.skip'],
     llm: { apiKey: 'fixture-key', model: 'fixture-model' },
   });
   return { root, configPath };
@@ -242,6 +266,232 @@ describe('translation editor save semantics', () => {
         translatedText: 'en->de:Hello from draft',
       }),
     ]));
+  });
+
+  it('skips reviewed selected cells by default and force retranslate bypasses cache', async () => {
+    const { root, configPath } = await createProject();
+    const cachedKey = crypto
+      .createHash('md5')
+      .update(JSON.stringify(['en', 'Hello', 'de']))
+      .digest('hex');
+    await writeJson(root, 'cache.json', {
+      version: '2.0.0',
+      entries: {
+        [cachedKey]: {
+          sourceText: 'Hello',
+          sourceLang: 'en',
+          translatedText: 'cached:Hallo',
+          targetLang: 'de',
+          timestamp: Date.now(),
+          model: 'fixture-model',
+        },
+      },
+    });
+    const session = await createProjectSession({ cwd: root, configPath });
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `fresh:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (session as unknown as { editor: { llmClient: { translateBatch: typeof translateBatch } } }).editor.llmClient = { translateBatch };
+
+    const file = await session.getEditorFile('common.json');
+    const reviewed = await session.translateEditorCells({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      cells: [{ lang: 'de', pointer: '/section/title' }],
+    });
+
+    expect(reviewed).toEqual([
+      expect.objectContaining({
+        lang: 'de',
+        pointer: '/section/title',
+        sourceLang: 'en',
+        sourceText: 'Hello',
+        status: 'skipped',
+        reason: 'Already reviewed; use Force retranslate to refresh',
+      }),
+    ]);
+    expect(translateBatch).not.toHaveBeenCalled();
+
+    const forced = await session.translateEditorCells({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      cells: [{ lang: 'de', pointer: '/section/title' }],
+      options: { forceRetranslate: true },
+    });
+
+    expect(forced).toEqual([
+      expect.objectContaining({
+        lang: 'de',
+        pointer: '/section/title',
+        sourceLang: 'en',
+        sourceText: 'Hello',
+        translatedText: 'fresh:Hello',
+        status: 'translated',
+        fromCache: false,
+      }),
+    ]);
+    expect(translateBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('always skips skipKeys during selected AI translation', async () => {
+    const { root, configPath } = await createProject();
+    await writeJson(root, 'i18n-translate.config.json', {
+      baseLang: 'en',
+      targetLangs: ['de', 'fr'],
+      localesDir: './locales',
+      cachePath: './cache.json',
+      skipKeys: ['section.title'],
+      llm: { apiKey: 'fixture-key', model: 'fixture-model' },
+    });
+    const session = await createProjectSession({ cwd: root, configPath });
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `fresh:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (session as unknown as { editor: { llmClient: { translateBatch: typeof translateBatch } } }).editor.llmClient = { translateBatch };
+
+    const file = await session.getEditorFile('common.json');
+    const results = await session.translateEditorCells({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      cells: [{ lang: 'de', pointer: '/section/title' }],
+      drafts: [{ lang: 'en', pointer: '/section/title', value: 'Hello from draft' }],
+      options: { forceRetranslate: true },
+    });
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        lang: 'de',
+        pointer: '/section/title',
+        sourceLang: 'en',
+        status: 'skipped',
+        reason: 'Skipped key',
+      }),
+    ]);
+    expect(translateBatch).not.toHaveBeenCalled();
+  });
+
+  it('translates from another master into the current master draft and writes cache only after save', async () => {
+    const { root, configPath } = await createMultiMasterProject();
+    const session = await createProjectSession({ cwd: root, configPath });
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `${task.sourceLang}->${task.targetLang}:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (session as unknown as { editor: { llmClient: { translateBatch: typeof translateBatch } } }).editor.llmClient = { translateBatch };
+
+    const file = await session.getEditorFile('common.json');
+    const results = await session.translateEditorMasterCells({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      sourceLang: 'zh-Hans',
+      targetLang: 'en',
+      pointers: ['/section/title'],
+      options: { overwriteExisting: true, forceRetranslate: true },
+    });
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        lang: 'en',
+        pointer: '/section/title',
+        sourceLang: 'zh-Hans',
+        sourceText: '你好',
+        translatedText: 'zh-Hans->en:你好',
+        status: 'translated',
+        fromCache: false,
+      }),
+    ]);
+    expect(JSON.parse(await fs.readFile(path.join(root, 'locales/en/common.json'), 'utf8')).section.title).toBe('Hello');
+
+    const saveResult = await session.saveEditorFile({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [{ lang: 'en', pointer: '/section/title', value: 'zh-Hans->en:你好' }],
+      acceptedTranslations: [{
+        lang: 'en',
+        pointer: '/section/title',
+        sourceLang: 'zh-Hans',
+        sourceText: '你好',
+        translatedText: 'zh-Hans->en:你好',
+      }],
+    });
+
+    expect(JSON.parse(await fs.readFile(path.join(root, 'locales/en/common.json'), 'utf8')).section.title).toBe('zh-Hans->en:你好');
+    expect(saveResult.project.changes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        sourceLang: 'en',
+        targetLang: 'de',
+        keys: expect.objectContaining({ modified: ['section.title'] }),
+      }),
+    ]));
+    const cache = JSON.parse(await fs.readFile(path.join(root, 'cache.json'), 'utf8'));
+    expect(Object.values(cache.entries)).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        sourceLang: 'zh-Hans',
+        sourceText: '你好',
+        targetLang: 'en',
+        translatedText: 'zh-Hans->en:你好',
+      }),
+    ]));
+  });
+
+  it('skips existing master copy by default and never sends skipKeys to AI', async () => {
+    const { root, configPath } = await createMultiMasterProject();
+    const session = await createProjectSession({ cwd: root, configPath });
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `fresh:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (session as unknown as { editor: { llmClient: { translateBatch: typeof translateBatch } } }).editor.llmClient = { translateBatch };
+
+    const file = await session.getEditorFile('common.json');
+    const results = await session.translateEditorMasterCells({
+      relativePath: 'common.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      sourceLang: 'zh-Hans',
+      targetLang: 'en',
+      pointers: ['/section/title', '/section/skip'],
+      options: { forceRetranslate: true },
+    });
+
+    expect(results).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        lang: 'en',
+        pointer: '/section/title',
+        status: 'skipped',
+        reason: 'Existing master copy; enable overwrite to replace',
+      }),
+      expect.objectContaining({
+        lang: 'en',
+        pointer: '/section/skip',
+        status: 'skipped',
+        reason: 'Skipped key',
+      }),
+    ]));
+    expect(translateBatch).not.toHaveBeenCalled();
   });
 
   it('does not cache accepted AI provenance after the target text is manually changed', async () => {

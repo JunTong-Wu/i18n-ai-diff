@@ -155,6 +155,76 @@ export class Translator {
   }
 
   /**
+   * 一次性从另一个母版语言翻译到当前母版语言。
+   * 该流程独立于正常 routes，不更新目标语言快照，也不会删除目标母版独有的键。
+   */
+  async translateMaster(options: {
+    sourceLang: string;
+    targetLang: string;
+    files?: string[];
+    force?: boolean;
+  }): Promise<TranslationStats> {
+    const { sourceLang, targetLang } = options;
+    const force = options.force === true;
+    this.assertMasterToMasterAllowed(sourceLang, targetLang);
+
+    const stats: TranslationStats = {
+      totalFiles: 0,
+      successFiles: 0,
+      failedFiles: 0,
+      totalAdded: 0,
+      totalUpdated: 0,
+      totalSkipped: 0,
+      estimatedSavedTokens: 0,
+      actualUsedTokens: 0,
+    };
+
+    const files = options.files?.length
+      ? options.files.map(file => this.validateRelativeJsonPath(file))
+      : await this.scanJsonFiles(path.join(this.config.localesDir, sourceLang));
+
+    stats.totalFiles = files.length;
+    if (files.length === 0) {
+      info(`No ${sourceLang} master files to translate`);
+      return stats;
+    }
+
+    info(`Found ${files.length} ${sourceLang} master files to translate into ${targetLang}`);
+    const progressBar = createProgressBar({
+      total: files.length,
+      width: 30,
+      title: `${sourceLang} → ${targetLang}`,
+    });
+
+    const fileResults = await Promise.all(files.map(async relativePath => {
+      const tag = chalk.cyan(`[master ${sourceLang}→${targetLang}/${relativePath}]`);
+      const result = await this.translateMasterFile(relativePath, sourceLang, targetLang, force, progressBar, tag);
+      if (result.success) {
+        progressBar.increment(`${chalk.green('✓')} ${tag} +${result.added} ~${result.updated} ↷${result.skipped}`);
+      } else {
+        progressBar.increment(`${chalk.red('✗')} ${tag} ${result.error}`);
+      }
+      return result;
+    }));
+    progressBar.complete();
+
+    for (const result of fileResults) {
+      if (result.success) {
+        stats.successFiles++;
+        stats.totalAdded += result.added;
+        stats.totalUpdated += result.updated;
+        stats.totalSkipped += result.skipped;
+      } else {
+        stats.failedFiles++;
+      }
+    }
+
+    await this.cacheManager.save();
+    await this.flushFailures();
+    return stats;
+  }
+
+  /**
    * 翻译单个文件
    * @param relativePath 相对于 localesDir 的文件路径
    * @param targetLang 目标语言
@@ -289,12 +359,105 @@ export class Translator {
     return result;
   }
 
+  private async translateMasterFile(
+    relativePath: string,
+    sourceLang: string,
+    targetLang: string,
+    force: boolean,
+    progressBar?: ProgressBar,
+    tag?: string,
+  ): Promise<FileProcessResult> {
+    const result: FileProcessResult = {
+      filePath: relativePath,
+      sourceLang,
+      targetLang,
+      added: 0,
+      updated: 0,
+      skipped: 0,
+      success: false,
+    };
+
+    try {
+      const sourceFilePath = path.join(this.config.localesDir, sourceLang, relativePath);
+      const targetFilePath = path.join(this.config.localesDir, targetLang, relativePath);
+
+      let sourceContent: NestedJSON;
+      let targetContent: NestedJSON | null = null;
+
+      try {
+        sourceContent = JSON.parse(await fs.readFile(sourceFilePath, 'utf-8'));
+      } catch (error) {
+        throw new Error(`Failed to read source master file: ${sourceFilePath} - ${(error as Error).message}`);
+      }
+
+      try {
+        targetContent = JSON.parse(await fs.readFile(targetFilePath, 'utf-8'));
+      } catch {
+        targetContent = null;
+      }
+
+      const diff = analyzeDiff(
+        sourceContent,
+        force ? null : targetContent,
+        this.config.skipKeys,
+      );
+      const sourceFlattened = flatten(sourceContent);
+      const targetFlattened = targetContent ? flatten(targetContent) : {};
+      const skippedSet = new Set(diff.skipped);
+      const candidateKeys = force
+        ? Object.keys(sourceFlattened).filter(key => !skippedSet.has(key))
+        : [...diff.added, ...diff.modified];
+
+      result.skipped = diff.skipped.length;
+      for (const key of candidateKeys) {
+        if (Object.prototype.hasOwnProperty.call(targetFlattened, key)) result.updated++;
+        else result.added++;
+      }
+
+      if (candidateKeys.length === 0) {
+        result.success = true;
+        return result;
+      }
+
+      const tasks = candidateKeys.map(key => ({
+        key,
+        sourceText: sourceFlattened[key],
+        sourceLang,
+        targetLang,
+        filePath: relativePath,
+      }));
+      const translations = await this.executeTranslations(tasks, progressBar, tag, { ignoreCache: force });
+      const mergedContent = this.mergeMasterTranslations(targetContent, translations);
+
+      if (translations.size > 0) {
+        await fs.mkdir(path.dirname(targetFilePath), { recursive: true });
+        await fs.writeFile(targetFilePath, JSON.stringify(mergedContent, null, 2), 'utf-8');
+      }
+
+      const failedTranslations = tasks.length - translations.size;
+      result.success = failedTranslations === 0;
+      if (failedTranslations > 0) {
+        result.error = `${failedTranslations} of ${tasks.length} keys failed to translate`;
+      }
+    } catch (error) {
+      result.success = false;
+      result.error = (error as Error).message;
+    }
+
+    return result;
+  }
+
   /**
    * 执行翻译任务（带缓存检查）
    * @param tasks 翻译任务列表
    * @returns 翻译结果映射（key -> translatedText）
    */
-  private async executeTranslations(tasks: TranslationTask[], progressBar?: ProgressBar, tag?: string): Promise<Map<string, string>> {
+  private async executeTranslations(
+    tasks: TranslationTask[],
+    progressBar?: ProgressBar,
+    tag?: string,
+    options: { ignoreCache?: boolean } = {},
+  ): Promise<Map<string, string>> {
     const results = new Map<string, string>();
     const tasksToTranslate: TranslationTask[] = [];
     const log = (msg: string) => {
@@ -304,7 +467,9 @@ export class Translator {
     };
 
     for (const task of tasks) {
-      const cached = this.cacheManager.get(task.sourceText, task.targetLang, task.sourceLang);
+      const cached = options.ignoreCache
+        ? undefined
+        : this.cacheManager.get(task.sourceText, task.targetLang, task.sourceLang);
       if (cached) {
         results.set(task.key, cached);
       } else {
@@ -395,6 +560,47 @@ export class Translator {
 
     // 转换回嵌套结构
     return unflatten(result);
+  }
+
+  private mergeMasterTranslations(
+    targetContent: NestedJSON | null,
+    translations: Map<string, string>,
+  ): NestedJSON {
+    const result = targetContent ? flatten(targetContent) : {};
+    for (const [key, value] of translations) {
+      result[key] = value;
+    }
+    return unflatten(result);
+  }
+
+  private assertMasterToMasterAllowed(sourceLang: string, targetLang: string): void {
+    if (this.config.routes.length < 2) {
+      throw new Error('Master-to-master translation is only available in multi-master mode');
+    }
+    const masterLangs = new Set<string>(this.config.routes.map(route => route.sourceLang));
+    if (!masterLangs.has(sourceLang)) {
+      throw new Error(`Source language must be a configured master: ${sourceLang}`);
+    }
+    if (!masterLangs.has(targetLang)) {
+      throw new Error(`Target language must be a configured master: ${targetLang}`);
+    }
+    if (sourceLang === targetLang) {
+      throw new Error('Source and target master languages must be different');
+    }
+  }
+
+  private validateRelativeJsonPath(relativePath: string): string {
+    if (typeof relativePath !== 'string' || !relativePath || relativePath.includes('\0')) {
+      throw new Error('A valid JSON relative path is required');
+    }
+    if (relativePath.includes('\\') || path.posix.isAbsolute(relativePath)) {
+      throw new Error(`Invalid JSON relative path: ${relativePath}`);
+    }
+    const normalized = path.posix.normalize(relativePath);
+    if (normalized !== relativePath || normalized === '..' || normalized.startsWith('../') || !normalized.endsWith('.json')) {
+      throw new Error(`Invalid JSON relative path: ${relativePath}`);
+    }
+    return normalized;
   }
 
   /**

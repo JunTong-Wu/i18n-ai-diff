@@ -12,6 +12,8 @@ import type {
   EditorSearchStateFilter,
   EditorSaveRequest,
   EditorSaveResult,
+  EditorMasterTranslateOptions,
+  EditorMasterTranslateRequest,
   EditorTranslateCell,
   EditorTranslateJob,
   EditorTranslateOptions,
@@ -60,6 +62,8 @@ export type PanelEditorSaveRequest = EditorSaveRequest;
 export type PanelEditorSaveResult = Omit<EditorSaveResult, 'project'> & {
   project: PanelProject;
 };
+export type PanelEditorMasterTranslateOptions = EditorMasterTranslateOptions;
+export type PanelEditorMasterTranslateRequest = EditorMasterTranslateRequest;
 export type PanelEditorTranslateCell = EditorTranslateCell;
 export type PanelEditorTranslateOptions = EditorTranslateOptions;
 export type PanelEditorTranslateRequest = EditorTranslateRequest;

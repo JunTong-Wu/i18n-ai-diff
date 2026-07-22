@@ -1,10 +1,10 @@
 {
-  "title": "ホームページのタイトル テスト",
-  "description": "ホームページの内容",
+  "title": "トップページのタイトル",
+  "description": "トップページの内容",
   "banner": {
     "slides": {
       "0": {
-        "subtitle": "コンパクトなサイズに、大きなパワー。",
+        "subtitle": "小さなボディに大きなパワー。",
         "buttons": {
           "learnMore": "詳細を見る",
           "preOrder": "今すぐ購入"

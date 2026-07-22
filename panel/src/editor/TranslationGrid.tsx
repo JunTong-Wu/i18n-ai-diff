@@ -46,12 +46,32 @@ export interface GridFocusCell extends GridSelectionCell {
   nonce: number;
 }
 
-export interface GridContextMenuRequest {
-  x: number;
-  y: number;
-  clickedCell: GridSelectionCell;
-  selectedCells: GridSelectionCell[];
-}
+export type GridContextMenuRequest =
+  | {
+    kind: 'cell';
+    x: number;
+    y: number;
+    clickedCell: GridSelectionCell;
+    selectedCells: GridSelectionCell[];
+  }
+  | {
+    kind: 'row';
+    x: number;
+    y: number;
+    pointer: string;
+  }
+  | {
+    kind: 'language';
+    x: number;
+    y: number;
+    lang: string;
+  }
+  | {
+    kind: 'master-language';
+    x: number;
+    y: number;
+    lang: string;
+  };
 
 interface TranslationGridProps {
   rows: PanelEditorRow[];
@@ -132,6 +152,13 @@ function TranslationGridTable({
     return record;
   }), [drafts, manifest.languages, rows, translationStates]);
   recordsRef.current = records;
+
+  const targetLanguages = useMemo(() => new Set(
+    manifest.routes.flatMap(route => route.languages.filter(lang => lang !== route.sourceLang)),
+  ), [manifest.routes]);
+  const masterLanguages = useMemo(() => new Set(
+    manifest.routes.map(route => route.sourceLang),
+  ), [manifest.routes]);
 
   const columns = useMemo<ColumnsDefine>(() => {
     const keyColumn = {
@@ -255,8 +282,38 @@ function TranslationGridTable({
     const option: ListTableConstructorOptions = {
       records: recordsRef.current,
       columns,
-      frozenColCount: 1,
-      maxFrozenWidth: '46%',
+      rowSeriesNumber: {
+        title: '',
+        width: 42,
+        disableColumnResize: true,
+        format: (_col, row, table) => {
+          if (typeof row !== 'number') return '';
+          const headerRows = table?.columnHeaderLevelCount || 0;
+          return row >= headerRows ? row - headerRows + 1 : '';
+        },
+        style: {
+          bgColor: '#F8FAFD',
+          color: '#7B8797',
+          fontSize: 11,
+          fontWeight: 600,
+          padding: [8, 6, 8, 6],
+          textAlign: 'center',
+          textBaseline: TABLE_CELL_TEXT_BASELINE,
+          cursor: 'pointer',
+          borderColor: ['#E4E9F1', '#E4E9F1', '#E4E9F1', '#E4E9F1'],
+        },
+        headerStyle: {
+          bgColor: '#F2F6FB',
+          color: '#7B8797',
+          fontSize: 11,
+          fontWeight: 600,
+          padding: [8, 6, 8, 6],
+          textAlign: 'center',
+          borderColor: ['#E4E9F1', '#E4E9F1', '#E4E9F1', '#E4E9F1'],
+        },
+      },
+      frozenColCount: 2,
+      maxFrozenWidth: '52%',
       defaultRowHeight: DEFAULT_TABLE_ROW_HEIGHT,
       defaultHeaderRowHeight: [34, 42],
       widthMode: 'standard',
@@ -273,7 +330,7 @@ function TranslationGridTable({
         moveSelectedCellOnArrowKeys: true,
         shiftMultiSelect: true,
       },
-      select: { highlightMode: 'cell' },
+      select: { highlightMode: 'cell', headerSelectMode: 'body' },
       hover: { highlightMode: 'row' },
       overscrollBehavior: 'none',
       theme: {
@@ -313,6 +370,25 @@ function TranslationGridTable({
       const field = typeof info.field === 'string' ? info.field : undefined;
       if (!field || !manifest.languages.includes(field)) return null;
       return { pointer: record.pointer, lang: field };
+    };
+    const rowPointerFromPosition = (col: number, row: number): string | null => {
+      if (!table.isSeriesNumber(col, row)) return null;
+      const record = table.getCellOriginRecord(col, row) as GridRecord | undefined;
+      return record?.pointer || null;
+    };
+    const targetLanguageFromHeader = (col: number, row: number): string | null => {
+      if (!table.isColumnHeader(col, row)) return null;
+      if (row !== table.columnHeaderLevelCount - 1) return null;
+      const info = table.getCellInfo(col, row);
+      const field = typeof info.field === 'string' ? info.field : undefined;
+      return field && targetLanguages.has(field) ? field : null;
+    };
+    const masterLanguageFromHeader = (col: number, row: number): string | null => {
+      if (!table.isColumnHeader(col, row)) return null;
+      if (row !== table.columnHeaderLevelCount - 1) return null;
+      const info = table.getCellInfo(col, row);
+      const field = typeof info.field === 'string' ? info.field : undefined;
+      return field && masterLanguages.has(field) ? field : null;
     };
     const collectSelectedCells = (): GridSelectionCell[] => {
       const ranges = table.getSelectedCellRanges();
@@ -359,6 +435,41 @@ function TranslationGridTable({
       onSelectionChangeRef.current?.(collectSelectedCells());
     };
     const handleContextMenu = (event: TYPES.TableEventHandlersEventArgumentMap['contextmenu_cell']) => {
+      const x = event.event instanceof MouseEvent ? event.event.clientX : 0;
+      const y = event.event instanceof MouseEvent ? event.event.clientY : 0;
+      const rowPointer = rowPointerFromPosition(event.col, event.row);
+      if (rowPointer) {
+        event.event?.preventDefault();
+        onContextMenuRef.current?.({
+          kind: 'row',
+          x,
+          y,
+          pointer: rowPointer,
+        });
+        return;
+      }
+      const headerLang = targetLanguageFromHeader(event.col, event.row);
+      if (headerLang) {
+        event.event?.preventDefault();
+        onContextMenuRef.current?.({
+          kind: 'language',
+          x,
+          y,
+          lang: headerLang,
+        });
+        return;
+      }
+      const masterHeaderLang = masterLanguageFromHeader(event.col, event.row);
+      if (masterHeaderLang) {
+        event.event?.preventDefault();
+        onContextMenuRef.current?.({
+          kind: 'master-language',
+          x,
+          y,
+          lang: masterHeaderLang,
+        });
+        return;
+      }
       const clickedCell = cellFromPosition(event.col, event.row);
       if (!clickedCell) return;
       event.event?.preventDefault();
@@ -368,8 +479,9 @@ function TranslationGridTable({
         ? selectedCells
         : [clickedCell];
       onContextMenuRef.current?.({
-        x: event.event instanceof MouseEvent ? event.event.clientX : 0,
-        y: event.event instanceof MouseEvent ? event.event.clientY : 0,
+        kind: 'cell',
+        x,
+        y,
         clickedCell,
         selectedCells: menuCells,
       });
@@ -396,7 +508,7 @@ function TranslationGridTable({
       table.release();
       tableRef.current = null;
     };
-  }, [columns, editable, manifest.languages]);
+  }, [columns, editable, manifest.languages, masterLanguages, targetLanguages]);
 
   useEffect(() => {
     tableRef.current?.setRecords(records);

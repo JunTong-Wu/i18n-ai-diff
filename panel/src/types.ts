@@ -13,6 +13,8 @@ export type {
   PanelEditorSaveRequest,
   PanelEditorSaveResult,
   PanelEditorSyncEvent,
+  PanelEditorMasterTranslateOptions,
+  PanelEditorMasterTranslateRequest,
   PanelEditorTranslateCell,
   PanelEditorTranslateJob,
   PanelEditorTranslateOptions,

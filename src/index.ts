@@ -32,6 +32,8 @@ export type {
   EditorSaveRequest,
   EditorSaveResult,
   EditorTranslateCell,
+  EditorMasterTranslateOptions,
+  EditorMasterTranslateRequest,
   EditorTranslateOptions,
   EditorTranslateRequest,
   EditorTranslateResult,

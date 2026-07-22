@@ -114,7 +114,8 @@ Do not use blue as the product brand/action color. Do not fill large route or re
 - Explorer status priority is `Invalid JSON` > `Missing language files` > `Pending keys` > clean. Directory headings summarize descendant status; file rows show concrete status/count.
 - Search, filters, selected-cell translation, batch translation, Undo/Redo, Explorer, Details, and Save remain visible or one click away in the operation bar. Do not hide frequent actions inside drawers.
 - Global workspace search is a modal. It searches copy across configured locale files, can optionally include key paths, and uses shadcn `Checkbox` controls for language/state filters.
-- Selected-cell AI translation is a confirmation modal. Translation results enter the current browser draft first; Save writes local files later. The modal must not imply direct filesystem writes.
+- Selected-cell AI translation is a confirmation modal. Translation results enter the current browser draft first; Save writes local files later. The modal must not imply direct filesystem writes. Default selected-cell translation follows CLI incremental semantics; expose `Force retranslate · ignore cache` as an explicit opt-in inside this modal when reviewed cells need fresh LLM output. Do not expose an AI override for `skipKeys`; skipped cells remain excluded from AI translation and may only be overridden through direct manual table editing.
+- Master-to-master AI translation is available only from a master language column-header context menu. Use the same shared confirmation modal shell as selected-cell translation, show the source-master selector and overwrite/cache options inside the modal, and keep results as browser drafts until Save.
 
 ## Responsive behavior
 

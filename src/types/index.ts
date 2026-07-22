@@ -446,8 +446,8 @@ export interface EditorTranslateCell {
 }
 
 export interface EditorTranslateOptions {
-  includeSkipped?: boolean;
   overwriteDrafts?: boolean;
+  forceRetranslate?: boolean;
 }
 
 export interface EditorTranslateRequest {
@@ -457,6 +457,21 @@ export interface EditorTranslateRequest {
   cells: EditorTranslateCell[];
   drafts?: EditorPatch[];
   options?: EditorTranslateOptions;
+}
+
+export interface EditorMasterTranslateOptions extends EditorTranslateOptions {
+  overwriteExisting?: boolean;
+}
+
+export interface EditorMasterTranslateRequest {
+  relativePath: string;
+  revisions: Record<string, string | null>;
+  snapshotRevision: string | null;
+  sourceLang: string;
+  targetLang: string;
+  pointers: string[];
+  drafts?: EditorPatch[];
+  options?: EditorMasterTranslateOptions;
 }
 
 export type EditorTranslateResultStatus = 'translated' | 'skipped' | 'failed';

@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   cancelEditorTranslateJob,
   connectEditorEvents,
+  createEditorMasterTranslateJob,
   createEditorTranslateJob,
   loadEditorFile,
   loadEditorManifest,
@@ -83,11 +84,25 @@ type PendingNavigation =
 interface TranslatePreviewState {
   title: string;
   cells: GridSelectionCell[];
-  includeSkipped: boolean;
   overwriteDrafts: boolean;
+  forceRetranslate: boolean;
 }
 
 interface TranslatePreview {
+  cells: GridSelectionCell[];
+  skipped: Array<GridSelectionCell & { reason: string }>;
+}
+
+interface MasterTranslatePreviewState {
+  targetLang: string;
+  sourceLang: string;
+  pointers: string[];
+  overwriteDrafts: boolean;
+  overwriteExisting: boolean;
+  forceRetranslate: boolean;
+}
+
+interface MasterTranslatePreview {
   cells: GridSelectionCell[];
   skipped: Array<GridSelectionCell & { reason: string }>;
 }
@@ -228,6 +243,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [translatingCells, setTranslatingCells] = useState<Set<string>>(new Set());
   const [selectedCells, setSelectedCells] = useState<GridSelectionCell[]>([]);
   const [translatePreview, setTranslatePreview] = useState<TranslatePreviewState | null>(null);
+  const [masterTranslatePreview, setMasterTranslatePreview] = useState<MasterTranslatePreviewState | null>(null);
   const [activeJob, setActiveJob] = useState<PanelEditorTranslateJob | null>(null);
   const [contextMenu, setContextMenu] = useState<GridContextMenuRequest | null>(null);
   const [undoStack, setUndoStack] = useState<DraftHistoryTransaction[]>([]);
@@ -299,6 +315,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setTranslationError(null);
     setTranslatingCells(new Set());
     setSelectedCells([]);
+    setMasterTranslatePreview(null);
+    setTranslatePreview(null);
     setUndoStack([]);
     setRedoStack([]);
     setConflicts(null);
@@ -535,6 +553,10 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     manifest?.routes.find(route => route.sourceLang !== lang && route.languages.includes(lang)) || null
   ), [manifest]);
 
+  const masterLanguages = useMemo(() => (
+    manifest?.routes.map(route => route.sourceLang) || []
+  ), [manifest]);
+
   const visibleRows = useMemo(() => {
     if (!file || !manifest) return [];
     const query = rowSearch.trim().toLocaleLowerCase();
@@ -613,7 +635,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
   const buildTranslatePreview = useCallback((
     cells: GridSelectionCell[],
-    options: { includeSkipped: boolean; overwriteDrafts: boolean },
+    options: { overwriteDrafts: boolean; forceRetranslate: boolean },
   ): TranslatePreview => {
     if (!file || !manifest) return { cells: [], skipped: [] };
     const candidates = new Map<string, GridSelectionCell>();
@@ -636,7 +658,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         skipped.push({ ...cell, reason: 'Target cell is not a string value' });
         continue;
       }
-      if (targetCell?.skipped && !options.includeSkipped) {
+      if (targetCell?.skipped) {
         skipped.push({ ...cell, reason: 'Skipped key' });
         continue;
       }
@@ -656,6 +678,13 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         skipped.push({ ...cell, reason: 'Source cell is empty' });
         continue;
       }
+      const needsTranslation = targetCell?.kind === 'missing'
+        || targetCell?.pending
+        || hasSourceDraft;
+      if (!options.forceRetranslate && !needsTranslation) {
+        skipped.push({ ...cell, reason: 'Already reviewed; use Force retranslate to refresh' });
+        continue;
+      }
       candidates.set(identity, cell);
     }
     return { cells: [...candidates.values()], skipped };
@@ -667,6 +696,87 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       : null
   ), [buildTranslatePreview, translatePreview]);
 
+  const buildMasterTranslatePreview = useCallback((
+    preview: MasterTranslatePreviewState,
+  ): MasterTranslatePreview => {
+    if (!file || !manifest) return { cells: [], skipped: [] };
+    const masterSet = new Set(masterLanguages);
+    const candidates = new Map<string, GridSelectionCell>();
+    const skipped: MasterTranslatePreview['skipped'] = [];
+
+    if (
+      masterLanguages.length < 2
+      || !masterSet.has(preview.sourceLang)
+      || !masterSet.has(preview.targetLang)
+      || preview.sourceLang === preview.targetLang
+    ) {
+      return {
+        cells: [],
+        skipped: preview.pointers.map(pointer => ({
+          lang: preview.targetLang,
+          pointer,
+          reason: 'Choose two different master languages in multi-master mode',
+        })),
+      };
+    }
+
+    for (const pointer of preview.pointers) {
+      const identity = draftIdentity(preview.targetLang, pointer);
+      if (candidates.has(identity)) continue;
+      const row = rowsByPointer.get(pointer);
+      if (!row) {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Key is not in the current file' });
+        continue;
+      }
+
+      const targetCell = row.cells[preview.targetLang];
+      if (targetCell?.kind === 'unsupported') {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Target master cell is not a string value' });
+        continue;
+      }
+      if (targetCell?.skipped) {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Skipped key' });
+        continue;
+      }
+      if (drafts.has(identity) && !preview.overwriteDrafts) {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Cell already has a local draft' });
+        continue;
+      }
+
+      const sourceIdentity = draftIdentity(preview.sourceLang, pointer);
+      const sourceCell = row.cells[preview.sourceLang];
+      const hasSourceDraft = drafts.has(sourceIdentity);
+      const sourceText = effectiveCellValue(row, preview.sourceLang, drafts);
+      if (!hasSourceDraft && sourceCell?.kind !== 'string') {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Source master cell is missing or not a string value' });
+        continue;
+      }
+      if (sourceText.length === 0) {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Source master cell is empty' });
+        continue;
+      }
+
+      if (
+        !preview.overwriteExisting
+        && targetCell?.kind === 'string'
+        && targetCell.value !== sourceText
+      ) {
+        skipped.push({ lang: preview.targetLang, pointer, reason: 'Existing master copy; enable overwrite to replace' });
+        continue;
+      }
+
+      candidates.set(identity, { lang: preview.targetLang, pointer });
+    }
+
+    return { cells: [...candidates.values()], skipped };
+  }, [drafts, file, manifest, masterLanguages, rowsByPointer]);
+
+  const currentMasterPreview = useMemo(() => (
+    masterTranslatePreview
+      ? buildMasterTranslatePreview(masterTranslatePreview)
+      : null
+  ), [buildMasterTranslatePreview, masterTranslatePreview]);
+
   const openTranslatePreview = useCallback((title: string, cells: GridSelectionCell[]) => {
     if (!editable) {
       setStatus('Restart with i18n-ai-diff panel --edit to run AI translations.');
@@ -677,13 +787,40 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       setStatus('Select target-language cells before translating.');
       return;
     }
+    setMasterTranslatePreview(null);
     setTranslatePreview({
       title,
       cells,
-      includeSkipped: false,
       overwriteDrafts: false,
+      forceRetranslate: false,
     });
   }, [editable, file, manifest]);
+
+  const openMasterTranslatePreview = useCallback((targetLang: string) => {
+    if (!editable) {
+      setStatus('Restart with i18n-ai-diff panel --edit to run AI translations.');
+      return;
+    }
+    if (!file || !manifest) return;
+    if (masterLanguages.length < 2) {
+      setStatus('Master-to-master translation is only available in multi-master mode.');
+      return;
+    }
+    const sourceLang = masterLanguages.find(lang => lang !== targetLang) || '';
+    if (!sourceLang) {
+      setStatus('Choose another master language as the source.');
+      return;
+    }
+    setTranslatePreview(null);
+    setMasterTranslatePreview({
+      targetLang,
+      sourceLang,
+      pointers: file.rows.map(row => row.pointer),
+      overwriteDrafts: false,
+      overwriteExisting: false,
+      forceRetranslate: false,
+    });
+  }, [editable, file, manifest, masterLanguages]);
 
   const cellsForRowTargets = useCallback((pointer: string): GridSelectionCell[] => {
     if (!manifest) return [];
@@ -694,10 +831,9 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     ));
   }, [manifest]);
 
-  const cellsForLanguagePending = useCallback((lang: string): GridSelectionCell[] => {
+  const cellsForLanguageTargets = useCallback((lang: string): GridSelectionCell[] => {
     const rows = file?.rows || [];
     return rows
-      .filter(row => row.cells[lang]?.pending)
       .map(row => ({ lang, pointer: row.pointer }));
   }, [file]);
 
@@ -847,8 +983,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         cells: currentPreview.cells,
         drafts: createEditorPatches(draftsRef.current),
         options: {
-          includeSkipped: translatePreview.includeSkipped,
           overwriteDrafts: translatePreview.overwriteDrafts,
+          forceRetranslate: translatePreview.forceRetranslate,
         },
       }, manifest.writeToken);
       void pollTranslateJob(job);
@@ -857,6 +993,45 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       setError((requestError as Error).message);
     }
   }, [currentPreview, file, manifest, pollTranslateJob, translatePreview]);
+
+  const confirmMasterTranslation = useCallback(async () => {
+    if (!file || !manifest?.editable || !manifest.writeToken || !masterTranslatePreview || !currentMasterPreview) return;
+    if (currentMasterPreview.cells.length === 0) {
+      setStatus('No master cells can be translated with the current options.');
+      return;
+    }
+    setMasterTranslatePreview(null);
+    setContextMenu(null);
+    setBatchMenuOpen(false);
+    setFilePickerOpen(false);
+    setFilterPanelOpen(false);
+    setError(null);
+    setTranslationError(null);
+    setFailedTranslations(new Map());
+    const identities = new Set(currentMasterPreview.cells.map(cell => draftIdentity(cell.lang, cell.pointer)));
+    setTranslatingCells(identities);
+    setStatus(`Starting master translation for ${currentMasterPreview.cells.length} cell${currentMasterPreview.cells.length === 1 ? '' : 's'}…`);
+    try {
+      const job = await createEditorMasterTranslateJob({
+        relativePath: file.relativePath,
+        revisions: file.revisions,
+        snapshotRevision: file.snapshotRevision,
+        sourceLang: masterTranslatePreview.sourceLang,
+        targetLang: masterTranslatePreview.targetLang,
+        pointers: currentMasterPreview.cells.map(cell => cell.pointer),
+        drafts: createEditorPatches(draftsRef.current),
+        options: {
+          overwriteDrafts: masterTranslatePreview.overwriteDrafts,
+          overwriteExisting: masterTranslatePreview.overwriteExisting,
+          forceRetranslate: masterTranslatePreview.forceRetranslate,
+        },
+      }, manifest.writeToken);
+      void pollTranslateJob(job);
+    } catch (requestError) {
+      setTranslatingCells(new Set());
+      setError((requestError as Error).message);
+    }
+  }, [currentMasterPreview, file, manifest, masterTranslatePreview, pollTranslateJob]);
 
   const cancelTranslation = useCallback(async () => {
     if (!activeJob || !manifest?.writeToken) return;
@@ -1568,10 +1743,18 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           onClick={event => event.stopPropagation()}
           role="menu"
         >
-          <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate this cell', [contextMenu.clickedCell])}>Translate this cell</button>
-          <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate selected cells', contextMenu.selectedCells)}>Translate selected cells <b>{contextMenu.selectedCells.length}</b></button>
-          <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate row targets', cellsForRowTargets(contextMenu.clickedCell.pointer))}>Translate row targets</button>
-          <button type="button" role="menuitem" onClick={() => openTranslatePreview(`Translate ${contextMenu.clickedCell.lang} pending`, cellsForLanguagePending(contextMenu.clickedCell.lang))}>Translate this language pending</button>
+          {contextMenu.kind === 'cell' && (
+            <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate selected cells', contextMenu.selectedCells)}>Translate selected cells <b>{contextMenu.selectedCells.length}</b></button>
+          )}
+          {contextMenu.kind === 'row' && (
+            <button type="button" role="menuitem" onClick={() => openTranslatePreview('Translate row targets', cellsForRowTargets(contextMenu.pointer))}>Translate row targets</button>
+          )}
+          {contextMenu.kind === 'language' && (
+            <button type="button" role="menuitem" onClick={() => openTranslatePreview(`Translate ${contextMenu.lang} column targets`, cellsForLanguageTargets(contextMenu.lang))}>Translate column targets</button>
+          )}
+          {contextMenu.kind === 'master-language' && (
+            <button type="button" role="menuitem" onClick={() => openMasterTranslatePreview(contextMenu.lang)}>Translate from other master</button>
+          )}
         </div>
       )}
 
@@ -1595,21 +1778,21 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                 <div><dt>Selected</dt><dd>{translatePreview.cells.length}</dd></div>
                 <div><dt>Ready</dt><dd>{currentPreview.cells.length}</dd></div>
                 <div><dt>Skipped</dt><dd>{currentPreview.skipped.length}</dd></div>
-                <div><dt>Cache</dt><dd>Checked on start</dd></div>
+                <div><dt>Cache</dt><dd>{translatePreview.forceRetranslate ? 'Ignored' : 'Checked on start'}</dd></div>
               </dl>
-              <label className="translate-option">
-                <Checkbox
-                  checked={translatePreview.includeSkipped}
-                  onCheckedChange={checked => setTranslatePreview(current => current && { ...current, includeSkipped: checked === true })}
-                />
-                <span>Include skipped keys</span>
-              </label>
               <label className="translate-option">
                 <Checkbox
                   checked={translatePreview.overwriteDrafts}
                   onCheckedChange={checked => setTranslatePreview(current => current && { ...current, overwriteDrafts: checked === true })}
                 />
                 <span>Overwrite existing local drafts</span>
+              </label>
+              <label className="translate-option">
+                <Checkbox
+                  checked={translatePreview.forceRetranslate}
+                  onCheckedChange={checked => setTranslatePreview(current => current && { ...current, forceRetranslate: checked === true })}
+                />
+                <span>Force retranslate · ignore cache</span>
               </label>
               {currentPreview.skipped.length > 0 && (
                 <div className="translate-skip-list">
@@ -1624,6 +1807,81 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               <button type="button" className="button-tertiary" onClick={() => setTranslatePreview(null)}>Cancel</button>
               <button type="button" className="button-primary" disabled={currentPreview.cells.length === 0 || jobRunning} onClick={() => void confirmTranslation()}>
                 Start translation
+              </button>
+            </ModalActions>
+          </ModalContent>
+        )}
+      </Dialog>
+
+      <Dialog open={Boolean(masterTranslatePreview && currentMasterPreview)} onOpenChange={open => { if (!open) setMasterTranslatePreview(null); }}>
+        {masterTranslatePreview && currentMasterPreview && (
+          <ModalContent className="translate-confirm-modal" size="lg" aria-describedby="master-translate-description">
+            <ModalHeader icon={<Translate size={20} weight="bold" />}>
+              <ModalTitleBlock
+                title={`Translate ${masterTranslatePreview.targetLang} master`}
+                descriptionId="master-translate-description"
+                description={(
+                  <>
+                    One-time translation from another master into the current master draft.
+                    {' '}
+                    {currentMasterPreview.skipped.length > 0 && <> {currentMasterPreview.skipped.length} key{currentMasterPreview.skipped.length === 1 ? '' : 's'} will be skipped.</>}
+                  </>
+                )}
+              />
+            </ModalHeader>
+            <div className="translate-confirm-body">
+              <label className="translate-select-field">
+                <span>From master</span>
+                <select
+                  value={masterTranslatePreview.sourceLang}
+                  onChange={event => setMasterTranslatePreview(current => current && { ...current, sourceLang: event.target.value })}
+                >
+                  {masterLanguages.filter(lang => lang !== masterTranslatePreview.targetLang).map(lang => (
+                    <option key={lang} value={lang}>{lang}</option>
+                  ))}
+                </select>
+              </label>
+              <dl className="translate-confirm-stats">
+                <div><dt>Target</dt><dd>{masterTranslatePreview.targetLang}</dd></div>
+                <div><dt>Selected</dt><dd>{masterTranslatePreview.pointers.length}</dd></div>
+                <div><dt>Ready</dt><dd>{currentMasterPreview.cells.length}</dd></div>
+                <div><dt>Skipped</dt><dd>{currentMasterPreview.skipped.length}</dd></div>
+                <div><dt>Cache</dt><dd>{masterTranslatePreview.forceRetranslate ? 'Ignored' : 'Checked on start'}</dd></div>
+              </dl>
+              <label className="translate-option">
+                <Checkbox
+                  checked={masterTranslatePreview.overwriteExisting}
+                  onCheckedChange={checked => setMasterTranslatePreview(current => current && { ...current, overwriteExisting: checked === true })}
+                />
+                <span>Overwrite existing master copy</span>
+              </label>
+              <label className="translate-option">
+                <Checkbox
+                  checked={masterTranslatePreview.overwriteDrafts}
+                  onCheckedChange={checked => setMasterTranslatePreview(current => current && { ...current, overwriteDrafts: checked === true })}
+                />
+                <span>Overwrite existing local drafts</span>
+              </label>
+              <label className="translate-option">
+                <Checkbox
+                  checked={masterTranslatePreview.forceRetranslate}
+                  onCheckedChange={checked => setMasterTranslatePreview(current => current && { ...current, forceRetranslate: checked === true })}
+                />
+                <span>Force retranslate · ignore cache</span>
+              </label>
+              {currentMasterPreview.skipped.length > 0 && (
+                <div className="translate-skip-list">
+                  {currentMasterPreview.skipped.slice(0, 5).map(item => (
+                    <span key={`${item.lang}:${item.pointer}`}>{item.lang} {item.pointer} · {item.reason}</span>
+                  ))}
+                  {currentMasterPreview.skipped.length > 5 && <span>+ {currentMasterPreview.skipped.length - 5} more skipped keys</span>}
+                </div>
+              )}
+            </div>
+            <ModalActions>
+              <button type="button" className="button-tertiary" onClick={() => setMasterTranslatePreview(null)}>Cancel</button>
+              <button type="button" className="button-primary" disabled={currentMasterPreview.cells.length === 0 || jobRunning} onClick={() => void confirmMasterTranslation()}>
+                Start master translation
               </button>
             </ModalActions>
           </ModalContent>

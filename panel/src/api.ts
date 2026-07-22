@@ -6,6 +6,7 @@ import type {
   PanelEditorSearchRequest,
   PanelEditorSearchResponse,
   PanelEditorSyncEvent,
+  PanelEditorMasterTranslateRequest,
   PanelEditorTranslateJob,
   PanelEditorTranslateRequest,
   PanelProject,
@@ -89,6 +90,21 @@ export async function createEditorTranslateJob(
   writeToken: string,
 ): Promise<PanelEditorTranslateJob> {
   return readResponse<PanelEditorTranslateJob>(await fetch('/api/editor/translate-jobs', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-I18n-Panel-Token': writeToken,
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function createEditorMasterTranslateJob(
+  request: PanelEditorMasterTranslateRequest,
+  writeToken: string,
+): Promise<PanelEditorTranslateJob> {
+  return readResponse<PanelEditorTranslateJob>(await fetch('/api/editor/master-translate-jobs', {
     method: 'POST',
     headers: {
       Accept: 'application/json',

@@ -74,6 +74,62 @@ program
   });
 
 program
+  .command('translate-master')
+  .description('One-time translation from another master language into a master language')
+  .requiredOption('--from <sourceLang>', 'Source master language')
+  .requiredOption('--to <targetLang>', 'Target master language')
+  .option('--file <paths...>', 'Limit to one or more project-relative JSON files')
+  .option('-c, --config <path>', 'Config file path')
+  .option('-f, --force', 'Overwrite existing master copy and ignore translation cache')
+  .option('--verbose', 'Verbose logging')
+  .action(async (options: {
+    from: string;
+    to: string;
+    file?: string[];
+    config?: string;
+    force?: boolean;
+    verbose?: boolean;
+  }) => {
+    try {
+      const rootOptions = program.opts<{ config?: string; verbose?: boolean }>();
+      const configPath = options.config || rootOptions.config;
+      const verbose = options.verbose || rootOptions.verbose;
+      if (verbose) setVerbose(true);
+      printBanner(packageJson.version);
+
+      const session = await createProjectSession({ configPath });
+      const config = session.config;
+      printConfigInfo({
+        routes: config.routes,
+        localesDir: config.localesDir,
+        model: config.llm.model || 'unknown',
+      });
+
+      const translator = createTranslator(config);
+      await translator.initialize();
+      if (verbose) translator.setVerbose(true);
+      if (options.force) {
+        warn(`Force master translation: ${options.from} → ${options.to} will overwrite existing copy and ignore cache`);
+      }
+
+      info(`Translating master copy: ${options.from} → ${options.to}`);
+      const stats = await translator.translateMaster({
+        sourceLang: options.from,
+        targetLang: options.to,
+        files: options.file,
+        force: options.force,
+      });
+      printStats(stats);
+
+      if (stats.failedFiles > 0) process.exit(1);
+      success('Master translation done!');
+    } catch (err) {
+      logError((err as Error).message);
+      process.exit(1);
+    }
+  });
+
+program
   .command('panel')
   .description('Open the local project panel')
   .option('-c, --config <path>', 'Config file path')

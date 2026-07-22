@@ -290,6 +290,26 @@ describe('panel server', () => {
           fromCache: false,
         }];
       },
+      translateEditorMasterCells: async (_request, hooks) => {
+        hooks?.onProgress?.([{
+          lang: 'en',
+          pointer: '/title',
+          sourceLang: 'zh-Hans',
+          sourceText: '你好',
+          translatedText: 'Hello',
+          status: 'translated',
+          fromCache: false,
+        }]);
+        return [{
+          lang: 'en',
+          pointer: '/title',
+          sourceLang: 'zh-Hans',
+          sourceText: '你好',
+          translatedText: 'Hello',
+          status: 'translated',
+          fromCache: false,
+        }];
+      },
     }, {
       port: 0,
       open: false,
@@ -336,6 +356,40 @@ describe('panel server', () => {
         lang: 'de',
         pointer: '/title',
         translatedText: 'Hallo',
+        status: 'translated',
+      }),
+    ]);
+
+    const masterCreated = await fetch(`${server.url}/api/editor/master-translate-jobs`, {
+      method: 'POST',
+      headers: {
+        origin: server.url,
+        'content-type': 'application/json',
+        'x-i18n-panel-token': manifest.data.writeToken,
+      },
+      body: JSON.stringify({
+        relativePath: 'common.json',
+        revisions: { en: 'a', de: 'b' },
+        snapshotRevision: null,
+        sourceLang: 'zh-Hans',
+        targetLang: 'en',
+        pointers: ['/title'],
+      }),
+    });
+    expect(masterCreated.status).toBe(202);
+    const masterCreatedBody = await masterCreated.json();
+    let masterJob = masterCreatedBody.data;
+    for (let attempt = 0; attempt < 10 && masterJob.status !== 'completed'; attempt += 1) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      masterJob = await fetch(`${server.url}/api/editor/master-translate-jobs/${masterJob.id}`).then(response => response.json()).then(body => body.data);
+    }
+    expect(masterJob.status).toBe('completed');
+    expect(masterJob.results).toEqual([
+      expect.objectContaining({
+        lang: 'en',
+        pointer: '/title',
+        sourceLang: 'zh-Hans',
+        translatedText: 'Hello',
         status: 'translated',
       }),
     ]);

@@ -16,6 +16,54 @@
       "targetLang": "ko",
       "timestamp": 1784687903569,
       "model": "deepseek-v4-flash-260425"
+    },
+    "9ccfca205516b28c96ac788a6acee8b7": {
+      "sourceText": "小身材，大能量。",
+      "sourceLang": "zh-Hans",
+      "translatedText": "小さなボディに大きなパワー。",
+      "targetLang": "ja",
+      "timestamp": 1784708504061,
+      "model": "deepseek-v4-flash-260425"
+    },
+    "8223d20b06b9d0ae0f168edbfe8a043d": {
+      "sourceText": "首页页面中的内容",
+      "sourceLang": "zh-Hans",
+      "translatedText": "トップページの内容",
+      "targetLang": "ja",
+      "timestamp": 1784708504061,
+      "model": "deepseek-v4-flash-260425"
+    },
+    "3cdc343fca28c906a157e71516c07302": {
+      "sourceText": "首页页面中的标题",
+      "sourceLang": "zh-Hans",
+      "translatedText": "トップページのタイトル",
+      "targetLang": "ja",
+      "timestamp": 1784708504061,
+      "model": "deepseek-v4-flash-260425"
+    },
+    "79163b89eb76042e5892e0a86466584c": {
+      "sourceText": "首页页面中的内容",
+      "sourceLang": "zh-Hans",
+      "translatedText": "홈페이지의 내용",
+      "targetLang": "ko",
+      "timestamp": 1784708504061,
+      "model": "deepseek-v4-flash-260425"
+    },
+    "2396aa069cb4a6cd54f76653aac04c4d": {
+      "sourceText": "首页页面中的标题",
+      "sourceLang": "zh-Hans",
+      "translatedText": "홈페이지의 제목",
+      "targetLang": "ko",
+      "timestamp": 1784708504061,
+      "model": "deepseek-v4-flash-260425"
+    },
+    "50345ac98177d3bf6a6a2c13e57c0481": {
+      "sourceText": "小身材，大能量。",
+      "sourceLang": "zh-Hans",
+      "translatedText": "작은 몸집, 큰 에너지。",
+      "targetLang": "ko",
+      "timestamp": 1784708504061,
+      "model": "deepseek-v4-flash-260425"
     }
   }
 }

@@ -6,6 +6,7 @@ import {
   EditorSearchRequest,
   EditorSearchResponse,
   EditorSyncEvent,
+  EditorMasterTranslateRequest,
   EditorTranslateRequest,
   EditorTranslateResult,
   ProjectScan,
@@ -101,6 +102,18 @@ export class ProjectSession {
   ): Promise<EditorTranslateResult[]> {
     return this.runExclusive(async () => {
       return this.editor.translateCells(request, hooks);
+    });
+  }
+
+  async translateEditorMasterCells(
+    request: EditorMasterTranslateRequest,
+    hooks: {
+      signal?: AbortSignal;
+      onProgress?: (results: EditorTranslateResult[]) => void;
+    } = {},
+  ): Promise<EditorTranslateResult[]> {
+    return this.runExclusive(async () => {
+      return this.editor.translateMasterCells(request, hooks);
     });
   }
 

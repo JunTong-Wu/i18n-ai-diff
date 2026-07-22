@@ -83,6 +83,66 @@ describe('multi-master translator', () => {
     expect(new Set(changedTasks.map(task => task.targetLang))).toEqual(new Set(['de', 'fr']));
   });
 
+  it('runs one-time master-to-master translation without touching route snapshots or target-only keys', async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-master-to-master-'));
+    const localesDir = path.join(tempDir, 'locales');
+
+    await writeJson(path.join(localesDir, 'zh-Hans/common.json'), { title: '你好', skip: '保持' });
+    await writeJson(path.join(localesDir, 'en/common.json'), { title: 'Hello', extra: 'Keep me' });
+
+    const translator = new Translator({
+      routes: [
+        { sourceLang: 'zh-Hans', targetLangs: ['ja'] },
+        { sourceLang: 'en', targetLangs: ['de'] },
+      ],
+      baseLang: 'zh-Hans',
+      targetLangs: ['ja', 'de'],
+      localesDir,
+      skipKeys: ['skip'],
+      llm: { apiKey: 'test-key', model: 'test-model' },
+      cachePath: path.join(tempDir, 'cache.json'),
+      batchSize: 100,
+    });
+    await translator.initialize();
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `${task.sourceLang}->${task.targetLang}:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (translator as unknown as { llmClient: { translateBatch: typeof translateBatch } }).llmClient = { translateBatch };
+
+    const reviewed = await translator.translateMaster({
+      sourceLang: 'zh-Hans',
+      targetLang: 'en',
+      files: ['common.json'],
+    });
+    expect(reviewed.totalUpdated).toBe(0);
+    expect(translateBatch).not.toHaveBeenCalled();
+    expect(await readJson(path.join(localesDir, 'en/common.json'))).toEqual({ title: 'Hello', extra: 'Keep me' });
+
+    const forced = await translator.translateMaster({
+      sourceLang: 'zh-Hans',
+      targetLang: 'en',
+      files: ['common.json'],
+      force: true,
+    });
+
+    expect(forced).toMatchObject({ totalFiles: 1, successFiles: 1, totalUpdated: 1, totalSkipped: 1 });
+    expect(await readJson(path.join(localesDir, 'en/common.json'))).toEqual({
+      title: 'zh-Hans->en:你好',
+      extra: 'Keep me',
+    });
+    await expect(fs.access(path.join(tempDir, 'cache.snapshot.json'))).rejects.toThrow();
+    await expect(translator.translateMaster({
+      sourceLang: 'zh-Hans',
+      targetLang: 'ja',
+      files: ['common.json'],
+    })).rejects.toThrow('Target language must be a configured master');
+  });
+
   it('preserves a target when reassigned and uses the new master for later diffs', async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-reassign-'));
     const localesDir = path.join(tempDir, 'locales');

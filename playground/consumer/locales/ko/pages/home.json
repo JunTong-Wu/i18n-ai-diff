@@ -1,10 +1,10 @@
 {
-  "title": "홈페이지 제목 테스트",
-  "description": "홈페이지 내용",
+  "title": "홈페이지의 제목",
+  "description": "홈페이지의 내용",
   "banner": {
     "slides": {
       "0": {
-        "subtitle": "작은 크기, 큰 에너지.",
+        "subtitle": "작은 몸집, 큰 에너지。",
         "buttons": {
           "learnMore": "더 알아보기",
           "preOrder": "지금 구매하기"

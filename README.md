@@ -214,7 +214,9 @@ npx i18n-ai-diff panel --edit
 
 Choose a logical JSON file, edit existing cells or fill missing languages, then use **Save N changes**. Each row uses a JSON Pointer internally, so nested keys and literal key names containing `.`, `/`, or `~` are preserved. Arrays, objects, numbers, booleans, and `null` stay visible only through their surrounding file and are never replaced by table edits.
 
-Saving is deliberately bounded: it accepts only configured languages and existing logical JSON files, checks every file revision before writing, uses same-directory atomic replacements, and never invokes machine translation. Manual target-language edits update that target's source snapshot as reviewed; master-language edits leave untouched targets pending. Translation cache entries are not changed.
+Saving is deliberately bounded: it accepts only configured languages and existing logical JSON files, checks every file revision before writing, and uses same-directory atomic replacements. Manual target-language edits update that target's source snapshot as reviewed; master-language edits leave untouched targets pending.
+
+When `panel --edit` is enabled, the editor can also translate selected target cells into the browser draft. In multi-master projects, right-click a master-language column header to run a one-time translation from another master into that master. AI results still require **Save N changes** before any local file or cache is updated.
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # Choose a local port
@@ -280,6 +282,28 @@ Combine it with language selection to refresh only specific targets:
 
 ```bash
 npx i18n-ai-diff -f -l fr ja ko
+```
+
+## One-time master-to-master translation
+
+Multi-master projects can occasionally need to bootstrap one master from another master, without making that pair part of the normal route graph:
+
+```bash
+npx i18n-ai-diff translate-master --from zh-CN --to en
+```
+
+This command is only available in multi-master mode, and both `--from` and `--to` must be configured `sourceLang` values. By default it translates only missing values or values that are still equal to the source master text, while preserving already-reviewed target-master copy and target-only keys.
+
+Use `--force` only when you explicitly want to overwrite the target master with fresh LLM output and ignore cache hits:
+
+```bash
+npx i18n-ai-diff translate-master --from zh-CN --to en --force
+```
+
+You can also scope the one-time run to specific logical JSON files:
+
+```bash
+npx i18n-ai-diff translate-master --from zh-CN --to en --file common.json pages/home.json
 ```
 
 ## Other CLI options

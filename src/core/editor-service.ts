@@ -14,6 +14,7 @@ import {
   EditorSearchResponse,
   EditorSearchResult,
   EditorSearchStateFilter,
+  EditorMasterTranslateRequest,
   EditorTranslateRequest,
   EditorTranslateResult,
   NestedJSON,
@@ -294,8 +295,9 @@ export class TranslationEditorService {
     const orderedPaths = this.collectOrderedPaths(records);
     const allowedPointers = new Set(orderedPaths.map(encodeJsonPointer));
     const drafts = this.normalizeDraftPatches(request.drafts || [], allowedPointers);
-    const includeSkipped = request.options?.includeSkipped === true;
     const overwriteDrafts = request.options?.overwriteDrafts === true;
+    const forceRetranslate = request.options?.forceRetranslate === true;
+    const pending = this.calculatePending(relativePath, records, snapshot);
     const cache = createCacheManager(this.cachePath);
     await cache.load();
 
@@ -336,7 +338,7 @@ export class TranslationEditorService {
       }
 
       const dottedPath = segments.join('.');
-      if (!includeSkipped && isKeySkipped(dottedPath, this.config.skipKeys)) {
+      if (isKeySkipped(dottedPath, this.config.skipKeys)) {
         publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, status: 'skipped', reason: 'Skipped key' });
         continue;
       }
@@ -348,6 +350,7 @@ export class TranslationEditorService {
 
       const sourceIdentity = draftIdentity(route.sourceLang, cell.pointer);
       const sourceDraft = drafts.get(sourceIdentity);
+      const hasSourceDraft = sourceDraft !== undefined;
       const sourceValue = sourceDraft !== undefined
         ? { exists: true, value: sourceDraft }
         : getPathValue(records.get(route.sourceLang)?.data || {}, segments);
@@ -361,18 +364,28 @@ export class TranslationEditorService {
         continue;
       }
 
-      const cached = cache.get(sourceValue.value, cell.lang, route.sourceLang);
-      if (cached !== undefined) {
-        publish({
-          lang: cell.lang,
-          pointer: cell.pointer,
-          sourceLang: route.sourceLang,
-          sourceText: sourceValue.value,
-          translatedText: cached,
-          fromCache: true,
-          status: 'translated',
-        });
+      const needsTranslation = !targetValue.exists
+        || pending[cell.lang]?.has(dottedPath)
+        || hasSourceDraft;
+      if (!forceRetranslate && !needsTranslation) {
+        publish({ lang: cell.lang, pointer: cell.pointer, sourceLang: route.sourceLang, sourceText: sourceValue.value, status: 'skipped', reason: 'Already reviewed; use Force retranslate to refresh' });
         continue;
+      }
+
+      if (!forceRetranslate) {
+        const cached = cache.get(sourceValue.value, cell.lang, route.sourceLang);
+        if (cached !== undefined) {
+          publish({
+            lang: cell.lang,
+            pointer: cell.pointer,
+            sourceLang: route.sourceLang,
+            sourceText: sourceValue.value,
+            translatedText: cached,
+            fromCache: true,
+            status: 'translated',
+          });
+          continue;
+        }
       }
 
       const groupKey = `${route.sourceLang}\0${cell.lang}`;
@@ -417,6 +430,164 @@ export class TranslationEditorService {
         }
       }));
     }));
+
+    return results;
+  }
+
+  async translateMasterCells(
+    request: EditorMasterTranslateRequest,
+    hooks: EditorTranslateHooks = {},
+  ): Promise<EditorTranslateResult[]> {
+    const relativePath = this.validateRelativePath(request.relativePath);
+    if (!Array.isArray(request.pointers) || request.pointers.length === 0) {
+      throw new EditorServiceError('At least one key pointer is required', 'EMPTY_MASTER_TRANSLATE_SELECTION');
+    }
+    if (request.pointers.length > MAX_TRANSLATE_CELLS) {
+      throw new EditorServiceError(`A translation job may contain at most ${MAX_TRANSLATE_CELLS} cells`, 'TOO_MANY_TRANSLATE_CELLS', 413);
+    }
+
+    const masterLangs = new Set<string>(this.config.routes.map(route => route.sourceLang));
+    if (this.config.routes.length < 2) {
+      throw new EditorServiceError('Master-to-master translation is only available in multi-master mode', 'MULTI_MASTER_REQUIRED');
+    }
+    if (!masterLangs.has(request.sourceLang)) {
+      throw new EditorServiceError(`Source language must be a configured master: ${request.sourceLang}`, 'MASTER_LANGUAGE_REQUIRED');
+    }
+    if (!masterLangs.has(request.targetLang)) {
+      throw new EditorServiceError(`Target language must be a configured master: ${request.targetLang}`, 'MASTER_LANGUAGE_REQUIRED');
+    }
+    if (request.sourceLang === request.targetLang) {
+      throw new EditorServiceError('Source and target master languages must be different', 'SAME_MASTER_LANGUAGE');
+    }
+
+    await this.assertLogicalFileExists(relativePath);
+    const records = await this.readAllLanguageRecords(relativePath);
+    const snapshot = await this.readSnapshotRecord();
+    this.assertRevisions(request, records, snapshot);
+
+    const orderedPaths = this.collectOrderedPaths(records);
+    const allowedPointers = new Set(orderedPaths.map(encodeJsonPointer));
+    const drafts = this.normalizeDraftPatches(request.drafts || [], allowedPointers);
+    const overwriteDrafts = request.options?.overwriteDrafts === true;
+    const overwriteExisting = request.options?.overwriteExisting === true;
+    const forceRetranslate = request.options?.forceRetranslate === true;
+    const cache = createCacheManager(this.cachePath);
+    await cache.load();
+
+    const results: EditorTranslateResult[] = [];
+    const publish = (result: EditorTranslateResult) => {
+      results.push(result);
+      hooks.onProgress?.([result]);
+    };
+    const tasks: TranslationTask[] = [];
+    const seenPointers = new Set<string>();
+
+    for (const pointer of request.pointers) {
+      if (hooks.signal?.aborted) break;
+      if (typeof pointer !== 'string') {
+        throw new EditorServiceError('Every master translation pointer must be a string', 'INVALID_POINTER');
+      }
+      const segments = decodeJsonPointer(pointer);
+      if (!allowedPointers.has(pointer)) {
+        throw new EditorServiceError(`Translating a new key is not supported: ${pointer}`, 'NEW_KEY_NOT_ALLOWED');
+      }
+      if (seenPointers.has(pointer)) continue;
+      seenPointers.add(pointer);
+
+      const targetIdentity = draftIdentity(request.targetLang, pointer);
+      const targetValue = getPathValue(records.get(request.targetLang)?.data || {}, segments);
+      if (targetValue.exists && typeof targetValue.value !== 'string') {
+        publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, status: 'skipped', reason: 'Target master cell is not a string value' });
+        continue;
+      }
+
+      const dottedPath = segments.join('.');
+      if (isKeySkipped(dottedPath, this.config.skipKeys)) {
+        publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, status: 'skipped', reason: 'Skipped key' });
+        continue;
+      }
+
+      if (!overwriteDrafts && drafts.has(targetIdentity)) {
+        publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, status: 'skipped', reason: 'Cell already has a local draft' });
+        continue;
+      }
+
+      const sourceIdentity = draftIdentity(request.sourceLang, pointer);
+      const sourceDraft = drafts.get(sourceIdentity);
+      const sourceValue = sourceDraft !== undefined
+        ? { exists: true, value: sourceDraft }
+        : getPathValue(records.get(request.sourceLang)?.data || {}, segments);
+      if (!sourceValue.exists || typeof sourceValue.value !== 'string') {
+        publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, status: 'skipped', reason: 'Source master cell is missing or not a string value' });
+        continue;
+      }
+      if (sourceValue.value.length === 0) {
+        publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, sourceText: sourceValue.value, status: 'skipped', reason: 'Source master cell is empty' });
+        continue;
+      }
+
+      if (
+        !overwriteExisting
+        && targetValue.exists
+        && targetValue.value !== sourceValue.value
+      ) {
+        publish({ lang: request.targetLang, pointer, sourceLang: request.sourceLang, sourceText: sourceValue.value, status: 'skipped', reason: 'Existing master copy; enable overwrite to replace' });
+        continue;
+      }
+
+      if (!forceRetranslate) {
+        const cached = cache.get(sourceValue.value, request.targetLang, request.sourceLang);
+        if (cached !== undefined) {
+          publish({
+            lang: request.targetLang,
+            pointer,
+            sourceLang: request.sourceLang,
+            sourceText: sourceValue.value,
+            translatedText: cached,
+            fromCache: true,
+            status: 'translated',
+          });
+          continue;
+        }
+      }
+
+      tasks.push({
+        key: pointer,
+        sourceText: sourceValue.value,
+        sourceLang: request.sourceLang,
+        targetLang: request.targetLang,
+        filePath: relativePath,
+      });
+    }
+
+    const batches = batchTasksByTokenLimit(tasks, this.config.batchSize || 20);
+    await Promise.all(batches.map(batch => this.translateLimit(async () => {
+      if (hooks.signal?.aborted) return;
+      const batchResults = await this.llmClient.translateBatch(batch);
+      if (hooks.signal?.aborted) return;
+      for (const translation of batchResults) {
+        const task = batch.find(candidate => candidate.key === translation.key);
+        if (!task) continue;
+        publish(translation.success
+          ? {
+              lang: task.targetLang,
+              pointer: task.key,
+              sourceLang: task.sourceLang,
+              sourceText: task.sourceText,
+              translatedText: translation.translatedText,
+              fromCache: false,
+              status: 'translated',
+            }
+          : {
+              lang: task.targetLang,
+              pointer: task.key,
+              sourceLang: task.sourceLang,
+              sourceText: task.sourceText,
+              status: 'failed',
+              error: translation.error || 'Translation failed',
+            });
+      }
+    })));
 
     return results;
   }
@@ -731,7 +902,12 @@ export class TranslationEditorService {
         candidate.sourceLang === accepted.sourceLang
         && candidate.targetLangs.some(lang => lang === accepted.lang)
       ));
-      if (!route) continue;
+      const masterLangs = new Set<string>(this.config.routes.map(candidate => candidate.sourceLang));
+      const masterToMaster = this.config.routes.length > 1
+        && accepted.sourceLang !== accepted.lang
+        && masterLangs.has(accepted.sourceLang)
+        && masterLangs.has(accepted.lang);
+      if (!route && !masterToMaster) continue;
       const segments = decodeJsonPointer(accepted.pointer);
       const sourceValue = getPathValue(records.get(accepted.sourceLang)?.data || {}, segments);
       const targetValue = getPathValue(records.get(accepted.lang)?.data || {}, segments);
