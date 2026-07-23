@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "translate": "i18n-ai-diff",
-    "panel": "i18n-ai-diff panel --edit"
+    "panel": "i18n-ai-diff panel"
   },
   "dependencies": {
     "i18n-ai-diff": "file:../.."

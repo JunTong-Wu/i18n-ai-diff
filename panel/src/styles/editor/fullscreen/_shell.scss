@@ -207,6 +207,14 @@
     color: var(--decor-teal);
   }
 
+  &.is-key-missing > svg {
+    color: #607087;
+  }
+
+  &.is-empty > svg {
+    color: var(--decor-teal);
+  }
+
   &.is-invalid > svg {
     color: var(--danger);
   }
@@ -240,6 +248,16 @@
   &.is-missing {
     background: #ddfbf6;
     color: #06756f;
+  }
+
+  &.is-key-missing {
+    background: #e7edf5;
+    color: #44546a;
+  }
+
+  &.is-empty {
+    background: #dff8f3;
+    color: #08766f;
   }
 
   &.is-invalid {
@@ -283,6 +301,24 @@
   &.is-missing {
     background: #ddfbf6;
     color: #06756f;
+
+    i {
+      background: var(--decor-teal);
+    }
+  }
+
+  &.is-key-missing {
+    background: #e7edf5;
+    color: #44546a;
+
+    i {
+      background: #607087;
+    }
+  }
+
+  &.is-empty {
+    background: #dff8f3;
+    color: #08766f;
 
     i {
       background: var(--decor-teal);

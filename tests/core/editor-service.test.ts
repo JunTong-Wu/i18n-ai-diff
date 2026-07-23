@@ -138,7 +138,15 @@ describe('translation editor global search', () => {
     const { root, configPath } = await createProject();
     await writeJson(root, 'locales/en/empty.json', { banner: { title: '' } });
     await writeJson(root, 'locales/de/empty.json', { banner: {} });
+    await writeJson(root, 'locales/fr/empty.json', { banner: { title: 'Titre' } });
     const session = await createProjectSession({ cwd: root, configPath });
+
+    const manifest = await session.getEditorManifest('token');
+    expect(manifest.files.find(candidate => candidate.relativePath === 'empty.json')).toMatchObject({
+      missingLanguages: [],
+      emptyStringCells: 1,
+      missingKeyCells: 1,
+    });
 
     const file = await session.getEditorFile('empty.json');
     const row = file.rows.find(candidate => candidate.pointer === '/banner/title');

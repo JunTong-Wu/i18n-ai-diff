@@ -121,7 +121,7 @@ type FailedTranslationMap = Map<string, GridSelectionCell & { error: string }>;
 
 const POLL_INTERVAL_MS = 650;
 
-type ExplorerStatusTone = 'clear' | 'pending' | 'missing' | 'invalid';
+type ExplorerStatusTone = 'clear' | 'pending' | 'missing' | 'key-missing' | 'empty' | 'invalid';
 
 interface ExplorerStatusDecoration {
   tone: ExplorerStatusTone;
@@ -153,6 +153,22 @@ function getExplorerFileStatus(
         count: file.missingLanguages.length,
         langs: file.missingLanguages.join(', '),
       }),
+    };
+  }
+
+  if ((file.missingKeyCells || 0) > 0) {
+    return {
+      tone: 'key-missing',
+      badge: formatExplorerBadge('K', file.missingKeyCells),
+      label: t('explorer.keyMissingCells', { count: file.missingKeyCells }),
+    };
+  }
+
+  if ((file.emptyStringCells || 0) > 0) {
+    return {
+      tone: 'empty',
+      badge: formatExplorerBadge('E', file.emptyStringCells),
+      label: t('explorer.emptyStringCells', { count: file.emptyStringCells }),
     };
   }
 
@@ -190,6 +206,26 @@ function getExplorerGroupStatus(
       tone: 'missing',
       badge: String(missingFiles),
       label: t('explorer.filesMissing', { count: missingFiles }),
+    };
+  }
+
+  const keyMissingCells = files.reduce((total, file) => total + (file.missingKeyCells || 0), 0);
+  if (keyMissingCells > 0) {
+    const keyMissingFiles = files.filter(file => (file.missingKeyCells || 0) > 0).length;
+    return {
+      tone: 'key-missing',
+      badge: keyMissingCells > 99 ? '99+' : String(keyMissingCells),
+      label: t('explorer.keyMissingInFiles', { cells: keyMissingCells, files: keyMissingFiles }),
+    };
+  }
+
+  const emptyStringCells = files.reduce((total, file) => total + (file.emptyStringCells || 0), 0);
+  if (emptyStringCells > 0) {
+    const emptyStringFiles = files.filter(file => (file.emptyStringCells || 0) > 0).length;
+    return {
+      tone: 'empty',
+      badge: emptyStringCells > 99 ? '99+' : String(emptyStringCells),
+      label: t('explorer.emptyStringInFiles', { cells: emptyStringCells, files: emptyStringFiles }),
     };
   }
 

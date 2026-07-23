@@ -470,6 +470,8 @@ export interface EditorManifestFile {
   invalidLanguages: string[];
   keyCount: number;
   pendingKeys: number;
+  emptyStringCells: number;
+  missingKeyCells: number;
 }
 
 export interface EditorManifest {

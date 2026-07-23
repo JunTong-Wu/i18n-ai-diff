@@ -160,6 +160,7 @@ export class TranslationEditorService {
 
       const orderedPaths = this.collectOrderedPaths(records);
       const pending = this.calculatePending(relativePath, records, snapshot);
+      const cellStatusCounts = this.countManifestCellStates(records, orderedPaths);
       files.push({
         relativePath,
         presentLanguages: this.languages.filter(lang => fileLanguages.get(relativePath)?.has(lang)),
@@ -167,6 +168,8 @@ export class TranslationEditorService {
         invalidLanguages,
         keyCount: orderedPaths.length,
         pendingKeys: Object.values(pending).reduce((total, keys) => total + keys.size, 0),
+        emptyStringCells: cellStatusCounts.emptyStringCells,
+        missingKeyCells: cellStatusCounts.missingKeyCells,
       });
     }
 
@@ -784,6 +787,26 @@ export class TranslationEditorService {
       for (const targetLang of route.targetLangs) addRecord(records.get(targetLang));
     }
     return paths;
+  }
+
+  private countManifestCellStates(
+    records: Map<string, LocaleRecord | null>,
+    orderedPaths: string[][],
+  ): { emptyStringCells: number; missingKeyCells: number } {
+    let emptyStringCells = 0;
+    let missingKeyCells = 0;
+
+    for (const segments of orderedPaths) {
+      for (const lang of this.languages) {
+        const record = records.get(lang);
+        const resolved = record ? getPathValue(record.data, segments) : { exists: false, value: undefined };
+        const kind = editorCellKind(resolved);
+        if (kind === 'empty') emptyStringCells += 1;
+        if (kind === 'missing') missingKeyCells += 1;
+      }
+    }
+
+    return { emptyStringCells, missingKeyCells };
   }
 
   private orderTemplateForMissingPath(

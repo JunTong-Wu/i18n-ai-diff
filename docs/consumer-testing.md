@@ -33,8 +33,8 @@ This test asserts that a normal incremental run:
 - does not change the cache or source snapshot;
 - does not create a failure log;
 - serves the packaged Web panel on `127.0.0.1` with all 259 tasks visible;
-- loads 37 logical JSON files and nine language revisions through the read-only editor API;
-- rejects editor writes unless the installed panel was explicitly started with `--edit`.
+- loads 37 logical JSON files and nine language revisions through the editor API;
+- keeps editor writes protected by same-origin checks, the session write token, path safety, and revision checks.
 
 The generated workspace is deliberately kept at the printed operating-system temporary path for inspection. It is physically outside the package repository, preventing Node.js from resolving undeclared dependencies from the repository's `node_modules`.
 
@@ -71,7 +71,6 @@ npm run consumer:prepare
 cd "$(node -p 'require("node:os").tmpdir()')/i18n-ai-diff-consumer"
 npm run translate
 npm run panel
-npm run panel -- --edit  # Restart this way for manual save acceptance
 ```
 
 The workspace always installs the local tarball. It never imports the package through a symlink, so missing publish files, broken exports, and dependency mistakes remain visible.

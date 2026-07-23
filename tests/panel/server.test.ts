@@ -48,7 +48,7 @@ describe('panel server', () => {
     let scans = 0;
     const server = await startPanelServer(
       { scan: async () => { scans += 1; return scan; } },
-      { port: 0, open: false, packageVersion: '1.2.0-test', clientRoot },
+      { port: 0, open: false, packageVersion: '1.3.0-test', clientRoot },
     );
     servers.push(server);
 
@@ -62,12 +62,12 @@ describe('panel server', () => {
 
     const health = await fetch(`${server.url}/api/health`).then(response => response.json());
     expect(health).toEqual({
-      data: { status: 'ok', version: '1.2.0-test', localOnly: true },
+      data: { status: 'ok', version: '1.3.0-test', localOnly: true },
     });
 
     const expectedProject = {
       ...scan,
-      version: '1.2.0-test',
+      version: '1.3.0-test',
       localOnly: true,
     };
 
@@ -162,7 +162,7 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      packageVersion: '1.2.0-test',
+      packageVersion: '1.3.0-test',
       clientRoot,
     });
     servers.push(server);
@@ -224,7 +224,7 @@ describe('panel server', () => {
         file,
         project: {
           ...scan,
-          version: '1.2.0-test',
+          version: '1.3.0-test',
           localOnly: true,
         },
       },
@@ -296,7 +296,7 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      packageVersion: '1.2.0-test',
+      packageVersion: '1.3.0-test',
       clientRoot,
     });
     servers.push(server);
@@ -375,7 +375,7 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      packageVersion: '1.2.0-test',
+      packageVersion: '1.3.0-test',
       clientRoot,
     });
     servers.push(server);
@@ -482,7 +482,7 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      packageVersion: '1.2.0-test',
+      packageVersion: '1.3.0-test',
       clientRoot,
     });
     servers.push(server);
@@ -560,7 +560,7 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      packageVersion: '1.2.0-test',
+      packageVersion: '1.3.0-test',
       clientRoot,
     });
     servers.push(server);
@@ -595,7 +595,7 @@ describe('panel server', () => {
     expect(job.status).toBe('completed');
     expect(job.stats).toEqual(expect.objectContaining({ totalFiles: 1, totalUpdated: 1 }));
     expect(job.project).toEqual(expect.objectContaining({
-      version: '1.2.0-test',
+      version: '1.3.0-test',
     }));
     expect(runCalls).toEqual([{ mode: 'pending', targetLangs: ['de'] }]);
   });
@@ -618,7 +618,7 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      packageVersion: '1.2.0-test',
+      packageVersion: '1.3.0-test',
       clientRoot,
     });
     servers.push(server);
