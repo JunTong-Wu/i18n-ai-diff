@@ -32,16 +32,24 @@ export interface WatchConfig {
   ignored?: string[];
 }
 
-import { IETFBCP47Type } from './IETFBCP47.js';
+/**
+ * Project language identifier.
+ *
+ * Runtime validation accepts safe single-segment identifiers such as standard
+ * BCP 47 tags (`zh-CN`, `pt-BR`) and project-specific variants (`zh_CN`,
+ * `en_US`). Values are used as locale directory names, cache owners, and panel
+ * labels, so callers should avoid path separators and other unsafe characters.
+ */
+export type LanguageCode = string;
 
 /**
  * 翻译路由：一个源语言母版对应一组目标语言
  */
 export interface TranslationRoute {
   /** 母版语言 */
-  sourceLang: IETFBCP47Type;
+  sourceLang: LanguageCode;
   /** 由该母版生成的目标语言 */
-  targetLangs: IETFBCP47Type[];
+  targetLangs: LanguageCode[];
 }
 
 /**
@@ -49,8 +57,8 @@ export interface TranslationRoute {
  */
 export interface LegacyTranslationRoute {
   /** @deprecated 多母版 routes 请使用 sourceLang */
-  baseLang: IETFBCP47Type;
-  targetLangs: IETFBCP47Type[];
+  baseLang: LanguageCode;
+  targetLangs: LanguageCode[];
   sourceLang?: never;
 }
 
@@ -62,9 +70,9 @@ export interface TranslateConfig {
    */
   routes?: UserTranslationRoute[];
   /** 单母版兼容字段；多母版配置加载后为第一条路由的源语言 */
-  baseLang: IETFBCP47Type;
+  baseLang: LanguageCode;
   /** 单母版兼容字段；多母版配置加载后为所有路由的目标语言 */
-  targetLangs: (IETFBCP47Type)[];
+  targetLangs: LanguageCode[];
   localesDir: string;
   skipKeys: string[];
   llm: LLMConfig;
@@ -102,8 +110,8 @@ export type UserConfig = UserConfigBase & (
   | {
       /** 单母版模式 */
       routes?: never;
-      baseLang: IETFBCP47Type;
-      targetLangs: IETFBCP47Type[];
+      baseLang: LanguageCode;
+      targetLangs: LanguageCode[];
     }
 );
 

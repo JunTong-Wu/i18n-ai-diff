@@ -34,7 +34,7 @@ describe('translation settings service', () => {
       config: {
         ...loaded.config,
         routes: [
-          { sourceLang: 'zh-Hans', targetLangs: ['ja', 'ko'] },
+          { sourceLang: 'zh_CN', targetLangs: ['ja_JP', 'ko_KR'] },
           { sourceLang: 'en', targetLangs: ['de', 'fr'] },
         ],
         llm: {
@@ -53,7 +53,8 @@ describe('translation settings service', () => {
     expect(raw).toContain("import { defineConfig } from 'i18n-ai-diff';");
     expect(raw).toContain('function loadLocalEnv()');
     expect(raw).toContain('custom env loader should survive visual settings saves');
-    expect(raw).toContain('sourceLang: "zh-Hans"');
+    expect(raw).toContain('sourceLang: "zh_CN"');
+    expect(raw).toContain('"ja_JP"');
     expect(raw).toContain('Keep brand terms stable.');
     expect(raw).toContain('watch: {');
     expect(raw).toContain('debounceMs: 300');
@@ -106,6 +107,26 @@ describe('translation settings service', () => {
     expect(raw).toContain("apiKey: 'test-secret'");
     expect(raw).toContain("model: process.env.CUSTOM_TRANSLATION_MODEL || 'test-model'");
     expect(raw).not.toContain('not a url');
+  });
+
+  it('rejects unsafe language identifiers during visual config saves', async () => {
+    const { projectRoot, configPath, config } = await createSettingsFixture();
+    const service = new TranslationSettingsService(config, configPath, projectRoot);
+    const loaded = await service.getConfig('token-1');
+
+    await expect(service.saveConfig({
+      revision: loaded.revision,
+      config: {
+        ...loaded.config,
+        routes: [
+          { sourceLang: '../zh', targetLangs: ['ja'] },
+        ],
+      },
+    })).rejects.toMatchObject({
+      code: 'CONFIG_VALIDATION_FAILED',
+    } satisfies Partial<SettingsConfigError>);
+
+    expect(await fs.readFile(configPath, 'utf8')).toContain("sourceLang: 'en'");
   });
 });
 

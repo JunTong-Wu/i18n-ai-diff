@@ -9,7 +9,7 @@
 - `src/core/settings-service.ts` owns panel-triggered visual config reads and writes for `i18n-translate.config.*`: current config projection, AST/range-based managed-field patching, validation, revision checks, and atomic replacement. It must never expose or write API keys, and must not replace the full user-owned config module.
 - `src/core/project-session.ts` owns panel process orchestration, event subscription, and serialization. Scan, manifest, file load, search, translation candidate generation, editor save operations, and CLI shortcut runs coordinate through the project-level session.
 - `src/core/panel-event-hub.ts` owns local filesystem watching for panel synchronization. It classifies config/cache/snapshot/locales changes and feeds SSE events without authorizing writes.
-- `src/core/editor-service.ts` owns logical JSON file discovery, editor manifest/file construction, workspace search, selected-cell translation candidate generation, JSON Pointer writes, accepted-translation cache validation, revision checks, snapshot review updates, and atomic filesystem commits.
+- `src/core/editor-service.ts` owns logical JSON file discovery, editor manifest/file construction, global search, selected-cell translation candidate generation, JSON Pointer writes, accepted-translation cache validation, revision checks, snapshot review updates, and atomic filesystem commits.
 - `src/panel/contracts.ts` maps core results into panel API DTOs. Put package-version, local-only, and capability fields here instead of sprinkling them through the server.
 - `src/panel/server.ts` owns HTTP routing, SSE response plumbing, translation job ids/poll/cancel lifecycle, loopback serving, Host/Origin checks, write-token checks, JSON body limits, security headers, static client fallback, and error serialization. It should delegate project behavior to `ProjectSession` and contract conversion helpers.
 
@@ -22,6 +22,7 @@
 - Legacy route entries with `baseLang` are accepted only for old projects and immediately normalize to `sourceLang`.
 - After `loadConfigWithMetadata`, every backend caller should treat `config.routes` as canonical. The compatibility fields `config.baseLang` and `config.targetLangs` may remain for programmatic callers and old code, but new logic should not branch on them.
 - Filtering languages from CLI arguments must preserve route ownership: selecting `fr ja` from `zh-Hans → ja, ko` and `en → de, fr` produces two routes, not one merged route.
+- Public language configuration uses project language identifiers, not a strict IETF BCP 47 whitelist. Accept safe single-segment identifiers such as `zh-CN`, `zh_CN`, or `en_US`; reject empty values, path separators, `:`, NUL bytes, and unsafe punctuation because language identifiers become locale directory names and state-file ownership keys.
 
 ## Cache and snapshot semantics
 
@@ -74,6 +75,7 @@
 - Do not write through dotted flatten/unflatten identifiers. Real JSON keys may contain `.`, `/`, or `~`.
 - Numbers, booleans, `null`, arrays, and objects are not editable cells. They must be preserved exactly unless a future explicit feature expands the model.
 - Writing through a path where an intermediate segment is not an object must fail with a clear editor error.
+- Key-missing cells are the only editor save path that may create JSON structure. When filling a missing key, insert it according to the nearest configured source-language or existing-language donor object's sibling order instead of blindly appending when a donor exists.
 - If at least one configured language has a logical JSON file, the editor may create missing physical JSON files for other configured languages during a save.
 - Preserve parseable file traits where practical: BOM, indentation, newline style, trailing newline, and file mode. New target files default to two-space indentation.
 

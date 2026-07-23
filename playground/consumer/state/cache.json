@@ -64,6 +64,14 @@
       "targetLang": "ko",
       "timestamp": 1784708504061,
       "model": "deepseek-v4-flash-260425"
+    },
+    "10885897479717df17d82faad5ada677": {
+      "sourceText": "选择您的国家或地区",
+      "sourceLang": "zh-Hans",
+      "translatedText": "Select your country or region",
+      "targetLang": "en",
+      "timestamp": 1784773607805,
+      "model": "deepseek-v4-flash-260425"
     }
   }
 }

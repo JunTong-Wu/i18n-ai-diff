@@ -24,6 +24,7 @@ import chalk from 'chalk';
 import { info, warn, debug } from '../utils/logger.js';
 import { FailureLogger, createFailureLogger } from '../utils/failure-logger.js';
 import { ProgressBar, createProgressBar } from '../utils/progress-bar.js';
+import { assertLanguageCode, normalizeLanguageCode } from '../utils/language-code.js';
 import fs from 'fs/promises';
 import path from 'path';
 import pLimit from 'p-limit';
@@ -712,12 +713,22 @@ function resolveRuntimeConfig(config: TranslateConfig): ResolvedTranslateConfig 
   const routes = config.routes?.length
     ? config.routes.map(route => {
         const rawRoute = route as typeof route & { sourceLang?: string; baseLang?: string };
+        const sourceLang = assertLanguageCode(
+          normalizeLanguageCode(rawRoute.sourceLang || rawRoute.baseLang),
+          'routes[].sourceLang',
+        );
         return {
-          sourceLang: rawRoute.sourceLang || rawRoute.baseLang!,
-          targetLangs: [...route.targetLangs],
+          sourceLang,
+          targetLangs: route.targetLangs.map(lang => assertLanguageCode(
+            normalizeLanguageCode(lang),
+            `${sourceLang}.targetLangs`,
+          )),
         };
       })
-    : [{ sourceLang: config.baseLang, targetLangs: [...config.targetLangs] }];
+    : [{
+        sourceLang: assertLanguageCode(normalizeLanguageCode(config.baseLang), 'baseLang'),
+        targetLangs: config.targetLangs.map(lang => assertLanguageCode(normalizeLanguageCode(lang), 'targetLangs')),
+      }];
 
   return {
     ...config,

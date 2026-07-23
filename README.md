@@ -24,6 +24,8 @@ You can also run it directly with `npx i18n-ai-diff` without installing it globa
 
 Create a locale directory in your project. Each language gets a subdirectory containing JSON files at any nesting depth.
 
+Language directory names are project language identifiers, not a strict IETF BCP 47 whitelist. Standard tags such as `zh-CN` and project-specific names such as `zh_CN` are both valid. Keep each identifier as one safe directory segment: letters, numbers, `.`, `_`, and `-` are allowed; path separators, `:`, NUL bytes, and empty values are rejected.
+
 The smallest single-master project only needs its master directory initially:
 
 ```text

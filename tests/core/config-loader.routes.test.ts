@@ -62,6 +62,23 @@ describe('multi-master config', () => {
     expect(config.targetLangs).toEqual(['ja', 'ko', 'de', 'fr']);
   });
 
+  it('accepts project-specific safe language identifiers', async () => {
+    const config = await loadConfig(await writeConfig({
+      ...common,
+      routes: [
+        { sourceLang: 'zh_CN', targetLangs: ['ja_JP', 'ko_KR'] },
+        { sourceLang: 'en_US', targetLangs: ['pt_BR'] },
+      ],
+    }));
+
+    expect(config.routes).toEqual([
+      { sourceLang: 'zh_CN', targetLangs: ['ja_JP', 'ko_KR'] },
+      { sourceLang: 'en_US', targetLangs: ['pt_BR'] },
+    ]);
+    expect(config.baseLang).toBe('zh_CN');
+    expect(config.targetLangs).toEqual(['ja_JP', 'ko_KR', 'pt_BR']);
+  });
+
   it('accepts legacy baseLang route fields and normalizes them to sourceLang', async () => {
     const config = await loadConfig(await writeConfig({
       ...common,
@@ -141,6 +158,27 @@ describe('multi-master config', () => {
       message: 'cannot be both a master and a target',
     },
   ])('rejects invalid routes: $name', async ({ routes, message }) => {
+    const configPath = await writeConfig({ ...common, routes });
+    await expect(loadConfig(configPath)).rejects.toThrow(message);
+  });
+
+  it.each([
+    {
+      name: 'path separator in source language',
+      routes: [{ sourceLang: '../zh', targetLangs: ['ja'] }],
+      message: 'safe language identifier',
+    },
+    {
+      name: 'colon in target language',
+      routes: [{ sourceLang: 'zh_CN', targetLangs: ['en:US'] }],
+      message: 'safe language identifier',
+    },
+    {
+      name: 'unsupported punctuation in target language',
+      routes: [{ sourceLang: 'zh_CN', targetLangs: ['en@US'] }],
+      message: 'may contain only letters',
+    },
+  ])('rejects unsafe language identifiers: $name', async ({ routes, message }) => {
     const configPath = await writeConfig({ ...common, routes });
     await expect(loadConfig(configPath)).rejects.toThrow(message);
   });

@@ -11,7 +11,7 @@ describe('multi-master batch prompt', () => {
       filePath: 'common.json',
     }]);
 
-    expect(prompt).toContain('Source language BCP 47 tag: "zh-CN"');
-    expect(prompt).toContain('Target language BCP 47 tag: "ja"');
+    expect(prompt).toContain('Source language code: "zh-CN"');
+    expect(prompt).toContain('Target language code: "ja"');
   });
 });

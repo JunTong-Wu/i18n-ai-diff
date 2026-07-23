@@ -19,7 +19,7 @@ import type {
 } from '../types';
 import { draftIdentity, type DraftMap } from './model';
 
-interface WorkspaceSearchDialogProps {
+interface GlobalSearchDialogProps {
   open: boolean;
   manifest: PanelEditorManifest | null;
   currentFile: PanelEditorFile | null;
@@ -28,21 +28,21 @@ interface WorkspaceSearchDialogProps {
   onOpenResult(result: PanelEditorSearchResult): void;
 }
 
-type WorkspaceSearchDisplayResult = PanelEditorSearchResult & {
+type GlobalSearchDisplayResult = PanelEditorSearchResult & {
   draft?: boolean;
 };
 
 const SEARCH_LIMIT = 200;
 const STATE_FILTERS: PanelEditorSearchStateFilter[] = ['pending', 'empty', 'missing', 'skipped', 'master', 'target'];
 
-export function WorkspaceSearchDialog({
+export function GlobalSearchDialog({
   open,
   manifest,
   currentFile,
   drafts,
   onOpenChange,
   onOpenResult,
-}: WorkspaceSearchDialogProps) {
+}: GlobalSearchDialogProps) {
   const { t } = usePanelI18n();
   const [query, setQuery] = useState('');
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
@@ -127,16 +127,16 @@ export function WorkspaceSearchDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ModalContent className="workspace-search-dialog" size="xl" aria-describedby="workspace-search-description">
+      <ModalContent className="global-search-dialog" size="xl" aria-describedby="global-search-description">
         <ModalHeader closeLabel={t('common.close')}>
           <ModalTitleBlock
             title={t('search.title')}
-            descriptionId="workspace-search-description"
+            descriptionId="global-search-description"
             description={t('search.description')}
           />
         </ModalHeader>
 
-        <label className="workspace-search-input">
+        <label className="global-search-input">
           <MagnifyingGlass size={20} aria-hidden="true" />
           <span className="sr-only">{t('search.inputSr')}</span>
           <input
@@ -147,10 +147,10 @@ export function WorkspaceSearchDialog({
           />
         </label>
 
-        <div className="workspace-search-controls">
-          <section className="workspace-search-control-group" aria-label={t('search.languages')}>
+        <div className="global-search-controls">
+          <section className="global-search-control-group" aria-label={t('search.languages')}>
             <span>{t('search.languages')}</span>
-            <div className="workspace-search-checkbox-grid">
+            <div className="global-search-checkbox-grid">
               <FilterCheckbox
                 checked={selectedLanguages.length === 0}
                 label={t('search.allLanguages')}
@@ -170,9 +170,9 @@ export function WorkspaceSearchDialog({
             </div>
           </section>
 
-          <section className="workspace-search-control-group" aria-label={t('search.states')}>
+          <section className="global-search-control-group" aria-label={t('search.states')}>
             <span>{t('search.states')}</span>
-            <div className="workspace-search-checkbox-grid">
+            <div className="global-search-checkbox-grid">
               {STATE_FILTERS.map(filter => (
                 <FilterCheckbox
                   key={filter}
@@ -184,9 +184,9 @@ export function WorkspaceSearchDialog({
             </div>
           </section>
 
-          <section className="workspace-search-control-group is-compact" aria-label={t('search.options')}>
+          <section className="global-search-control-group is-compact" aria-label={t('search.options')}>
             <span>{t('search.options')}</span>
-            <div className="workspace-search-checkbox-grid">
+            <div className="global-search-checkbox-grid">
               <FilterCheckbox
                 checked={includeKeys}
                 label={t('search.includeKeyPath')}
@@ -196,7 +196,7 @@ export function WorkspaceSearchDialog({
           </section>
         </div>
 
-        <div className="workspace-search-summary" role="status" aria-live="polite">
+        <div className="global-search-summary" role="status" aria-live="polite">
           {loading
             ? t('search.searching')
             : readyToSearch
@@ -205,28 +205,28 @@ export function WorkspaceSearchDialog({
         </div>
 
         {error && (
-          <div className="workspace-search-error" role="alert">
+          <div className="global-search-error" role="alert">
             {normalizePanelErrorMessage(error, t)}
           </div>
         )}
 
-        <div className="workspace-search-results">
+        <div className="global-search-results">
           {!readyToSearch && (
-            <div className="workspace-search-empty">
+            <div className="global-search-empty">
               <MagnifyingGlass size={24} aria-hidden="true" />
               <span>{t('search.emptyHint')}</span>
             </div>
           )}
 
           {readyToSearch && !loading && !error && groups.length === 0 && (
-            <div className="workspace-search-empty">
+            <div className="global-search-empty">
               <FileText size={24} aria-hidden="true" />
               <span>{t('search.noResults')}</span>
             </div>
           )}
 
           {groups.map(group => (
-            <section className="workspace-search-group" key={group.relativePath}>
+            <section className="global-search-group" key={group.relativePath}>
               <header>
                 <FileText size={16} aria-hidden="true" />
                 <strong>{group.relativePath}</strong>
@@ -237,14 +237,14 @@ export function WorkspaceSearchDialog({
                   <button
                     key={`${result.relativePath}:${result.pointer}:${result.lang}`}
                     type="button"
-                    className="workspace-search-result"
+                    className="global-search-result"
                     onClick={() => onOpenResult(result)}
                   >
-                    <span className="workspace-search-result-path">
+                    <span className="global-search-result-path">
                       <ArrowBendDownRight size={15} aria-hidden="true" />
                       <Highlight value={result.displayPath} ranges={result.keyMatchRanges} />
                     </span>
-                    <span className="workspace-search-result-meta">
+                    <span className="global-search-result-meta">
                       <b>{result.lang}</b>
                       {result.isMaster && <em>{t('search.master')}</em>}
                       {result.cell.pending && <em className="is-pending">{t('search.pending')}</em>}
@@ -253,7 +253,7 @@ export function WorkspaceSearchDialog({
                       {result.cell.skipped && <em>{t('search.skipped')}</em>}
                       {result.draft && <em>{t('search.draft')}</em>}
                     </span>
-                    <span className="workspace-search-result-copy">
+                    <span className="global-search-result-copy">
                       {result.value
                         ? <Highlight value={result.value} ranges={result.valueMatchRanges} />
                         : result.cell.kind === 'missing'
@@ -289,8 +289,8 @@ function mergeLocalDraftResults({
   query: string;
   selectedLanguages: string[];
   selectedStates: PanelEditorSearchStateFilter[];
-}): WorkspaceSearchDisplayResult[] {
-  const resultMap = new Map(apiResults.map(result => [searchResultIdentity(result), result as WorkspaceSearchDisplayResult]));
+}): GlobalSearchDisplayResult[] {
+  const resultMap = new Map(apiResults.map(result => [searchResultIdentity(result), result as GlobalSearchDisplayResult]));
   if (!currentFile || drafts.size === 0) return [...resultMap.values()];
 
   const queryLower = query.toLocaleLowerCase();
@@ -333,11 +333,11 @@ function mergeLocalDraftResults({
   ));
 }
 
-function groupResultsByFile(results: WorkspaceSearchDisplayResult[]): Array<{
+function groupResultsByFile(results: GlobalSearchDisplayResult[]): Array<{
   relativePath: string;
-  results: WorkspaceSearchDisplayResult[];
+  results: GlobalSearchDisplayResult[];
 }> {
-  const groups = new Map<string, WorkspaceSearchDisplayResult[]>();
+  const groups = new Map<string, GlobalSearchDisplayResult[]>();
   for (const result of results) {
     const group = groups.get(result.relativePath) || [];
     group.push(result);
@@ -359,7 +359,7 @@ function FilterCheckbox({
   onCheckedChange(checked: boolean): void;
 }) {
   return (
-    <label className="workspace-search-check">
+    <label className="global-search-check">
       <Checkbox
         checked={checked}
         onCheckedChange={nextChecked => onCheckedChange(nextChecked === true)}

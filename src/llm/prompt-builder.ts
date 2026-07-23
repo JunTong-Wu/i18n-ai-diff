@@ -22,8 +22,8 @@ export function buildBatchPrompt(tasks: TranslationTask[]): BatchPromptResult {
   }
 
   const prompt = [
-    `Source language BCP 47 tag: "${sourceLang}".`,
-    `Target language BCP 47 tag: "${targetLang}". Translate the values from the source language into the target language. Return ONLY a JSON object.`,
+    `Source language code: "${sourceLang}".`,
+    `Target language code: "${targetLang}". Translate the values from the source language into the target language. Return ONLY a JSON object.`,
     '',
     'Input:',
     `{${entries.join(', ')}}`,

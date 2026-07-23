@@ -658,7 +658,13 @@ export class TranslationEditorService {
       snapshotUpdated = true;
     }
     for (const change of effectiveChanges) {
-      setStringAtPath(records.get(change.lang)!.data, decodeJsonPointer(change.pointer), change.value);
+      const segments = decodeJsonPointer(change.pointer);
+      setStringAtPath(
+        records.get(change.lang)!.data,
+        segments,
+        change.value,
+        this.orderTemplateForMissingPath(records, change.lang, segments),
+      );
     }
     if (this.reviewEditedTargets(snapshot.document, relativePath, records, effectiveChanges)) {
       snapshotUpdated = true;
@@ -778,6 +784,34 @@ export class TranslationEditorService {
       for (const targetLang of route.targetLangs) addRecord(records.get(targetLang));
     }
     return paths;
+  }
+
+  private orderTemplateForMissingPath(
+    records: Map<string, LocaleRecord | null>,
+    targetLang: string,
+    segments: string[],
+  ): NestedJSON | undefined {
+    for (const lang of this.orderDonorLanguages(targetLang)) {
+      const record = records.get(lang);
+      if (!record) continue;
+      const candidate = getPathValue(record.data, segments);
+      if (candidate.exists && typeof candidate.value === 'string') return record.data;
+    }
+    return undefined;
+  }
+
+  private orderDonorLanguages(targetLang: string): string[] {
+    const languages: string[] = [];
+    const add = (lang: string) => {
+      if (lang !== targetLang && !languages.includes(lang)) languages.push(lang);
+    };
+    const targetRoute = this.config.routes.find(route => route.targetLangs.some(lang => lang === targetLang));
+    if (targetRoute) add(targetRoute.sourceLang);
+    for (const route of this.config.routes) add(route.sourceLang);
+    for (const route of this.config.routes) {
+      for (const lang of route.targetLangs) add(lang);
+    }
+    return languages;
   }
 
   private calculatePending(
@@ -1315,32 +1349,28 @@ export function collectStringLeafPaths(value: NestedJSON): string[][] {
   return paths;
 }
 
-export function setStringAtPath(root: NestedJSON, segments: string[], value: string): void {
+export function setStringAtPath(
+  root: NestedJSON,
+  segments: string[],
+  value: string,
+  orderTemplate?: NestedJSON,
+): void {
   if (segments.length === 0) {
     throw new EditorServiceError('The JSON root cannot be edited as a string', 'INVALID_POINTER');
   }
   let current: NestedJSON = root;
+  let templateCurrent: unknown = orderTemplate;
   for (let index = 0; index < segments.length; index += 1) {
     const segment = segments[index];
     const isLast = index === segments.length - 1;
     if (isLast) {
-      Object.defineProperty(current, segment, {
-        value,
-        configurable: true,
-        enumerable: true,
-        writable: true,
-      });
+      defineOrderedProperty(current, segment, value, templateCurrent);
       return;
     }
     const existing = Object.prototype.hasOwnProperty.call(current, segment) ? current[segment] : undefined;
     if (existing === undefined) {
       const next: NestedJSON = {};
-      Object.defineProperty(current, segment, {
-        value: next,
-        configurable: true,
-        enumerable: true,
-        writable: true,
-      });
+      defineOrderedProperty(current, segment, next, templateCurrent);
       current = next;
     } else if (isObjectRecord(existing)) {
       current = existing;
@@ -1350,7 +1380,55 @@ export function setStringAtPath(root: NestedJSON, segments: string[], value: str
         'PATH_TYPE_CONFLICT',
       );
     }
+    templateCurrent = isObjectRecord(templateCurrent) ? templateCurrent[segment] : undefined;
   }
+}
+
+function defineOrderedProperty(
+  target: NestedJSON,
+  key: string,
+  value: unknown,
+  templateParent: unknown,
+): void {
+  const descriptor = {
+    value,
+    configurable: true,
+    enumerable: true,
+    writable: true,
+  };
+  if (Object.prototype.hasOwnProperty.call(target, key)) {
+    Object.defineProperty(target, key, descriptor);
+    return;
+  }
+  if (!isObjectRecord(templateParent) || !Object.prototype.hasOwnProperty.call(templateParent, key)) {
+    Object.defineProperty(target, key, descriptor);
+    return;
+  }
+
+  const descriptors = Object.getOwnPropertyDescriptors(target);
+  const orderedKeys = Object.keys(target);
+  const insertionIndex = orderedInsertionIndex(orderedKeys, Object.keys(templateParent), key);
+  for (const existingKey of orderedKeys) delete target[existingKey];
+  const nextKeys = [...orderedKeys];
+  nextKeys.splice(insertionIndex, 0, key);
+  for (const nextKey of nextKeys) {
+    Object.defineProperty(target, nextKey, nextKey === key ? descriptor : descriptors[nextKey]);
+  }
+}
+
+function orderedInsertionIndex(targetKeys: string[], templateKeys: string[], key: string): number {
+  const templateIndex = templateKeys.indexOf(key);
+  if (templateIndex === -1) return targetKeys.length;
+
+  for (let index = templateIndex - 1; index >= 0; index -= 1) {
+    const targetIndex = targetKeys.indexOf(templateKeys[index]);
+    if (targetIndex !== -1) return targetIndex + 1;
+  }
+  for (let index = templateIndex + 1; index < templateKeys.length; index += 1) {
+    const targetIndex = targetKeys.indexOf(templateKeys[index]);
+    if (targetIndex !== -1) return targetIndex;
+  }
+  return targetKeys.length;
 }
 
 function getPathValue(root: NestedJSON, segments: string[]): { exists: boolean; value: unknown } {

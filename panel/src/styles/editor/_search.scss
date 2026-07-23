@@ -1,9 +1,9 @@
-.workspace-search-dialog {
+.global-search-dialog {
   grid-template-rows: auto auto auto auto minmax(0, 1fr);
   gap: var(--space-3);
 }
 
-.workspace-search-input {
+.global-search-input {
   min-width: 0;
   min-height: 3.15rem;
   display: flex;
@@ -35,7 +35,7 @@
   }
 }
 
-.workspace-search-controls {
+.global-search-controls {
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(11rem, 0.6fr);
@@ -46,7 +46,7 @@
   }
 }
 
-.workspace-search-control-group {
+.global-search-control-group {
   min-width: 0;
   display: grid;
   gap: 0.45rem;
@@ -66,14 +66,14 @@
   }
 }
 
-.workspace-search-checkbox-grid {
+.global-search-checkbox-grid {
   min-width: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
 }
 
-.workspace-search-check {
+.global-search-check {
   min-height: 2.05rem;
   display: inline-flex;
   align-items: center;
@@ -100,13 +100,13 @@
   }
 }
 
-.workspace-search-summary {
+.global-search-summary {
   color: var(--muted);
   font-size: var(--text-xs);
   font-weight: 500;
 }
 
-.workspace-search-error {
+.global-search-error {
   padding: 0.65rem 0.8rem;
   border-radius: var(--radius-sm);
   background: var(--danger-soft);
@@ -115,7 +115,7 @@
   line-height: 1.45;
 }
 
-.workspace-search-results {
+.global-search-results {
   min-height: 12rem;
   overflow: auto;
   display: grid;
@@ -124,7 +124,7 @@
   padding-right: 0.15rem;
 }
 
-.workspace-search-empty {
+.global-search-empty {
   min-height: 12rem;
   display: grid;
   align-content: center;
@@ -140,7 +140,7 @@
   }
 }
 
-.workspace-search-group {
+.global-search-group {
   min-width: 0;
   display: grid;
   gap: var(--space-2);
@@ -186,7 +186,7 @@
   }
 }
 
-.workspace-search-result {
+.global-search-result {
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(10rem, 0.9fr) auto minmax(12rem, 1.1fr);
@@ -218,13 +218,13 @@
   }
 }
 
-.workspace-search-result-path,
-.workspace-search-result-copy,
-.workspace-search-result-meta {
+.global-search-result-path,
+.global-search-result-copy,
+.global-search-result-meta {
   min-width: 0;
 }
 
-.workspace-search-result-path {
+.global-search-result-path {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -236,7 +236,7 @@
   }
 }
 
-.workspace-search-result-copy {
+.global-search-result-copy {
   overflow: hidden;
   color: var(--ink);
   font-size: var(--text-sm);
@@ -249,7 +249,7 @@
   }
 }
 
-.workspace-search-result-meta {
+.global-search-result-meta {
   display: inline-flex;
   justify-content: flex-end;
   flex-wrap: wrap;

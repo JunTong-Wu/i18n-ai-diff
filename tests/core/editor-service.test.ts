@@ -285,6 +285,84 @@ describe('translation editor save semantics', () => {
     });
   });
 
+  it('inserts a missing target key near the same sibling position as the source language', async () => {
+    const { root, configPath } = await createProject();
+    await writeJson(root, 'locales/en/order.json', {
+      section: {
+        first: 'First',
+        second: 'Second',
+        nested: {
+          alpha: 'Alpha',
+          beta: 'Beta',
+        },
+        third: 'Third',
+      },
+    });
+    await writeJson(root, 'locales/de/order.json', {
+      section: {
+        first: 'Erste',
+        third: 'Dritte',
+      },
+    });
+    await writeJson(root, 'locales/fr/order.json', {
+      section: {
+        first: 'Première',
+        third: 'Troisième',
+      },
+    });
+    const session = await createProjectSession({ cwd: root, configPath });
+    const file = await session.getEditorFile('order.json');
+
+    await session.saveEditorFile({
+      relativePath: 'order.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [
+        { lang: 'de', pointer: '/section/second', value: 'Zweite' },
+        { lang: 'de', pointer: '/section/nested/beta', value: 'Beta DE' },
+      ],
+    });
+
+    const de = JSON.parse(await fs.readFile(path.join(root, 'locales/de/order.json'), 'utf8'));
+    expect(Object.keys(de.section)).toEqual(['first', 'second', 'nested', 'third']);
+    expect(Object.keys(de.section.nested)).toEqual(['beta']);
+  });
+
+  it('uses the only language containing a missing key as the insertion-order donor', async () => {
+    const { root, configPath } = await createProject();
+    await writeJson(root, 'locales/en/target-only.json', {
+      section: {
+        first: 'First',
+        last: 'Last',
+      },
+    });
+    await writeJson(root, 'locales/de/target-only.json', {
+      section: {
+        first: 'Erste',
+        last: 'Letzte',
+      },
+    });
+    await writeJson(root, 'locales/fr/target-only.json', {
+      section: {
+        first: 'Première',
+        targetOnly: 'Seulement en français',
+        last: 'Dernière',
+      },
+    });
+    const session = await createProjectSession({ cwd: root, configPath });
+    const file = await session.getEditorFile('target-only.json');
+
+    await session.saveEditorFile({
+      relativePath: 'target-only.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      changes: [{ lang: 'de', pointer: '/section/targetOnly', value: 'Nur auf Deutsch' }],
+    });
+
+    const de = JSON.parse(await fs.readFile(path.join(root, 'locales/de/target-only.json'), 'utf8'));
+    expect(Object.keys(de.section)).toEqual(['first', 'targetOnly', 'last']);
+  });
+
   it('generates selected AI drafts from the current source draft and caches them only after save', async () => {
     const { root, configPath } = await createProject();
     const session = await createProjectSession({ cwd: root, configPath });

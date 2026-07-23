@@ -1,8 +1,11 @@
+/** @deprecated Config language values now use flexible project `LanguageCode` strings. */
 export { IETFBCP47 } from './types/IETFBCP47.js';
+/** @deprecated Use `LanguageCode` for config typing. */
 export type { IETFBCP47Type } from './types/IETFBCP47.js';
 
 export type {
   UserConfig,
+  LanguageCode,
   TranslateConfig,
   ResolvedTranslateConfig,
   LLMConfig,

@@ -5,8 +5,8 @@ import {
   FileText,
   FloppyDisk,
   Funnel,
+  Info,
   MagnifyingGlass,
-  SlidersHorizontal,
   Sparkle,
   Translate,
   WarningCircle,
@@ -60,7 +60,7 @@ import {
   type GridValueChange,
 } from './TranslationGrid';
 import { ToolsDrawer } from './ToolsDrawer';
-import { WorkspaceSearchDialog } from './WorkspaceSearchDialog';
+import { GlobalSearchDialog } from './GlobalSearchDialog';
 import {
   applyHistoryTransaction,
   createEditorPatches,
@@ -250,7 +250,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [showSkipped, setShowSkipped] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState<'tools' | null>(null);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
-  const [workspaceSearchOpen, setWorkspaceSearchOpen] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [batchMenuOpen, setBatchMenuOpen] = useState(false);
   const [drafts, setDrafts] = useState<DraftMap>(new Map());
@@ -531,17 +531,17 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, []);
 
   useEffect(() => {
-    const openWorkspaceSearch = (event: KeyboardEvent) => {
+    const openGlobalSearch = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey) || !event.shiftKey || event.key.toLocaleLowerCase() !== 'f') return;
       event.preventDefault();
-      setWorkspaceSearchOpen(true);
+      setGlobalSearchOpen(true);
       setFilePickerOpen(false);
       setFilterPanelOpen(false);
       setBatchMenuOpen(false);
       setContextMenu(null);
     };
-    window.addEventListener('keydown', openWorkspaceSearch);
-    return () => window.removeEventListener('keydown', openWorkspaceSearch);
+    window.addEventListener('keydown', openGlobalSearch);
+    return () => window.removeEventListener('keydown', openGlobalSearch);
   }, []);
 
   const filteredFiles = useMemo(() => {
@@ -830,7 +830,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     });
   }, [file, manifest]);
 
-  const openMasterTranslatePreview = useCallback((targetLang: string) => {
+  const openMasterTranslatePreview = useCallback((targetLang: string, pointers?: string[]) => {
     if (!file || !manifest) return;
     if (masterLanguages.length < 2) {
       setStatus(t('editor.masterOnlyMulti'));
@@ -847,12 +847,27 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     setMasterTranslatePreview({
       targetLang,
       sourceLang,
-      pointers: file.rows.map(row => row.pointer),
+      pointers: pointers && pointers.length > 0 ? [...new Set(pointers)] : file.rows.map(row => row.pointer),
       overwriteDrafts: false,
       overwriteExisting: false,
       forceRetranslate: false,
     });
   }, [file, manifest, masterLanguages]);
+
+  const openSelectedTranslatePreview = useCallback((title: string, cells: GridSelectionCell[]) => {
+    if (!manifest) return;
+    const selectedMasterLangs = new Set(
+      cells
+        .filter(cell => masterLanguages.includes(cell.lang))
+        .map(cell => cell.lang),
+    );
+    if (selectedMasterLangs.size === 1 && selectedMasterLangs.has(cells[0]?.lang) && cells.every(cell => selectedMasterLangs.has(cell.lang))) {
+      const [targetLang] = selectedMasterLangs;
+      openMasterTranslatePreview(targetLang, cells.map(cell => cell.pointer));
+      return;
+    }
+    openTranslatePreview(title, cells);
+  }, [manifest, masterLanguages, openMasterTranslatePreview, openTranslatePreview]);
 
   const cellsForRowTargets = useCallback((pointer: string): GridSelectionCell[] => {
     if (!manifest) return [];
@@ -1289,8 +1304,8 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     requestGuardedNavigation({ kind: 'file', relativePath });
   };
 
-  const openWorkspaceSearchResult = (result: PanelEditorSearchResult) => {
-    setWorkspaceSearchOpen(false);
+  const openGlobalSearchResult = (result: PanelEditorSearchResult) => {
+    setGlobalSearchOpen(false);
     requestGuardedNavigation({
       kind: 'file',
       relativePath: result.relativePath,
@@ -1525,7 +1540,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           className="editor-command-button editor-translate-button"
           type="button"
           disabled={selectedCells.length === 0 || jobRunning}
-          onClick={() => openTranslatePreview(t('editor.translateSelectedCells'), selectedCells)}
+          onClick={() => openSelectedTranslatePreview(t('editor.translateSelectedCells'), selectedCells)}
         >
           <Translate size={20} aria-hidden="true" />
           <span>{t('editor.translateSelected')}</span>
@@ -1579,12 +1594,12 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
           </div>
         )}
         <button
-          className={workspaceSearchOpen ? 'editor-command-button is-active' : 'editor-command-button'}
+          className={globalSearchOpen ? 'editor-command-button is-active' : 'editor-command-button'}
           type="button"
           aria-label={t('editor.searchAllCopy')}
-          aria-expanded={workspaceSearchOpen}
+          aria-expanded={globalSearchOpen}
           onClick={() => {
-            setWorkspaceSearchOpen(true);
+            setGlobalSearchOpen(true);
             setFilePickerOpen(false);
             setFilterPanelOpen(false);
             setBatchMenuOpen(false);
@@ -1635,7 +1650,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             setActiveDrawer(current => (current === 'tools' ? null : 'tools'));
           }}
         >
-          <SlidersHorizontal size={20} aria-hidden="true" />
+          <Info size={20} weight="bold" aria-hidden="true" />
         </button>
         {saveButton}
       </div>
@@ -1692,7 +1707,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
               </div>
               <ContextMenuContent className="editor-context-menu" onCloseAutoFocus={event => event.preventDefault()}>
                 {contextMenu?.kind === 'cell' && (
-                  <ContextMenuItem onSelect={() => openTranslatePreview(t('editor.translateSelectedCells'), contextMenu.selectedCells)}>
+                  <ContextMenuItem onSelect={() => openSelectedTranslatePreview(t('editor.translateSelectedCells'), contextMenu.selectedCells)}>
                     <span>{t('editor.translateSelectedCells')}</span>
                     <b>{contextMenu.selectedCells.length}</b>
                   </ContextMenuItem>
@@ -1759,13 +1774,13 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         onClose={() => setActiveDrawer(null)}
       />
 
-      <WorkspaceSearchDialog
-        open={workspaceSearchOpen}
+      <GlobalSearchDialog
+        open={globalSearchOpen}
         manifest={manifest}
         currentFile={file}
         drafts={drafts}
         onOpenChange={open => {
-          setWorkspaceSearchOpen(open);
+          setGlobalSearchOpen(open);
           if (open) {
             setFilePickerOpen(false);
             setFilterPanelOpen(false);
@@ -1773,7 +1788,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             setContextMenu(null);
           }
         }}
-        onOpenResult={openWorkspaceSearchResult}
+        onOpenResult={openGlobalSearchResult}
       />
 
       <Dialog open={Boolean(translatePreview && currentPreview)} onOpenChange={open => { if (!open) setTranslatePreview(null); }}>

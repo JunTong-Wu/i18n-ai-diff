@@ -78,6 +78,7 @@ Do not document dev-only behavior as public CLI unless the user explicitly wants
 - New multi-master config examples use `routes: [{ sourceLang, targetLangs }]`.
 - Legacy `routes[].baseLang` remains compatibility-only; do not present it as new public config.
 - Do not expose or serialize `watch.enabled`. Watch mode is a command flag; config `watch` only tunes behavior once watch mode is requested.
+- Language values are project language identifiers rather than a strict IETF BCP 47 whitelist. CLI/config docs should permit safe names such as `zh_CN` while still rejecting path separators, `:`, NUL bytes, empty strings, and unsafe punctuation.
 
 ## Cache, snapshot, and write semantics
 

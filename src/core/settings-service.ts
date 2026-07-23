@@ -11,6 +11,7 @@ import {
   SettingsRouteDraft,
 } from '../types/index.js';
 import { loadConfigWithMetadata } from './config-loader.js';
+import { normalizeLanguageCode, validateLanguageCode } from '../utils/language-code.js';
 
 const SUPPORTED_WRITE_EXTENSIONS = new Set(['.mjs', '.ts']);
 const MANAGED_SETTINGS_FIELDS = new Set([
@@ -268,12 +269,23 @@ function normalizeRoutes(routes: SettingsRouteDraft[] | undefined): SettingsRout
 
   for (const [index, route] of routes.entries()) {
     const label = `routes[${index}]`;
-    const sourceLang = cleanString(route?.sourceLang || '', `${label}.sourceLang`);
-    if (seenSources.has(sourceLang)) {
+    const sourceLang = normalizeLanguageCode(route?.sourceLang) as string;
+    const sourceError = validateLanguageCode(sourceLang, `${label}.sourceLang`);
+    if (sourceError) {
+      errors.push(sourceError);
+    } else if (seenSources.has(sourceLang)) {
       errors.push(`master language ${sourceLang} must be configured in a single route`);
+    } else {
+      seenSources.add(sourceLang);
     }
-    seenSources.add(sourceLang);
-    const targetLangs = uniqueStrings((route?.targetLangs || []).map(value => cleanString(value, `${label}.targetLangs`)));
+    const targetLangs = uniqueStrings((Array.isArray(route?.targetLangs) ? route.targetLangs : [])
+      .map((value, targetIndex) => {
+        const targetLang = normalizeLanguageCode(value) as string;
+        const targetError = validateLanguageCode(targetLang, `${label}.targetLangs[${targetIndex}]`);
+        if (targetError) errors.push(targetError);
+        return targetError ? '' : targetLang;
+      })
+      .filter(Boolean));
     normalized.push({ sourceLang, targetLangs });
   }
 

@@ -14,6 +14,7 @@ import {
   UserTranslationRoute,
 } from '../types/index.js';
 import { info } from '../utils/logger.js';
+import { normalizeLanguageCode, validateLanguageCode } from '../utils/language-code.js';
 import path from 'path';
 import fs from 'fs';
 import { tsImport } from 'tsx/esm/api';
@@ -207,22 +208,26 @@ function normalizeRoutes(userConfig: Partial<TranslateConfig>): TranslationRoute
     return userConfig.routes.map(normalizeRoute);
   }
 
-  const baseLang = userConfig.baseLang || defaultConfig.baseLang;
-  const targetLangs = userConfig.targetLangs || defaultConfig.targetLangs || [];
+  const baseLang = normalizeLanguageCode(userConfig.baseLang || defaultConfig.baseLang) as TranslationRoute['sourceLang'];
+  const targetLangs = (userConfig.targetLangs || defaultConfig.targetLangs || [])
+    .map(lang => normalizeLanguageCode(lang) as TranslationRoute['targetLangs'][number]);
 
   if (!baseLang) return [];
-  return [{ sourceLang: baseLang, targetLangs: [...targetLangs] }];
+  return [{ sourceLang: baseLang, targetLangs }];
 }
 
 function normalizeRoute(route: UserTranslationRoute): TranslationRoute {
   const rawRoute = route as UserTranslationRoute & { sourceLang?: string; baseLang?: string };
-  if (rawRoute.sourceLang && rawRoute.baseLang && rawRoute.sourceLang !== rawRoute.baseLang) {
+  const rawSourceLang = normalizeLanguageCode(rawRoute.sourceLang);
+  const rawBaseLang = normalizeLanguageCode(rawRoute.baseLang);
+  if (rawSourceLang && rawBaseLang && rawSourceLang !== rawBaseLang) {
     throw new Error('routes entries cannot define both sourceLang and baseLang with different values');
   }
-  const sourceLang = rawRoute.sourceLang || rawRoute.baseLang;
+  const sourceLang = rawSourceLang || rawBaseLang;
+  const targetLangs = Array.isArray(route.targetLangs) ? route.targetLangs : [];
   return {
-    sourceLang: sourceLang!,
-    targetLangs: [...route.targetLangs],
+    sourceLang: sourceLang as TranslationRoute['sourceLang'],
+    targetLangs: targetLangs.map(lang => normalizeLanguageCode(lang) as TranslationRoute['targetLangs'][number]),
   };
 }
 
@@ -247,31 +252,39 @@ function validateConfig(config: ResolvedTranslateConfig): void {
   }
 
   const targetOwners = new Map<string, string>();
-  const sourceLangs = new Set(config.routes.map(route => route.sourceLang));
+  const sourceLangs = new Set(config.routes
+    .map(route => route.sourceLang)
+    .filter(lang => validateLanguageCode(lang) === null));
   const seenSources = new Set<string>();
   for (const [index, route] of config.routes.entries()) {
     const label = `routes[${index}]`;
-    if (!route.sourceLang) {
-      errors.push(`${label}.sourceLang is required`);
+    const sourceLangError = validateLanguageCode(route.sourceLang, `${label}.sourceLang`);
+    if (sourceLangError) {
+      errors.push(sourceLangError);
     } else if (seenSources.has(route.sourceLang)) {
       errors.push(`master language ${route.sourceLang} must be configured in a single route`);
     } else {
       seenSources.add(route.sourceLang);
     }
-    if (!route.targetLangs || route.targetLangs.length === 0) {
+    if (!Array.isArray(route.targetLangs) || route.targetLangs.length === 0) {
       errors.push(`${label}.targetLangs must have at least one language`);
       continue;
     }
-    if (route.targetLangs.includes(route.sourceLang)) {
+    const validTargetLangs = route.targetLangs.filter((targetLang, targetIndex) => {
+      const error = validateLanguageCode(targetLang, `${label}.targetLangs[${targetIndex}]`);
+      if (error) errors.push(error);
+      return error === null;
+    });
+    if (sourceLangError === null && validTargetLangs.includes(route.sourceLang)) {
       errors.push(`${label}.targetLangs must not contain its sourceLang (${route.sourceLang})`);
     }
 
-    const duplicatesInRoute = route.targetLangs.filter((lang, i) => route.targetLangs.indexOf(lang) !== i);
+    const duplicatesInRoute = validTargetLangs.filter((lang, i) => validTargetLangs.indexOf(lang) !== i);
     for (const lang of new Set(duplicatesInRoute)) {
       errors.push(`${label}.targetLangs contains duplicate language: ${lang}`);
     }
 
-    for (const targetLang of route.targetLangs) {
+    for (const targetLang of validTargetLangs) {
       const owner = targetOwners.get(targetLang);
       if (owner) {
         errors.push(`target language ${targetLang} is assigned to multiple masters: ${owner}, ${route.sourceLang}`);

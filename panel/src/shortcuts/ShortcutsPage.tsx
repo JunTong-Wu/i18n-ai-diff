@@ -132,6 +132,11 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
     : selectedTargets.length === targetLangs.length
       ? t('shortcuts.allTargets')
       : t('shortcuts.selectedTargets', { count: selectedTargets.length });
+  const modeWarning = mode === 'force'
+    ? t('shortcuts.forceWarning')
+    : mode === 'master-to-master'
+      ? t('shortcuts.masterWarning')
+      : t('shortcuts.pendingWarning');
 
   const openConfirmation = useCallback(() => {
     if (!request) return;
@@ -142,13 +147,9 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       description: mode === 'master-to-master'
         ? t('shortcuts.masterDescription', { source: masterSource, target: masterTarget })
         : t('shortcuts.scopeDescription', { scope: selectedScope }),
-      warning: mode === 'force'
-        ? t('shortcuts.forceWarning')
-        : mode === 'master-to-master'
-          ? t('shortcuts.masterWarning')
-          : t('shortcuts.pendingWarning'),
+      warning: modeWarning,
     });
-  }, [command, masterSource, masterTarget, mode, request, selectedScope, t]);
+  }, [command, masterSource, masterTarget, mode, modeWarning, request, selectedScope, t]);
 
   const runConfirmedShortcut = useCallback(async () => {
     if (!confirmation || !writeToken) return;
@@ -255,9 +256,17 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
       skipLabel={t('shortcuts.title')}
       shellClassName="is-shortcuts-shell"
       workspaceClassName="shortcuts-workspace"
-      liveStatus={activeJob ? t('shortcuts.liveStatus', { status: activeJob.status }) : undefined}
+      liveStatus={activeJob ? t('shortcuts.liveStatus', { status: shortcutJobStatusLabel(activeJob.status, t) }) : undefined}
     >
       <div className="workspace-content shortcuts-bento">
+        <aside className="shortcuts-mode-alert" role="note" aria-label={t('shortcuts.directWrite')}>
+          <WarningCircle size={18} weight="fill" aria-hidden="true" />
+          <div>
+            <strong>{t('shortcuts.directWrite')}</strong>
+            <span>{modeWarning}</span>
+          </div>
+        </aside>
+
         <section className="shortcuts-setup-card bento-card" aria-labelledby="shortcut-setup-title">
           <div className="shortcuts-card-heading">
             <span className="shortcuts-card-icon is-violet" aria-hidden="true">
@@ -319,46 +328,32 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               <dd>{shortcutModeLabel(mode, t)}</dd>
             </div>
           </dl>
-        </section>
 
-        <section className="shortcuts-run-card bento-card" aria-labelledby="shortcut-run-title">
-          <div className="shortcuts-card-heading is-compact">
-            <span className={activeJob?.status === 'failed' ? 'shortcuts-card-icon is-coral' : 'shortcuts-card-icon is-teal'} aria-hidden="true">
+          <div className={activeJob?.status === 'failed' ? 'shortcut-embedded-result is-failed' : 'shortcut-embedded-result'}>
+            <div className="shortcut-result-title">
               {activeJob?.status === 'failed'
-                ? <WarningCircle size={23} weight="fill" />
-                : <CheckCircle size={23} weight="fill" />}
-            </span>
+                ? <WarningCircle size={18} weight="fill" aria-hidden="true" />
+                : activeJob?.status === 'completed'
+                  ? <CheckCircle size={18} weight="fill" aria-hidden="true" />
+                  : isRunning
+                    ? <ArrowsClockwise size={18} className="is-spinning" aria-hidden="true" />
+                    : <CheckCircle size={18} weight="fill" aria-hidden="true" />}
+              <span>{activeJob ? shortcutJobStatusLabel(activeJob.status, t) : t('common.ready')}</span>
+            </div>
             <div>
-              <h2 id="shortcut-run-title">{activeJob ? sentenceCase(activeJob.status) : t('common.ready')}</h2>
+              {activeJob?.stats ? (
+                <dl className="shortcuts-stats-grid" aria-label={t('shortcuts.lastStats')}>
+                  <div><dt>{t('shortcuts.files')}</dt><dd>{formatNumber(activeJob.stats.totalFiles)}</dd></div>
+                  <div><dt>{t('common.success')}</dt><dd>{formatNumber(activeJob.stats.successFiles)}</dd></div>
+                  <div><dt>{t('common.added')}</dt><dd>{formatNumber(activeJob.stats.totalAdded)}</dd></div>
+                  <div><dt>{t('common.changed')}</dt><dd>{formatNumber(activeJob.stats.totalUpdated)}</dd></div>
+                </dl>
+              ) : (
+                <p className="shortcuts-muted-copy">{isRunning ? t('shortcuts.queueNote') : t('shortcuts.noRun')}</p>
+              )}
+              {activeJob?.error && <p className="shortcuts-error-copy">{normalizePanelErrorMessage(activeJob.error, t)}</p>}
             </div>
           </div>
-          {activeJob?.stats ? (
-            <dl className="shortcuts-stats-grid" aria-label={t('shortcuts.lastStats')}>
-              <div><dt>{t('shortcuts.files')}</dt><dd>{formatNumber(activeJob.stats.totalFiles)}</dd></div>
-              <div><dt>{t('common.success')}</dt><dd>{formatNumber(activeJob.stats.successFiles)}</dd></div>
-              <div><dt>{t('common.added')}</dt><dd>{formatNumber(activeJob.stats.totalAdded)}</dd></div>
-              <div><dt>{t('common.changed')}</dt><dd>{formatNumber(activeJob.stats.totalUpdated)}</dd></div>
-            </dl>
-          ) : (
-            <p className="shortcuts-muted-copy">{isRunning ? t('shortcuts.queueNote') : t('shortcuts.noRun')}</p>
-          )}
-          {activeJob?.error && <p className="shortcuts-error-copy">{normalizePanelErrorMessage(activeJob.error, t)}</p>}
-        </section>
-
-        <section className="shortcuts-safety-card bento-card" aria-labelledby="shortcut-safety-title">
-          <div className="shortcuts-card-heading is-compact">
-            <span className="shortcuts-card-icon is-amber" aria-hidden="true">
-              <WarningCircle size={23} weight="fill" />
-            </span>
-            <div>
-              <h2 id="shortcut-safety-title">{t('shortcuts.directWrite')}</h2>
-            </div>
-          </div>
-          <ul className="shortcuts-safety-list">
-            <li>{t('shortcuts.safetyCli')}</li>
-            <li>{t('shortcuts.safetyWrites')}</li>
-            <li>{t('shortcuts.safetyEditable')}</li>
-          </ul>
         </section>
       </div>
 
@@ -571,7 +566,7 @@ function formatJobStatus(
   if (!job) return t('shortcuts.readyStatus');
   if (job.status === 'completed') return summarizeStats(job.stats, formatNumber, t);
   if (job.status === 'failed') return job.error || t('shortcuts.runFailed');
-  return t('shortcuts.directWriteFlow', { status: sentenceCase(job.status) });
+  return t('shortcuts.directWriteFlow', { status: shortcutJobStatusLabel(job.status, t) });
 }
 
 function summarizeStats(
@@ -583,8 +578,14 @@ function summarizeStats(
   return `${formatNumber(stats.successFiles)}/${formatNumber(stats.totalFiles)} ${t('shortcuts.files')} · +${formatNumber(stats.totalAdded)} · ~${formatNumber(stats.totalUpdated)}`;
 }
 
-function sentenceCase(value: string): string {
-  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+function shortcutJobStatusLabel(
+  status: PanelTranslationRunJob['status'],
+  t: ReturnType<typeof usePanelI18n>['t'],
+): string {
+  if (status === 'queued') return t('shortcuts.status.queued');
+  if (status === 'running') return t('shortcuts.status.running');
+  if (status === 'completed') return t('shortcuts.status.completed');
+  return t('shortcuts.status.failed');
 }
 
 function shortcutModeTitle(mode: ShortcutMode, t: ReturnType<typeof usePanelI18n>['t']): string {
