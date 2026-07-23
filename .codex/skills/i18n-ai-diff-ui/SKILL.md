@@ -23,7 +23,7 @@ Read [references/style-guide.md](references/style-guide.md) completely before ch
 8. Keep panel UI copy under `panel/src/i18n/locales/{en,zh-CN}/panel.json` for English and Simplified Chinese, and keep locale utilities in `panel/src/i18n/utils.ts`. The panel language is a personal browser preference stored in localStorage from Settings → Panel style; it must not be written to project config.
 9. Reserve semantic colors for state. Use decorative colors only on small icons, target dots, route-wave accents, table cell states, and file/status badges.
 10. Use the existing icon library for UI icons. The shared route connector is the sole custom SVG exception: preserve `panel/src/assets/route-wave.svg` as the approved product signature instead of substituting a generic wave or arrow icon. Do not add other handcrafted SVG or CSS illustrations.
-11. Preserve loading, error, pending, success, disabled, focus, selected, editable, read-only, and reduced-motion states. Add hover treatment only to genuinely interactive controls; display-only cards and badges must not imply clickability.
+11. Preserve loading, error, pending, success, disabled, focus, selected, editable, and reduced-motion states. Add hover treatment only to genuinely interactive controls; display-only cards and badges must not imply clickability.
 12. Verify at 1440 × 1024 and at a narrow 390 px viewport. Check keyboard focus, text wrapping, overflow, drawer/modal behavior, the scan action, table-editor search/filter/translate controls, and save states.
 
 ## Non-negotiable rules
@@ -39,7 +39,7 @@ Read [references/style-guide.md](references/style-guide.md) completely before ch
 - Keep the main text nearly black and secondary text clearly legible; avoid gray-on-gray composition.
 - Keep the colorful wave, icons, and language dots small. They decorate or communicate state; they do not encode route identity.
 - Keep the route connector faithful to the approved SVG: one solid blue origin dot, a thin low-amplitude cobalt-to-violet curve, and a rounded violet arrow. Do not add a halo or substitute a large sine wave. Reuse one asset across every route.
-- Keep the panel local-first and read-only during scanning. Do not imply that a scan writes translations. Table editing must remain explicitly gated by `panel --edit` and an explicit save.
+- Keep the panel local-first. Do not imply that a scan writes translations. Table editing remains browser-draft based and writes only after an explicit save.
 - Keep modals and drawers visually unified through shared primitives. Do not create one-off modal headers, close buttons, overlay shells, checkbox styles, or drawer headers for each feature.
 - Do not remove project details or pending-change visibility when adapting the reference for real data.
 

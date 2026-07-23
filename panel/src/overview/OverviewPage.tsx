@@ -14,6 +14,7 @@ import {
   WarningCircle,
 } from '@phosphor-icons/react';
 import routeWaveUrl from '../assets/route-wave.svg';
+import { normalizePanelErrorMessage } from '../components/feedback/panelErrorMessages';
 import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
 import { usePanelI18n } from '../i18n';
 import { projectRelativePath } from '../path-display';
@@ -417,7 +418,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry(): v
       <WarningCircle size={30} weight="fill" aria-hidden="true" />
       <div>
         <h2>{t('overview.openFailedTitle')}</h2>
-        <p>{message}</p>
+        <p>{normalizePanelErrorMessage(message, t)}</p>
       </div>
       <button type="button" onClick={onRetry}>{t('common.tryAgain')}</button>
     </section>

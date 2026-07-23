@@ -5,6 +5,7 @@ import {
 } from '@phosphor-icons/react';
 import { useEffect, useMemo, useState } from 'react';
 import { searchEditorCopy } from '../api';
+import { normalizePanelErrorMessage } from '../components/feedback/panelErrorMessages';
 import { Checkbox } from '../components/ui/checkbox';
 import { Dialog } from '../components/ui/dialog';
 import { ModalContent, ModalHeader, ModalTitleBlock } from '../components/ui/modal';
@@ -32,7 +33,7 @@ type WorkspaceSearchDisplayResult = PanelEditorSearchResult & {
 };
 
 const SEARCH_LIMIT = 200;
-const STATE_FILTERS: PanelEditorSearchStateFilter[] = ['pending', 'missing', 'skipped', 'master', 'target'];
+const STATE_FILTERS: PanelEditorSearchStateFilter[] = ['pending', 'empty', 'missing', 'skipped', 'master', 'target'];
 
 export function WorkspaceSearchDialog({
   open,
@@ -205,7 +206,7 @@ export function WorkspaceSearchDialog({
 
         {error && (
           <div className="workspace-search-error" role="alert">
-            {error}
+            {normalizePanelErrorMessage(error, t)}
           </div>
         )}
 
@@ -247,6 +248,7 @@ export function WorkspaceSearchDialog({
                       <b>{result.lang}</b>
                       {result.isMaster && <em>{t('search.master')}</em>}
                       {result.cell.pending && <em className="is-pending">{t('search.pending')}</em>}
+                      {result.cell.kind === 'empty' && <em>{t('search.emptyString')}</em>}
                       {result.cell.kind === 'missing' && <em>{t('search.missing')}</em>}
                       {result.cell.skipped && <em>{t('search.skipped')}</em>}
                       {result.draft && <em>{t('search.draft')}</em>}
@@ -255,8 +257,8 @@ export function WorkspaceSearchDialog({
                       {result.value
                         ? <Highlight value={result.value} ranges={result.valueMatchRanges} />
                         : result.cell.kind === 'missing'
-                          ? t('common.missing')
-                          : t('common.emptyString')}
+                          ? t('search.missing')
+                          : ''}
                     </span>
                   </button>
                 ))}
@@ -411,6 +413,7 @@ function cellMatchesStates(
   if (states.size === 0) return true;
   return (
     (states.has('pending') && cell.pending)
+    || (states.has('empty') && cell.kind === 'empty')
     || (states.has('missing') && cell.kind === 'missing')
     || (states.has('skipped') && cell.skipped)
     || (states.has('master') && isMaster)
@@ -433,6 +436,7 @@ function searchStateLabel(
   t: ReturnType<typeof usePanelI18n>['t'],
 ): string {
   if (state === 'pending') return t('search.pending');
+  if (state === 'empty') return t('search.emptyString');
   if (state === 'missing') return t('search.missing');
   if (state === 'skipped') return t('search.skipped');
   if (state === 'master') return t('search.master');

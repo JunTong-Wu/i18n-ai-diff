@@ -29,15 +29,9 @@ import type {
   TranslationRunResult,
 } from '../types/index.js';
 
-export interface PanelCapabilities {
-  contentEditing: boolean;
-  aiTranslation: boolean;
-}
-
 export interface PanelProjectRuntimeFields {
   version: string;
   localOnly: true;
-  capabilities: PanelCapabilities;
 }
 
 export type PanelProject = ProjectScan & PanelProjectRuntimeFields;
@@ -46,7 +40,6 @@ export interface PanelHealth {
   status: 'ok';
   version: string;
   localOnly: true;
-  editable: boolean;
 }
 
 export type PanelTranslationFilePlan = ProjectScan['changes'][number];
@@ -89,7 +82,6 @@ export type PanelSettingsConfigSaveResult = SettingsConfigSaveResult;
 
 export interface PanelContractContext {
   packageVersion: string;
-  editable: boolean;
 }
 
 export function toPanelProject(
@@ -100,7 +92,6 @@ export function toPanelProject(
     ...scan,
     version: context.packageVersion,
     localOnly: true,
-    capabilities: { contentEditing: context.editable, aiTranslation: context.editable },
   };
 }
 
@@ -140,6 +131,5 @@ export function toPanelHealth(context: PanelContractContext): PanelHealth {
     status: 'ok',
     version: context.packageVersion,
     localOnly: true,
-    editable: context.editable,
   };
 }

@@ -46,7 +46,7 @@ export function PanelLayout({
 }: PanelLayoutProps) {
   const { t } = usePanelI18n();
   const projectName = project ? projectDirectoryName(project.projectRoot) : t('app.loadingProject');
-  const sessionMode = project?.capabilities.contentEditing ? t('session.localEditing') : t('session.localSession');
+  const sessionMode = t('session.localEditing');
   const sessionTooltip = project
     ? t('session.tooltip', { mode: sessionMode, project: projectName, root: project.projectRoot })
     : sessionMode;

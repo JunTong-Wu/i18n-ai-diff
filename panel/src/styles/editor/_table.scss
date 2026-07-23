@@ -54,8 +54,11 @@
 .legend-dot.is-pending {
   background: var(--decor-amber);
 }
+.legend-dot.is-empty {
+  background: var(--decor-teal);
+}
 .legend-dot.is-missing {
-  background: #a7b0bd;
+  background: #94a3b8;
 }
 .legend-dot.is-skipped {
   background: var(--decor-violet);

@@ -17,7 +17,7 @@ afterEach(async () => {
 });
 
 describe('ProjectSession', () => {
-  it('builds a read-only multi-master translation plan without exposing secrets', async () => {
+  it('builds a non-mutating multi-master translation plan without exposing secrets', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-session-'));
     tempDirs.push(root);
     await Promise.all([

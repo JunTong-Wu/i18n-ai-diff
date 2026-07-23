@@ -1,11 +1,18 @@
 import { X } from '@phosphor-icons/react';
 import type { PanelEditorManifest, PanelEditorTranslateJob } from '../types';
+import { normalizePanelErrorMessage } from '../components/feedback/panelErrorMessages';
 import { Sheet, SheetContent, SheetTitle } from '../components/ui/sheet';
 import { usePanelI18n } from '../i18n';
 
+interface FailedTranslationItem {
+  lang: string;
+  pointer: string;
+  error: string;
+}
+
 interface ToolsDrawerProps {
   draftCount: number;
-  editable: boolean;
+  failedTranslations: FailedTranslationItem[];
   isOpen: boolean;
   job: PanelEditorTranslateJob | null;
   languageCount: number;
@@ -18,7 +25,7 @@ interface ToolsDrawerProps {
 
 export function ToolsDrawer({
   draftCount,
-  editable,
+  failedTranslations,
   isOpen,
   job,
   languageCount,
@@ -29,6 +36,9 @@ export function ToolsDrawer({
   onClose,
 }: ToolsDrawerProps) {
   const { t } = usePanelI18n();
+  const visibleFailures = failedTranslations.slice(0, 5);
+  const hiddenFailureCount = Math.max(0, failedTranslations.length - visibleFailures.length);
+
   return (
     <Sheet open={isOpen} onOpenChange={open => { if (!open) onClose(); }}>
       <SheetContent className="editor-controls-drawer" side="right">
@@ -82,15 +92,35 @@ export function ToolsDrawer({
               <dt>{t('details.cacheHits')}</dt>
               <dd>{job.results.filter(result => result.fromCache).length}</dd>
             </div>
+            {job.error && (
+              <div className="editor-file-stats-full">
+                <dt>{t('details.lastError')}</dt>
+                <dd>{normalizePanelErrorMessage(job.error, t)}</dd>
+              </div>
+            )}
           </dl>
         ) : (
           <p>{t('details.noJob')}</p>
+        )}
+        {failedTranslations.length > 0 && (
+          <div className="editor-failed-cells" role="list" aria-label={t('details.failedCells')}>
+            <strong>{t('details.failedCells')}</strong>
+            {visibleFailures.map(item => (
+              <div key={`${item.lang}\0${item.pointer}`} className="editor-failed-cell" role="listitem">
+                <span>{item.lang} {item.pointer}</span>
+                <p>{normalizePanelErrorMessage(item.error, t)}</p>
+              </div>
+            ))}
+            {hiddenFailureCount > 0 && (
+              <span className="editor-failed-more">{t('details.failedCellsMore', { count: hiddenFailureCount })}</span>
+            )}
+          </div>
         )}
       </section>
 
       <section className="editor-state-card">
         <strong>{t('details.editingBoundary')}</strong>
-        <p>{editable ? t('details.editableBoundary') : t('details.readonlyBoundary')}</p>
+        <p>{t('details.writeBoundary')}</p>
       </section>
       </SheetContent>
     </Sheet>

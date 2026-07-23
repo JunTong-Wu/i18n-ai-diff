@@ -47,7 +47,7 @@ export class TranslationSettingsService {
     private readonly projectRoot: string,
   ) {}
 
-  async getConfig(editable: boolean, writeToken?: string): Promise<SettingsConfigFile> {
+  async getConfig(writeToken: string): Promise<SettingsConfigFile> {
     const { revision } = await this.readConfigFile();
     const loadWarnings: string[] = [];
     let resolvedConfig = this.startupConfig;
@@ -61,8 +61,7 @@ export class TranslationSettingsService {
     const standardConfigPreview = renderManagedConfigPreview(draft);
     const writeSupport = inspectWriteSupport(this.configPath);
     return {
-      editable,
-      ...(editable && writeToken ? { writeToken } : {}),
+      writeToken,
       projectRoot: this.projectRoot,
       configPath: this.configPath,
       revision,

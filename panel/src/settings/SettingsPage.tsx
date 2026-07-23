@@ -88,15 +88,14 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
   const dirty = useMemo(() => (
     draft ? serializeDraft(draft) !== initialDraftKey : false
   ), [draft, initialDraftKey]);
-  const editable = settings?.editable === true && Boolean(settings.writeToken);
-  const canSave = Boolean(settings && draft && editable && settings.canWrite && dirty && !saving);
+  const canSave = Boolean(settings?.writeToken && draft && settings.canWrite && dirty && !saving);
   const configPath = settings?.configPath || project?.configPath || '';
   const displayConfigPath = settings && configPath
     ? projectRelativePath(configPath, settings.projectRoot)
     : configPath || t('settings.readingConfig');
   const restartRequired = settings?.restartRequired === true;
   const bottomStatusLabel = settings?.saveUnsupportedReason
-    ? t('settings.readonlyConfig')
+    ? t('settings.saveUnsupported')
     : restartRequired
       ? t('settings.restartWaiting')
       : t('settings.loadedSession');
@@ -154,7 +153,7 @@ function SettingsPage({ project, onNavigate }: SettingsPageProps) {
         )}
         {settings?.saveUnsupportedReason && (
           <span className="settings-operation-pill is-warning" title={settings.saveUnsupportedReason}>
-            {t('settings.readonlyPill')}
+            {t('settings.saveUnsupportedPill')}
           </span>
         )}
       </div>

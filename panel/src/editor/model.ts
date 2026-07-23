@@ -46,7 +46,7 @@ export function draftForValue(
   cell: PanelEditorCell,
   value: string,
 ): string | undefined {
-  return cell.kind === 'string' && cell.value === value ? undefined : value;
+  return (cell.kind === 'string' || cell.kind === 'empty') && (cell.value || '') === value ? undefined : value;
 }
 
 export function effectiveCellValue(
@@ -56,7 +56,7 @@ export function effectiveCellValue(
 ): string {
   const draft = drafts.get(draftIdentity(lang, row.pointer));
   if (draft !== undefined) return draft;
-  return row.cells[lang]?.kind === 'string' ? row.cells[lang].value || '' : '';
+  return row.cells[lang]?.kind === 'string' || row.cells[lang]?.kind === 'empty' ? row.cells[lang].value || '' : '';
 }
 
 export function createEditorPatches(drafts: DraftMap): PanelEditorPatch[] {
@@ -112,7 +112,7 @@ export function rebaseDrafts(
     const latestCell = latestRow.cells[lang];
     const oldValue = cellString(previousCell);
     const diskValue = cellString(latestCell);
-    if (latestCell?.kind === 'string' && diskValue === draftValue) continue;
+    if ((latestCell?.kind === 'string' || latestCell?.kind === 'empty') && diskValue === draftValue) continue;
     if (sameCell(previousCell, latestCell)) {
       rebased.set(identity, draftValue);
       continue;
@@ -151,5 +151,5 @@ function sameCell(left: PanelEditorCell | undefined, right: PanelEditorCell | un
 }
 
 function cellString(cell: PanelEditorCell | undefined): string | undefined {
-  return cell?.kind === 'string' ? cell.value || '' : undefined;
+  return cell?.kind === 'string' || cell?.kind === 'empty' ? cell.value || '' : undefined;
 }

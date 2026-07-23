@@ -29,7 +29,7 @@ Before changing backend or API behavior, read [references/backend-constraints.md
 - Translation tasks, file results, cache entries, snapshots, failures, and panel API DTOs use `sourceLang` internally.
 - Changing config, model, prompt, or route ownership must not rewrite existing target-language files by itself.
 - Manual editor saves never invoke the LLM. Plain human edits do not mutate translation cache entries; accepted, unmodified AI translation drafts may write cache entries during save only when the saved source and target still match the accepted provenance.
-- Read-only panel mode must expose data but reject writes. Editable mode still requires loopback binding, Host/Origin checks, JSON content type, body-size limit, a write token, safe relative JSON paths, configured languages, and revision checks.
+- The panel is editable by default. Write-capable requests still require loopback binding, Host/Origin checks, JSON content type where applicable, body-size limits, a write token, safe relative JSON paths, configured languages, and revision checks.
 - JSON editor rows use JSON Pointer identities. Do not use dotted flatten/unflatten identifiers for writes because real keys may contain `.`, `/`, or `~`.
 - Preserve non-string JSON nodes, formatting, newline style, and existing file mode where the editor touches files.
 - Editor event streams and browser broadcasts are advisory synchronization aids. Revision checks remain the authority before writes.

@@ -31,7 +31,6 @@ const api = start('api', bin('tsx'), [
   path.join(projectRoot, 'src/bin/cli.ts'),
   'panel',
   '--no-open',
-  '--edit',
   '--port',
   panelApiPort,
 ], panelProjectRoot);

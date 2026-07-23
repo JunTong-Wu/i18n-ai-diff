@@ -18,6 +18,7 @@ import {
   loadTranslationRun,
   PanelApiError,
 } from '../api';
+import { normalizePanelErrorMessage } from '../components/feedback/panelErrorMessages';
 import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
 import { Dialog } from '../components/ui/dialog';
 import {
@@ -125,8 +126,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
   );
   const command = useMemo(() => request ? buildCommand(request) : 'i18n-ai-diff', [request]);
   const isRunning = activeJob?.status === 'queued' || activeJob?.status === 'running';
-  const editable = project?.capabilities.contentEditing === true && Boolean(writeToken);
-  const canRun = Boolean(project && request && editable && !isRunning && !manifestLoading);
+  const canRun = Boolean(project && request && writeToken && !isRunning && !manifestLoading);
   const selectedScope = mode === 'master-to-master'
     ? `${masterSource || '—'} → ${masterTarget || '—'}`
     : selectedTargets.length === targetLangs.length
@@ -342,7 +342,7 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
           ) : (
             <p className="shortcuts-muted-copy">{isRunning ? t('shortcuts.queueNote') : t('shortcuts.noRun')}</p>
           )}
-          {activeJob?.error && <p className="shortcuts-error-copy">{activeJob.error}</p>}
+          {activeJob?.error && <p className="shortcuts-error-copy">{normalizePanelErrorMessage(activeJob.error, t)}</p>}
         </section>
 
         <section className="shortcuts-safety-card bento-card" aria-labelledby="shortcut-safety-title">
@@ -351,13 +351,13 @@ function ShortcutsPage({ project, onNavigate, onProjectChange }: ShortcutsPagePr
               <WarningCircle size={23} weight="fill" />
             </span>
             <div>
-              <h2 id="shortcut-safety-title">{editable ? t('shortcuts.directWrite') : t('shortcuts.readonly')}</h2>
+              <h2 id="shortcut-safety-title">{t('shortcuts.directWrite')}</h2>
             </div>
           </div>
           <ul className="shortcuts-safety-list">
             <li>{t('shortcuts.safetyCli')}</li>
             <li>{t('shortcuts.safetyWrites')}</li>
-            <li>{editable ? t('shortcuts.safetyEditable') : t('shortcuts.safetyReadonly')}</li>
+            <li>{t('shortcuts.safetyEditable')}</li>
           </ul>
         </section>
       </div>

@@ -14,7 +14,7 @@ afterEach(async () => {
 });
 
 describe('panel server', () => {
-  it('serves the packaged client and read-only project APIs on loopback', async () => {
+  it('serves the packaged client and editable project APIs on loopback', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-'));
     tempDirs.push(clientRoot);
     await fs.writeFile(
@@ -62,14 +62,13 @@ describe('panel server', () => {
 
     const health = await fetch(`${server.url}/api/health`).then(response => response.json());
     expect(health).toEqual({
-      data: { status: 'ok', version: '1.2.0-test', localOnly: true, editable: false },
+      data: { status: 'ok', version: '1.2.0-test', localOnly: true },
     });
 
     const expectedProject = {
       ...scan,
       version: '1.2.0-test',
       localOnly: true,
-      capabilities: { contentEditing: false, aiTranslation: false },
     };
 
     const project = await fetch(`${server.url}/api/project`).then(response => response.json());
@@ -89,22 +88,9 @@ describe('panel server', () => {
     });
     expect(forbidden.status).toBe(403);
 
-    const readonlyWrite = await fetch(`${server.url}/api/editor/file`, {
-      method: 'PUT',
-      headers: { origin: server.url, 'content-type': 'application/json' },
-      body: '{}',
-    });
-    expect(readonlyWrite.status).toBe(403);
-
-    const readonlySettingsWrite = await fetch(`${server.url}/api/settings/config`, {
-      method: 'PUT',
-      headers: { origin: server.url, 'content-type': 'application/json' },
-      body: '{}',
-    });
-    expect(readonlySettingsWrite.status).toBe(403);
   });
 
-  it('requires edit mode, same-origin JSON, and the session write token', async () => {
+  it('requires same-origin JSON and the session write token for writes', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-edit-'));
     tempDirs.push(clientRoot);
     await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
@@ -119,8 +105,7 @@ describe('panel server', () => {
     };
     const server = await startPanelServer({
       scan: async () => scan,
-      getEditorManifest: async (editable, writeToken) => ({
-        editable,
+      getEditorManifest: async writeToken => ({
         writeToken,
         routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
         languages: ['en', 'de'],
@@ -131,8 +116,7 @@ describe('panel server', () => {
         saves += 1;
         return { savedLanguages: ['de'], snapshotUpdated: true, file, project: scan };
       },
-      getSettingsConfig: async (editable, writeToken) => ({
-        editable,
+      getSettingsConfig: async writeToken => ({
         writeToken,
         projectRoot: '/tmp/project',
         configPath: '/tmp/project/i18n-translate.config.mjs',
@@ -178,14 +162,12 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      editable: true,
       packageVersion: '1.2.0-test',
       clientRoot,
     });
     servers.push(server);
 
     const manifest = await fetch(`${server.url}/api/editor/manifest`).then(response => response.json());
-    expect(manifest.data.editable).toBe(true);
     expect(manifest.data.writeToken).toEqual(expect.any(String));
 
     const request = {
@@ -244,14 +226,12 @@ describe('panel server', () => {
           ...scan,
           version: '1.2.0-test',
           localOnly: true,
-          capabilities: { contentEditing: true, aiTranslation: true },
         },
       },
     });
     expect(saves).toBe(1);
 
     const settings = await fetch(`${server.url}/api/settings/config`).then(response => response.json());
-    expect(settings.data.editable).toBe(true);
     expect(settings.data.writeToken).toBe(manifest.data.writeToken);
     expect(settings.data.config.routes).toEqual([{ sourceLang: 'en', targetLangs: ['de'] }]);
 
@@ -282,7 +262,7 @@ describe('panel server', () => {
     expect(settingsSaves).toEqual([{ revision: 'settings-a', config: settings.data.config }]);
   });
 
-  it('serves read-only editor workspace search without a write token', async () => {
+  it('serves editor workspace search without a write token', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-search-'));
     tempDirs.push(clientRoot);
     await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
@@ -339,15 +319,14 @@ describe('panel server', () => {
     });
   });
 
-  it('runs editable editor translation jobs behind the write token', async () => {
+  it('runs editor translation jobs behind the write token', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-translate-'));
     tempDirs.push(clientRoot);
     await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
     const scan = createScan();
     const server = await startPanelServer({
       scan: async () => scan,
-      getEditorManifest: async (editable, writeToken) => ({
-        editable,
+      getEditorManifest: async writeToken => ({
         writeToken,
         routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
         languages: ['en', 'de'],
@@ -396,7 +375,6 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      editable: true,
       packageVersion: '1.2.0-test',
       clientRoot,
     });
@@ -486,8 +464,7 @@ describe('panel server', () => {
     let signalAborted = false;
     const server = await startPanelServer({
       scan: async () => scan,
-      getEditorManifest: async (editable, writeToken) => ({
-        editable,
+      getEditorManifest: async writeToken => ({
         writeToken,
         routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
         languages: ['en', 'de'],
@@ -505,7 +482,6 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      editable: true,
       packageVersion: '1.2.0-test',
       clientRoot,
     });
@@ -550,7 +526,7 @@ describe('panel server', () => {
     expect(reloaded.data.status).toBe('cancelled');
   });
 
-  it('runs editable CLI shortcut translation jobs behind the write token', async () => {
+  it('runs CLI shortcut translation jobs behind the write token', async () => {
     const clientRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'i18n-ai-diff-panel-shortcuts-'));
     tempDirs.push(clientRoot);
     await fs.writeFile(path.join(clientRoot, 'index.html'), '<div id="root"></div>', 'utf8');
@@ -558,8 +534,7 @@ describe('panel server', () => {
     const runCalls: unknown[] = [];
     const server = await startPanelServer({
       scan: async () => scan,
-      getEditorManifest: async (editable, writeToken) => ({
-        editable,
+      getEditorManifest: async writeToken => ({
         writeToken,
         routes: [{ sourceLang: 'en', languages: ['en', 'de'] }],
         languages: ['en', 'de'],
@@ -585,7 +560,6 @@ describe('panel server', () => {
     }, {
       port: 0,
       open: false,
-      editable: true,
       packageVersion: '1.2.0-test',
       clientRoot,
     });
@@ -622,7 +596,6 @@ describe('panel server', () => {
     expect(job.stats).toEqual(expect.objectContaining({ totalFiles: 1, totalUpdated: 1 }));
     expect(job.project).toEqual(expect.objectContaining({
       version: '1.2.0-test',
-      capabilities: { contentEditing: true, aiTranslation: true },
     }));
     expect(runCalls).toEqual([{ mode: 'pending', targetLangs: ['de'] }]);
   });

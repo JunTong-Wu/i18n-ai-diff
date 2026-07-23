@@ -42,7 +42,6 @@ export interface PanelServerOptions {
   open?: boolean;
   packageVersion: string;
   clientRoot?: string;
-  editable?: boolean;
 }
 
 export interface RunningPanelServer {
@@ -53,7 +52,7 @@ export interface RunningPanelServer {
 
 interface PanelSession {
   scan(): Promise<ProjectScan>;
-  getEditorManifest?(editable: boolean, writeToken?: string): Promise<EditorManifest>;
+  getEditorManifest?(writeToken: string): Promise<EditorManifest>;
   getEditorFile?(relativePath: string): Promise<EditorFile>;
   searchEditorCopy?(request: EditorSearchRequest): Promise<EditorSearchResponse>;
   saveEditorFile?(request: EditorSaveRequest): Promise<EditorSaveResult>;
@@ -72,7 +71,7 @@ interface PanelSession {
     },
   ): Promise<EditorTranslateResult[]>;
   runTranslationShortcut?(request: TranslationRunRequest): Promise<TranslationRunResult>;
-  getSettingsConfig?(editable: boolean, writeToken?: string): Promise<SettingsConfigFile>;
+  getSettingsConfig?(writeToken: string): Promise<SettingsConfigFile>;
   saveSettingsConfig?(request: SettingsConfigSaveRequest): Promise<SettingsConfigSaveResult>;
   subscribeToEditorEvents?(listener: (event: EditorSyncEvent) => void): () => void;
   close?(): Promise<void> | void;
@@ -90,12 +89,10 @@ export async function startPanelServer(
 ): Promise<RunningPanelServer> {
   const clientRoot = options.clientRoot
     || fileURLToPath(new URL('./client/', import.meta.url));
-  const editable = options.editable === true;
   const contractContext = {
     packageVersion: options.packageVersion,
-    editable,
   };
-  const writeToken = editable ? crypto.randomBytes(32).toString('base64url') : undefined;
+  const writeToken = crypto.randomBytes(32).toString('base64url');
   const translateJobs = new Map<string, ServerTranslateJob>();
   const translationRunJobs = new Map<string, ServerTranslationRunJob>();
   let serverUrl = '';
@@ -245,18 +242,12 @@ export async function startPanelServer(
           return;
         }
         sendJson(response, 200, {
-          data: await session.getSettingsConfig(editable, writeToken),
+          data: await session.getSettingsConfig(writeToken),
         });
         return;
       }
 
       if (request.method === 'PUT' && requestUrl.pathname === '/api/settings/config') {
-        if (!editable) {
-          sendJson(response, 403, {
-            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to write the project config' },
-          });
-          return;
-        }
         if (!session.saveSettingsConfig) {
           sendJson(response, 501, { error: { code: 'SETTINGS_UNAVAILABLE', message: 'Settings API is unavailable' } });
           return;
@@ -280,7 +271,7 @@ export async function startPanelServer(
           return;
         }
         sendJson(response, 200, {
-          data: await session.getEditorManifest(editable, writeToken),
+          data: await session.getEditorManifest(writeToken),
         });
         return;
       }
@@ -309,12 +300,6 @@ export async function startPanelServer(
       }
 
       if (request.method === 'PUT' && requestUrl.pathname === '/api/editor/file') {
-        if (!editable) {
-          sendJson(response, 403, {
-            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to write locale files' },
-          });
-          return;
-        }
         if (!session.saveEditorFile) {
           sendJson(response, 501, { error: { code: 'EDITOR_UNAVAILABLE', message: 'Editor API is unavailable' } });
           return;
@@ -334,12 +319,6 @@ export async function startPanelServer(
       }
 
       if (request.method === 'POST' && requestUrl.pathname === '/api/editor/translate-jobs') {
-        if (!editable) {
-          sendJson(response, 403, {
-            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run AI translations' },
-          });
-          return;
-        }
         if (!session.translateEditorCells) {
           sendJson(response, 501, { error: { code: 'EDITOR_TRANSLATION_UNAVAILABLE', message: 'Editor translation API is unavailable' } });
           return;
@@ -371,12 +350,6 @@ export async function startPanelServer(
       }
 
       if (request.method === 'POST' && requestUrl.pathname === '/api/editor/master-translate-jobs') {
-        if (!editable) {
-          sendJson(response, 403, {
-            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run AI translations' },
-          });
-          return;
-        }
         if (!session.translateEditorMasterCells) {
           sendJson(response, 501, { error: { code: 'EDITOR_MASTER_TRANSLATION_UNAVAILABLE', message: 'Editor master translation API is unavailable' } });
           return;
@@ -415,12 +388,6 @@ export async function startPanelServer(
           return;
         }
         if (request.method === 'DELETE') {
-          if (!editable) {
-            sendJson(response, 403, {
-              error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run AI translations' },
-            });
-            return;
-          }
           if (!writeToken || request.headers['x-i18n-panel-token'] !== writeToken) {
             sendJson(response, 403, { error: { code: 'INVALID_WRITE_TOKEN', message: 'Invalid editor write token' } });
             return;
@@ -436,12 +403,6 @@ export async function startPanelServer(
       }
 
       if (request.method === 'POST' && requestUrl.pathname === '/api/translation-runs') {
-        if (!editable) {
-          sendJson(response, 403, {
-            error: { code: 'EDIT_MODE_DISABLED', message: 'Restart the panel with --edit to run CLI shortcuts' },
-          });
-          return;
-        }
         if (!session.runTranslationShortcut) {
           sendJson(response, 501, { error: { code: 'TRANSLATION_RUN_UNAVAILABLE', message: 'CLI shortcut API is unavailable' } });
           return;

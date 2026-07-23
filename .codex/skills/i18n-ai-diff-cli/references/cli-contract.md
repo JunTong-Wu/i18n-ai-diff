@@ -49,15 +49,14 @@ Options:
 
 - `-c, --config <path>`: use an explicit config file.
 - `-p, --port <port>`: local loopback port. `0` is valid and means "ask the OS for an available port".
-- `--edit`: enable explicit locale-file saves, settings saves, selected-cell AI translation jobs, and panel CLI shortcut execution.
 - `--no-open`: start without opening the browser.
 
 Rules:
 
 - Bind the packaged panel to loopback by default.
-- Default mode is read-only.
+- The panel can save, translate, and run shortcuts by default.
 - Print the actual panel URL after startup, especially when `--port 0` is used.
-- Preserve Host/Origin/token/edit-mode write boundaries owned by backend/server code.
+- Preserve Host, Origin, session token, body-size, path-safety, and revision write boundaries owned by backend/server code.
 
 ## Dev-only scripts
 
@@ -98,8 +97,7 @@ The CLI shortcut page is a browser UI for direct-write CLI-equivalent operations
 - Pending mode maps to `i18n-ai-diff` with optional `-l`.
 - Force mode maps to `i18n-ai-diff -f` with optional `-l`.
 - Master-to-master mode maps to `i18n-ai-diff translate-master --from ... --to ...` plus optional `-f` and `--file`.
-- Read-only panel mode may show/copy commands but must not execute them.
-- Editable panel execution writes files/cache/snapshots immediately after confirmation; it does not create table-editor drafts.
+- Panel execution writes files/cache/snapshots immediately after confirmation; it does not create table-editor drafts.
 
 ## Documentation expectations
 
@@ -115,7 +113,7 @@ When public CLI behavior changes:
 - Option parsing or command generation: `tests/core/translation-runner.test.ts`, CLI-related focused tests, and `npm test -- --run`.
 - Route filtering: `tests/core/route-selector.test.ts`.
 - Watch behavior: `tests/core/file-watcher.routes.test.ts`.
-- Panel server `--port`, edit mode, write boundary: `tests/panel/server.test.ts`.
+- Panel server `--port` and write boundary: `tests/panel/server.test.ts`.
 - Real package behavior: `npm run test:package`.
 - Installed package behavior: `npm run test:install`.
 - Embedded real consumer behavior: `npm run test:consumer`.

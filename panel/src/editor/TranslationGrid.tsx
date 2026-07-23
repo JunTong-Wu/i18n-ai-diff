@@ -78,7 +78,6 @@ interface TranslationGridProps {
   rows: PanelEditorRow[];
   manifest: PanelEditorManifest;
   drafts: DraftMap;
-  editable: boolean;
   focusCell?: GridFocusCell;
   translationStates?: Map<string, GridCellTranslationState>;
   onChangeValues(values: GridValueChange[]): void;
@@ -90,7 +89,7 @@ interface GridRecord extends Record<string, unknown> {
   pointer: string;
   keyPath: string;
   __states: Record<string, {
-    kind: 'string' | 'missing' | 'unsupported';
+    kind: 'string' | 'empty' | 'missing' | 'unsupported';
     changed: boolean;
     pending: boolean;
     skipped: boolean;
@@ -116,7 +115,6 @@ function TranslationGridTable({
   rows,
   manifest,
   drafts,
-  editable,
   focusCell,
   translationStates,
   onChangeValues,
@@ -212,21 +210,36 @@ function TranslationGridTable({
         fieldFormat: (record: GridRecord) => {
           const state = record.__states[lang];
           if (state.kind === 'unsupported') return t('editor.nonStringValue');
-          if (state.kind === 'missing' && !state.changed) return t('common.missing');
-          const value = record[lang];
-          return value === '' ? t('common.emptyString') : value;
+          if (state.kind === 'missing' && !state.changed) return t('editor.missing');
+          return record[lang];
         },
         editor: ((args: { col: number; row: number; table: ListTable }) => {
           const record = args.table.getCellOriginRecord(args.col, args.row) as GridRecord | undefined;
-          return editable && record?.__states[lang]?.kind !== 'unsupported' ? textAreaEditor : undefined;
+          return record?.__states[lang]?.kind !== 'unsupported' ? textAreaEditor : undefined;
         }) as never,
         style: (args: { col: number; row: number; table: ListTable }) => {
           const record = args.table.getCellOriginRecord(args.col, args.row) as GridRecord | undefined;
           const state = record?.__states[lang];
           const isMissing = state?.kind === 'missing' && !state.changed;
+          const isEmpty = state?.kind === 'empty' && !state.changed;
           const isUnsupported = state?.kind === 'unsupported';
           const isSkipped = state?.skipped && !state.changed;
           const translationState = state?.translationState;
+          const marked = translationState === 'failed'
+            ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#D92D20' }
+            : translationState === 'translating' || translationState === 'queued'
+              ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#7C3AED' }
+              : translationState === 'ai'
+                ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#168A59' }
+                : state?.changed
+                  ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#1467F3' }
+                  : state?.pending
+                    ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#F59E0B' }
+                    : isEmpty
+                      ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#0FAFA8' }
+                      : isMissing
+                        ? { shape: 'triangle' as const, position: 'right-top' as const, size: 8, bgColor: '#94A3B8' }
+                        : false;
           return {
             bgColor: translationState === 'failed'
               ? '#FEF3F2'
@@ -242,8 +255,12 @@ function TranslationGridTable({
                   ? '#F5F1FF'
                   : state?.pending
                     ? '#FFFAF0'
-                    : '#FFFFFF',
-            color: isUnsupported || isMissing ? '#7B8797' : '#101828',
+                    : isMissing
+                      ? '#F1F5F9'
+                      : isEmpty
+                        ? '#F0FDFA'
+                        : '#FFFFFF',
+            color: isUnsupported || isMissing ? '#7B8797' : isEmpty ? '#0F766E' : '#101828',
             fontSize: TABLE_CELL_FONT_SIZE,
             fontStyle: isMissing || isUnsupported ? 'italic' : 'normal',
             fontWeight: state?.skipped ? 600 : 400,
@@ -252,18 +269,8 @@ function TranslationGridTable({
             textBaseline: TABLE_CELL_TEXT_BASELINE,
             autoWrapText: true,
             lineClamp: COPY_CELL_LINE_CLAMP,
-            cursor: editable && !isUnsupported ? 'text' : 'default',
-            marked: translationState === 'failed'
-              ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#D92D20' }
-              : translationState === 'translating' || translationState === 'queued'
-                ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#7C3AED' }
-                : translationState === 'ai'
-                  ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#168A59' }
-                  : state?.changed
-                    ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#1467F3' }
-              : state?.pending
-                ? { shape: 'triangle', position: 'right-top', size: 8, bgColor: '#F59E0B' }
-                : false,
+            cursor: !isUnsupported ? 'text' : 'default',
+            marked,
             borderColor: ['#E4E9F1', '#E4E9F1', '#E4E9F1', '#E4E9F1'],
           };
         },
@@ -278,7 +285,7 @@ function TranslationGridTable({
       })),
     }));
     return [keyColumn, ...groups] as ColumnsDefine;
-  }, [editable, manifest.routes, t]);
+  }, [manifest.routes, t]);
 
   useEffect(() => {
     if (!containerRef.current) return undefined;
@@ -327,8 +334,8 @@ function TranslationGridTable({
       keyboardOptions: {
         copySelected: true,
         showCopyCellBorder: true,
-        pasteValueToCell: editable,
-        editCellOnEnter: editable,
+        pasteValueToCell: true,
+        editCellOnEnter: true,
         moveFocusCellOnTab: true,
         moveSelectedCellOnArrowKeys: true,
         shiftMultiSelect: true,
@@ -497,7 +504,7 @@ function TranslationGridTable({
       });
     };
     const handleBeforeKeydown = (event: TYPES.TableEventHandlersEventArgumentMap['before_keydown']) => {
-      if (!editable || (event.code !== 'F2' && event.keyCode !== 113) || !selectedCell) return;
+      if ((event.code !== 'F2' && event.keyCode !== 113) || !selectedCell) return;
       event.event.preventDefault();
       event.stopCellMoving?.();
       table.startEditCell(selectedCell.col, selectedCell.row);
@@ -519,7 +526,7 @@ function TranslationGridTable({
       table.release();
       tableRef.current = null;
     };
-  }, [columns, editable, manifest.languages, masterLanguages, targetLanguages]);
+  }, [columns, manifest.languages, masterLanguages, targetLanguages]);
 
   useEffect(() => {
     tableRef.current?.setRecords(records);

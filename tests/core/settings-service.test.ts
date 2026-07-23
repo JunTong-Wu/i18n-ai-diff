@@ -20,8 +20,7 @@ describe('translation settings service', () => {
     const { projectRoot, configPath, config } = await createSettingsFixture();
     const service = new TranslationSettingsService(config, configPath, projectRoot);
 
-    const loaded = await service.getConfig(true, 'token-1');
-    expect(loaded.editable).toBe(true);
+    const loaded = await service.getConfig('token-1');
     expect(loaded.writeToken).toBe('token-1');
     expect(loaded.config.localesDir).toBe('./locales');
     expect(loaded.config.cachePath).toBe('./state/cache.json');
@@ -68,7 +67,7 @@ describe('translation settings service', () => {
   it('rejects stale config revisions without overwriting the disk file', async () => {
     const { projectRoot, configPath, config } = await createSettingsFixture();
     const service = new TranslationSettingsService(config, configPath, projectRoot);
-    const loaded = await service.getConfig(true, 'token-1');
+    const loaded = await service.getConfig('token-1');
     await fs.writeFile(configPath, 'export default { localesDir: "./other", llm: { apiKey: "test-key" }, baseLang: "en", targetLangs: ["de"] };\n', 'utf8');
 
     await expect(service.saveConfig({
@@ -85,7 +84,7 @@ describe('translation settings service', () => {
   it('does not let display-only llm draft values block managed field saves', async () => {
     const { projectRoot, configPath, config } = await createSettingsFixture();
     const service = new TranslationSettingsService(config, configPath, projectRoot);
-    const loaded = await service.getConfig(true, 'token-1');
+    const loaded = await service.getConfig('token-1');
 
     const saved = await service.saveConfig({
       revision: loaded.revision,

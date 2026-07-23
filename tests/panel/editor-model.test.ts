@@ -3,7 +3,9 @@ import type { EditorFile } from '../../src/types/index.js';
 import {
   applyHistoryTransaction,
   createEditorPatches,
+  draftForValue,
   draftIdentity,
+  effectiveCellValue,
   rebaseDrafts,
 } from '../../panel/src/editor/model.js';
 
@@ -32,6 +34,16 @@ describe('table editor draft model', () => {
     expect(undone.has(draftIdentity('de', '/a'))).toBe(false);
     expect(undone.get(draftIdentity('fr', '/a'))).toBe('old');
     expect(applyHistoryTransaction(undone, transaction, 'redo')).toEqual(current);
+  });
+
+  it('treats empty-string cells as real existing values, not missing keys', () => {
+    const file = editorFile('Hello', '');
+    const row = file.rows[0];
+    row.cells.de = { kind: 'empty', value: '', pending: false, skipped: false };
+
+    expect(draftForValue(row.cells.de, '')).toBeUndefined();
+    expect(effectiveCellValue(row, 'de', new Map())).toBe('');
+    expect(draftForValue(row.cells.de, 'Hallo')).toBe('Hallo');
   });
 
   it('rebases unrelated disk edits and surfaces same-cell conflicts', () => {

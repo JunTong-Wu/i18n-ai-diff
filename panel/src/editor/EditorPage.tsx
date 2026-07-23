@@ -5,7 +5,6 @@ import {
   FileText,
   FloppyDisk,
   Funnel,
-  Lock,
   MagnifyingGlass,
   SlidersHorizontal,
   Sparkle,
@@ -35,6 +34,7 @@ import type {
   PanelEditorTranslateResult,
   PanelProject,
 } from '../types';
+import { normalizePanelErrorMessage } from '../components/feedback/panelErrorMessages';
 import { usePanelErrorToast } from '../components/feedback/usePanelErrorToast';
 import { Checkbox } from '../components/ui/checkbox';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../components/ui/context-menu';
@@ -244,6 +244,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const [fileSearch, setFileSearch] = useState('');
   const [rowSearch, setRowSearch] = useState('');
   const [showMissing, setShowMissing] = useState(false);
+  const [showEmpty, setShowEmpty] = useState(false);
   const [showPending, setShowPending] = useState(false);
   const [showChanged, setShowChanged] = useState(false);
   const [showSkipped, setShowSkipped] = useState(false);
@@ -575,10 +576,15 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         const changed = drafts.has(draftIdentity(lang, row.pointer));
         return row.cells[lang]?.kind === 'missing' && !changed;
       });
+      const hasEmpty = manifest.languages.some(lang => {
+        const changed = drafts.has(draftIdentity(lang, row.pointer));
+        return row.cells[lang]?.kind === 'empty' && !changed;
+      });
       const hasPending = manifest.languages.some(lang => row.cells[lang]?.pending);
       const hasChanged = manifest.languages.some(lang => drafts.has(draftIdentity(lang, row.pointer)));
       const hasSkipped = manifest.languages.some(lang => row.cells[lang]?.skipped);
       if (showMissing && !hasMissing) return false;
+      if (showEmpty && !hasEmpty) return false;
       if (showPending && !hasPending) return false;
       if (showChanged && !hasChanged) return false;
       if (showSkipped && !hasSkipped) return false;
@@ -588,7 +594,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         lang => effectiveCellValue(row, lang, drafts).toLocaleLowerCase().includes(query),
       );
     });
-  }, [drafts, file, manifest, rowSearch, showChanged, showMissing, showPending, showSkipped]);
+  }, [drafts, file, manifest, rowSearch, showChanged, showEmpty, showMissing, showPending, showSkipped]);
   const hasVisibleRows = visibleRows.length > 0;
 
   useEffect(() => {
@@ -618,6 +624,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     const counts = {
       changed: 0,
       pending: 0,
+      empty: 0,
       missing: 0,
       skipped: 0,
       ai: 0,
@@ -631,6 +638,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         const changed = drafts.has(identity);
         if (changed) counts.changed += 1;
         else if (cell?.pending) counts.pending += 1;
+        if ((cell?.kind || 'missing') === 'empty' && !changed) counts.empty += 1;
         if ((cell?.kind || 'missing') === 'missing' && !changed) counts.missing += 1;
         if (cell?.skipped) counts.skipped += 1;
         if (aiDrafts.get(identity)?.translatedText === drafts.get(identity)) counts.ai += 1;
@@ -641,10 +649,10 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [aiDrafts, drafts, failedTranslations, file, manifest]);
 
   const selectedMeta = manifest?.files.find(candidate => candidate.relativePath === selectedPath);
-  const editable = manifest?.editable === true;
   const jobRunning = activeJob?.status === 'queued' || activeJob?.status === 'running';
   const activeFilterCount = [
     showMissing,
+    showEmpty,
     showPending,
     showChanged,
     showSkipped,
@@ -697,7 +705,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       const sourceCell = row.cells[route.sourceLang];
       const hasSourceDraft = drafts.has(sourceIdentity);
       const sourceText = effectiveCellValue(row, route.sourceLang, drafts);
-      if (!hasSourceDraft && sourceCell?.kind !== 'string') {
+      if (!hasSourceDraft && sourceCell?.kind !== 'string' && sourceCell?.kind !== 'empty') {
         skipped.push({ ...cell, reason: t('editor.reasonSourceMissing') });
         continue;
       }
@@ -706,6 +714,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         continue;
       }
       const needsTranslation = targetCell?.kind === 'missing'
+        || targetCell?.kind === 'empty'
         || targetCell?.pending
         || hasSourceDraft;
       if (!options.forceRetranslate && !needsTranslation) {
@@ -774,7 +783,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       const sourceCell = row.cells[preview.sourceLang];
       const hasSourceDraft = drafts.has(sourceIdentity);
       const sourceText = effectiveCellValue(row, preview.sourceLang, drafts);
-      if (!hasSourceDraft && sourceCell?.kind !== 'string') {
+      if (!hasSourceDraft && sourceCell?.kind !== 'string' && sourceCell?.kind !== 'empty') {
         skipped.push({ lang: preview.targetLang, pointer, reason: t('editor.reasonSourceMasterMissing') });
         continue;
       }
@@ -805,10 +814,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   ), [buildMasterTranslatePreview, masterTranslatePreview]);
 
   const openTranslatePreview = useCallback((title: string, cells: GridSelectionCell[]) => {
-    if (!editable) {
-      setStatus(t('editor.editRequiredTranslation'));
-      return;
-    }
     if (!file || !manifest) return;
     if (cells.length === 0) {
       setStatus(t('editor.selectTargets'));
@@ -823,13 +828,9 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       overwriteDrafts: false,
       forceRetranslate: false,
     });
-  }, [editable, file, manifest]);
+  }, [file, manifest]);
 
   const openMasterTranslatePreview = useCallback((targetLang: string) => {
-    if (!editable) {
-      setStatus(t('editor.editRequiredTranslation'));
-      return;
-    }
     if (!file || !manifest) return;
     if (masterLanguages.length < 2) {
       setStatus(t('editor.masterOnlyMulti'));
@@ -851,7 +852,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       overwriteExisting: false,
       forceRetranslate: false,
     });
-  }, [editable, file, manifest, masterLanguages]);
+  }, [file, manifest, masterLanguages]);
 
   const cellsForRowTargets = useCallback((pointer: string): GridSelectionCell[] => {
     if (!manifest) return [];
@@ -887,6 +888,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [manifest, visibleRows]);
 
   const retryFailedCells = useMemo(() => [...failedTranslations.values()].map(({ error: _error, ...cell }) => cell), [failedTranslations]);
+  const failedTranslationList = useMemo(() => [...failedTranslations.values()], [failedTranslations]);
 
   const applyTranslationResults = useCallback((results: PanelEditorTranslateResult[]) => {
     if (!file || !manifest) return;
@@ -902,7 +904,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         nextFailures.set(identity, {
           lang: result.lang,
           pointer: result.pointer,
-          error: result.error || t('editor.translationResultFailed'),
+          error: normalizePanelErrorMessage(result.error || t('editor.translationResultFailed'), t),
         });
         continue;
       }
@@ -983,7 +985,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [applyTranslationResults, t]);
 
   const confirmTranslation = useCallback(async () => {
-    if (!file || !manifest?.editable || !manifest.writeToken || !translatePreview || !currentPreview) return;
+    if (!file || !manifest?.writeToken || !translatePreview || !currentPreview) return;
     if (currentPreview.cells.length === 0) {
       setStatus(t('editor.noTranslatableCells'));
       return;
@@ -1019,7 +1021,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [currentPreview, file, manifest, pollTranslateJob, translatePreview]);
 
   const confirmMasterTranslation = useCallback(async () => {
-    if (!file || !manifest?.editable || !manifest.writeToken || !masterTranslatePreview || !currentMasterPreview) return;
+    if (!file || !manifest?.writeToken || !masterTranslatePreview || !currentMasterPreview) return;
     if (currentMasterPreview.cells.length === 0) {
       setStatus(t('editor.noMasterCells'));
       return;
@@ -1072,7 +1074,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [activeJob, applyTranslationResults, manifest?.writeToken]);
 
   const handleGridChanges = useCallback((values: GridValueChange[]) => {
-    if (!file || !manifest?.editable) return;
+    if (!file || !manifest) return;
     const next = new Map(draftsRef.current);
     const nextAiDrafts = new Map(aiDraftsRef.current);
     const transaction: DraftHistoryTransaction = [];
@@ -1150,7 +1152,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   }, [redo, redoStack.length, undo, undoStack.length]);
 
   const save = useCallback(async (): Promise<boolean> => {
-    if (!file || !manifest?.editable || !manifest.writeToken || draftsRef.current.size === 0) return true;
+    if (!file || !manifest?.writeToken || draftsRef.current.size === 0) return true;
     const savingDrafts = new Map(draftsRef.current);
     const acceptedTranslations = [...aiDraftsRef.current.entries()].flatMap(([identity, translation]) => (
       savingDrafts.get(identity) === translation.translatedText ? [translation] : []
@@ -1231,6 +1233,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const queueCellFocus = useCallback((relativePath: string, cell: GridSelectionCell) => {
     setRowSearch('');
     setShowMissing(false);
+    setShowEmpty(false);
     setShowPending(false);
     setShowChanged(false);
     setShowSkipped(false);
@@ -1355,7 +1358,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
     <button
       className="scan-button editor-save-button"
       type="button"
-      disabled={!editable || drafts.size === 0 || saving || !file || jobRunning}
+      disabled={drafts.size === 0 || saving || !file || jobRunning}
       onClick={() => void save()}
     >
       <FloppyDisk size={22} weight="bold" aria-hidden="true" />
@@ -1368,6 +1371,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       <div className="editor-state-legend">
         <span><i className="legend-dot is-changed" />{t('editor.changed')} <b>{cellStateCounts.changed}</b></span>
         <span><i className="legend-dot is-pending" />{t('editor.pending')} <b>{cellStateCounts.pending}</b></span>
+        <span><i className="legend-dot is-empty" />{t('editor.emptyString')} <b>{cellStateCounts.empty}</b></span>
         <span><i className="legend-dot is-missing" />{t('editor.missing')} <b>{cellStateCounts.missing}</b></span>
         <span><i className="legend-dot is-skipped" />{t('editor.skipped')} <b>{cellStateCounts.skipped}</b></span>
         <span><i className="legend-dot is-ai" />{t('editor.ai')} <b>{cellStateCounts.ai}</b></span>
@@ -1394,6 +1398,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
   const filterControls = (
     <div className="editor-filter-check-list" aria-label={t('editor.showRows')}>
       <StatusFilterCheckbox checked={showMissing} label={t('editor.missing')} onCheckedChange={setShowMissing} />
+      <StatusFilterCheckbox checked={showEmpty} label={t('editor.emptyString')} onCheckedChange={setShowEmpty} />
       <StatusFilterCheckbox checked={showPending} label={t('editor.pending')} onCheckedChange={setShowPending} />
       <StatusFilterCheckbox checked={showChanged} label={t('editor.changed')} onCheckedChange={setShowChanged} />
       <StatusFilterCheckbox checked={showSkipped} label={t('editor.skipped')} onCheckedChange={setShowSkipped} />
@@ -1519,7 +1524,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         <button
           className="editor-command-button editor-translate-button"
           type="button"
-          disabled={!editable || selectedCells.length === 0 || jobRunning}
+          disabled={selectedCells.length === 0 || jobRunning}
           onClick={() => openTranslatePreview(t('editor.translateSelectedCells'), selectedCells)}
         >
           <Translate size={20} aria-hidden="true" />
@@ -1529,7 +1534,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
         <Popover
           open={batchMenuOpen}
           onOpenChange={open => {
-            if (!editable || jobRunning) {
+            if (jobRunning) {
               setBatchMenuOpen(false);
               return;
             }
@@ -1545,7 +1550,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
             <button
               className={batchMenuOpen ? 'editor-command-button is-active' : 'editor-command-button'}
               type="button"
-              disabled={!editable || jobRunning}
+              disabled={jobRunning}
             >
               <Sparkle size={20} aria-hidden="true" />
               <span>{t('editor.batch')}</span>
@@ -1661,18 +1666,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
       liveStatus={status}
     >
       <div className="editor-table-stage">
-        <div className="editor-floating-alerts">
-          {!manifestLoading && manifest && !manifest.editable && (
-            <section className="editor-readonly-banner" aria-label={t('editor.readonlyTitle')}>
-              <Lock size={22} weight="fill" aria-hidden="true" />
-              <div>
-                <strong>{t('editor.readonlyTitle')}</strong>
-                <span>{t('editor.readonlyBody')}</span>
-              </div>
-            </section>
-          )}
-        </div>
-
         <section className="editor-table-panel" aria-label={t('editor.tableLabel')}>
           {manifestLoading || fileLoading ? (
             <div className="editor-table-loading" aria-label={t('editor.loadingFile')}>
@@ -1690,7 +1683,6 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
                   rows={visibleRows}
                   manifest={manifest}
                   drafts={drafts}
-                  editable={editable}
                   focusCell={focusRequest?.relativePath === file.relativePath ? focusRequest : undefined}
                   translationStates={translationStates}
                   onChangeValues={handleGridChanges}
@@ -1756,7 +1748,7 @@ export default function EditorPage({ project, onNavigate, onProjectChange }: Edi
 
       <ToolsDrawer
         draftCount={drafts.size}
-        editable={editable}
+        failedTranslations={failedTranslationList}
         isOpen={activeDrawer === 'tools'}
         job={activeJob}
         languageCount={manifest?.languages.length || 0}

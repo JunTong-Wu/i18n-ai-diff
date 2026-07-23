@@ -233,29 +233,24 @@ Open the project dashboard after creating the configuration:
 npx i18n-ai-diff panel
 ```
 
-The panel runs only on `127.0.0.1` and opens in your default browser. The project overview stays read-only: it visualizes single-master or multi-master routes, scans source/target differences, and reports cache and snapshot state without calling the LLM or writing translation files.
+The panel runs only on `127.0.0.1` and opens in your default browser. The project overview visualizes single-master or multi-master routes, scans source/target differences, and reports cache and snapshot state without calling the LLM or writing translation files.
 
-The **Table editor** aligns every existing string key across the configured languages. The panel remains read-only by default; restart it with explicit edit permission when you want to save reviewed copy:
-
-```bash
-npx i18n-ai-diff panel --edit
-```
+The **Table editor** aligns every existing string key across the configured languages.
 
 Choose a logical JSON file, edit existing cells or fill missing languages, then use **Save N changes**. Each row uses a JSON Pointer internally, so nested keys and literal key names containing `.`, `/`, or `~` are preserved. Arrays, objects, numbers, booleans, and `null` stay visible only through their surrounding file and are never replaced by table edits.
 
 Saving is deliberately bounded: it accepts only configured languages and existing logical JSON files, checks every file revision before writing, and uses same-directory atomic replacements. Manual target-language edits update that target's source snapshot as reviewed; master-language edits leave untouched targets pending.
 
-When `panel --edit` is enabled, the editor can also translate selected target cells into the browser draft. In multi-master projects, right-click a master-language column header to run a one-time translation from another master into that master. AI results still require **Save N changes** before any local file or cache is updated.
+The editor can also translate selected target cells into the browser draft. In multi-master projects, right-click a master-language column header to run a one-time translation from another master into that master. AI results still require **Save N changes** before any local file or cache is updated.
 
-The **CLI shortcut** page is for cross-file operations that should behave like the command line. It can generate copyable commands in read-only mode, and when the panel is started with `--edit` it can run the same project-wide flows directly: incremental pending translation, force refresh with optional language scope, and one-time master-to-master translation. Unlike Table editor AI drafts, CLI shortcut runs write local files, cache, and snapshots immediately.
+The **CLI shortcut** page is for cross-file operations that should behave like the command line. It can run the same project-wide flows directly: incremental pending translation, force refresh with optional language scope, and one-time master-to-master translation. Unlike Table editor AI drafts, CLI shortcut runs write local files, cache, and snapshots immediately after confirmation.
 
-The **Settings** page visualizes `i18n-translate.config.mjs` as editable project structure, language routes, locale/cache paths, and AI behavior fields such as prompt, skip keys, concurrency, batch size, and CLI watch debounce/ignore patterns. It is viewable in read-only mode, while saving requires `panel --edit`. A settings save patches managed fields inside the exported config object; it preserves custom imports, helper functions, comments outside changed managed properties, and the user-owned `llm` block. It does not touch locale JSON, cache, or snapshots. Panel style preferences such as the panel language are personal browser preferences stored in localStorage and are never written to project config. Restart the panel after saving config so the new routes, paths, prompt, batch behavior, or watcher settings become the active runtime configuration.
+The **Settings** page visualizes `i18n-translate.config.mjs` as editable project structure, language routes, locale/cache paths, and AI behavior fields such as prompt, skip keys, concurrency, batch size, and CLI watch debounce/ignore patterns. A settings save patches managed fields inside the exported config object; it preserves custom imports, helper functions, comments outside changed managed properties, and the user-owned `llm` block. It does not touch locale JSON, cache, or snapshots. Panel style preferences such as the panel language are personal browser preferences stored in localStorage and are never written to project config. Restart the panel after saving config so the new routes, paths, prompt, batch behavior, or watcher settings become the active runtime configuration.
 
 ```bash
 npx i18n-ai-diff panel --port 4180   # Choose a local port
 npx i18n-ai-diff panel --port 0      # Ask the OS to choose an available loopback port
 npx i18n-ai-diff panel --no-open     # Start without opening the browser
-npx i18n-ai-diff panel --edit        # Enable explicit saves, settings writes, and CLI shortcut runs
 ```
 
 ## Step 3: Run the first translation

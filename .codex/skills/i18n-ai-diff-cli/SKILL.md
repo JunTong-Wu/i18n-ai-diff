@@ -33,7 +33,7 @@ If a CLI change touches translation internals, panel APIs, cache/snapshot behavi
 - Treat normal CLI runs as incremental. Changing config, model, prompt, or route ownership must not rewrite reviewed translations by itself.
 - Preserve multi-master route ownership when filtering languages with `-l/--langs`.
 - Keep `translate-master` separate from normal route translation. It is allowed only between configured master/source languages in multi-master mode.
-- Keep `panel --edit` as the explicit gate for local panel writes and panel-triggered CLI shortcut execution.
+- Keep `i18n-ai-diff panel` able to save, translate, and run shortcuts by default; do not add a second permission flag.
 - Keep `panel --port 0` valid; it lets Node allocate an available loopback port and must print the actual URL.
 - Keep watch mode explicit through `-w/--watch`. Config `watch` values tune debounce/ignore behavior; they do not enable watch mode by themselves.
 - Keep CLI logs useful but not noisy. Errors should exit non-zero and explain the actionable failure.

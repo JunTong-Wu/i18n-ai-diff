@@ -4,6 +4,7 @@ import path from 'path';
 import {
   EditorAcceptedTranslation,
   EditorCell,
+  EditorCellKind,
   EditorFile,
   EditorManifest,
   EditorManifestFile,
@@ -129,7 +130,7 @@ export class TranslationEditorService {
     this.translateLimit = pLimit(this.config.concurrency || 5);
   }
 
-  async getManifest(editable: boolean, writeToken?: string): Promise<EditorManifest> {
+  async getManifest(writeToken: string): Promise<EditorManifest> {
     const fileLanguages = new Map<string, Set<string>>();
     for (const lang of this.languages) {
       for (const relativePath of await this.scanLanguageFiles(lang)) {
@@ -170,8 +171,7 @@ export class TranslationEditorService {
     }
 
     return {
-      editable,
-      ...(editable && writeToken ? { writeToken } : {}),
+      writeToken,
       projectRoot: this.projectRoot,
       routes: this.config.routes.map(route => ({
         sourceLang: route.sourceLang,
@@ -229,11 +229,7 @@ export class TranslationEditorService {
           const record = records.get(lang);
           const resolved = record ? getPathValue(record.data, segments) : { exists: false, value: undefined };
           const cell: EditorCell = {
-            kind: !resolved.exists
-              ? 'missing'
-              : typeof resolved.value === 'string'
-                ? 'string'
-                : 'unsupported',
+            kind: editorCellKind(resolved),
             ...(typeof resolved.value === 'string' ? { value: resolved.value } : {}),
             pending: pending[lang]?.has(pointer) || false,
             skipped,
@@ -364,6 +360,7 @@ export class TranslationEditorService {
       }
 
       const needsTranslation = !targetValue.exists
+        || targetValue.value === ''
         || pending[cell.lang]?.has(cell.pointer)
         || hasSourceDraft;
       if (!forceRetranslate && !needsTranslation) {
@@ -740,11 +737,7 @@ export class TranslationEditorService {
         const record = records.get(lang);
         const resolved = record ? getPathValue(record.data, segments) : { exists: false, value: undefined };
         cells[lang] = {
-          kind: !resolved.exists
-            ? 'missing'
-            : typeof resolved.value === 'string'
-              ? 'string'
-              : 'unsupported',
+          kind: editorCellKind(resolved),
           ...(typeof resolved.value === 'string' ? { value: resolved.value } : {}),
           pending: pending[lang]?.has(pointer) || false,
           skipped,
@@ -1418,7 +1411,7 @@ function normalizeSearchLimit(limit: number | undefined): number {
 }
 
 function normalizeSearchStates(states: EditorSearchStateFilter[] | undefined): Set<EditorSearchStateFilter> {
-  const allowed = new Set<EditorSearchStateFilter>(['pending', 'missing', 'skipped', 'master', 'target']);
+  const allowed = new Set<EditorSearchStateFilter>(['pending', 'empty', 'missing', 'skipped', 'master', 'target']);
   if (states === undefined || states.length === 0) return new Set();
   if (!Array.isArray(states)) {
     throw new EditorServiceError('Search states must be an array', 'INVALID_SEARCH_FILTER');
@@ -1441,11 +1434,18 @@ function searchCellMatchesStates(
   if (states.size === 0) return true;
   return (
     (states.has('pending') && cell.pending)
+    || (states.has('empty') && cell.kind === 'empty')
     || (states.has('missing') && cell.kind === 'missing')
     || (states.has('skipped') && cell.skipped)
     || (states.has('master') && isMaster)
     || (states.has('target') && !isMaster)
   );
+}
+
+function editorCellKind(resolved: { exists: boolean; value: unknown }): EditorCellKind {
+  if (!resolved.exists) return 'missing';
+  if (typeof resolved.value !== 'string') return 'unsupported';
+  return resolved.value.length === 0 ? 'empty' : 'string';
 }
 
 function findMatchRanges(value: string, lowerQuery: string): Array<{ start: number; end: number }> {

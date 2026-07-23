@@ -101,6 +101,11 @@
   gap: var(--space-3);
 }
 
+.editor-file-stats > .editor-file-stats-full {
+  display: grid;
+  justify-content: stretch;
+}
+
 .editor-file-stats dt,
 .editor-file-stats dd {
   margin: 0;
@@ -115,4 +120,41 @@
 .editor-file-stats dd {
   color: var(--ink);
   font-weight: 600;
+}
+
+.editor-file-stats-full dd {
+  color: var(--danger);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.editor-failed-cells {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.editor-failed-cells > strong,
+.editor-failed-more {
+  color: var(--danger);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.editor-failed-cell {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.editor-failed-cell span {
+  color: var(--ink);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.editor-failed-cell p {
+  color: var(--danger);
 }

@@ -208,7 +208,6 @@ async function verifyPanel(binPath) {
     const health = await fetch(`${panelUrl}/api/health`).then(response => response.json());
     assert.equal(health.data.status, 'ok');
     assert.equal(health.data.localOnly, true);
-    assert.equal(health.data.editable, false);
 
     const project = await fetch(`${panelUrl}/api/project`).then(response => response.json());
     assert.equal(project.data.mode, 'multi-master');
@@ -217,8 +216,7 @@ async function verifyPanel(binPath) {
     assert.equal(project.data.totals.pendingFiles, 0);
 
     const editorManifest = await fetch(`${panelUrl}/api/editor/manifest`).then(response => response.json());
-    assert.equal(editorManifest.data.editable, false);
-    assert.equal(editorManifest.data.writeToken, undefined);
+    assert.ok(editorManifest.data.writeToken);
     assert.equal(editorManifest.data.languages.length, 9);
     assert.equal(editorManifest.data.files.length, 37);
     assert.equal(editorManifest.data.routes.length, 2);
@@ -250,8 +248,8 @@ async function verifyPanel(binPath) {
   }
 }
 
-async function verifyEditablePanel(binPath) {
-  const child = spawn(binPath, ['panel', '--edit', '--no-open', '--port', '0'], {
+async function verifyEditorSavePanel(binPath) {
+  const child = spawn(binPath, ['panel', '--no-open', '--port', '0'], {
     cwd: workspaceRoot,
     env: { ...process.env, NO_COLOR: '1' },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -268,7 +266,7 @@ async function verifyEditablePanel(binPath) {
       const timeout = setTimeout(() => {
         if (settled) return;
         settled = true;
-        reject(new Error(`Timed out waiting for the editable installed panel.\n${output}`));
+        reject(new Error(`Timed out waiting for the installed panel editor.\n${output}`));
       }, 15_000);
       const inspect = chunk => {
         output += chunk.toString();
@@ -284,13 +282,12 @@ async function verifyEditablePanel(binPath) {
         if (settled) return;
         settled = true;
         clearTimeout(timeout);
-        reject(new Error(`Editable installed panel exited before startup (${code}).\n${output}`));
+        reject(new Error(`Installed panel editor exited before startup (${code}).\n${output}`));
       });
       child.once('error', reject);
     });
 
     const manifest = await fetch(`${panelUrl}/api/editor/manifest`).then(response => response.json());
-    assert.equal(manifest.data.editable, true);
     assert.ok(manifest.data.writeToken);
     const relativePath = manifest.data.files[0].relativePath;
     const file = await fetch(
@@ -385,7 +382,7 @@ async function verifyWorkspace() {
   }
 
   await verifyPanel(binPath);
-  await verifyEditablePanel(binPath);
+  await verifyEditorSavePanel(binPath);
 
   const afterFiles = await collectFiles(localesDir);
   const afterCache = await readJson(cachePath);

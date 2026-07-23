@@ -133,6 +133,40 @@ describe('translation editor global search', () => {
     await expect(session.searchEditorCopy({ query: 'Hello', languages: ['xx'] }))
       .rejects.toMatchObject({ code: 'UNKNOWN_LANGUAGE' });
   });
+
+  it('distinguishes empty string cells from key-missing cells', async () => {
+    const { root, configPath } = await createProject();
+    await writeJson(root, 'locales/en/empty.json', { banner: { title: '' } });
+    await writeJson(root, 'locales/de/empty.json', { banner: {} });
+    const session = await createProjectSession({ cwd: root, configPath });
+
+    const file = await session.getEditorFile('empty.json');
+    const row = file.rows.find(candidate => candidate.pointer === '/banner/title');
+    expect(row?.cells.en).toMatchObject({ kind: 'empty', value: '', pending: false });
+    expect(row?.cells.de).toMatchObject({ kind: 'missing' });
+
+    const emptyResults = await session.searchEditorCopy({ query: '', languages: ['en'], states: ['empty'] });
+    expect(emptyResults.results).toEqual([
+      expect.objectContaining({
+        relativePath: 'empty.json',
+        pointer: '/banner/title',
+        lang: 'en',
+        value: '',
+        cell: expect.objectContaining({ kind: 'empty', value: '' }),
+      }),
+    ]);
+
+    const missingResults = await session.searchEditorCopy({ query: '', languages: ['de'], states: ['missing'] });
+    expect(missingResults.results).toEqual([
+      expect.objectContaining({
+        relativePath: 'empty.json',
+        pointer: '/banner/title',
+        lang: 'de',
+        value: '',
+        cell: expect.objectContaining({ kind: 'missing' }),
+      }),
+    ]);
+  });
 });
 
 describe('translation editor save semantics', () => {
@@ -390,6 +424,45 @@ describe('translation editor save semantics', () => {
     expect(translateBatch).toHaveBeenCalledTimes(1);
   });
 
+  it('translates empty-string target cells without forcing retranslation', async () => {
+    const { root, configPath } = await createProject();
+    await writeJson(root, 'locales/en/empty-target.json', { title: 'Fill this value' });
+    await writeJson(root, 'locales/de/empty-target.json', { title: '' });
+    await writeJson(root, 'locales/fr/empty-target.json', { title: 'Déjà rempli' });
+    const session = await createProjectSession({ cwd: root, configPath });
+    const translateBatch = vi.fn(async (tasks: TranslationTask[]): Promise<TranslationResult[]> =>
+      tasks.map(task => ({
+        key: task.key,
+        translatedText: `filled:${task.sourceText}`,
+        targetLang: task.targetLang,
+        success: true,
+      }))
+    );
+    (session as unknown as { editor: { llmClient: { translateBatch: typeof translateBatch } } }).editor.llmClient = { translateBatch };
+
+    const file = await session.getEditorFile('empty-target.json');
+    expect(file.rows.find(row => row.pointer === '/title')?.cells.de).toMatchObject({ kind: 'empty', value: '' });
+
+    const results = await session.translateEditorCells({
+      relativePath: 'empty-target.json',
+      revisions: file.revisions,
+      snapshotRevision: file.snapshotRevision,
+      cells: [{ lang: 'de', pointer: '/title' }],
+    });
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        lang: 'de',
+        pointer: '/title',
+        sourceLang: 'en',
+        sourceText: 'Fill this value',
+        translatedText: 'filled:Fill this value',
+        status: 'translated',
+      }),
+    ]);
+    expect(translateBatch).toHaveBeenCalledTimes(1);
+  });
+
   it('always skips skipKeys during selected AI translation', async () => {
     const { root, configPath } = await createProject();
     await writeJson(root, 'i18n-translate.config.json', {
@@ -626,7 +699,7 @@ describe('translation editor save semantics', () => {
     });
 
     const session = await createProjectSession({ cwd: root, configPath });
-    await expect(session.getEditorManifest(true, 'token')).rejects.toMatchObject({
+    await expect(session.getEditorManifest('token')).rejects.toMatchObject({
       code: 'SYMLINK_PATH',
       status: 403,
     });

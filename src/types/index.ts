@@ -294,8 +294,7 @@ export interface SettingsConfigDraft {
 }
 
 export interface SettingsConfigFile {
-  editable: boolean;
-  writeToken?: string;
+  writeToken: string;
   projectRoot: string;
   configPath: string;
   revision: string;
@@ -466,15 +465,14 @@ export interface EditorManifestFile {
 }
 
 export interface EditorManifest {
-  editable: boolean;
-  writeToken?: string;
+  writeToken: string;
   projectRoot?: string;
   routes: EditorRouteColumn[];
   languages: string[];
   files: EditorManifestFile[];
 }
 
-export type EditorCellKind = 'string' | 'missing' | 'unsupported';
+export type EditorCellKind = 'string' | 'empty' | 'missing' | 'unsupported';
 
 export interface EditorCell {
   kind: EditorCellKind;
@@ -498,7 +496,7 @@ export interface EditorFile {
   rows: EditorRow[];
 }
 
-export type EditorSearchStateFilter = 'pending' | 'missing' | 'skipped' | 'master' | 'target';
+export type EditorSearchStateFilter = 'pending' | 'empty' | 'missing' | 'skipped' | 'master' | 'target';
 
 export interface EditorSearchRequest {
   query: string;

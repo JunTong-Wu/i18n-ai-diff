@@ -75,9 +75,9 @@ export class ProjectSession {
     }
   }
 
-  async getEditorManifest(editable: boolean, writeToken?: string): Promise<EditorManifest> {
+  async getEditorManifest(writeToken: string): Promise<EditorManifest> {
     return this.runExclusive(async () => {
-      return this.editor.getManifest(editable, writeToken);
+      return this.editor.getManifest(writeToken);
     });
   }
 
@@ -135,9 +135,9 @@ export class ProjectSession {
     });
   }
 
-  async getSettingsConfig(editable: boolean, writeToken?: string): Promise<SettingsConfigFile> {
+  async getSettingsConfig(writeToken: string): Promise<SettingsConfigFile> {
     return this.runExclusive(async () => {
-      return this.settings.getConfig(editable, writeToken);
+      return this.settings.getConfig(writeToken);
     });
   }
 

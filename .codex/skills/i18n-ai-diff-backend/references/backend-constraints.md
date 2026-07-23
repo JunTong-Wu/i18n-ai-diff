@@ -57,10 +57,10 @@
 ## Editor AI translation jobs
 
 - Editor translation APIs generate candidate translations for the current browser draft. They do not directly write local JSON files, snapshots, or cache entries.
-- `panel --edit` is required to create or cancel translation jobs. Read-only panels may view editor data but must not run AI translation.
+- The panel is editable by default. Editor translation APIs still require the current session write token, same-origin checks, path/revision validation, and project serialization.
 - Translation requests include the logical file, revisions, snapshot revision, selected cells, optional current drafts, and options such as overwriting existing drafts or forcing retranslation.
 - Resolve each target cell through its route owner and `sourceLang`. Source values should come from the current draft when the source cell is edited in the same browser draft; otherwise use disk values.
-- By default, selected-cell translation must follow CLI incremental semantics: generate candidates only for missing target cells, pending target cells, or cells affected by a source-language draft in the current browser draft. Existing reviewed target cells are skipped unless `forceRetranslate` is enabled.
+- By default, selected-cell translation must follow CLI incremental semantics: generate candidates only for key-missing target cells, empty-string target cells, pending target cells, or cells affected by a source-language draft in the current browser draft. Existing reviewed target cells are skipped unless `forceRetranslate` is enabled.
 - Skip master cells, unsupported cells, missing/non-string/empty source cells, unconfigured languages, changed drafts without overwrite permission, reviewed cells without `forceRetranslate`, and skipped keys. AI translation must always respect `skipKeys`; only direct manual table editing may override a skipped target value. `skipKeys` may match JSON Pointer patterns or legacy dotted glob patterns for compatibility.
 - Return per-cell results with `translated`, `skipped`, or `failed` status. Cache hits are candidate results and still become drafts client-side before any save. When `forceRetranslate` is enabled, bypass cache reads and request fresh LLM output for the eligible cells.
 - Cancelling a job stops pending/running work where possible. Completed results may remain in the browser draft; cancellation must not write files.
@@ -99,7 +99,6 @@
   - `PUT /api/editor/file`
   - `POST /api/translation-runs`
   - `PUT /api/settings/config`
-- Default panel startup is read-only. `i18n-ai-diff panel --edit` enables content editing for that process only.
 - Write requests and AI translation job creation must satisfy every boundary:
   - Server bound to loopback.
   - Host and Origin checks pass.
@@ -110,9 +109,9 @@
   - Path is a manifest-known relative `.json` logical file.
   - Absolute paths, `..`, encoded traversal, NUL bytes, unconfigured languages, and symlink traversal are rejected.
   - Revisions for all language files and the snapshot match current disk state.
-- AI translation job cancellation (`DELETE /api/editor/translate-jobs/:id` and `DELETE /api/editor/master-translate-jobs/:id`) still requires edit mode, loopback Host/Origin checks, and the current session write token, but it is a bodyless request and does not require `Content-Type: application/json` or a JSON body.
-- CLI shortcut runs require the same edit mode, loopback Host/Origin checks, current session write token, JSON content type, and body-size limit. Normal and force shortcut modes only accept configured target languages in the panel; master-to-master shortcut mode only accepts configured source master languages.
-- Visual settings saves require the same edit mode, loopback Host/Origin checks, current session write token, JSON content type, body-size limit, and config-file revision check. Saving config may only patch managed fields inside a direct exported object/`defineConfig({ ... })` object. It must preserve custom imports, helper functions, comments outside changed managed properties, and un-managed expressions. It must not write locale JSON, cache, or snapshots, and the panel should require restart before new routes, paths, prompt, or watcher settings are treated as active. Settings may manage CLI watch debounce and ignored patterns, but must not expose or serialize `watch.enabled`; entering watch mode remains an explicit CLI `--watch` behavior.
+- AI translation job cancellation (`DELETE /api/editor/translate-jobs/:id` and `DELETE /api/editor/master-translate-jobs/:id`) still requires loopback Host/Origin checks and the current session write token, but it is a bodyless request and does not require `Content-Type: application/json` or a JSON body.
+- CLI shortcut runs require loopback Host/Origin checks, current session write token, JSON content type, and body-size limit. Normal and force shortcut modes only accept configured target languages in the panel; master-to-master shortcut mode only accepts configured source master languages.
+- Visual settings saves require loopback Host/Origin checks, current session write token, JSON content type, body-size limit, and config-file revision check. Saving config may only patch managed fields inside a direct exported object/`defineConfig({ ... })` object. It must preserve custom imports, helper functions, comments outside changed managed properties, and un-managed expressions. It must not write locale JSON, cache, or snapshots, and the panel should require restart before new routes, paths, prompt, or watcher settings are treated as active. Settings may manage CLI watch debounce and ignored patterns, but must not expose or serialize `watch.enabled`; entering watch mode remains an explicit CLI `--watch` behavior.
 - Visual settings must not serialize secrets or rewrite the `llm` block. The settings page may display the currently resolved model runtime values, but provider-specific runtime expressions remain user-owned source code.
 - A revision mismatch returns `409 REVISION_CONFLICT` and must not partially overwrite files.
 - Save should preflight the whole batch before committing. Commit physical files with same-directory temp files and atomic replacement. If a normal commit failure happens after a replacement, restore already replaced files from in-memory originals.
